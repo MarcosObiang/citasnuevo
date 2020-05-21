@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "912262965304",
+    "firebase_url": "https://citas-46a84.firebaseio.com",
+    "project_id": "citas-46a84",
+    "storage_bucket": "citas-46a84.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912262965304:android:d56900e27f33762bf81ecd",
+        "android_client_info": {
+          "package_name": "com.example.citasnuevo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
