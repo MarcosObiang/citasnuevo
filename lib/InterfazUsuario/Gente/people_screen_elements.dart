@@ -1374,7 +1374,7 @@ class PantallaConversacionState extends State<PantallaConversacion> {
           if(!primerosMensajesAudioCargados&&mensajesTemporales!=null){
 
             for(int i=0;i<mensajesTemporales.length;i++){
-              if(mensajesTemporales[i].tipoMensaje=="Audio"){
+              if(mensajesTemporales[i].tipoMensaje=="Audio"&&mensajesTemporales[i].duracionMensaje==null){
                 mensajesTemporales[i].obtenerDuracionMensaje();
               }
             }

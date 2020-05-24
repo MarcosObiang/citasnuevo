@@ -51,8 +51,8 @@ class Pantalla_Actividades extends State<pantalla>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Nueva Actividad"),
-            content: Text("¿Desea publicar una nueva actividad?"),
+            title: Text("Nuevo Plan"),
+            content: Text("Selecciona el tipo de plan"),
             actions: <Widget>[
               Row(
                 children: <Widget>[
@@ -78,12 +78,12 @@ class Pantalla_Actividades extends State<pantalla>
                                   return plan_screen();
                                 }));
                       },
-                      child: Text("Si")),
+                      child: Text("Proponer Cita")),
                   FlatButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text("No")),
+                      child: Text("Social")),
                 ],
               )
             ],
@@ -132,6 +132,29 @@ class Pantalla_Actividades extends State<pantalla>
                           ),
                         ),
                         Container(
+                          height: ScreenUtil().setHeight(150),
+                          child: FlatButton(
+                            onPressed: () {
+                              _showActivityDialog();
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  "Crear Plan",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: ScreenUtil().setSp(50)),
+                                ),
+                                Icon(
+                                  Icons.people,
+                                  color: Colors.white,
+                                  size: ScreenUtil().setSp(130),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
                           child: Row(
                             children: <Widget>[
                               Text(
@@ -154,7 +177,6 @@ class Pantalla_Actividades extends State<pantalla>
                   Container(
                     height: ScreenUtil().setHeight(110),
                     decoration: BoxDecoration(
-                     
                       borderRadius: BorderRadius.all(Radius.circular(3)),
                     ),
                     child: getTabBar(),

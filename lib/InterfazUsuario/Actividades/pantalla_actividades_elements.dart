@@ -21,6 +21,8 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'TarjetaEvento.dart';
+import 'package:image_cropper/image_cropper.dart';
+
 import '../../main.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -587,7 +589,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
             leGusta
                 ? Container(
                     height: ScreenUtil().setHeight(2400),
-                    width: ScreenUtil().setWidth(1500),
+                    width: ScreenUtil().setWidth(1400),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(
                         Radius.circular(5),
@@ -710,95 +712,96 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                       ),
                     ))
                 : Container(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  height: ScreenUtil().setHeight(250),
-                  width: ScreenUtil().setWidth(200),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.white,
+            Container(
+              width: ScreenUtil().setWidth(1300),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                    height: ScreenUtil().setHeight(250),
+                    width: ScreenUtil().setWidth(200),
+                    decoration: BoxDecoration(
+                     
+                      shape: BoxShape.circle,
+                      color: Color.fromRGBO(255, 78, 132, 100),
                     ),
-                    shape: BoxShape.circle,
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(8),
-                    onPressed: () {
-                      noLike(Perfiles.perfilesCitas.listaPerfiles[indice]);
-                      Perfiles.perfilesCitas.notifyListeners();
-                    },
-                    child: Icon(
-                      LineAwesomeIcons.times_circle_1,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(250),
-                  width: ScreenUtil().setWidth(200),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white),
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(8),
-                    onPressed: () => {},
-                    child: Icon(
-                      LineAwesomeIcons.star,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(200),
-                  width: ScreenUtil().setWidth(700),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    border: Border.all(color: Colors.white),
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: SliderTheme(
-                    data: SliderThemeData(
-                        trackHeight: ScreenUtil().setHeight(60),
-                        activeTrackColor: Colors.pink,
-                        disabledActiveTrackColor: Colors.pink,
-                        disabledInactiveTrackColor: Colors.pink,
-                        disabledThumbColor: Colors.pink,
-                        valueIndicatorShape: SliderComponentShape.noThumb,
-                        thumbColor: Colors.pink,
-                        thumbShape: RoundSliderThumbShape(
-                          enabledThumbRadius: 20,
-                        ),
-                        overlappingShapeStrokeColor: Colors.pink,
-                        overlayColor: Colors.pink),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Slider(
-                        value: Perfiles
-                            .perfilesCitas.listaPerfiles[indice].valoracion,
-                        onChangeStart: (val) {
-                          print(val);
-                          leGusta = true;
-                          print(leGusta);
-                          Perfiles.perfilesCitas.notifyListeners();
-                        },
-                        onChanged: (valor) {
-                          setState(() {
-                            Perfiles.perfilesCitas.listaPerfiles[indice]
-                                .valoracion = valor;
-                          });
-                        },
-                        min: 5,
-                        max: 10,
+                    child: FlatButton(
+                      padding: EdgeInsets.all(8),
+                      onPressed: () {
+                        noLike(Perfiles.perfilesCitas.listaPerfiles[indice]);
+                        Perfiles.perfilesCitas.notifyListeners();
+                      },
+                      child: Icon(
+                        LineAwesomeIcons.times_circle_1,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                )
-              ],
+                  Container(
+                    height: ScreenUtil().setHeight(250),
+                    width: ScreenUtil().setWidth(200),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                     
+                      color: Color.fromRGBO(255, 78, 132, 100),
+                    ),
+                    child: FlatButton(
+                      padding: EdgeInsets.all(8),
+                      onPressed: () => {},
+                      child: Icon(
+                        LineAwesomeIcons.star,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: ScreenUtil().setHeight(200),
+                    width: ScreenUtil().setWidth(700),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                   
+                      color: Color.fromRGBO(255, 78, 132, 100),
+                    ),
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                          trackHeight: ScreenUtil().setHeight(60),
+                          activeTrackColor: Colors.pink,
+                          disabledActiveTrackColor: Colors.pink,
+                          disabledInactiveTrackColor: Colors.pink,
+                          disabledThumbColor: Colors.pink,
+                          valueIndicatorShape: SliderComponentShape.noThumb,
+                          thumbColor: Colors.pink,
+                          thumbShape: RoundSliderThumbShape(
+                            enabledThumbRadius: 20,
+                          ),
+                          overlappingShapeStrokeColor: Colors.pink,
+                          overlayColor: Colors.pink),
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Slider(
+                          value: Perfiles
+                              .perfilesCitas.listaPerfiles[indice].valoracion,
+                          onChangeStart: (val) {
+                            print(val);
+                            leGusta = true;
+                            print(leGusta);
+                            Perfiles.perfilesCitas.notifyListeners();
+                          },
+                          onChanged: (valor) {
+                            setState(() {
+                              Perfiles.perfilesCitas.listaPerfiles[indice]
+                                  .valoracion = valor;
+                            });
+                          },
+                          min: 5,
+                          max: 10,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ]);
         },
@@ -863,51 +866,54 @@ ItemScrollController mover = new ItemScrollController();
             ),
           
              
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  height: ScreenUtil().setHeight(250),
-                  width: ScreenUtil().setWidth(200),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.white,
+            Container(
+              width: ScreenUtil().setWidth(1300),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                    height: ScreenUtil().setHeight(250),
+                    width: ScreenUtil().setWidth(200),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                       
+                      ),
+                      shape: BoxShape.circle,
+                      color: Color.fromRGBO(255, 78, 132, 100),
                     ),
-                    shape: BoxShape.circle,
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(8),
-                    onPressed: () {
-                      noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
-                      Perfiles.perfilesCitas.notifyListeners();
-                    },
-                    child: Icon(
-                      LineAwesomeIcons.times_circle_1,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(250),
-                  width: ScreenUtil().setWidth(200),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white),
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(8),
-                    onPressed: () => {},
-                    child: Icon(
-                      LineAwesomeIcons.star,
-                      color: Colors.white,
+                    child: FlatButton(
+                      padding: EdgeInsets.all(8),
+                      onPressed: () {
+                        noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
+                        Perfiles.perfilesCitas.notifyListeners();
+                      },
+                      child: Icon(
+                        LineAwesomeIcons.times_circle_1,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
+                  Container(
+                    height: ScreenUtil().setHeight(250),
+                    width: ScreenUtil().setWidth(200),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                  
+                      color: Color.fromRGBO(255, 78, 132, 100),
+                    ),
+                    child: FlatButton(
+                      padding: EdgeInsets.all(8),
+                      onPressed: () => {},
+                      child: Icon(
+                        LineAwesomeIcons.star,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
    
-              ],
+                ],
+              ),
             ),
           ]);
         },
@@ -1261,25 +1267,117 @@ class FotoEventoState extends State<FotoEvento> {
   @override
   File Image_picture;
   File imagen;
+  File imagenFinal;
 
   static List<File> pictures = List(6);
   int box;
   FotoEventoState(this.box, this.imagen) {}
+   void opcionesImagenPerfil() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Añadir Imagen"),
+            content: Text("¿Seleccione la fuente de la imagen?"),
+            actions: <Widget>[
+              Row(
+                children: <Widget>[
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        abrirGaleria(context);
+                      },
+                      child: Row(
+                        children: <Widget>[Text("Galeria"), Icon(Icons.image)],
+                      )),
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        abrirCamara(context);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text("Camara"),
+                          Icon(Icons.camera_enhance)
+                        ],
+                      )),
+                ],
+              )
+            ],
+          );
+        });
+  }
 
-  AbrirGaleria(BuildContext context) async {
-    var image_file = await ImagePicker.pickImage(source: ImageSource.gallery);
-
+  abrirGaleria(BuildContext context) async {
+    var archivoImagen =
+        await ImagePicker.pickImage(source: ImageSource.gallery);
+    File imagenRecortada = await ImageCropper.cropImage(
+        sourcePath: archivoImagen.path,
+        maxHeight: 1280,
+        maxWidth: 720,
+        aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
+        compressQuality: 90,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.ratio16x9,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+   
     this.setState(() {
-      Image_picture = image_file;
-      pictures[box] = Image_picture;
-      Actividad.esteEvento.Images_List = pictures;
+      imagenFinal = imagenRecortada;
+      pictures[box] = imagenFinal;
+     Actividad.esteEvento.Images_List = pictures;
+      print("${archivoImagen.lengthSync()} Tamaño original");
+      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
       print(box);
+      Actividad.esteEvento.notifyListeners();
     });
   }
+
+  abrirCamara(BuildContext context) async {
+    var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
+    File imagenRecortada = await ImageCropper.cropImage(
+        sourcePath: archivoImagen.path,
+
+        // aspectRatio: CropAspectRatio(ratioX: 9,ratioY: 16),
+        maxHeight: 1000,
+        maxWidth: 720,
+        compressQuality: 90,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+    
+
+    this.setState(() {
+      imagenFinal = imagenRecortada;
+      pictures[box] = imagenFinal;
+      Actividad.esteEvento.Images_List=pictures;
+      print("${archivoImagen.lengthSync()} Tamaño original");
+      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+      print(box);
+      Actividad.esteEvento.notifyListeners();
+    });
+  }
+
+ 
+
+
+  
 
   eliminarImagen(BuildContext context) {
     this.setState(() {
       Actividad.esteEvento.Images_List[box] = null;
+      imagenFinal=null;
       print("object");
       if (Actividad.esteEvento.Images_List[box] == null) {
         print("vacio en $box");
@@ -1301,9 +1399,9 @@ class FotoEventoState extends State<FotoEvento> {
         color: Colors.white30,
       ),
       child: FlatButton(
-        onPressed: () => AbrirGaleria(context),
+        onPressed: () => opcionesImagenPerfil(),
         onLongPress: () => eliminarImagen(context),
-        child: imagen == null
+        child: imagenFinal == null
             ? Center(
                 child: Icon(
                   Icons.add_a_photo,
@@ -1312,7 +1410,7 @@ class FotoEventoState extends State<FotoEvento> {
               )
             : Stack(alignment: AlignmentDirectional.center, children: [
                 Image.file(
-                  imagen,
+                  imagenFinal,
                   fit: BoxFit.fill,
                 ),
                 Container(
@@ -1588,4 +1686,22 @@ class BotonGustosState extends State<BotonGustos> {
       ),
     );
   }
+}
+
+class SeleccionarTipoPlan extends StatefulWidget{
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return SeleccionarTipoPlanState();
+  }
+}
+class SeleccionarTipoPlanState extends State<SeleccionarTipoPlan>{
+  @override
+  Widget build(BuildContext context) {
+
+    // TODO: implement build
+    return AlertDialog();
+  }
+
 }
