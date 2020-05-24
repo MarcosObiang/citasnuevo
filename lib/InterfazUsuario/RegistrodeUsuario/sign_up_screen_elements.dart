@@ -628,7 +628,7 @@ class next_button extends StatefulWidget {
 
 class next_button_state extends State<next_button> {
   static ValueNotifier numeroerror = ValueNotifier<int>(null);
-  void SiguientePantalla(BuildContext context, Widget pantalla) {
+  void SiguientePantalla(BuildContext context) {
     Navigator.push(
         context,
         PageRouteBuilder(
@@ -695,7 +695,7 @@ class next_button_state extends State<next_button> {
                   });
                 }
                 if (veremail == 0 && veralias == 0 && valor == 0) {
-                  SiguientePantalla(context, confirm_plan_screen());
+                  SiguientePantalla(context);
                 }
               }
             },

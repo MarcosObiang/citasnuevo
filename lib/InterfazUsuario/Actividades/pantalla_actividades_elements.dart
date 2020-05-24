@@ -29,6 +29,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../../ServidorFirebase/firebase_manager.dart';
 
 class plan_screen extends StatefulWidget {
+  bool masDeUnParticipante;
+  plan_screen(this.masDeUnParticipante);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -147,7 +149,7 @@ class plan_screen_state extends State<plan_screen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       cancel_button(),
-                      next_button(),
+                      next_button(widget.masDeUnParticipante),
                     ],
                   ),
                 ],
@@ -722,7 +724,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                     height: ScreenUtil().setHeight(250),
                     width: ScreenUtil().setWidth(200),
                     decoration: BoxDecoration(
-                     
                       shape: BoxShape.circle,
                       color: Color.fromRGBO(255, 78, 132, 100),
                     ),
@@ -743,7 +744,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                     width: ScreenUtil().setWidth(200),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                     
                       color: Color.fromRGBO(255, 78, 132, 100),
                     ),
                     child: FlatButton(
@@ -760,7 +760,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                     width: ScreenUtil().setWidth(700),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
-                   
                       color: Color.fromRGBO(255, 78, 132, 100),
                     ),
                     child: SliderTheme(
@@ -823,14 +822,14 @@ class PerfilesGenteAmistad extends StatefulWidget {
 }
 
 class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
-ItemScrollController mover = new ItemScrollController();
+  ItemScrollController mover = new ItemScrollController();
 
   double valorSlider = 5;
 
   void soltarBotonLike(DatosPerfiles datos) {
     Valoraciones.Puntuaciones.obtenerValoracion();
     datos.crearDatosValoracion();
-   // mover.next(animation: true);
+    // mover.next(animation: true);
 
     print("Fuera");
   }
@@ -839,85 +838,79 @@ ItemScrollController mover = new ItemScrollController();
   Widget build(BuildContext context) {
     // TODO: implement build
     return ScrollablePositionedList.builder(
-        itemCount: Perfiles.perfilesAmistad.listaPerfiles.length,
-        physics: NeverScrollableScrollPhysics(),
-        itemScrollController: mover,
-        reverse: false,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (BuildContext context, int indice) {
-          void noLike(DatosPerfiles datos) {
-            if (Perfiles.perfilesAmistad.listaPerfiles.length > indice + 1) {
-              print(indice);
-              mover.scrollTo(
-                  index: indice + 1,
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOutCubic);
-              print(indice);
-            }
+      itemCount: Perfiles.perfilesAmistad.listaPerfiles.length,
+      physics: NeverScrollableScrollPhysics(),
+      itemScrollController: mover,
+      reverse: false,
+      scrollDirection: Axis.horizontal,
+      itemBuilder: (BuildContext context, int indice) {
+        void noLike(DatosPerfiles datos) {
+          if (Perfiles.perfilesAmistad.listaPerfiles.length > indice + 1) {
+            print(indice);
+            mover.scrollTo(
+                index: indice + 1,
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOutCubic);
+            print(indice);
           }
+        }
 
-          return Stack(alignment: Alignment.bottomCenter, children: [
-            Container(
-              height: ScreenUtil().setHeight(2400),
-              width: ScreenUtil().setWidth(1400),
-              child: ListView(
-                children: Perfiles.perfilesAmistad.listaPerfiles[indice].carrete,
-              ),
+        return Stack(alignment: Alignment.bottomCenter, children: [
+          Container(
+            height: ScreenUtil().setHeight(2400),
+            width: ScreenUtil().setWidth(1400),
+            child: ListView(
+              children: Perfiles.perfilesAmistad.listaPerfiles[indice].carrete,
             ),
-          
-             
-            Container(
-              width: ScreenUtil().setWidth(1300),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Container(
-                    height: ScreenUtil().setHeight(250),
-                    width: ScreenUtil().setWidth(200),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                       
-                      ),
-                      shape: BoxShape.circle,
-                      color: Color.fromRGBO(255, 78, 132, 100),
-                    ),
-                    child: FlatButton(
-                      padding: EdgeInsets.all(8),
-                      onPressed: () {
-                        noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
-                        Perfiles.perfilesCitas.notifyListeners();
-                      },
-                      child: Icon(
-                        LineAwesomeIcons.times_circle_1,
-                        color: Colors.white,
-                      ),
+          ),
+          Container(
+            width: ScreenUtil().setWidth(1300),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  height: ScreenUtil().setHeight(250),
+                  width: ScreenUtil().setWidth(200),
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    shape: BoxShape.circle,
+                    color: Color.fromRGBO(255, 78, 132, 100),
+                  ),
+                  child: FlatButton(
+                    padding: EdgeInsets.all(8),
+                    onPressed: () {
+                      noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
+                      Perfiles.perfilesCitas.notifyListeners();
+                    },
+                    child: Icon(
+                      LineAwesomeIcons.times_circle_1,
+                      color: Colors.white,
                     ),
                   ),
-                  Container(
-                    height: ScreenUtil().setHeight(250),
-                    width: ScreenUtil().setWidth(200),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                  
-                      color: Color.fromRGBO(255, 78, 132, 100),
-                    ),
-                    child: FlatButton(
-                      padding: EdgeInsets.all(8),
-                      onPressed: () => {},
-                      child: Icon(
-                        LineAwesomeIcons.star,
-                        color: Colors.white,
-                      ),
+                ),
+                Container(
+                  height: ScreenUtil().setHeight(250),
+                  width: ScreenUtil().setWidth(200),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromRGBO(255, 78, 132, 100),
+                  ),
+                  child: FlatButton(
+                    padding: EdgeInsets.all(8),
+                    onPressed: () => {},
+                    child: Icon(
+                      LineAwesomeIcons.star,
+                      color: Colors.white,
                     ),
                   ),
-   
-                ],
-              ),
+                ),
+              ],
             ),
-          ]);
-        },
-      );
+          ),
+        ]);
+      },
+    );
   }
 }
 
@@ -957,6 +950,8 @@ class cancel_button_state extends State<cancel_button> {
 }
 
 class next_button extends StatefulWidget {
+  bool mostrarParticipantes;
+  next_button(this.mostrarParticipantes);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -988,7 +983,7 @@ class next_button_state extends State<next_button> {
                         pageBuilder: (BuildContext context,
                             Animation<double> animation,
                             Animation<double> secAnimation) {
-                          return confirm_plan_screen();
+                          return confirm_plan_screen(widget.mostrarParticipantes);
                         }));
                 ;
               },
@@ -1021,6 +1016,8 @@ class next_button_state extends State<next_button> {
 /// *************************************************************************************************************************************************************
 
 class confirm_plan_screen extends StatefulWidget {
+  bool masDeUnParticipane = true;
+  confirm_plan_screen(this.masDeUnParticipane);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -1229,6 +1226,60 @@ class confirm_plan_screen_state extends State<confirm_plan_screen> {
                         );
                       }),
                     ),
+                    widget.masDeUnParticipane
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height: ScreenUtil().setHeight(500),
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        "Participantes:",
+                                        style: TextStyle(
+                                            fontSize: ScreenUtil().setSp(90)),
+                                      ),
+                                      Container(
+                                        child: Text(
+                                            "${(Actividad.esteEvento.participantesEvento * 10).toInt()}",
+                                            style: TextStyle(
+                                                fontSize:
+                                                    ScreenUtil().setSp(90))),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    height: ScreenUtil().setHeight(100),
+                                  ),
+                                  Material(
+                                    child: Container(
+                                      child: Slider(
+                                          label:
+                                              "${Actividad.esteEvento.participantesEvento}",
+                                          value: Actividad.esteEvento
+                                                  .participantesEvento /
+                                              10,
+                                          min: 0,
+                                          max: 1,
+                                          onChanged: (valor) {
+                                            setState(() {});
+                                            Actividad.esteEvento
+                                                    .participantesEvento =
+                                                valor * 10;
+
+                                            print(Actividad.esteEvento
+                                                .participantesEvento);
+                                          }),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        : Container(),
                     Container(
                       height: ScreenUtil().setHeight(600),
                       child: Row(
@@ -1272,7 +1323,7 @@ class FotoEventoState extends State<FotoEvento> {
   static List<File> pictures = List(6);
   int box;
   FotoEventoState(this.box, this.imagen) {}
-   void opcionesImagenPerfil() {
+  void opcionesImagenPerfil() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1326,11 +1377,11 @@ class FotoEventoState extends State<FotoEvento> {
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
-   
+
     this.setState(() {
       imagenFinal = imagenRecortada;
       pictures[box] = imagenFinal;
-     Actividad.esteEvento.Images_List = pictures;
+      Actividad.esteEvento.Images_List = pictures;
       print("${archivoImagen.lengthSync()} Tamaño original");
       print("${imagenRecortada.lengthSync()} Tamaño Recortado");
       print(box);
@@ -1356,12 +1407,11 @@ class FotoEventoState extends State<FotoEvento> {
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
-    
 
     this.setState(() {
       imagenFinal = imagenRecortada;
       pictures[box] = imagenFinal;
-      Actividad.esteEvento.Images_List=pictures;
+      Actividad.esteEvento.Images_List = pictures;
       print("${archivoImagen.lengthSync()} Tamaño original");
       print("${imagenRecortada.lengthSync()} Tamaño Recortado");
       print(box);
@@ -1369,15 +1419,10 @@ class FotoEventoState extends State<FotoEvento> {
     });
   }
 
- 
-
-
-  
-
   eliminarImagen(BuildContext context) {
     this.setState(() {
       Actividad.esteEvento.Images_List[box] = null;
-      imagenFinal=null;
+      imagenFinal = null;
       print("object");
       if (Actividad.esteEvento.Images_List[box] == null) {
         print("vacio en $box");
@@ -1688,20 +1733,18 @@ class BotonGustosState extends State<BotonGustos> {
   }
 }
 
-class SeleccionarTipoPlan extends StatefulWidget{
-
+class SeleccionarTipoPlan extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
     return SeleccionarTipoPlanState();
   }
 }
-class SeleccionarTipoPlanState extends State<SeleccionarTipoPlan>{
+
+class SeleccionarTipoPlanState extends State<SeleccionarTipoPlan> {
   @override
   Widget build(BuildContext context) {
-
     // TODO: implement build
     return AlertDialog();
   }
-
 }

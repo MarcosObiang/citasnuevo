@@ -5,7 +5,7 @@ import 'package:citasnuevo/ServidorFirebase/firebase_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'Usuario.dart';
-
+import 'package:flutter_video_compress/flutter_video_compress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -34,6 +34,7 @@ class Actividad with ChangeNotifier {
   String imagenUrl4;
   String ImageURL5;
   String ImageURL6;
+  double participantesEvento=0;
   bool _coches = false;
   bool _juegos = false;
   bool _cine = false;

@@ -75,15 +75,33 @@ class Pantalla_Actividades extends State<pantalla>
                                 pageBuilder: (BuildContext context,
                                     Animation<double> animation,
                                     Animation<double> secAnimation) {
-                                  return plan_screen();
+                                  return plan_screen(false);
                                 }));
                       },
-                      child: Text("Proponer Cita")),
+                      child: Text("Individual")),
                   FlatButton(
                       onPressed: () {
                         Navigator.of(context).pop();
+                       Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                                transitionDuration: Duration(milliseconds: 100),
+                                transitionsBuilder: (BuildContext context,
+                                    Animation<double> animation,
+                                    Animation<double> secAnimation,
+                                    Widget child) {
+                                  return ScaleTransition(
+                                      alignment: Alignment.center,
+                                      scale: animation,
+                                      child: child);
+                                },
+                                pageBuilder: (BuildContext context,
+                                    Animation<double> animation,
+                                    Animation<double> secAnimation) {
+                                  return plan_screen(true);
+                                }));
                       },
-                      child: Text("Social")),
+                      child: Text("Grupo")),
                 ],
               )
             ],
