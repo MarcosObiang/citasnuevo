@@ -881,7 +881,7 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
                     padding: EdgeInsets.all(8),
                     onPressed: () {
                       noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
-                      Perfiles.perfilesCitas.notifyListeners();
+                      Perfiles.perfilesAmistad.notifyListeners();
                     },
                     child: Icon(
                       LineAwesomeIcons.times_circle_1,
@@ -959,6 +959,112 @@ class next_button extends StatefulWidget {
   }
 }
 
+class EventosCerca extends StatefulWidget {
+  List<List<Widget>> perfiles = new List();
+  static int posicion;
+  static double valor;
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return EventosCercaState();
+  }
+}
+
+class EventosCercaState extends State<EventosCerca> {
+  ItemScrollController mover = new ItemScrollController();
+
+  double valorSlider = 5;
+
+  void soltarBotonLike(DatosPerfiles datos) {
+    Valoraciones.Puntuaciones.obtenerValoracion();
+    datos.crearDatosValoracion();
+    // mover.next(animation: true);
+
+    print("Fuera");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ScrollablePositionedList.builder(
+      itemCount: Actividad.cacheActividadesParaTi.listaEventos.length,
+      physics: NeverScrollableScrollPhysics(),
+      itemScrollController: mover,
+      reverse: false,
+      scrollDirection: Axis.horizontal,
+      itemBuilder: (BuildContext context, int indice) {
+        void noLike(DatosPerfiles datos) {
+          if (Actividad.cacheActividadesParaTi.listaEventos.length >
+              indice + 1) {
+            print(indice);
+            mover.scrollTo(
+                index: indice + 1,
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOutCubic);
+            print(indice);
+          }
+        }
+
+        return Stack(alignment: Alignment.bottomCenter, children: [
+          Container(
+            height: ScreenUtil().setHeight(2400),
+            width: ScreenUtil().setWidth(1400),
+            child: ListView(
+              children: Actividad.cacheActividadesParaTi.listaEventos[indice].carrete,
+            ),
+          ),
+          Container(
+            width: ScreenUtil().setWidth(1300),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  height: ScreenUtil().setHeight(250),
+                  width: ScreenUtil().setWidth(200),
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    shape: BoxShape.circle,
+                    color: Color.fromRGBO(255, 78, 132, 100),
+                  ),
+                  child: FlatButton(
+                    padding: EdgeInsets.all(8),
+                    onPressed: () {
+                      noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
+                      Perfiles.perfilesCitas.notifyListeners();
+                    },
+                    child: Icon(
+                      LineAwesomeIcons.times_circle_1,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: ScreenUtil().setHeight(250),
+                  width: ScreenUtil().setWidth(200),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromRGBO(255, 78, 132, 100),
+                  ),
+                  child: FlatButton(
+                    padding: EdgeInsets.all(8),
+                    onPressed: () => {},
+                    child: Icon(
+                      LineAwesomeIcons.star,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]);
+      },
+    );
+  }
+}
+
 class next_button_state extends State<next_button> {
   Widget build(BuildContext build) {
     return Padding(
@@ -983,7 +1089,8 @@ class next_button_state extends State<next_button> {
                         pageBuilder: (BuildContext context,
                             Animation<double> animation,
                             Animation<double> secAnimation) {
-                          return confirm_plan_screen(widget.mostrarParticipantes);
+                          return confirm_plan_screen(
+                              widget.mostrarParticipantes);
                         }));
                 ;
               },
@@ -1016,17 +1123,19 @@ class next_button_state extends State<next_button> {
 /// *************************************************************************************************************************************************************
 
 class confirm_plan_screen extends StatefulWidget {
-  bool masDeUnParticipane = true;
+  bool masDeUnParticipane;
   confirm_plan_screen(this.masDeUnParticipane);
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return confirm_plan_screen_state();
+    return confirm_plan_screen_state(masDeUnParticipane);
   }
 }
 
 // ignore: camel_case_types
 class confirm_plan_screen_state extends State<confirm_plan_screen> {
+  confirm_plan_screen_state(this.interuptorMasDeUnParticipante);
   String coche = "Automoviles";
   String videojuegos = "VideoJuegos";
   String cine = "Cine";
@@ -1043,7 +1152,13 @@ class confirm_plan_screen_state extends State<confirm_plan_screen> {
   String vidasocial = "Vida Social";
   String fittnes = "Deporte y Fittness";
   String salud = "Salud";
+  bool interuptorMasDeUnParticipante;
   Widget build(BuildContext context) {
+    if (interuptorMasDeUnParticipante) {
+      Actividad.esteEvento.tipoPlan = "Grupo";
+    } else {
+      Actividad.esteEvento.tipoPlan = "Individual";
+    }
     ScreenUtil.init(context, width: 1440, height: 3120, allowFontScaling: true);
     return ChangeNotifierProvider.value(
       value: Actividad.esteEvento,
@@ -1226,60 +1341,118 @@ class confirm_plan_screen_state extends State<confirm_plan_screen> {
                         );
                       }),
                     ),
-                    widget.masDeUnParticipane
-                        ? Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              height: ScreenUtil().setHeight(500),
-                              child: Column(
+                    AnimatedOpacity(
+                      opacity: interuptorMasDeUnParticipante ? 1 : 0,
+                      duration: Duration(milliseconds: 300),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: ScreenUtil().setHeight(500),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text(
-                                        "Participantes:",
+                                  Text(
+                                    "Participantes:",
+                                    style: TextStyle(
+                                        fontSize: ScreenUtil().setSp(90)),
+                                  ),
+                                  Container(
+                                    child: Text(
+                                        "${(Actividad.esteEvento.participantesEvento * 10).toInt()}",
+                                        style: TextStyle(
+                                            fontSize: ScreenUtil().setSp(90))),
+                                  ),
+                                ],
+                              ),
+                              Divider(
+                                height: ScreenUtil().setHeight(100),
+                              ),
+                              Material(
+                                child: Container(
+                                  child: Slider(
+                                      label:
+                                          "${Actividad.esteEvento.participantesEvento}",
+                                      value: Actividad
+                                              .esteEvento.participantesEvento /
+                                          10,
+                                      min: 0.002,
+                                      max: 0.5,
+                                      onChanged: (valor) {
+                                        setState(() {
+                                          Actividad.esteEvento
+                                              .participantesEvento = valor * 10;
+                                        });
+
+                                        print(
+                                            "${(Actividad.esteEvento.participantesEvento * 10).toInt()}");
+                                      }),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: ScreenUtil().setHeight(500),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Material(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        interuptorMasDeUnParticipante
+                                            ? "Grupo"
+                                            : "Individual",
                                         style: TextStyle(
                                             fontSize: ScreenUtil().setSp(90)),
                                       ),
-                                      Container(
-                                        child: Text(
-                                            "${(Actividad.esteEvento.participantesEvento * 10).toInt()}",
-                                            style: TextStyle(
-                                                fontSize:
-                                                    ScreenUtil().setSp(90))),
-                                      ),
-                                    ],
-                                  ),
-                                  Divider(
-                                    height: ScreenUtil().setHeight(100),
-                                  ),
-                                  Material(
-                                    child: Container(
-                                      child: Slider(
-                                          label:
-                                              "${Actividad.esteEvento.participantesEvento}",
-                                          value: Actividad.esteEvento
-                                                  .participantesEvento /
-                                              10,
-                                          min: 0,
-                                          max: 1,
-                                          onChanged: (valor) {
-                                            setState(() {});
-                                            Actividad.esteEvento
-                                                    .participantesEvento =
-                                                valor * 10;
-
-                                            print(Actividad.esteEvento
-                                                .participantesEvento);
-                                          }),
                                     ),
-                                  )
-                                ],
+                                    Container(
+                                      width: ScreenUtil().setWidth(900),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          interuptorMasDeUnParticipante
+                                              ? "Proponer a los usuarios actividades en grupo a los que les interesen, selecciona la cantidad de participantes y publica"
+                                              : "Un plan con una sola persona,recibiras solicitudes y al aceptar una podreis chatear con tu compañero/a antes de quedar",
+                                          style: TextStyle(
+                                              fontSize: ScreenUtil().setSp(60)),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
-                        : Container(),
+                              Material(
+                                child: Switch(
+                                    value: interuptorMasDeUnParticipante,
+                                    onChanged: (valor) {
+                                      setState(() {
+                                        interuptorMasDeUnParticipante = valor;
+                                        if (interuptorMasDeUnParticipante) {
+                                          Actividad.esteEvento.tipoPlan =
+                                              "Grupo";
+                                        } else {
+                                          Actividad.esteEvento.tipoPlan =
+                                              "Individual";
+                                        }
+                                      });
+                                    }),
+                              )
+                            ]),
+                      ),
+                    ),
                     Container(
                       height: ScreenUtil().setHeight(600),
                       child: Row(

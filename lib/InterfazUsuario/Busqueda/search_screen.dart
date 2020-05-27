@@ -115,7 +115,7 @@ class search_actividades extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ListView(
-        children : Actividad().listaEventos
+      //  children : Actividad().listaEventos
     );
   }
 }

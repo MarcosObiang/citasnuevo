@@ -216,6 +216,7 @@ class BotonAccesoState extends State<BotonAcceso> {
         Usuario.esteUsuario.DatosUsuario = null;
         Usuario.esteUsuario.DatosUsuario = val.data;
         print("Estaba lleno");
+       
       }
       if (Usuario.esteUsuario.DatosUsuario == null) {
         Usuario.esteUsuario.DatosUsuario = val.data;
@@ -225,8 +226,9 @@ class BotonAccesoState extends State<BotonAcceso> {
       Conversacion.obtenerConversaciones();
        Valoraciones.Puntuaciones.obtenerValoracion();
        Conversacion.conversaciones.escucharEstadoConversacion();
-     
       
+     
+        Actividad.cacheActividadesParaTi.ObtenerActividad();
        Conversacion.conversaciones.escucharMensajes();
         print("Estaba vacio");
       }

@@ -243,7 +243,7 @@ class Pantalla_Actividades extends State<pantalla>
       children: <Widget>[
         Citas(),
         Amistad(),
-        Historial(),
+        Populares(),
       ],
       controller: controller,
     );
@@ -258,7 +258,8 @@ class Citas extends StatefulWidget {
   }
 }
 
-class CitasState extends State<Citas> {
+class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin<Citas>{
+  
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -296,6 +297,10 @@ class CitasState extends State<Citas> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
 class Amistad extends StatefulWidget {
@@ -306,7 +311,8 @@ class Amistad extends StatefulWidget {
   }
 }
 
-class AmistadState extends State<Amistad> {
+class AmistadState extends State<Amistad>with AutomaticKeepAliveClientMixin<Amistad> {
+  bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -342,12 +348,23 @@ class AmistadState extends State<Amistad> {
     );
   }
 }
+class Populares extends StatefulWidget{
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return PopularesState();
+  }
+  
+}
 
-class Populares extends StatelessWidget {
+
+
+class PopularesState extends State<Populares> with AutomaticKeepAliveClientMixin<Populares> {
+    bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return ListView(children: Actividad().listaEventos);
+    return EventosCerca();
   }
 }
 
@@ -355,6 +372,6 @@ class Historial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return ListView(children: Actividad().listaEventos);
+//    return ListView(children: Actividad().listaEventos);
   }
 }

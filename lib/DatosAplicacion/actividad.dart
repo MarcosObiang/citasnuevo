@@ -1,8 +1,11 @@
 import 'dart:core';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaEvento.dart';
 import 'package:citasnuevo/ServidorFirebase/firebase_manager.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/screenutil.dart';
 import 'package:intl/intl.dart';
 import 'Usuario.dart';
 import 'package:flutter_video_compress/flutter_video_compress.dart';
@@ -13,7 +16,7 @@ import 'dart:io';
 class Actividad with ChangeNotifier {
   static Actividad esteEvento = new Actividad();
   static Actividad cacheActividadesParaTi = new Actividad();
-  List<TarjetaEvento> listaEventos = new List();
+  List<Actividad> listaEventos = new List();
 
   int contadorPrueba = 0;
   void aumentarContador() {
@@ -22,6 +25,7 @@ class Actividad with ChangeNotifier {
   }
 
   String nombreEvento;
+  List<Widget> carrete = new List();
   String ubicacionEvento;
   DateTime fechaEvento;
   String comentariosEvento;
@@ -34,7 +38,8 @@ class Actividad with ChangeNotifier {
   String imagenUrl4;
   String ImageURL5;
   String ImageURL6;
-  double participantesEvento=0;
+  double participantesEvento = 0.2;
+  String tipoPlan;
   bool _coches = false;
   bool _juegos = false;
   bool _cine = false;
@@ -98,6 +103,9 @@ class Actividad with ChangeNotifier {
 
   void CrearPlan() {
     assert(gustos != null);
+    if (esteEvento.tipoPlan == "Individual") {
+      esteEvento.participantesEvento = 1;
+    }
     EstablecerGustos();
     plan["Nombre"] = esteEvento.nombreEvento;
     plan["Lugar"] = esteEvento.ubicacionEvento;
@@ -110,8 +118,11 @@ class Actividad with ChangeNotifier {
     plan["Image4"] = esteEvento.imagenUrl4;
     plan["Image5"] = esteEvento.ImageURL5;
     plan["Image6"] = esteEvento.ImageURL6;
-    plan["Creador Plan"] = FirebaseManager.UID;
+    plan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
     plan["Gustos"] = esteEvento.gustos;
+    plan["Cantidad Participantes"] = esteEvento.participantesEvento * 20;
+    plan["Plazas Disponibles"] = esteEvento.participantesEvento * 20;
+    plan["Tipo Plan"] = esteEvento.tipoPlan;
     CopiaPlan["Fecha"] = esteEvento.fechaEvento;
     CopiaPlan["Codigo Plan"] = esteEvento.codigoEvento;
     CopiaPlan["Creador Plan"] = FirebaseManager.UID;
@@ -414,27 +425,18 @@ class Actividad with ChangeNotifier {
     List<DocumentSnapshot> EventosUsuario = new List();
     List<String> Gustos = new List();
     QuerySnapshot Temp;
-    GustosUsuario = Usuario.esteUsuario.DatosUsuario["Gustos"];
-    GustosUsuario.forEach((Clave, Valor) {
-      if (Valor == true) {
-        Gustos.add(Clave);
-      }
-    });
 
-    for (int i = 0; i < Gustos.length; i++) {
-      Temp = await databaseReference
-          .collection("actividades")
-          .where("Gustos.${Gustos[i]}", isEqualTo: true)
-          .getDocuments();
-      EventosUsuarioTemp.addAll(Temp.documents);
-      // print(EventosUsuarioTemp[i].data["Codigo Plan"]+":    $i de  ${Gustos.length}");
+    Temp = await databaseReference.collection("actividades").getDocuments();
+    EventosUsuarioTemp.addAll(Temp.documents);
+    if (EventosUsuarioTemp.length != 0) {
+      print(EventosUsuarioTemp[0].data["Codigo Plan"] +
+          ":     de  ${Gustos.length}");
     }
 
-    EventosUsuario = await _QuitarDuplicados(EventosUsuarioTemp);
     for (int i = 0; i < EventosUsuario.length; i++) {
       print(EventosUsuario[i].data["Codigo Plan"] + "     $i");
     }
-    ActualizarEventos(EventosUsuario);
+    ActualizarEventos(EventosUsuarioTemp);
     return EventosUsuario;
   }
 
@@ -472,12 +474,19 @@ class Actividad with ChangeNotifier {
   }
 
   void ActualizarEventos(List<DocumentSnapshot> lista) {
+    print("CarreteCreado****************************************************************************************************++++++");
     TarjetaEvento tarjeta;
     Timestamp tiempo;
     DateTime tiempoTransformado;
+   
+    
     final f = new DateFormat('dd-MM-yyyy HH:mm');
-
+  print(
+            "${lista.length}***********************************************++++++");
     for (int i = 0; i < lista.length; i++) {
+      Actividad nueva=new Actividad();
+      List<Widget> carreteEnLista=new List();
+       creadorImagenesEvento carreteCreado;
       String ImagenURL1 = lista[i].data["Image1"];
       String ImagenURL2 = lista[i].data["Image2"];
       String ImagenURL3 = lista[i].data["Image3"];
@@ -493,17 +502,173 @@ class Actividad with ChangeNotifier {
         ImagenURL5,
         ImagenURL6
       ];
-      tiempo = lista[i].data["Fecha"];
-      tiempoTransformado = tiempo.toDate();
+       print(
+            "${Imagenes.length}***********************************************++++++");
+      for (int a = 0; a < Imagenes.length; a++) {
+       
+        if (Imagenes[a] != null) {
+          // print("CarreteCreado****************************************************************************************************++++++");
+          carreteCreado = new creadorImagenesEvento(
+            Imagenes[a],
+            nombre: lista[i].data["Nombre"],
+            alias: lista[i].data["Lugar"],
+            edad: "30",
+            nombreEnFoto: true,
+          );
+          carreteEnLista=List.from(carreteEnLista)..add(carreteCreado);
+        }
+      }
 
-      tarjeta = new TarjetaEvento(lista[i].data["Nombre"],
-          lista[i].data["Lugar"], f.format(tiempoTransformado), Imagenes);
-      listaEventos = List.from(listaEventos)..add(tarjeta);
+      nueva.carrete = carreteEnLista;
+
+      listaEventos = List.from(listaEventos)..add(nueva);
     }
 
     if (listaEventos.length != 0) {
       notifyListeners();
       print(listaEventos.length);
     }
+  }
+}
+
+class creadorImagenesEvento extends StatefulWidget {
+  String urlImagen;
+  String nombre;
+  String alias;
+  String edad;
+  String pieFoto;
+  bool nombreEnFoto;
+  Image laimagen;
+  bool imagenCargada = false;
+
+  creadorImagenesEvento(this.urlImagen,
+      {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
+    //cargarImagen();
+  }
+
+  @override
+  creadorImagenesEventoState createState() => creadorImagenesEventoState();
+}
+
+class creadorImagenesEventoState extends State<creadorImagenesEvento> {
+  Uint8List bitsImagen;
+  initState() {
+    super.initState();
+    widget.laimagen = Image.network(widget.urlImagen);
+  }
+
+  void didChangeDependencies() {
+    precacheImage(widget.laimagen.image, context);
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  child: Stack(
+                    alignment: AlignmentDirectional.bottomStart,
+                    children: <Widget>[
+                      widget.laimagen,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10, bottom: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            widget.nombreEnFoto
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(1.5)),
+                                        color: Color.fromRGBO(0, 0, 0, 100)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Text(widget.nombre,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize:
+                                                  ScreenUtil().setSp(60))),
+                                    ),
+                                  )
+                                : Container(),
+                            widget.nombreEnFoto
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(1.5)),
+                                        color: Color.fromRGBO(0, 0, 0, 100)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.5),
+                                      child: Text("@${widget.alias}",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize:
+                                                  ScreenUtil().setSp(60))),
+                                    ),
+                                  )
+                                : Container(),
+                            widget.nombreEnFoto
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(1.5)),
+                                        color: Color.fromRGBO(0, 0, 0, 100)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.5),
+                                      child: Text("A 8 Km de ti",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize:
+                                                  ScreenUtil().setSp(60))),
+                                    ),
+                                  )
+                                : Container(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )),
+              Container(
+                child: widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
+              )
+            ],
+          ),
+        ));
+  }
+}
+
+class BloqueDescripcion1 extends StatelessWidget {
+  String descripcionPerfil;
+
+  BloqueDescripcion1(this.descripcionPerfil) {
+    if (descripcionPerfil == null) {
+      descripcionPerfil = "";
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Container(
+      height: ScreenUtil().setHeight(550),
+      decoration: BoxDecoration(
+        color: Color.fromRGBO(69, 76, 80, 90),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Text(
+          descripcionPerfil,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
   }
 }

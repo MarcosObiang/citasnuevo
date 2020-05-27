@@ -600,7 +600,7 @@ class _creadorImagenPerfilState extends State<creadorImagenPerfil> {
                     alignment: AlignmentDirectional.bottomStart,
                     children: <Widget>[
                       
-                       widget.laimagen,
+                      CachedNetworkImage(imageUrl: widget.urlImagen),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 10),
                         child: Column(
@@ -715,7 +715,8 @@ class _creadorImagenPerfilAmistadState extends State<creadorImagenPerfilAmistad>
                     alignment: AlignmentDirectional.bottomStart,
                     children: <Widget>[
                       
-                       widget.laimagen,
+                     
+                       CachedNetworkImage(imageUrl: widget.urlImagen),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 10),
                         child: Column(
