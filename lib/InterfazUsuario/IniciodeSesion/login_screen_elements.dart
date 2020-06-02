@@ -228,7 +228,7 @@ class BotonAccesoState extends State<BotonAcceso> {
        Conversacion.conversaciones.escucharEstadoConversacion();
       
      
-        Actividad.cacheActividadesParaTi.ObtenerActividad();
+        Actividad.cargarEventos();
        Conversacion.conversaciones.escucharMensajes();
         print("Estaba vacio");
       }

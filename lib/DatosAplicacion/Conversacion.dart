@@ -177,6 +177,9 @@ class Solicitud {
   }
 }
 
+
+
+
 class Conversacion extends ChangeNotifier {
   String idConversacion;
   List<String> estadosEscribiendoConversacion = [
@@ -284,7 +287,8 @@ init(){
       for (int a = 0; a < datos.documents.length; a++) {
         print("${datos.documents.length} total de conversaciones");
         TituloChat chatVentana = new TituloChat(
-          idConversacion: null,
+          conversacion: null,
+          idConversacion: datos.documents[a].data["IdConversacion"],
           estadoConversacion: " ",
           listadeMensajes: null,
           nombre: datos.documents[a].data["Nombre Remitente"],
@@ -292,6 +296,7 @@ init(){
           idRemitente: datos.documents[a].data["IdRemitente"],
           mensajeId: datos.documents[a].data["IdMensajes"],
         );
+        
         Conversacion nueva = new Conversacion(
             idConversacion: datos.documents[a].data["IdConversacion"],
             nombreRemitente: datos.documents[a].data["Nombre Remitente"],
@@ -299,9 +304,12 @@ init(){
             idMensajes: datos.documents[a].data["IdMensajes"],
             imagenRemitente: datos.documents[a].data["Imagen Remitente"],
             ventanaChat: chatVentana);
+            
         print("${nueva.idRemitente}este es mi compañero");
         nueva.ventanaChat.idConversacion = nueva.idConversacion;
-       nueva.ventanaChat.listadeMensajes = await obtenerMensajes(nueva);
+       
+       
+     //  nueva.ventanaChat.listadeMensajes = await obtenerMensajes(nueva);
         
 
         print(
@@ -315,114 +323,7 @@ init(){
     });
   }
 
- static  Future<List<Mensajes>> obtenerMensajes(Conversacion conversacion) async {
-    List<Mensajes> temp = new List();
-    String identificadorMensajes = conversacion.idMensajes;
-    String rutaRemitente = conversacion.idRemitente;
-    await baseDatosRef
-        .collection("usuarios")
-        .document(rutaRemitente)
-        .collection("mensajes")
-        .where("idMensaje", isEqualTo: identificadorMensajes)
-        .getDocuments()
-        .then((dato) async {
-      print("${dato.documents.length} mensajes para el en firebase");
-      print(rutaRemitente);
-      print(identificadorMensajes);
-      for (int a = 0; a < dato.documents.length; a++) {
-        print(dato.documents[a].data["Tipo Mensaje"]);
-        if (dato.documents[a].data["Tipo Mensaje"] == "Texto" ||
-            dato.documents[a].data["Tipo Mensaje"] == "Imagen") {
-          Mensajes mensaje = new Mensajes(
-            idEmisor: dato.documents[a].data["idEmisor"],
-            mensaje: dato.documents[a].data["Mensaje"],
-            idMensaje: dato.documents[a].data["idMensaje"],
-            horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
-            tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
-          );
-          temp = List.from(temp)..add(mensaje);
-        }
-        if (dato.documents[a].data["Tipo Mensaje"] == "Audio") {
-          Mensajes mensaje = new Mensajes.Audio(
-            idEmisor: dato.documents[a].data["idEmisor"],
-            mensaje: dato.documents[a].data["Mensaje"],
-            idMensaje: dato.documents[a].data["idMensaje"],
-            horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
-            tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
-          );
-
-          temp = List.from(temp)..add(mensaje);
-        }
-      }
-    }).then((val) async {
-      await baseDatosRef
-          .collection("usuarios")
-          .document(Usuario.esteUsuario.idUsuario)
-          .collection("mensajes")
-          .where("idMensaje", isEqualTo: identificadorMensajes)
-          .getDocuments(source: Source.serverAndCache)
-          .then((dato) async {
-        for (int a = 0; a < dato.documents.length; a++) {
-          if (dato.documents[a].data["Tipo Mensaje"] == "Texto" ||
-              dato.documents[a].data["Tipo Mensaje"] == "Imagen") {
-            Mensajes mensaje = new Mensajes(
-              idEmisor: dato.documents[a].data["idEmisor"],
-              mensaje: dato.documents[a].data["Mensaje"],
-              idMensaje: dato.documents[a].data["idMensaje"],
-              horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
-              tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
-            );
-
-            temp = List.from(temp)..add(mensaje);
-          }
-          if (dato.documents[a].data["Tipo Mensaje"] == "Audio") {
-            Mensajes mensaje = new Mensajes.Audio(
-              idEmisor: dato.documents[a].data["idEmisor"],
-              mensaje: dato.documents[a].data["Mensaje"],
-              idMensaje: dato.documents[a].data["idMensaje"],
-              horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
-              tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
-            );
-
-            temp = List.from(temp)..add(mensaje);
-          }
-        }
-      });
-    });
-    temp = await insertarHoras(temp);
-    return temp;
-  }
-
- static List<Mensajes> insertarHoras(List<Mensajes> datos) {
-    List<Mensajes> lista = datos;
-    if (lista != null) {
-      print("ordenado");
-      lista.sort((b, c) => b.horaMensaje.compareTo(c.horaMensaje));
-    }
-
-    DateTime cacheTiempo = lista[0].horaMensaje;
-    int cacheDia = lista[0].horaMensaje.day;
-    Mensajes horaSeparador;
-
-    horaSeparador = Mensajes.separadorHora(
-      horaMensaje: cacheTiempo,
-      idEmisor: lista[0].idEmisor,
-    );
-    lista.insert(0, horaSeparador);
-    for (int i = 0; i < lista.length; i++) {
-      if (cacheDia != lista[i].horaMensaje.day) {
-        horaSeparador = Mensajes.separadorHora(
-          horaMensaje: lista[i].horaMensaje,
-          idEmisor: lista[i].idEmisor,
-        );
-
-        cacheTiempo = lista[i].horaMensaje;
-        cacheDia = lista[i].horaMensaje.day;
-        lista.insert(i, horaSeparador);
-      }
-    }
-    return lista;
-  }
+ 
 
   Conversacion(
       {@required this.idConversacion,

@@ -137,18 +137,7 @@ class Pantalla_Actividades extends State<pantalla>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Container(
-                          height: ScreenUtil().setHeight(150),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.face,
-                                color: Colors.white,
-                                size: ScreenUtil().setSp(130),
-                              ),
-                            ],
-                          ),
-                        ),
+                   
                         Container(
                           height: ScreenUtil().setHeight(150),
                           child: FlatButton(
@@ -157,17 +146,18 @@ class Pantalla_Actividades extends State<pantalla>
                             },
                             child: Row(
                               children: <Widget>[
+                                 Icon(
+                                  Icons.people,
+                                  color: Colors.white,
+                                  size: ScreenUtil().setSp(130),
+                                ),
                                 Text(
                                   "Crear Plan",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: ScreenUtil().setSp(50)),
                                 ),
-                                Icon(
-                                  Icons.people,
-                                  color: Colors.white,
-                                  size: ScreenUtil().setSp(130),
-                                ),
+                               
                               ],
                             ),
                           ),

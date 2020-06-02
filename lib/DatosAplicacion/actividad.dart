@@ -1,21 +1,102 @@
 import 'dart:core';
+import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaEvento.dart';
-import 'package:citasnuevo/ServidorFirebase/firebase_manager.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
-import 'package:intl/intl.dart';
-import 'Usuario.dart';
 import 'package:flutter_video_compress/flutter_video_compress.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+
+import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaEvento.dart';
+import 'package:citasnuevo/ServidorFirebase/firebase_manager.dart';
+
+import 'Usuario.dart';
+
+Future<List<Map<String, Object>>> ActualizarEventos(
+    List<DocumentSnapshot> lista) async {
+  TarjetaEvento tarjeta;
+  Timestamp tiempo;
+  DateTime tiempoTransformado;
+  List<Map<String, dynamic>> eventosLista = new List();
+  final dia = new DateFormat("yMMMMEEEEd");
+  final f = new DateFormat('dd-MM-yyyy HH:mm');
+  print("${lista.length}***********************************************++++++");
+  for (int i = 0; i < lista.length; i++) {
+    bool etiquetaPlan = false;
+    Map<String, Object> eventoUnico = Map();
+
+    List<Widget> carreteEnLista = new List();
+    creadorImagenesEvento carreteCreado;
+    eventoUnico["participantes"] = lista[i].data["Cantidad Participantes"];
+    eventoUnico["comentarios"] = lista[i].data["Comentarios"];
+    eventoUnico["fechaEvento"] = lista[i].data["Fecha"].toDate();
+    eventoUnico["lugar"] = lista[i].data["Lugar"];
+    eventoUnico["plazasDisponibles"] = lista[i].data["Plazas Disponibles"];
+    eventoUnico["creadorEvento"] = lista[i].data["Creador Plan"];
+    eventoUnico["codigoEvento"] = lista[i].data["Codigo Plan"];
+    String ImagenURL1 = lista[i].data["Image1"];
+    String ImagenURL2 = lista[i].data["Image2"];
+    String ImagenURL3 = lista[i].data["Image3"];
+    String ImagenURL4 = lista[i].data["Image4"];
+    String ImagenURL5 = lista[i].data["Image5"];
+    String ImagenURL6 = lista[i].data["Image6"];
+    List<String> Imagenes;
+    Imagenes = [
+      ImagenURL1,
+      ImagenURL2,
+      ImagenURL3,
+      ImagenURL4,
+      ImagenURL5,
+      ImagenURL6
+    ];
+
+    for (int a = 0; a < Imagenes.length; a++) {
+      if (Imagenes[a] != null) {
+        // print("CarreteCreado****************************************************************************************************++++++");
+        if (a == 0) {
+          etiquetaPlan = true;
+        } else {
+          etiquetaPlan = false;
+        }
+        carreteCreado = new creadorImagenesEvento(
+          Imagenes[a],
+          nombre: lista[i].data["Nombre"],
+          alias: lista[i].data["Lugar"],
+          fechaEvento: dia.format(((lista[i].data["Fecha"]).toDate())),
+          plazasDisponibles: lista[i].data["Plazas Disponibles"],
+          plazasTotales: lista[i].data["Cantidad Participantes"],
+          edad: "30",
+          nombreEnFoto: etiquetaPlan,
+          datosPlanPuestos: etiquetaPlan,
+        );
+
+        carreteEnLista = List.from(carreteEnLista)..add(carreteCreado);
+      }
+    }
+
+    eventoUnico["carrete"] = carreteEnLista;
+    eventosLista = List.from(eventosLista)..add(eventoUnico);
+  }
+
+  // listaTemporal.add(cache);
+  //listaTemporal["Actividad"].principal=cache;
+  // listaTemporal.add(10);
+
+  return eventosLista;
+}
 
 class Actividad with ChangeNotifier {
-  static Actividad esteEvento = new Actividad();
-  static Actividad cacheActividadesParaTi = new Actividad();
+  static Actividad esteEvento;
+  static Actividad cacheActividadesParaTi;
   List<Actividad> listaEventos = new List();
 
   int contadorPrueba = 0;
@@ -26,6 +107,7 @@ class Actividad with ChangeNotifier {
 
   String nombreEvento;
   List<Widget> carrete = new List();
+  String creadorEvento;
   String ubicacionEvento;
   DateTime fechaEvento;
   String comentariosEvento;
@@ -40,23 +122,24 @@ class Actividad with ChangeNotifier {
   String ImageURL6;
   double participantesEvento = 0.2;
   String tipoPlan;
-  bool _coches = false;
-  bool _juegos = false;
-  bool _cine = false;
-  bool _manualidades = false;
-  bool _comida = false;
-  bool _moda = false;
-  bool _animales = false;
-  bool _musica = false;
-  bool _naturaleza = false;
-  bool _ciencia = false;
-  bool _politica = false;
-  bool _viajes = false;
-  bool _fiesta = false;
-  bool _salud = false;
-  bool _vida_social = false;
-  bool _deportes = false;
-  final databaseReference = Firestore.instance;
+  Actividad();
+  Actividad.externa({
+    this.nombreEvento,
+    this.creadorEvento,
+    this.ubicacionEvento,
+    this.fechaEvento,
+    this.comentariosEvento,
+    this.codigoEvento,
+    this.imagenUrl1,
+    this.imagenUrl2,
+    this.imagenUrl3,
+    this.imagenUrl4,
+    this.ImageURL5,
+    this.ImageURL6,
+    this.participantesEvento,
+    this.tipoPlan,
+  });
+
   List<File> _Images_List = new List(6);
   List<Actividad> _EventosUsuario = new List(10);
 
@@ -77,25 +160,6 @@ class Actividad with ChangeNotifier {
   Map<String, dynamic> plan = Map();
   Map<String, dynamic> CopiaPlan = Map();
   Map<String, Object> gustos = Map();
-  void EstablecerGustos() {
-    assert(gustos != null);
-    gustos["Automoviles"] = esteEvento.coches;
-    gustos["Videojuegos"] = esteEvento.juegos;
-    gustos["Cine"] = esteEvento.cine;
-    gustos["Manualidades y Bricolaje"] = esteEvento.manualidades;
-    gustos["Comida"] = esteEvento.comida;
-    gustos["Moda y Belleza"] = esteEvento.moda;
-    gustos["Animales"] = esteEvento.animales;
-    gustos["Musica"] = esteEvento.musica;
-    gustos["Naturaleza"] = esteEvento.naturaleza;
-    gustos["Ciencia y Tecnologias"] = esteEvento.ciencia;
-    gustos["Politica y Sociedad"] = esteEvento.politica;
-    gustos["Viajes y Turismo"] = esteEvento.viajes;
-    gustos["Fiesta"] = esteEvento.fiesta;
-    gustos["Salud"] = esteEvento.salud;
-    gustos["Vida Social"] = esteEvento.vida_social;
-    gustos["Fitness y Deporte"] = esteEvento.deportes;
-  }
 
   String getCodigo() {
     return codigoEvento;
@@ -106,7 +170,7 @@ class Actividad with ChangeNotifier {
     if (esteEvento.tipoPlan == "Individual") {
       esteEvento.participantesEvento = 1;
     }
-    EstablecerGustos();
+
     plan["Nombre"] = esteEvento.nombreEvento;
     plan["Lugar"] = esteEvento.ubicacionEvento;
     plan["Fecha"] = esteEvento.fechaEvento;
@@ -125,7 +189,7 @@ class Actividad with ChangeNotifier {
     plan["Tipo Plan"] = esteEvento.tipoPlan;
     CopiaPlan["Fecha"] = esteEvento.fechaEvento;
     CopiaPlan["Codigo Plan"] = esteEvento.codigoEvento;
-    CopiaPlan["Creador Plan"] = FirebaseManager.UID;
+    CopiaPlan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
 
     //  print(plan);
   }
@@ -214,6 +278,7 @@ class Actividad with ChangeNotifier {
   }
 
   void Upload_Image() async {
+    final databaseReference = Firestore.instance;
     String v = esteEvento.crearCodigo();
     final Codigo = v;
     esteEvento.codigoEvento = v;
@@ -222,7 +287,7 @@ class Actividad with ChangeNotifier {
     StorageReference reference = storage.ref();
     if (Images_List[0] != null) {
       String Image1 =
-          "${FirebaseManager.UID}/Planes/${Codigo}/imagenes/Image1.jpg";
+          "${Usuario.esteUsuario.idUsuario}/Planes/${esteEvento.codigoEvento}/imagenes/Image1.jpg";
       StorageReference ImagesReference = reference.child(Image1);
       StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[0]);
 
@@ -233,7 +298,7 @@ class Actividad with ChangeNotifier {
 
     if (Images_List[1] != null) {
       String Image2 =
-          "${FirebaseManager.UID}/Planes/${esteEvento.codigoEvento}/imagenes/Image2.jpg";
+          "${Usuario.esteUsuario.idUsuario}/Planes/${esteEvento.codigoEvento}/imagenes/Image2.jpg";
       StorageReference ImagesReference = reference.child(Image2);
       StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[1]);
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
@@ -242,7 +307,7 @@ class Actividad with ChangeNotifier {
     }
     if (Images_List[2] != null) {
       String Image3 =
-          "${FirebaseManager.UID}/Planes/${esteEvento.codigoEvento}/imagenes/Image3.jpg";
+          "${Usuario.esteUsuario.idUsuario}/Planes/${esteEvento.codigoEvento}/imagenes/Image3.jpg";
       StorageReference ImagesReference = reference.child(Image3);
       StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[2]);
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
@@ -251,7 +316,7 @@ class Actividad with ChangeNotifier {
     }
     if (Images_List[3] != null) {
       String Image4 =
-          "${FirebaseManager.UID}/Planes/${esteEvento.codigoEvento}/imagenes/Image4.jpg";
+          "${Usuario.esteUsuario.idUsuario}/Planes/${esteEvento.codigoEvento}/imagenes/Image4.jpg";
       StorageReference ImagesReference = reference.child(Image4);
       StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[3]);
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
@@ -260,7 +325,7 @@ class Actividad with ChangeNotifier {
     }
     if (Images_List[4] != null) {
       String Image5 =
-          "${FirebaseManager.UID}/Planes/${esteEvento.codigoEvento}/imagenes/Image5.jpg";
+          "${Usuario.esteUsuario.idUsuario}/Planes/${esteEvento.codigoEvento}/imagenes/Image5.jpg";
       StorageReference ImagesReference = reference.child(Image5);
       StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[4]);
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
@@ -269,7 +334,7 @@ class Actividad with ChangeNotifier {
     }
     if (Images_List[5] != null) {
       String Image6 =
-          "${FirebaseManager.UID}/Planes/${esteEvento.codigoEvento}/imagenes/Image6.jpg";
+          "${Usuario.esteUsuario.idUsuario}/Planes/${esteEvento.codigoEvento}/imagenes/Image6.jpg";
       StorageReference ImagesReference = reference.child(Image6);
       StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[5]);
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
@@ -289,7 +354,7 @@ class Actividad with ChangeNotifier {
         .whenComplete(() {
       databaseReference
           .collection("usuarios")
-          .document(FirebaseManager.UID)
+          .document(Usuario.esteUsuario.idUsuario)
           .collection("Planes usuario")
           .document("${esteEvento.codigoEvento}")
           .setData(esteEvento.GetCopiaPlan());
@@ -306,119 +371,40 @@ class Actividad with ChangeNotifier {
     _horaEvento = value;
   }
 
-  bool get juegos => _juegos;
+  void enviarSolicitudEvento() {
+    String imagenSolicitante;
+    int imagenIndice = 1;
+    for (int i = 0; i < 5; i++) {
+      String nombreImagen = "IMAGENPERFIL$imagenIndice";
+      Map mapaProvisional = Usuario.esteUsuario.DatosUsuario[nombreImagen];
+      if (mapaProvisional["Imagen"] != null) {
+        imagenSolicitante = mapaProvisional["Imagen"];
+        i = 5;
+      } else {
+        imagenIndice += 1;
+      }
+    }
+    Firestore baseDatos = Firestore.instance;
+    Map<String, dynamic> datosSolicitud = new Map();
+    datosSolicitud["ID Solicitante"] = Usuario.esteUsuario.idUsuario;
+    datosSolicitud["Nombre Solicitante"] =
+        Usuario.esteUsuario.DatosUsuario["Nombre"];
+    datosSolicitud["Imagen Solicitante"] = imagenSolicitante;
+    datosSolicitud["Hora Solicitud"] = DateTime.now();
+    datosSolicitud["Plan de Interes"] = this.codigoEvento;
+    datosSolicitud["Fecha Evento"] = this.fechaEvento;
+    datosSolicitud["Lugar Evento"] = this.ubicacionEvento;
 
-  set juegos(bool value) {
-    _juegos = value;
-    notifyListeners();
+    baseDatos
+        .collection("usuarios")
+        .document(this.creadorEvento)
+        .collection("solicitudes actividad")
+        .document()
+        .setData(datosSolicitud);
   }
 
-  bool get coches => _coches;
-
-  set coches(bool value) {
-    _coches = value;
-    notifyListeners();
-  }
-
-  bool get cine => _cine;
-
-  set cine(bool value) {
-    _cine = value;
-    notifyListeners();
-  }
-
-  bool get manualidades => _manualidades;
-
-  set manualidades(bool value) {
-    _manualidades = value;
-    notifyListeners();
-  }
-
-  bool get comida => _comida;
-
-  set comida(bool value) {
-    _comida = value;
-    notifyListeners();
-  }
-
-  bool get moda => _moda;
-
-  set moda(bool value) {
-    _moda = value;
-    notifyListeners();
-  }
-
-  bool get animales => _animales;
-
-  set animales(bool value) {
-    _animales = value;
-    notifyListeners();
-  }
-
-  bool get musica => _musica;
-
-  set musica(bool value) {
-    _musica = value;
-    notifyListeners();
-  }
-
-  bool get naturaleza => _naturaleza;
-
-  set naturaleza(bool value) {
-    _naturaleza = value;
-    notifyListeners();
-  }
-
-  bool get ciencia => _ciencia;
-
-  set ciencia(bool value) {
-    _ciencia = value;
-    notifyListeners();
-  }
-
-  bool get politica => _politica;
-
-  set politica(bool value) {
-    _politica = value;
-    notifyListeners();
-  }
-
-  bool get viajes => _viajes;
-
-  set viajes(bool value) {
-    _viajes = value;
-    notifyListeners();
-  }
-
-  bool get fiesta => _fiesta;
-
-  set fiesta(bool value) {
-    _fiesta = value;
-    notifyListeners();
-  }
-
-  bool get salud => _salud;
-
-  set salud(bool value) {
-    _salud = value;
-    notifyListeners();
-  }
-
-  bool get vida_social => _vida_social;
-
-  set vida_social(bool value) {
-    _vida_social = value;
-    notifyListeners();
-  }
-
-  bool get deportes => _deportes;
-
-  set deportes(bool value) {
-    _deportes = value;
-    notifyListeners();
-  }
-
-  Future<List<DocumentSnapshot>> ObtenerActividad() async {
+  static Future<List<DocumentSnapshot>> ObtenerActividad() async {
+    final databaseReference = Firestore.instance;
     Map GustosUsuario;
     String preferencia;
     List<DocumentSnapshot> EventosUsuarioTemp = new List();
@@ -436,8 +422,92 @@ class Actividad with ChangeNotifier {
     for (int i = 0; i < EventosUsuario.length; i++) {
       print(EventosUsuario[i].data["Codigo Plan"] + "     $i");
     }
-    ActualizarEventos(EventosUsuarioTemp);
-    return EventosUsuario;
+    //ActualizarEventos(EventosUsuarioTemp);
+    return EventosUsuarioTemp;
+  }
+
+  static Future<List<DocumentSnapshot>> ObtenerSolicitudes() async {
+    final databaseReference = Firestore.instance;
+    Map GustosUsuario;
+    String preferencia;
+    List<DocumentSnapshot> EventosUsuarioTemp = new List();
+    List<DocumentSnapshot> EventosUsuario = new List();
+    List<String> Gustos = new List();
+    QuerySnapshot Temp;
+
+    Temp = await databaseReference
+        .collection("usuarios")
+        .document(Usuario.esteUsuario.idUsuario)
+        .collection("solicitudes actividad")
+        .limit(10)
+        .getDocuments();
+    EventosUsuarioTemp.addAll(Temp.documents);
+    if (EventosUsuarioTemp.length != 0) {
+      print(EventosUsuarioTemp[0].data["Codigo Plan"] +
+          ":     de  ${Gustos.length}");
+    }
+
+    //ActualizarEventos(EventosUsuarioTemp);
+    return EventosUsuarioTemp;
+  }
+
+  static void cargarEventos() async {
+    cargarIsolateEventos();
+  }
+
+  static Future cargarIsolateEventos() async {
+    ReceivePort puertoRecepcion = ReceivePort();
+    List<Map<String, dynamic>> cache = new List();
+
+    WidgetsFlutterBinding.ensureInitialized();
+    List<DocumentSnapshot> listaProvisional = await ObtenerActividad();
+    Isolate proceso = await Isolate.spawn(
+        isolateEventos, puertoRecepcion.sendPort,
+        debugName: "isolateEventos");
+    SendPort puertoEnvio = await puertoRecepcion.first;
+    cache = await enviarRecibirEventos(puertoEnvio, listaProvisional);
+    if (cache == null) {
+      print(
+          "cache contiene algo********************************************************************************************************************************************");
+    }
+    cacheActividadesParaTi = new Actividad();
+    for (int i = 0; i < cache.length; i++) {
+      Actividad temp = new Actividad();
+      temp.codigoEvento = cache[i]["codigoEvento"];
+      temp.creadorEvento = cache[i]["creadorEvento"];
+      temp.participantesEvento = cache[i]["participantes"];
+      temp.comentariosEvento = cache[i]["comentarios"];
+      temp.ubicacionEvento = cache[i]["lugar"];
+      temp.fechaEvento = cache[i]["fechaEvento"];
+
+      temp.carrete = cache[i]["carrete"] as List<Widget>;
+      cacheActividadesParaTi.listaEventos.add(temp);
+    }
+
+    proceso.kill();
+  }
+
+  static Future<dynamic> enviarRecibirEventos(
+      SendPort envio, List<DocumentSnapshot> lista) async {
+    List<DatosPerfiles> prueba = new List();
+    ReceivePort puertoRespuestaIntermedio = ReceivePort();
+    envio.send([lista, puertoRespuestaIntermedio.sendPort]);
+    return puertoRespuestaIntermedio.first;
+  }
+
+  static isolateEventos(SendPort puertoEnvio) async {
+    ReceivePort respuesta = ReceivePort();
+
+    List<Map<String, Object>> nuevo;
+    puertoEnvio.send(respuesta.sendPort);
+    await for (var msj in respuesta) {
+      List<DocumentSnapshot> lista = msj[0];
+      SendPort sendPort = msj[1];
+      // Actividad prueba=msj[3];
+
+      nuevo = await ActualizarEventos(lista);
+      sendPort.send(nuevo);
+    }
   }
 
   Future<List<DocumentSnapshot>> _QuitarDuplicados(
@@ -472,63 +542,6 @@ class Actividad with ChangeNotifier {
     }
     return listaTemp;
   }
-
-  void ActualizarEventos(List<DocumentSnapshot> lista) {
-    print("CarreteCreado****************************************************************************************************++++++");
-    TarjetaEvento tarjeta;
-    Timestamp tiempo;
-    DateTime tiempoTransformado;
-   
-    
-    final f = new DateFormat('dd-MM-yyyy HH:mm');
-  print(
-            "${lista.length}***********************************************++++++");
-    for (int i = 0; i < lista.length; i++) {
-      Actividad nueva=new Actividad();
-      List<Widget> carreteEnLista=new List();
-       creadorImagenesEvento carreteCreado;
-      String ImagenURL1 = lista[i].data["Image1"];
-      String ImagenURL2 = lista[i].data["Image2"];
-      String ImagenURL3 = lista[i].data["Image3"];
-      String ImagenURL4 = lista[i].data["Image4"];
-      String ImagenURL5 = lista[i].data["Image5"];
-      String ImagenURL6 = lista[i].data["Image6"];
-      List<String> Imagenes;
-      Imagenes = [
-        ImagenURL1,
-        ImagenURL2,
-        ImagenURL3,
-        ImagenURL4,
-        ImagenURL5,
-        ImagenURL6
-      ];
-       print(
-            "${Imagenes.length}***********************************************++++++");
-      for (int a = 0; a < Imagenes.length; a++) {
-       
-        if (Imagenes[a] != null) {
-          // print("CarreteCreado****************************************************************************************************++++++");
-          carreteCreado = new creadorImagenesEvento(
-            Imagenes[a],
-            nombre: lista[i].data["Nombre"],
-            alias: lista[i].data["Lugar"],
-            edad: "30",
-            nombreEnFoto: true,
-          );
-          carreteEnLista=List.from(carreteEnLista)..add(carreteCreado);
-        }
-      }
-
-      nueva.carrete = carreteEnLista;
-
-      listaEventos = List.from(listaEventos)..add(nueva);
-    }
-
-    if (listaEventos.length != 0) {
-      notifyListeners();
-      print(listaEventos.length);
-    }
-  }
 }
 
 class creadorImagenesEvento extends StatefulWidget {
@@ -540,9 +553,21 @@ class creadorImagenesEvento extends StatefulWidget {
   bool nombreEnFoto;
   Image laimagen;
   bool imagenCargada = false;
+  String fechaEvento;
+  bool datosPlanPuestos;
+  double plazasTotales;
+  double plazasDisponibles;
 
   creadorImagenesEvento(this.urlImagen,
-      {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
+      {this.nombre,
+      this.alias,
+      this.edad,
+      this.pieFoto,
+      this.nombreEnFoto,
+      this.datosPlanPuestos,
+      this.fechaEvento,
+      this.plazasDisponibles,
+      this.plazasTotales}) {
     //cargarImagen();
   }
 
@@ -551,95 +576,176 @@ class creadorImagenesEvento extends StatefulWidget {
 }
 
 class creadorImagenesEventoState extends State<creadorImagenesEvento> {
-  Uint8List bitsImagen;
-  initState() {
-    super.initState();
-    widget.laimagen = Image.network(widget.urlImagen);
-  }
-
-  void didChangeDependencies() {
-    precacheImage(widget.laimagen.image, context);
-    super.didChangeDependencies();
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 8),
-        child: Container(
-          child: Column(
-            children: <Widget>[
-              ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  child: Stack(
-                    alignment: AlignmentDirectional.bottomStart,
-                    children: <Widget>[
-                      widget.laimagen,
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            widget.nombreEnFoto
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(1.5)),
-                                        color: Color.fromRGBO(0, 0, 0, 100)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Text(widget.nombre,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  ScreenUtil().setSp(60))),
-                                    ),
-                                  )
-                                : Container(),
-                            widget.nombreEnFoto
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(1.5)),
-                                        color: Color.fromRGBO(0, 0, 0, 100)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.5),
-                                      child: Text("@${widget.alias}",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  ScreenUtil().setSp(60))),
-                                    ),
-                                  )
-                                : Container(),
-                            widget.nombreEnFoto
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(1.5)),
-                                        color: Color.fromRGBO(0, 0, 0, 100)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.5),
-                                      child: Text("A 8 Km de ti",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  ScreenUtil().setSp(60))),
-                                    ),
-                                  )
-                                : Container(),
-                          ],
+        child: Stack(alignment: AlignmentDirectional.topStart, children: [
+          Container(
+            child: Column(
+              children: <Widget>[
+                ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    child: Stack(
+                      alignment: AlignmentDirectional.bottomStart,
+                      children: <Widget>[
+                        CachedNetworkImage(imageUrl: widget.urlImagen),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, bottom: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              widget.nombreEnFoto
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1.5)),
+                                          color: Color.fromRGBO(0, 0, 0, 100)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Text(widget.nombre,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    ScreenUtil().setSp(60))),
+                                      ),
+                                    )
+                                  : Container(),
+                              widget.nombreEnFoto
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1.5)),
+                                          color: Color.fromRGBO(0, 0, 0, 100)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(2.5),
+                                        child: Text("@${widget.alias}",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    ScreenUtil().setSp(60))),
+                                      ),
+                                    )
+                                  : Container(),
+                              widget.nombreEnFoto
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1.5)),
+                                          color: Color.fromRGBO(0, 0, 0, 100)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(2.5),
+                                        child: Text("A 8 Km de ti",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    ScreenUtil().setSp(60))),
+                                      ),
+                                    )
+                                  : Container(),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  )),
-              Container(
-                child: widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
-              )
-            ],
+                      ],
+                    )),
+                Container(
+                  child:
+                      widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
+                )
+              ],
+            ),
           ),
-        ));
+          widget.datosPlanPuestos
+              ? Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          color: Colors.black,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    Text(
+                                      "Plazas Disponibles: ",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: ScreenUtil().setSp(40,
+                                              allowFontScalingSelf: false),
+                                          color: Colors.white),
+                                    ),
+                                    Text(
+                                      " ${(widget.plazasDisponibles).toInt()} ",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: ScreenUtil().setSp(40,
+                                              allowFontScalingSelf: false),
+                                          color: Colors.white),
+                                    ),
+                                    Icon(
+                                      Icons.people,
+                                      size: ScreenUtil().setSp(40,
+                                          allowFontScalingSelf: false),
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  width: ScreenUtil().setWidth(600),
+                                  height: ScreenUtil().setHeight(60),
+                                  child: LinearPercentIndicator(
+                                    percent: widget.plazasDisponibles /
+                                        widget.plazasTotales,
+                                    animationDuration: 0,
+                                    center: Text(
+                                      "${(widget.plazasDisponibles).toInt()}",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: ScreenUtil().setSp(30,
+                                              allowFontScalingSelf: false),
+                                          color: Colors.white),
+                                    ),
+                                    lineHeight: ScreenUtil().setHeight(40),
+                                    linearGradient: LinearGradient(colors: [
+                                      Colors.pink,
+                                      Colors.pinkAccent[100]
+                                    ]),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          color: Colors.black,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              widget.fechaEvento,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: ScreenUtil()
+                                      .setSp(50, allowFontScalingSelf: false),
+                                  color: Colors.white),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ))
+              : Container()
+        ]));
   }
 }
 
@@ -667,6 +773,238 @@ class BloqueDescripcion1 extends StatelessWidget {
         child: Text(
           descripcionPerfil,
           style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class SolicitudEventos {
+  DateTime fechaEvento;
+  DateTime horaSolicitud;
+  String nombreEvento;
+  String imagenAnfitrionEvento;
+  String descripcionEvento;
+  String lugarEvento;
+  String idSolicitante;
+  String nombreSolicitante;
+  String imagenSolicitante;
+  String idPlanSolicitud;
+  List<String> participantesEvento = new List();
+
+  SolicitudEventos.invitacion({
+    @required this.fechaEvento,
+    @required this.nombreEvento,
+    @required this.participantesEvento,
+    @required this.descripcionEvento,
+    @required this.lugarEvento,
+    @required this.idPlanSolicitud,
+  });
+
+  SolicitudEventos.solicitudDeParticipacionUsuario({
+    @required this.horaSolicitud,
+    @required this.fechaEvento,
+    @required this.nombreEvento,
+    @required this.nombreSolicitante,
+    @required this.idSolicitante,
+    @required this.lugarEvento,
+    @required this.idPlanSolicitud,
+  });
+
+  void crearSolicitudEventoUsuario(DocumentSnapshot dato) {
+    this.horaSolicitud = (dato.data["Hora Solicitud"]).toDate();
+    this.idSolicitante = dato.data["ID Solicitante"];
+    this.imagenSolicitante = dato.data["Imagen Solicitante"];
+    this.nombreSolicitante = dato.data["Nombre Solicitante"];
+    this.idPlanSolicitud = dato.data["Plan de Interes"];
+    this.fechaEvento = (dato.data["Fecha Evento"]).toDate;
+    this.lugarEvento = dato.data["Lugar Evento"];
+  }
+}
+
+class TarjetaSolicitudEvento extends StatefulWidget {
+  String imagen;
+  String nombreSolicitante;
+  DateTime fechaEvento;
+  String lugarEvento;
+  @override
+  _TarjetaSolicitudEventoState createState() => _TarjetaSolicitudEventoState();
+}
+
+class _TarjetaSolicitudEventoState extends State<TarjetaSolicitudEvento> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: ScreenUtil().setHeight(1000),
+      color: Colors.red,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            Flexible(
+              flex: 15,
+              fit: FlexFit.tight,
+              child: Container(
+                child: Row(
+                  children: <Widget>[
+                    Flexible(
+                      flex: 5,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        child: Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              Container(
+                                color: Colors.grey,
+                              ),
+                              Image.network(
+                                  "https://firebasestorage.googleapis.com/v0/b/citas-46a84.appspot.com/o/mSg0tkowGkOVLmHfrQmVj401lMP2%2FPerfil%2Fimagenes%2FImage1.jpg?alt=media&token=4ed72e5e-b9a2-45b5-8b3c-bc2730a0c5ae"),
+                            ]),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 10,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        child: Column(
+                          children: <Widget>[
+                            Flexible(
+                              flex: 4,
+                              fit: FlexFit.tight,
+                              child: Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: Text(
+                                    "Discoteca Wakanda entradas 5 euros Discoteca Wakanda entradas 5 eurosDiscoteca Wakanda entradas 5 eurosDiscoteca Wakanda entradas 5 euros",
+                                    style: TextStyle(
+                                        fontSize: ScreenUtil().setSp(65)),
+                                    overflow: TextOverflow.clip,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              flex: 2,
+                              fit: FlexFit.tight,
+                              child: Container(
+                                height: ScreenUtil().setHeight(100),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Flexible(
+                                          flex: 1,
+                                          fit: FlexFit.tight,
+                                          child: Icon(Icons.location_on)),
+                                      Flexible(
+                                        flex: 10,
+                                        fit: FlexFit.tight,
+                                        child: Container(
+                                          child: Text(
+                                            "Calle de guadalajara 8 Mostoles madrides España",
+                                            style: TextStyle(
+                                                fontSize:
+                                                    ScreenUtil().setSp(55)),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              flex: 10,
+                              fit: FlexFit.tight,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Flexible(
+                                          flex: 1,
+                                          fit: FlexFit.tight,
+                                          child: Icon(Icons.chat)),
+                                      Flexible(
+                                        flex: 10,
+                                        fit: FlexFit.tight,
+                                        child: Container(
+                                          child: Text(
+                                            "Calle de guadalajara 8 Mostoles madrides EspañaCalle de guadalajara 8 Mostoles madrides EspañaCalle de guadalajara 8 Mostoles madrides EspañaCalle de guadalajara 8 Mostoles madrides EspañaCalle de guadalajara 8 Mostoles madrides España",
+                                            style: TextStyle(
+                                                fontSize:
+                                                    ScreenUtil().setSp(55)),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Container(
+                  child: Row(
+                children: <Widget>[
+                  Flexible(
+                      flex: 5,
+                      fit: FlexFit.tight,
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              child: Icon(Icons.people),
+                            ),
+                            Container(
+                              child: Text("20/60",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(70),
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                      )),
+                  Flexible(
+                      flex: 10,
+                      fit: FlexFit.tight,
+                      child: Container(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            child: Icon(LineAwesomeIcons.calendar),
+                          ),
+                          Container(
+                            child: Text("Lunes 20 Mayo 2020",
+                                style: TextStyle(
+                                    fontSize: ScreenUtil().setSp(70),
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ))),
+                ],
+              )),
+            )
+          ],
         ),
       ),
     );

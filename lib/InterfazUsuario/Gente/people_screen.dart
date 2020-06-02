@@ -79,10 +79,10 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
     return TabBar(
       tabs: <Widget>[
         Tab(
-          text: "Date",
+          text: "Conversaciones",
         ),
         Tab(
-          text: "Global",
+          text: "Planes",
         ),
 
       ],

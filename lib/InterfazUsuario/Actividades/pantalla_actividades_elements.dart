@@ -748,7 +748,9 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                     ),
                     child: FlatButton(
                       padding: EdgeInsets.all(8),
-                      onPressed: () => {},
+                      onPressed: () => {
+                        
+                      },
                       child: Icon(
                         LineAwesomeIcons.star,
                         color: Colors.white,
@@ -1049,7 +1051,10 @@ class EventosCercaState extends State<EventosCerca> {
                   ),
                   child: FlatButton(
                     padding: EdgeInsets.all(8),
-                    onPressed: () => {},
+                    onPressed: () => {
+                       Actividad.cacheActividadesParaTi.listaEventos[indice].enviarSolicitudEvento()
+
+                    },
                     child: Icon(
                       LineAwesomeIcons.star,
                       color: Colors.white,
@@ -1233,111 +1238,7 @@ class confirm_plan_screen_state extends State<confirm_plan_screen> {
                         // print(usuario.cine);
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: GridView.count(
-                              childAspectRatio: (ScreenUtil().setWidth(550) /
-                                  ScreenUtil().setHeight(350)),
-                              mainAxisSpacing: ScreenUtil().setHeight(50),
-                              crossAxisSpacing: ScreenUtil().setWidth(30),
-                              addRepaintBoundaries: false,
-                              crossAxisCount: 3,
-                              children: [
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.car),
-                                    BotonGustosState.setCoche,
-                                    coche,
-                                    actividad.coches),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.gamepad),
-                                    BotonGustosState.setJuegos,
-                                    videojuegos,
-                                    actividad.juegos),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.film),
-                                    BotonGustosState.setCine,
-                                    cine,
-                                    actividad.cine),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.screwdriver),
-                                    BotonGustosState.setManualidades,
-                                    bricolaje,
-                                    actividad.manualidades),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.hamburger),
-                                    BotonGustosState.setComida,
-                                    comida,
-                                    actividad.comida),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.t_shirt),
-                                    BotonGustosState.setModa,
-                                    moda,
-                                    actividad.moda),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.otter),
-                                    BotonGustosState.setAnimales,
-                                    animales,
-                                    actividad.animales),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.music),
-                                    BotonGustosState.setMusica,
-                                    musica,
-                                    actividad.musica),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.mountain),
-                                    BotonGustosState.setNaturaleza,
-                                    naturaleza,
-                                    actividad.naturaleza),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.brain),
-                                    BotonGustosState.setCiencia,
-                                    ciencia,
-                                    actividad.ciencia),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.vote_yea),
-                                    BotonGustosState.setPolitica,
-                                    politica,
-                                    actividad.politica),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.suitcase),
-                                    BotonGustosState.setViajes,
-                                    viajes,
-                                    actividad.viajes),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.glass_cheers),
-                                    BotonGustosState.setFiesta,
-                                    fiesta,
-                                    actividad.fiesta),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.users),
-                                    BotonGustosState.setVidaSocial,
-                                    vidasocial,
-                                    actividad.vida_social),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.dumbbell),
-                                    BotonGustosState.setDeporte,
-                                    fittnes,
-                                    actividad.deportes),
-                                BotonGustos(
-                                    context,
-                                    Icon(LineAwesomeIcons.heartbeat),
-                                    BotonGustosState.setSalud,
-                                    salud,
-                                    actividad.salud),
-                              ]),
+                          
                         );
                       }),
                     ),
@@ -1550,7 +1451,7 @@ class FotoEventoState extends State<FotoEvento> {
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
-
+if(imagenRecortada!=null){
     this.setState(() {
       imagenFinal = imagenRecortada;
       pictures[box] = imagenFinal;
@@ -1561,7 +1462,7 @@ class FotoEventoState extends State<FotoEvento> {
       Actividad.esteEvento.notifyListeners();
     });
   }
-
+  }
   abrirCamara(BuildContext context) async {
     var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
     File imagenRecortada = await ImageCropper.cropImage(
@@ -1580,7 +1481,7 @@ class FotoEventoState extends State<FotoEvento> {
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
-
+if(imagenRecortada!=null){
     this.setState(() {
       imagenFinal = imagenRecortada;
       pictures[box] = imagenFinal;
@@ -1590,7 +1491,7 @@ class FotoEventoState extends State<FotoEvento> {
       print(box);
       Actividad.esteEvento.notifyListeners();
     });
-  }
+  }}
 
   eliminarImagen(BuildContext context) {
     this.setState(() {
@@ -1690,221 +1591,7 @@ class submit_plan_button_state extends State<submit_plan_button> {
   }
 }
 
-class BotonGustos extends StatefulWidget {
-  BuildContext context;
-  Icon icono;
-  Function funcion;
-  String text;
-  bool seleccionado;
-  BotonGustos(context, icono, funcion, text, seleccionado) {
-    this.context = context;
-    this.icono = icono;
-    this.funcion = funcion;
-    this.text = text;
-    this.seleccionado = seleccionado;
-    // print(seleccionado);
-  }
 
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return BotonGustosState();
-  }
-}
-
-class BotonGustosState extends State<BotonGustos> {
-  static bool setCoche() {
-    if (Actividad.esteEvento.coches == false) {
-      Actividad.esteEvento.coches = true;
-      return null;
-    } else {
-      Actividad.esteEvento.coches = false;
-      return null;
-    }
-  }
-
-  static bool setCine() {
-    if (Actividad.esteEvento.cine == false ||
-        Actividad.esteEvento.cine == null) {
-      // print("Activo");
-      Actividad.esteEvento.cine = true;
-
-      //  print(Usuario.esteUsuario.cine);
-      return null;
-    } else {
-      Actividad.esteEvento.cine = false;
-      //   print(Usuario.esteUsuario.cine);
-      return null;
-    }
-  }
-
-  static bool setJuegos() {
-    if (Actividad.esteEvento.juegos == false) {
-      Actividad.esteEvento.juegos = true;
-      return null;
-    } else {
-      Actividad.esteEvento.juegos = false;
-      return null;
-    }
-  }
-
-  static bool setManualidades() {
-    if (Actividad.esteEvento.manualidades == false) {
-      Actividad.esteEvento.manualidades = true;
-      // ignore: unnecessary_statements
-      return null;
-    } else {
-      Actividad.esteEvento.manualidades = false;
-      return null;
-    }
-  }
-
-  static bool setComida() {
-    if (Actividad.esteEvento.comida == false) {
-      Actividad.esteEvento.comida = true;
-      return null;
-    } else {
-      Actividad.esteEvento.comida = false;
-      return null;
-    }
-  }
-
-  static bool setModa() {
-    if (Actividad.esteEvento.moda == false) {
-      Actividad.esteEvento.moda = true;
-      return null;
-    } else {
-      Actividad.esteEvento.moda = false;
-      return null;
-    }
-  }
-
-  static bool setAnimales() {
-    if (Actividad.esteEvento.animales == false) {
-      Actividad.esteEvento.animales = true;
-      return null;
-    } else {
-      Actividad.esteEvento.animales = false;
-      return null;
-    }
-  }
-
-  static bool setMusica() {
-    if (Actividad.esteEvento.musica == false) {
-      Actividad.esteEvento.musica = true;
-      return null;
-    } else {
-      Actividad.esteEvento.musica = false;
-      return null;
-    }
-  }
-
-  static bool setNaturaleza() {
-    if (Actividad.esteEvento.naturaleza == false) {
-      Actividad.esteEvento.naturaleza = true;
-      return null;
-    } else {
-      Actividad.esteEvento.naturaleza = false;
-      return null;
-    }
-  }
-
-  static bool setCiencia() {
-    if (Actividad.esteEvento.ciencia == false) {
-      Actividad.esteEvento.ciencia = true;
-      return null;
-    } else {
-      Actividad.esteEvento.ciencia = false;
-      return null;
-    }
-  }
-
-  static bool setPolitica() {
-    if (Actividad.esteEvento.politica == false) {
-      Actividad.esteEvento.politica = true;
-      return null;
-    } else {
-      Actividad.esteEvento.politica = false;
-      return null;
-    }
-  }
-
-  static bool setViajes() {
-    if (Actividad.esteEvento.viajes == false) {
-      Actividad.esteEvento.viajes = true;
-      return null;
-    } else {
-      Actividad.esteEvento.viajes = false;
-      return null;
-    }
-  }
-
-  static bool setFiesta() {
-    if (Actividad.esteEvento.fiesta == false) {
-      Actividad.esteEvento.fiesta = true;
-      return null;
-    } else {
-      Actividad.esteEvento.fiesta = false;
-      return null;
-    }
-  }
-
-  static bool setVidaSocial() {
-    if (Actividad.esteEvento.vida_social == false) {
-      Actividad.esteEvento.vida_social = true;
-      return null;
-    } else {
-      Actividad.esteEvento.vida_social = false;
-    }
-  }
-
-  static bool setDeporte() {
-    if (Actividad.esteEvento.deportes == false) {
-      Actividad.esteEvento.deportes = true;
-      return null;
-    } else {
-      Actividad.esteEvento.deportes = false;
-      return null;
-    }
-  }
-
-  static bool setSalud() {
-    if (Actividad.esteEvento.salud == false) {
-      Actividad.esteEvento.salud = true;
-      return null;
-    } else {
-      Actividad.esteEvento.salud = false;
-      return null;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-//print(widget.seleccionado);
-
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(3)),
-          color: widget.seleccionado ? Colors.green : Colors.transparent),
-      child: FlatButton(
-        onPressed: () {
-          widget.funcion();
-        },
-        child: Container(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            widget.icono,
-            Text(
-              widget.text,
-              style: TextStyle(fontSize: ScreenUtil().setSp(40)),
-            ),
-          ],
-        )),
-      ),
-    );
-  }
-}
 
 class SeleccionarTipoPlan extends StatefulWidget {
   @override

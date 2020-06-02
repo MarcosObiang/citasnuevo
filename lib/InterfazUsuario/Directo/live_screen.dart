@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:citasnuevo/DatosAplicacion/actividad.dart';
 import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
@@ -79,10 +80,11 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
       isScrollable: false,
       tabs: <Widget>[
         Tab(
-          text: "Citas",
+          text: "Le Gustas",
         ),
+       
         Tab(
-          text: "Espia",
+          text: "Invitacion",
         ),
       ],
       controller: controller,
@@ -93,7 +95,8 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
     return TabBarView(
       children: <Widget>[
         list_live(),
-        list_live_chat(),
+       
+        InvitacionesEventos(),
       ],
       controller: controller,
     );
@@ -158,19 +161,11 @@ class list_live extends StatelessWidget {
   }
 }
 
-class list_live_chat extends StatelessWidget {
+
+class InvitacionesEventos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return GridView.count(
-      childAspectRatio:
-          (ScreenUtil().setWidth(550) / ScreenUtil().setHeight(700)),
-      mainAxisSpacing: ScreenUtil().setHeight(40),
-      addRepaintBoundaries: false,
-      crossAxisCount: 3,
-      children: List.generate(9, (index) {
-        return chat_view();
-      }),
-    );
+    return Scaffold(body: TarjetaSolicitudEvento());
   }
 }

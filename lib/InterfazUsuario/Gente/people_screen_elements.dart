@@ -176,7 +176,7 @@ class Mensajes extends StatefulWidget {
       @required this.horaMensaje,
       @required this.tipoMensaje}) {
     if (tipoMensaje == "Audio") {
-       obtenerDuracionMensaje();
+      obtenerDuracionMensaje();
     }
   }
   Mensajes.Localaudio(
@@ -255,108 +255,114 @@ class _MensajesState extends State<Mensajes> {
                                                 ],
                                               )
                                             : Row(
-                                          children: <Widget>[
-                                            Flexible(
-                                              fit: FlexFit.tight,
-                                              flex: 3,
-                                              child: Container(
-                                                child: Center(
-                                                  child: FlatButton(
-                                                    onPressed: () {
-                                                      widget.reproducirAudio();
-                                                    },
-                                                    child: Center(
-                                                        child: Icon(
-                                                      Icons.play_arrow,
-                                                      size: ScreenUtil()
-                                                          .setSp(150),
-                                                    )),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Flexible(
-                                              fit: FlexFit.tight,
-                                              flex: 11,
-                                              child: Container(
-                                                child: Stack(
-                                                    alignment: Alignment.center,
-                                                    children: <Widget>[
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 15.0,
-                                                                right: 15),
-                                                        child:
-                                                            LinearPercentIndicator(
-                                                          lineHeight:
-                                                              ScreenUtil()
-                                                                  .setHeight(
-                                                                      70),
-                                                          percent:
-                                                              widget.posicion,
-                                                        ),
-                                                      ),
-                                                      SliderTheme(
-                                                        data: SliderThemeData(
-                                                          thumbColor: Colors
-                                                              .transparent,
-                                                          activeTickMarkColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          activeTrackColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          disabledActiveTickMarkColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          disabledActiveTrackColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          disabledInactiveTickMarkColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          disabledInactiveTrackColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          disabledThumbColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          inactiveTickMarkColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          inactiveTrackColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          overlappingShapeStrokeColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          overlayColor: Colors
-                                                              .transparent,
-                                                          valueIndicatorColor:
-                                                              Colors
-                                                                  .transparent,
-                                                        ),
-                                                        child: Slider(
-                                                          value:
-                                                              widget.posicion,
-                                                          max: widget
-                                                              .duracionMensaje
-                                                              .toDouble(),
-                                                          min: 0,
-                                                          onChanged: (val) {
+                                                children: <Widget>[
+                                                  Flexible(
+                                                    fit: FlexFit.tight,
+                                                    flex: 3,
+                                                    child: Container(
+                                                      child: Center(
+                                                        child: FlatButton(
+                                                          onPressed: () {
                                                             widget
-                                                                .posicionAudio(
-                                                                    val);
+                                                                .reproducirAudio();
                                                           },
+                                                          child: Center(
+                                                              child: Icon(
+                                                            Icons.play_arrow,
+                                                            size: ScreenUtil()
+                                                                .setSp(150),
+                                                          )),
                                                         ),
                                                       ),
-                                                    ]),
+                                                    ),
+                                                  ),
+                                                  Flexible(
+                                                    fit: FlexFit.tight,
+                                                    flex: 11,
+                                                    child: Container(
+                                                      child: Stack(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          children: <Widget>[
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left:
+                                                                          15.0,
+                                                                      right:
+                                                                          15),
+                                                              child:
+                                                                  LinearPercentIndicator(
+                                                                lineHeight:
+                                                                    ScreenUtil()
+                                                                        .setHeight(
+                                                                            70),
+                                                                percent: widget
+                                                                    .posicion,
+                                                              ),
+                                                            ),
+                                                            SliderTheme(
+                                                              data:
+                                                                  SliderThemeData(
+                                                                thumbColor: Colors
+                                                                    .transparent,
+                                                                activeTickMarkColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                activeTrackColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                disabledActiveTickMarkColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                disabledActiveTrackColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                disabledInactiveTickMarkColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                disabledInactiveTrackColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                disabledThumbColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                inactiveTickMarkColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                inactiveTrackColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                overlappingShapeStrokeColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                overlayColor: Colors
+                                                                    .transparent,
+                                                                valueIndicatorColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                              ),
+                                                              child: Slider(
+                                                                value: widget
+                                                                    .posicion,
+                                                                max: widget
+                                                                    .duracionMensaje
+                                                                    .toDouble(),
+                                                                min: 0,
+                                                                onChanged:
+                                                                    (val) {
+                                                                  widget
+                                                                      .posicionAudio(
+                                                                          val);
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ]),
+                                                    ),
+                                                  )
+                                                ],
                                               ),
-                                            )
-                                          ],
-                                        ),
                                       ),
                                       Align(
                                         alignment: Alignment.centerRight,
@@ -779,15 +785,133 @@ class TituloChat extends StatefulWidget {
   String ultimoMensaje;
   String mensajeId;
   Firestore baseDatosRef = Firestore.instance;
+  Conversacion conversacion;
 
   TituloChat(
-      {@required this.idConversacion,
+      {@required this.conversacion,
+      @required this.idConversacion,
       @required this.estadoConversacion,
       @required this.idRemitente,
       @required this.listadeMensajes,
       @required this.nombre,
       @required this.imagen,
       this.mensajeId});
+
+  Future<List<Mensajes>> obtenerMensajes(
+      String identificadorMensajes, String rutaRemitente) async {
+    List<Mensajes> temp = new List();
+
+    await baseDatosRef
+        .collection("usuarios")
+        .document(rutaRemitente)
+        .collection("mensajes")
+        .where("idMensaje", isEqualTo: identificadorMensajes)
+        .limit(100)
+        .getDocuments()
+        .then((dato) async {
+          if(dato!=null){
+      print("${dato.documents.length} mensajes para el en firebase");
+      print(rutaRemitente);
+      print(identificadorMensajes);
+      for (int a = 0; a < dato.documents.length; a++) {
+        print(dato.documents[a].data["Tipo Mensaje"]);
+        if (dato.documents[a].data["Tipo Mensaje"] == "Texto" ||
+            dato.documents[a].data["Tipo Mensaje"] == "Imagen") {
+          Mensajes mensaje = new Mensajes(
+            idEmisor: dato.documents[a].data["idEmisor"],
+            mensaje: dato.documents[a].data["Mensaje"],
+            idMensaje: dato.documents[a].data["idMensaje"],
+            horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
+            tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
+          );
+          temp = List.from(temp)..add(mensaje);
+        }
+        if (dato.documents[a].data["Tipo Mensaje"] == "Audio") {
+          Mensajes mensaje = new Mensajes.Audio(
+            idEmisor: dato.documents[a].data["idEmisor"],
+            mensaje: dato.documents[a].data["Mensaje"],
+            idMensaje: dato.documents[a].data["idMensaje"],
+            horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
+            tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
+          );
+
+          temp = List.from(temp)..add(mensaje);
+        }
+      }}
+    }).then((val) async {
+      await baseDatosRef
+          .collection("usuarios")
+          .document(Usuario.esteUsuario.idUsuario)
+          .collection("mensajes")
+          .where("idMensaje", isEqualTo: identificadorMensajes)
+          .limit(100)
+          .getDocuments(source: Source.serverAndCache)
+          .then((dato) 
+          
+          async {
+            if(dato!=null){
+        for (int a = 0; a < dato.documents.length; a++) {
+          if (dato.documents[a].data["Tipo Mensaje"] == "Texto" ||
+              dato.documents[a].data["Tipo Mensaje"] == "Imagen") {
+            Mensajes mensaje = new Mensajes(
+              idEmisor: dato.documents[a].data["idEmisor"],
+              mensaje: dato.documents[a].data["Mensaje"],
+              idMensaje: dato.documents[a].data["idMensaje"],
+              horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
+              tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
+            );
+
+            temp = List.from(temp)..add(mensaje);
+          }
+          if (dato.documents[a].data["Tipo Mensaje"] == "Audio") {
+            Mensajes mensaje = new Mensajes.Audio(
+              idEmisor: dato.documents[a].data["idEmisor"],
+              mensaje: dato.documents[a].data["Mensaje"],
+              idMensaje: dato.documents[a].data["idMensaje"],
+              horaMensaje: (dato.documents[a].data["Hora mensaje"]).toDate(),
+              tipoMensaje: dato.documents[a].data["Tipo Mensaje"],
+            );
+
+            temp = List.from(temp)..add(mensaje);
+          }
+        }}
+      });
+    });
+    temp = await insertarHoras(temp);
+    return temp;
+  }
+
+  List<Mensajes> insertarHoras(List<Mensajes> datos) {
+    List<Mensajes> lista = datos;
+    if (lista != null) {
+      print("ordenado");
+      lista.sort((b, c) => b.horaMensaje.compareTo(c.horaMensaje));
+    }
+
+    DateTime cacheTiempo = lista[0].horaMensaje;
+    int cacheDia = lista[0].horaMensaje.day;
+    Mensajes horaSeparador;
+
+    horaSeparador = Mensajes.separadorHora(
+      horaMensaje: cacheTiempo,
+      idEmisor: lista[0].idEmisor,
+    );
+    lista.insert(0, horaSeparador);
+    for (int i = 0; i < lista.length; i++) {
+      if (cacheDia != lista[i].horaMensaje.day) {
+        horaSeparador = Mensajes.separadorHora(
+          horaMensaje: lista[i].horaMensaje,
+          idEmisor: lista[i].idEmisor,
+        );
+
+        cacheTiempo = lista[i].horaMensaje;
+        cacheDia = lista[i].horaMensaje.day;
+        lista.insert(i, horaSeparador);
+      }
+    }
+    return lista;
+  }
+
   String crearCodigo() {
     List<String> letras = [
       "A",
@@ -1029,8 +1153,17 @@ class TituloChatState extends State<TituloChat> {
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: FlatButton(
-                onPressed: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => pantalla)),
+                onPressed: () async {
+                  if (widget.listadeMensajes == null) {
+                    widget.listadeMensajes = await widget.obtenerMensajes(
+                        widget.mensajeId, widget.idRemitente);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => pantalla));
+                  } else {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => pantalla));
+                  }
+                },
                 child: Container(
                     height: ScreenUtil().setHeight(330),
                     decoration: BoxDecoration(
@@ -1161,7 +1294,7 @@ class PantallaConversacionState extends State<PantallaConversacion> {
   Io.File punteroGrabacion;
   String estado = " ";
   File imagen;
-  bool primerosMensajesAudioCargados=false;
+  bool primerosMensajesAudioCargados = false;
   void opcionesImagenPerfil() {
     showDialog(
         context: context,
@@ -1371,14 +1504,14 @@ class PantallaConversacionState extends State<PantallaConversacion> {
             emprezarListaAbajo();
             print("Truee");
           }
-          if(!primerosMensajesAudioCargados&&mensajesTemporales!=null){
-
-            for(int i=0;i<mensajesTemporales.length;i++){
-              if(mensajesTemporales[i].tipoMensaje=="Audio"&&mensajesTemporales[i].duracionMensaje==null){
+          if (!primerosMensajesAudioCargados && mensajesTemporales != null) {
+            for (int i = 0; i < mensajesTemporales.length; i++) {
+              if (mensajesTemporales[i].tipoMensaje == "Audio" &&
+                  mensajesTemporales[i].duracionMensaje == null) {
                 mensajesTemporales[i].obtenerDuracionMensaje();
               }
             }
-            primerosMensajesAudioCargados=true;
+            primerosMensajesAudioCargados = true;
           }
           print(estado);
           estado = widget.recibirEstadoConversacionActualizado();

@@ -1,16 +1,16 @@
-Date : 2020-05-23 12:08:57
+Date : 2020-06-02 15:09:02
 Directory : d:\Proyecto\citasnuevo
-Total : 49 files,  9288 codes, 555 comments, 796 blanks, all 10639 lines
+Total : 49 files,  9884 codes, 568 comments, 801 blanks, all 11253 lines
 
 Languages
 +------------+------------+------------+------------+------------+------------+
 | language   | files      | code       | comment    | blank      | total      |
 +------------+------------+------------+------------+------------+------------+
-| Dart       |         27 |      8,809 |        463 |        727 |      9,999 |
+| Dart       |         27 |      9,402 |        476 |        733 |     10,611 |
 | JSON       |          3 |        185 |          0 |          2 |        187 |
 | XML        |          7 |        120 |         40 |          9 |        169 |
 | Groovy     |          4 |         94 |          3 |         22 |        119 |
-| YAML       |          1 |         44 |         47 |         21 |        112 |
+| YAML       |          1 |         47 |         47 |         20 |        114 |
 | Markdown   |          2 |         13 |          0 |          9 |         22 |
 | Swift      |          1 |         12 |          0 |          2 |         14 |
 | Properties |          3 |         10 |          2 |          3 |         15 |
@@ -21,7 +21,7 @@ Directories
 +-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
 | path                                                                                      | files      | code       | comment    | blank      | total      |
 +-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
-| .                                                                                         |         49 |      9,288 |        555 |        796 |     10,639 |
+| .                                                                                         |         49 |      9,884 |        568 |        801 |     11,253 |
 | android                                                                                   |         12 |        202 |         42 |         31 |        275 |
 | android\app                                                                               |          7 |        152 |         41 |         19 |        212 |
 | android\app\src                                                                           |          5 |         59 |         38 |          7 |        104 |
@@ -39,14 +39,14 @@ Directories
 | ios\Runner\Assets.xcassets\AppIcon.appiconset                                             |          1 |        122 |          0 |          1 |        123 |
 | ios\Runner\Assets.xcassets\LaunchImage.imageset                                           |          2 |         26 |          0 |          3 |         29 |
 | ios\Runner\Base.lproj                                                                     |          2 |         61 |          2 |          2 |         65 |
-| lib                                                                                       |         26 |      8,795 |        453 |        720 |      9,968 |
-| lib\DatosAplicacion                                                                       |          6 |      1,946 |        204 |        247 |      2,397 |
-| lib\InterfazUsuario                                                                       |         16 |      6,628 |        239 |        430 |      7,297 |
-| lib\InterfazUsuario\Actividades                                                           |          4 |      2,099 |         73 |        141 |      2,313 |
-| lib\InterfazUsuario\Busqueda                                                              |          1 |        125 |          9 |         15 |        149 |
-| lib\InterfazUsuario\Directo                                                               |          2 |        309 |          6 |         22 |        337 |
-| lib\InterfazUsuario\Gente                                                                 |          2 |      1,730 |         19 |         78 |      1,827 |
-| lib\InterfazUsuario\IniciodeSesion                                                        |          2 |        314 |         26 |         37 |        377 |
+| lib                                                                                       |         26 |      9,388 |        466 |        726 |     10,580 |
+| lib\DatosAplicacion                                                                       |          6 |      2,359 |        214 |        244 |      2,817 |
+| lib\InterfazUsuario                                                                       |         16 |      6,808 |        242 |        439 |      7,489 |
+| lib\InterfazUsuario\Actividades                                                           |          4 |      2,164 |         75 |        136 |      2,375 |
+| lib\InterfazUsuario\Busqueda                                                              |          1 |        124 |         10 |         15 |        149 |
+| lib\InterfazUsuario\Directo                                                               |          2 |        301 |          6 |         25 |        332 |
+| lib\InterfazUsuario\Gente                                                                 |          2 |      1,853 |         19 |         88 |      1,960 |
+| lib\InterfazUsuario\IniciodeSesion                                                        |          2 |        315 |         26 |         38 |        379 |
 | lib\InterfazUsuario\RegistrodeUsuario                                                     |          3 |      1,631 |         96 |        114 |      1,841 |
 | lib\InterfazUsuario\Social                                                                |          2 |        420 |         10 |         23 |        453 |
 | lib\ServidorFirebase                                                                      |          2 |         72 |          6 |         19 |         97 |
@@ -78,23 +78,23 @@ Files
 | d:\Proyecto\citasnuevo\ios\Runner\Base.lproj\LaunchScreen.storyboard                      | XML        |         36 |          1 |          1 |         38 |
 | d:\Proyecto\citasnuevo\ios\Runner\Base.lproj\Main.storyboard                              | XML        |         25 |          1 |          1 |         27 |
 | d:\Proyecto\citasnuevo\ios\Runner\Runner-Bridging-Header.h                                | C++        |          1 |          0 |          1 |          2 |
-| d:\Proyecto\citasnuevo\lib\DatosAplicacion\Conversacion.dart                              | Dart       |        408 |          0 |         29 |        437 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\Conversacion.dart                              | Dart       |        307 |          1 |         30 |        338 |
 | d:\Proyecto\citasnuevo\lib\DatosAplicacion\ManejadorMultimedia.dart                       | Dart       |          0 |          0 |          1 |          1 |
-| d:\Proyecto\citasnuevo\lib\DatosAplicacion\PerfilesUsuarios.dart                          | Dart       |        662 |        200 |         91 |        953 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\PerfilesUsuarios.dart                          | Dart       |        682 |        200 |         86 |        968 |
 | d:\Proyecto\citasnuevo\lib\DatosAplicacion\Usuario.dart                                   | Dart       |        227 |          1 |         43 |        271 |
 | d:\Proyecto\citasnuevo\lib\DatosAplicacion\Valoraciones.dart                              | Dart       |        210 |          1 |         15 |        226 |
-| d:\Proyecto\citasnuevo\lib\DatosAplicacion\actividad.dart                                 | Dart       |        439 |          2 |         68 |        509 |
-| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\Pantalla_Actividades.dart          | Dart       |        286 |         16 |         19 |        321 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\actividad.dart                                 | Dart       |        933 |         11 |         69 |      1,013 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\Pantalla_Actividades.dart          | Dart       |        324 |         19 |         25 |        368 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\TarjetaEvento.dart                 | Dart       |        175 |          4 |         15 |        194 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\home_screen_elements.dart          | Dart       |        177 |          4 |         21 |        202 |
-| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\pantalla_actividades_elements.dart | Dart       |      1,461 |         49 |         86 |      1,596 |
-| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Busqueda\search_screen.dart                    | Dart       |        125 |          9 |         15 |        149 |
-| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Directo\live_screen.dart                       | Dart       |        159 |          6 |         12 |        177 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\pantalla_actividades_elements.dart | Dart       |      1,488 |         48 |         75 |      1,611 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Busqueda\search_screen.dart                    | Dart       |        124 |         10 |         15 |        149 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Directo\live_screen.dart                       | Dart       |        151 |          6 |         15 |        172 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\Directo\live_screen_elements.dart              | Dart       |        150 |          0 |         10 |        160 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\Gente\people_screen.dart                       | Dart       |        179 |         10 |         18 |        207 |
-| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Gente\people_screen_elements.dart              | Dart       |      1,551 |          9 |         60 |      1,620 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Gente\people_screen_elements.dart              | Dart       |      1,674 |          9 |         70 |      1,753 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\IniciodeSesion\login_screen.dart               | Dart       |        103 |          2 |         13 |        118 |
-| d:\Proyecto\citasnuevo\lib\InterfazUsuario\IniciodeSesion\login_screen_elements.dart      | Dart       |        211 |         24 |         24 |        259 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\IniciodeSesion\login_screen_elements.dart      | Dart       |        212 |         24 |         25 |        261 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\RegistrodeUsuario\sign_up_methods.dart         | Dart       |         28 |          1 |          9 |         38 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\RegistrodeUsuario\sign_up_screen.dart          | Dart       |        353 |          4 |         13 |        370 |
 | d:\Proyecto\citasnuevo\lib\InterfazUsuario\RegistrodeUsuario\sign_up_screen_elements.dart | Dart       |      1,250 |         91 |         92 |      1,433 |
@@ -104,7 +104,7 @@ Files
 | d:\Proyecto\citasnuevo\lib\ServidorFirebase\firebase_sign_up.dart                         | Dart       |         38 |          6 |         10 |         54 |
 | d:\Proyecto\citasnuevo\lib\base_app.dart                                                  | Dart       |        129 |          3 |         21 |        153 |
 | d:\Proyecto\citasnuevo\lib\main.dart                                                      | Dart       |         20 |          1 |          3 |         24 |
-| d:\Proyecto\citasnuevo\pubspec.yaml                                                       | YAML       |         44 |         47 |         21 |        112 |
+| d:\Proyecto\citasnuevo\pubspec.yaml                                                       | YAML       |         47 |         47 |         20 |        114 |
 | d:\Proyecto\citasnuevo\test\widget_test.dart                                              | Dart       |         14 |         10 |          7 |         31 |
-| Total                                                                                     |            |      9,288 |        555 |        796 |     10,639 |
+| Total                                                                                     |            |      9,884 |        568 |        801 |     11,253 |
 +-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

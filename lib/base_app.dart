@@ -129,7 +129,7 @@ class starter_app extends State<start> {
                     backgroundColor: Colors.white),
                 BottomNavigationBarItem(
                     icon: Icon(
-                      Icons.search,size: ScreenUtil().setSp(100)
+                      Icons.settings,size: ScreenUtil().setSp(100)
                     ),
                     title: new Text(
                       "",

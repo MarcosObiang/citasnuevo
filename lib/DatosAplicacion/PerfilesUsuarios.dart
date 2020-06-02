@@ -1,9 +1,10 @@
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/DatosAplicacion/actividad.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:http/http.dart' as http;
-
+import 'package:transparent_image/transparent_image.dart';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -14,125 +15,125 @@ import 'dart:io' as Io;
 import 'package:path_provider/path_provider.dart';
 import 'Usuario.dart';
 import 'dart:isolate';
-  Future<List<DatosPerfiles>>  ActualizarEventosAmigos(List<DocumentSnapshot> lista) async {
-    /// La variable [imagenesListas] vista en la seccion de carga de perfiles aqui siempre se inicia en "FALSE" ya que este es el metodo que crea los [carretes]
-    /// y las imagenes aun no estan listas, la variable se hara "TRUE" cuando [imagenesEnCola] y la variable [imagenesPerfilesListas] sean verdaderas
-    /// mientras tanto para evitar excepciones decimos que las imagenes no estan listas
- List<DatosPerfiles> perfilCreado = new List();
+
+Future<List<DatosPerfiles>> ActualizarEventosAmigos(
+    List<DocumentSnapshot> lista) async {
+  /// La variable [imagenesListas] vista en la seccion de carga de perfiles aqui siempre se inicia en "FALSE" ya que este es el metodo que crea los [carretes]
+  /// y las imagenes aun no estan listas, la variable se hara "[true]" cuando [imagenesEnCola] y la variable [imagenesPerfilesListas] sean verdaderas
+  /// mientras tanto para evitar excepciones decimos que las imagenes no estan listas
+  List<DatosPerfiles> perfilCreado = new List();
+
+  ///
+  ///
+  ///
+  ///
+  ///  Al llamar a este metodo se le pasa una lista de [DocumentSnapshot] la cual contiene todos los datos (de un perfil en este caso) encapsulada
+  ///  entonces recorremos esa lista y cada objeto de tipo [DocumentSnapshot] es desglosado de la forma[DocumentSnapshot.data["Nombre del dato al que quiero acceder"]]
+  ///  y lo guardo en una variable correspondiente a su tipo
+  ///
+  ///
+  ///
+  ///
+
+  for (int i = 0; i < lista.length; i++) {
+    /// [ponerNombre], solo quiero poner en nombre del perfil en una imagen asi que la variable se hara falsa al poner el nombre en la primera imagen y asi se
+    /// lo paso a[creadorImagenPerfil] para que solo lo ponga una vez
+    bool ponerNombre = true;
+
+    ///
+    ///
+    ///
+    /// [sumarDescripcion], solo quiero la descripcion del usuario una vez, asique  sera verdadera hasta que ponga la descripcion en el [carrete]
+
+    bool sumarDescripcion = true;
 
     ///
     ///
     ///
     ///
-    ///  Al llamar a este metodo se le pasa una lista de [DocumentSnapshot] la cual contiene todos los datos (de un perfil en este caso) encapsulada
-    ///  entonces recorremos esa lista y cada objeto de tipo [DocumentSnapshot] es desglosado de la forma[DocumentSnapshot.data["Nombre del dato al que quiero acceder"]]
-    ///  y lo guardo en una variable correspondiente a su tipo
+    /// [perfilTemp], como se puede observar esta variable es una lista de widgets[List<Widget>] que es justo lo que es un [carrete]
+    /// asique podemos decir que es un carrete temporal el cual creamos, mas abajo muestro su uso
+    List<Widget> perfilTemp = new List();
+
     ///
     ///
     ///
     ///
+    ///
+    String idUsuario = lista[i].data["Id"];
+    String nombre = lista[i].data["Nombre"];
+    String alias = lista[i].data["Alias"];
+    String edad = (lista[i].data["Edad"]).toString();
+    Map ImagenURL1 = lista[i].data["IMAGENPERFIL1"];
+    Map ImagenURL2 = lista[i].data["IMAGENPERFIL2"];
+    Map ImagenURL3 = lista[i].data["IMAGENPERFIL3"];
+    Map ImagenURL4 = lista[i].data["IMAGENPERFIL4"];
+    Map ImagenURL5 = lista[i].data["IMAGENPERFIL5"];
+    Map ImagenURL6 = lista[i].data["IMAGENPERFIL5"];
+    String descripcion = lista[i].data["Descripcion"];
+    BloqueDescripcion1 descripcion1 = new BloqueDescripcion1(descripcion);
 
-    for (int i = 0; i < lista.length; i++) {
-      /// [ponerNombre], solo quiero poner en nombre del perfil en una imagen asi que la variable se hara falsa al poner el nombre en la primera imagen y asi se
-      /// lo paso a[creadorImagenPerfil] para que solo lo ponga una vez
-      bool ponerNombre = true;
+    /// [imagenesPerfiles] aqui almacenammos todas las imagenes de un perfil para crear cada bloque de imagen del [carrete] del perfil
+    List<Map> imagenesPerfiles;
+    imagenesPerfiles = [
+      ImagenURL1,
+      ImagenURL2,
+      ImagenURL3,
+      ImagenURL4,
+      ImagenURL5,
+      ImagenURL6
+    ];
 
-      ///
-      ///
-      ///
-      /// [sumarDescripcion], solo quiero la descripcion del usuario una vez, asique  sera verdadera hasta que ponga la descripcion en el [carrete]
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    /// en este bucle recorremos la lista de imagenes [imagenesPerfiles] y cramos las imagenes y texto del [carrete] dependiendo de si [ponerNombre] y [sumarDescripcion]
+    /// son verdaderos "TRUE" o falsos "FALSE"
+    for (int a = 0; a < imagenesPerfiles.length; a++) {
+      if (imagenesPerfiles[a]["Imagen"] != null) {
+        /// Cada Imagen que no sea nula es puesta en cola sumando una imagen a [imagenEnCola]
 
-      bool sumarDescripcion = true;
-
-      ///
-      ///
-      ///
-      ///
-      /// [perfilTemp], como se puede observar esta variable es una lista de widgets[List<Widget>] que es justo lo que es un [carrete]
-      /// asique podemos decir que es un carrete temporal el cual creamos, mas abajo muestro su uso
-      List<Widget> perfilTemp = new List();
-
-      ///
-      ///
-      ///
-      ///
-      ///
-      String idUsuario = lista[i].data["Id"];
-      String nombre = lista[i].data["Nombre"];
-      String alias = lista[i].data["Alias"];
-      String edad = (lista[i].data["Edad"]).toString();
-      Map ImagenURL1 = lista[i].data["IMAGENPERFIL1"];
-      Map ImagenURL2 = lista[i].data["IMAGENPERFIL2"];
-      Map ImagenURL3 = lista[i].data["IMAGENPERFIL3"];
-      Map ImagenURL4 = lista[i].data["IMAGENPERFIL4"];
-      Map ImagenURL5 = lista[i].data["IMAGENPERFIL5"];
-      Map ImagenURL6 = lista[i].data["IMAGENPERFIL5"];
-      String descripcion = lista[i].data["Descripcion"];
-      BloqueDescripcion1 descripcion1 = new BloqueDescripcion1(descripcion);
-
-      /// [imagenesPerfiles] aqui almacenammos todas las imagenes de un perfil para crear cada bloque de imagen del [carrete] del perfil
-      List<Map> imagenesPerfiles;
-      imagenesPerfiles = [
-        ImagenURL1,
-        ImagenURL2,
-        ImagenURL3,
-        ImagenURL4,
-        ImagenURL5,
-        ImagenURL6
-      ];
-
-      ///
-      ///
-      ///
-      ///
-      ///
-      ///
-      /// en este bucle recorremos la lista de imagenes [imagenesPerfiles] y cramos las imagenes y texto del [carrete] dependiendo de si [ponerNombre] y [sumarDescripcion]
-      /// son verdaderos "TRUE" o falsos "FALSE"
-      for (int a = 0; a < imagenesPerfiles.length; a++) {
-        if (imagenesPerfiles[a]["Imagen"] != null) {
-          /// Cada Imagen que no sea nula es puesta en cola sumando una imagen a [imagenEnCola]
-         
-
-          ///
-          ///
-          ///
-          ///
-          ///
-          /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
-          perfilTemp.add(creadorImagenPerfilAmistad(
-            imagenesPerfiles[a]["Imagen"],
-            nombre: nombre,
-            alias: alias,
-            edad: edad,
-            pieFoto: imagenesPerfiles[a]["PieDeFoto"],
-            nombreEnFoto: ponerNombre,
-          ));
-          ponerNombre = false;
-          if (sumarDescripcion && descripcion != null) {
-            perfilTemp.add(descripcion1);
-            sumarDescripcion = false;
-          }
+        ///
+        ///
+        ///
+        ///
+        ///
+        /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
+        perfilTemp.add(creadorImagenPerfilAmistad(
+          imagenesPerfiles[a]["Imagen"],
+          nombre: nombre,
+          alias: alias,
+          edad: edad,
+          pieFoto: imagenesPerfiles[a]["PieDeFoto"],
+          nombreEnFoto: ponerNombre,
+        ));
+        ponerNombre = false;
+        if (sumarDescripcion && descripcion != null) {
+          perfilTemp.add(descripcion1);
+          sumarDescripcion = false;
         }
       }
-
-      ///
-      ///
-      ///
-      ///
-      ///
-      ///
-      /// En [ListaPerfiles] añadimos ya el [carrete] creado [perfilTemp] y La etiqueta con sus metadatos
-
-      perfilCreado = List.from(perfilCreado)
-        ..add(DatosPerfiles.amistad(
-            carrete: perfilTemp, nombreusuaio: nombre, idUsuario: idUsuario));
-
-      print(perfilCreado);
-      return perfilCreado;
     }
-  }
 
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    /// En [ListaPerfiles] añadimos ya el [carrete] creado [perfilTemp] y La etiqueta con sus metadatos
+
+    perfilCreado = List.from(perfilCreado)
+      ..add(DatosPerfiles.amistad(
+          carrete: perfilTemp, nombreusuaio: nombre, idUsuario: idUsuario));
+
+    print(perfilCreado);
+    return perfilCreado;
+  }
+}
 
 Future<List<DatosPerfiles>> ActualizarEventosCitas(
     List<DocumentSnapshot> lista) async {
@@ -261,6 +262,7 @@ class Perfiles extends ChangeNotifier {
   static void cargarPerfilesCitas() {
     Perfiles.perfilesCitas.cargarIsolate();
   }
+
   static void cargarPerfilesAmistad() {
     Perfiles.perfilesAmistad.cargarIsolateAmistad();
   }
@@ -270,10 +272,12 @@ class Perfiles extends ChangeNotifier {
         await obtenetPerfilesCitas(Usuario.esteUsuario.DatosUsuario);
     ReceivePort puertoRecepcion = ReceivePort();
     WidgetsFlutterBinding.ensureInitialized();
-    await Isolate.spawn(isolateCitas, puertoRecepcion.sendPort,debugName: "IsolateCitas");
+    Isolate proceso=await Isolate.spawn(isolateCitas, puertoRecepcion.sendPort,
+        debugName: "IsolateCitas");
     SendPort puertoEnvio = await puertoRecepcion.first;
     Perfiles.perfilesCitas.listaPerfiles = await enviarRecibirCitas(
         Usuario.esteUsuario, puertoEnvio, listaProvisional);
+        proceso.kill();
   }
 
   Future<dynamic> enviarRecibirCitas(Usuario user, SendPort puertos,
@@ -298,15 +302,17 @@ class Perfiles extends ChangeNotifier {
     }
   }
 
-    Future cargarIsolateAmistad() async {
+  Future cargarIsolateAmistad() async {
     List<DocumentSnapshot> listaProvisional =
         await obtenerPerfilesAmistad(Usuario.esteUsuario.DatosUsuario);
     ReceivePort puertoRecepcion = ReceivePort();
     WidgetsFlutterBinding.ensureInitialized();
-    await Isolate.spawn(isolateCitas, puertoRecepcion.sendPort,debugName: "IsolateAmistad");
+   Isolate proceso= await Isolate.spawn(isolateCitas, puertoRecepcion.sendPort,
+        debugName: "IsolateAmistad");
     SendPort puertoEnvio = await puertoRecepcion.first;
     Perfiles.perfilesAmistad.listaPerfiles = await enviarRecibirAmistad(
         Usuario.esteUsuario, puertoEnvio, listaProvisional);
+        proceso.kill();
   }
 
   Future<dynamic> enviarRecibirAmistad(Usuario user, SendPort puertos,
@@ -486,7 +492,7 @@ class Perfiles extends ChangeNotifier {
     DatosPerfiles perfilTemporal;
     QuerySnapshot Temp;
     bool amigos = usuario["Solo amigos"];
-    bool ambos =usuario["Ambos"];
+    bool ambos = usuario["Ambos"];
     if ((ambos != null && ambos) || (amigos != null && amigos)) {
       Temp = await baseDatosRef
           .collection("usuarios")
@@ -551,7 +557,6 @@ class Perfiles extends ChangeNotifier {
   ///
   ///
 
-
 }
 
 class creadorImagenPerfil extends StatefulWidget {
@@ -563,7 +568,6 @@ class creadorImagenPerfil extends StatefulWidget {
   bool nombreEnFoto;
   Image laimagen;
   bool imagenCargada = false;
-  
 
   creadorImagenPerfil(this.urlImagen,
       {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
@@ -578,7 +582,7 @@ class _creadorImagenPerfilState extends State<creadorImagenPerfil> {
   Uint8List bitsImagen;
   initState() {
     super.initState();
-   widget.laimagen=Image.network(widget.urlImagen);
+    widget.laimagen = Image.network(widget.urlImagen);
   }
 
   void didChangeDependencies() {
@@ -599,8 +603,14 @@ class _creadorImagenPerfilState extends State<creadorImagenPerfil> {
                   child: Stack(
                     alignment: AlignmentDirectional.bottomStart,
                     children: <Widget>[
+                      FadeInImage(
+                        height: ScreenUtil().setHeight(2500),
+                       
+                        placeholder: MemoryImage(kTransparentImage), image: NetworkImage(widget.urlImagen),
+                        fadeInCurve: Curves.easeIn,
+                        fadeInDuration: Duration(milliseconds:200),
                       
-                      CachedNetworkImage(imageUrl: widget.urlImagen),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 10),
                         child: Column(
@@ -677,7 +687,6 @@ class creadorImagenPerfilAmistad extends StatefulWidget {
   bool nombreEnFoto;
   Image laimagen;
   bool imagenCargada = false;
-  
 
   creadorImagenPerfilAmistad(this.urlImagen,
       {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
@@ -685,15 +694,16 @@ class creadorImagenPerfilAmistad extends StatefulWidget {
   }
 
   @override
-  
-  _creadorImagenPerfilAmistadState createState() => _creadorImagenPerfilAmistadState();
+  _creadorImagenPerfilAmistadState createState() =>
+      _creadorImagenPerfilAmistadState();
 }
 
-class _creadorImagenPerfilAmistadState extends State<creadorImagenPerfilAmistad> {
+class _creadorImagenPerfilAmistadState
+    extends State<creadorImagenPerfilAmistad> {
   Uint8List bitsImagen;
   initState() {
     super.initState();
-   widget.laimagen=Image.network(widget.urlImagen);
+    widget.laimagen = Image.network(widget.urlImagen);
   }
 
   void didChangeDependencies() {
@@ -714,9 +724,13 @@ class _creadorImagenPerfilAmistadState extends State<creadorImagenPerfilAmistad>
                   child: Stack(
                     alignment: AlignmentDirectional.bottomStart,
                     children: <Widget>[
+                      FadeInImage(
+                        height: ScreenUtil().setHeight(2500),
+                        placeholder: null, image: NetworkImage(widget.urlImagen),
+                        fadeInCurve: Curves.easeIn,
+                        fadeInDuration: Duration(milliseconds:200),
                       
-                     
-                       CachedNetworkImage(imageUrl: widget.urlImagen),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 10),
                         child: Column(
@@ -931,7 +945,7 @@ class DatosPerfiles {
     datosValoracion["id valoracion"] = crearCodigo();
     _enviarValoracion();
   }
-
+DatosPerfiles();
   DatosPerfiles.citas(
       {@required this.carrete,
       @required this.valoracion,
