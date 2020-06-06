@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
 import '../Actividades/TarjetaEvento.dart';
 import '../../main.dart';
+import 'package:citasnuevo/DatosAplicacion/actividad.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'people_screen_elements.dart';
@@ -92,7 +93,7 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
 
   TabBarView getTabBarView() {
     return TabBarView(
-      children: <Widget>[list_date(), list_global()],
+      children: <Widget>[list_date(), InvitacionesEventos()],
       controller: controller,
     );
   }
@@ -146,60 +147,24 @@ class list_date extends StatelessWidget {
   }
 }
 
-class list_global extends StatelessWidget {
+class InvitacionesEventos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          height: ScreenUtil().setHeight(120),
-          width: ScreenUtil().setWidth(500),
-          color: Colors.deepPurple.shade100,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              SizedBox(
-                width: ScreenUtil().setWidth(400),
-                child: Text(
-                  "Sara Gomez, 28",
-                  style: TextStyle(
-                      fontSize:
-                          ScreenUtil().setSp(50, allowFontScalingSelf: true),
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic),
-                ),
-              ),
-              SizedBox(
-                width: ScreenUtil().setWidth(1000),
-                child: Container(
-                  color: Colors.deepPurple.shade100,
-                  child: Text(
-                    "Mostoles, Madrid, a 8 km de ti,",
-                    style: TextStyle(
-                        fontSize:
-                            ScreenUtil().setSp(50, allowFontScalingSelf: true),
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Flexible(
-          fit: FlexFit.tight,
-          flex: 36,
-          child: ListView.builder(
-            itemBuilder: (_, index) => grupo_date(),
-            itemCount: 3,
-          ),
-        ),
-      ],
-    );
-    ;
+    return ListView.builder
+    
+    ( itemCount:EventosPropios.listaEventosPropios.length ,
+
+    itemBuilder: (BuildContext context,indice){
+      return Padding(
+        padding: const EdgeInsets.only(top:8.0,bottom: 8.0),
+        child: EventosPropios.listaEventosPropios[indice].tarjetaEvento,
+      );
+    },
+
+
+
+     );
   }
 }
 

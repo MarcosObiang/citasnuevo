@@ -226,7 +226,7 @@ class BotonAccesoState extends State<BotonAcceso> {
       Conversacion.obtenerConversaciones();
        Valoraciones.Puntuaciones.obtenerValoracion();
        Conversacion.conversaciones.escucharEstadoConversacion();
-      
+      EventosPropios.obtenerEventoosPropios();
      
         Actividad.cargarEventos();
        Conversacion.conversaciones.escucharMensajes();

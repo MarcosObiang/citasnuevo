@@ -284,6 +284,7 @@ init(){
         .collection("conversaciones")
         .getDocuments()
         .then((datos) async {
+          print("Total conversaciones ${datos.documents.length}");
       for (int a = 0; a < datos.documents.length; a++) {
         print("${datos.documents.length} total de conversaciones");
         TituloChat chatVentana = new TituloChat(
@@ -317,8 +318,7 @@ init(){
 
         conversaciones.listaDeConversaciones =
             List.from(conversaciones.listaDeConversaciones)..add(nueva);
-        print(
-            "${nueva.ventanaChat.listadeMensajes.length} cantidad de mensajes para mi");
+       
       }
     });
   }

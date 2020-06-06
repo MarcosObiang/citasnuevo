@@ -46,6 +46,7 @@ class Valoraciones extends ChangeNotifier {
         .orderBy("Time", descending: true)
         .snapshots()
         .listen((dato) {
+          if(dato!=null){
            int coincidencias=0;
       print("escuchado");
       List<DocumentSnapshot> valoraciones = dato.documents;
@@ -70,7 +71,7 @@ class Valoraciones extends ChangeNotifier {
           (dato.documents.last.data["Imagen Usuario"]).toString(),
           (dato.documents.last.data["Mensaje"]).toString(),
           double.parse((dato.documents.last.data["Valoracion"]).toString()),
-          (dato.documents.last.data["id valoracion"]).toString());}
+          (dato.documents.last.data["id valoracion"]).toString());}}
     });
   }
 
