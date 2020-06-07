@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -118,6 +119,7 @@ class Actividad with ChangeNotifier {
   List<Actividad> listaEventos = new List();
   List<Map<String, dynamic>> participantes = new List();
   List<EditarFotoEvento> fotosEventoEditar = new List();
+    List<SolicitanteEventoUsuario> solicitantes=new List();
 
   int contadorPrueba = 0;
   void aumentarContador() {
@@ -216,6 +218,36 @@ class Actividad with ChangeNotifier {
     //  print(plan);
   }
 
+  void CrearPlanEditado() {
+    assert(gustos != null);
+    if (this.tipoPlan == "Individual") {
+      this.participantesEvento = 1;
+    }
+
+    plan["Nombre"] = this.nombreEvento;
+    plan["Lugar"] = this.ubicacionEvento;
+    plan["Fecha"] = this.fechaEvento;
+    plan["Codigo Plan"] = this.codigoEvento;
+    plan["Comentarios"] = this.comentariosEvento;
+    plan["Image1"] = this.imagenUrl1;
+    plan["Image2"] = this.imagenUrl2;
+    plan["Image3"] = this.imagenUrl3;
+    plan["Image4"] = this.imagenUrl4;
+    plan["Image5"] = this.imagenUrl5;
+    plan["Image6"] = this.imagenUrl6;
+    plan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
+
+    plan["Gustos"] = this.gustos;
+    plan["Cantidad Participantes"] = this.participantesEvento;
+    plan["Plazas Disponibles"] = this.participantesEvento;
+    plan["Tipo Plan"] = this.tipoPlan;
+    CopiaPlan["Fecha"] = this.fechaEvento;
+    CopiaPlan["Codigo Plan"] = this.codigoEvento;
+    CopiaPlan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
+
+    //  print(plan);
+  }
+
   String crearCodigo() {
     List<String> letras = [
       "A",
@@ -301,9 +333,13 @@ class Actividad with ChangeNotifier {
 
   void Upload_Image() async {
     final databaseReference = Firestore.instance;
-    String v = esteEvento.crearCodigo();
-    final Codigo = v;
-    esteEvento.codigoEvento = v;
+    if (codigoEvento == null) {
+      String v = esteEvento.crearCodigo();
+
+      final Codigo = v;
+      esteEvento.codigoEvento = v;
+    }
+
     assert(esteEvento.codigoEvento != null);
     FirebaseStorage storage = FirebaseStorage.instance;
     StorageReference reference = storage.ref();
@@ -383,6 +419,95 @@ class Actividad with ChangeNotifier {
     });
   }
 
+  void SubirEventoEditado() async {
+    final databaseReference = Firestore.instance;
+    if (codigoEvento == null) {
+      String v = this.crearCodigo();
+
+      final Codigo = v;
+      this.codigoEvento = v;
+    }
+    CrearPlanEditado();
+
+    assert(this.codigoEvento != null);
+    FirebaseStorage storage = FirebaseStorage.instance;
+    StorageReference reference = storage.ref();
+    if (Images_List[0] != null) {
+      String Image1 =
+          "${Usuario.esteUsuario.idUsuario}/Planes/${this.codigoEvento}/imagenes/Image1.jpg";
+      StorageReference ImagesReference = reference.child(Image1);
+      StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[0]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      imagenUrl1 = URL;
+      print(URL);
+    }
+
+    if (Images_List[1] != null) {
+      String Image2 =
+          "${Usuario.esteUsuario.idUsuario}/Planes/${this.codigoEvento}/imagenes/Image2.jpg";
+      StorageReference ImagesReference = reference.child(Image2);
+      StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[1]);
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      print(URL);
+      imagenUrl2 = URL;
+    }
+    if (Images_List[2] != null) {
+      String Image3 =
+          "${Usuario.esteUsuario.idUsuario}/Planes/${this.codigoEvento}/imagenes/Image3.jpg";
+      StorageReference ImagesReference = reference.child(Image3);
+      StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[2]);
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      print(URL);
+      imagenUrl3 = URL;
+    }
+    if (Images_List[3] != null) {
+      String Image4 =
+          "${Usuario.esteUsuario.idUsuario}/Planes/${this.codigoEvento}/imagenes/Image4.jpg";
+      StorageReference ImagesReference = reference.child(Image4);
+      StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[3]);
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      print(URL);
+      imagenUrl4 = URL;
+    }
+    if (Images_List[4] != null) {
+      String Image5 =
+          "${Usuario.esteUsuario.idUsuario}/Planes/${this.codigoEvento}/imagenes/Image5.jpg";
+      StorageReference ImagesReference = reference.child(Image5);
+      StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[4]);
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      print(URL);
+      imagenUrl5 = URL;
+    }
+    if (Images_List[5] != null) {
+      String Image6 =
+          "${Usuario.esteUsuario.idUsuario}/Planes/${this.codigoEvento}/imagenes/Image6.jpg";
+      StorageReference ImagesReference = reference.child(Image6);
+      StorageUploadTask uploadTask = ImagesReference.putFile(Images_List[5]);
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      print(URL);
+      imagenUrl6 = URL;
+    }
+    //  this.fechaEvento = DateTime.parse("${Fecha} ${Hora}");
+    CrearPlanEditado();
+
+    print(fechaEvento);
+    assert(plan != null);
+    assert(fechaEvento != null);
+    databaseReference
+        .collection("actividades")
+        .document(this.codigoEvento)
+        .setData(this.plan)
+        .whenComplete(() {
+      databaseReference
+          .collection("usuarios")
+          .document(Usuario.esteUsuario.idUsuario)
+          .collection("Planes usuario")
+          .document("${esteEvento.codigoEvento}")
+          .setData(this.GetCopiaPlan());
+    });
+  }
+
   String get Hora => _horaEvento;
 
   set Hora(String value) {
@@ -416,6 +541,7 @@ class Actividad with ChangeNotifier {
     datosSolicitud["Plan de Interes"] = this.codigoEvento;
     datosSolicitud["Fecha Evento"] = this.fechaEvento;
     datosSolicitud["Lugar Evento"] = this.ubicacionEvento;
+     datosSolicitud["Edad Solicitante"] = Usuario.esteUsuario.edad.toString();
 
     baseDatos
         .collection("usuarios")
@@ -810,6 +936,7 @@ class SolicitudEventos {
   String lugarEvento;
   String idSolicitante;
   String nombreSolicitante;
+  String edadSolicitante;
   String imagenSolicitante;
   String idPlanSolicitud;
   List<String> participantesEvento = new List();
@@ -826,20 +953,21 @@ class SolicitudEventos {
   SolicitudEventos.solicitudDeParticipacionUsuario({
     @required this.horaSolicitud,
     @required this.fechaEvento,
-    @required this.nombreEvento,
+    @required this.edadSolicitante,
     @required this.nombreSolicitante,
     @required this.idSolicitante,
     @required this.lugarEvento,
     @required this.idPlanSolicitud,
+    @required this.imagenSolicitante,
   });
 
-  void crearSolicitudEventoUsuario(DocumentSnapshot dato) {
+  void crearSolicitudParticipacionEventoUsuario(DocumentSnapshot dato) {
     this.horaSolicitud = (dato.data["Hora Solicitud"]).toDate();
     this.idSolicitante = dato.data["ID Solicitante"];
     this.imagenSolicitante = dato.data["Imagen Solicitante"];
     this.nombreSolicitante = dato.data["Nombre Solicitante"];
     this.idPlanSolicitud = dato.data["Plan de Interes"];
-    this.fechaEvento = (dato.data["Fecha Evento"]).toDate;
+    this.fechaEvento = (dato.data["Fecha Evento"]).toDate();
     this.lugarEvento = dato.data["Lugar Evento"];
   }
 }
@@ -849,48 +977,48 @@ class EventosPropios {
   static final dia = new DateFormat("yMMMMEEEEd");
   Actividad eventoPropio;
   TarjetaEventoPropio tarjetaEvento;
+  
   static List<EventosPropios> listaEventosPropios = new List();
+  static EventosPropios instanciaEventosPoprios = EventosPropios.instancia();
 
+  EventosPropios.instancia();
   EventosPropios({@required this.eventoPropio}) {
     tarjetaEvento = new TarjetaEventoPropio(
       evento: eventoPropio,
+    
+     
     );
   }
-  static void obtenerEventoosPropios() async {
+  void obtenerEventoosPropios() async {
     referenciaBaseDatos
         .collection("actividades")
         .where("Creador Plan", isEqualTo: Usuario.esteUsuario.idUsuario)
         .getDocuments()
-        .then((datos) {
+        .then((datos) async {
       if (datos != null) {
         for (int i = 0; i < datos.documents.length; i++) {
           int indiceListaImagenes = 0;
           Actividad nueva = new Actividad();
           EventosPropios evento;
-          if (datos.documents[i].data["Image1"] != null) {
-            String ImagenURL1 = datos.documents[i].data["Image1"];
-            nueva.listaDeImagenes.add(ImagenURL1);
-          }
-          if (datos.documents[i].data["Image2"] != null) {
-            String ImagenURL2 = datos.documents[i].data["Image2"];
-            nueva.listaDeImagenes.add(ImagenURL2);
-          }
-          if (datos.documents[i].data["Image2"] != null) {
-            String ImagenURL3 = datos.documents[i].data["Image3"];
-            nueva.listaDeImagenes.add(ImagenURL3);
-          }
-          if (datos.documents[i].data["Image4"] != null) {
-            String ImagenURL4 = datos.documents[i].data["Image4"];
-            nueva.listaDeImagenes.add(ImagenURL4);
-          }
-          if (datos.documents[i].data["Image5"] != null) {
-            String ImagenURL5 = datos.documents[i].data["Image5"];
-            nueva.listaDeImagenes.add(ImagenURL5);
-          }
-          if (datos.documents[i].data["Image6"] != null) {
-            String ImagenURL6 = datos.documents[i].data["Image6"];
-            nueva.listaDeImagenes.add(ImagenURL6);
-          }
+
+          String ImagenURL1 = datos.documents[i].data["Image1"];
+          nueva.listaDeImagenes.add(ImagenURL1);
+
+          String ImagenURL2 = datos.documents[i].data["Image2"];
+          nueva.listaDeImagenes.add(ImagenURL2);
+
+          String ImagenURL3 = datos.documents[i].data["Image3"];
+          nueva.listaDeImagenes.add(ImagenURL3);
+
+          String ImagenURL4 = datos.documents[i].data["Image4"];
+          nueva.listaDeImagenes.add(ImagenURL4);
+
+          String ImagenURL5 = datos.documents[i].data["Image5"];
+          nueva.listaDeImagenes.add(ImagenURL5);
+
+          String ImagenURL6 = datos.documents[i].data["Image6"];
+          nueva.listaDeImagenes.add(ImagenURL6);
+
           nueva.imagenUrl1 = datos.documents[i].data["Image1"];
           nueva.imagenUrl2 = datos.documents[i].data["Image2"];
           nueva.imagenUrl3 = datos.documents[i].data["Image3"];
@@ -909,36 +1037,6 @@ class EventosPropios {
               datos.documents[i].data["Plazas Disponibles"];
           nueva.creadorEvento = datos.documents[i].data["Creador Plan"];
           nueva.codigoEvento = datos.documents[i].data["Codigo Plan"];
-          /*      if (nueva.imagenUrl1 != null) {
-            nueva.listaDeImagenes.add(nueva.imagenUrl1);
-            nueva.fotosEventoEditar.add(EditarFotoEvento(
-                esteEvento: nueva, box: 0, Imagen: nueva._Images_List[0]));
-          }
-          if (nueva.imagenUrl2 != null) {
-            nueva.listaDeImagenes.add(nueva.imagenUrl2);
-            nueva.fotosEventoEditar.add(EditarFotoEvento(
-                esteEvento: nueva, box: 1, Imagen: nueva._Images_List[1]));
-          }
-          if (nueva.imagenUrl3 != null) {
-            nueva.listaDeImagenes.add(nueva.imagenUrl3);
-            nueva.fotosEventoEditar.add(EditarFotoEvento(
-                esteEvento: nueva, box: 2, Imagen: nueva._Images_List[2]));
-          }
-          if (nueva.imagenUrl4 != null) {
-            nueva.listaDeImagenes.add(nueva.imagenUrl4);
-            nueva.fotosEventoEditar.add(EditarFotoEvento(
-                esteEvento: nueva, box: 3, Imagen: nueva._Images_List[3]));
-          }
-          if (nueva.imagenUrl5 != null) {
-            nueva.listaDeImagenes.add(nueva.imagenUrl5);
-            nueva.fotosEventoEditar.add(EditarFotoEvento(
-                esteEvento: nueva, box: 4, Imagen: nueva._Images_List[4]));
-          }
-          if (nueva.imagenUrl6 != null) {
-            nueva.listaDeImagenes.add(nueva.imagenUrl6);
-            nueva.fotosEventoEditar.add(EditarFotoEvento(
-                esteEvento: nueva, box: 5, Imagen: nueva._Images_List[5]));
-          }*/
 
           for (int i = 0; i < 6; i++) {
             nueva.fotosEventoEditar.add(EditarFotoEvento(
@@ -949,10 +1047,51 @@ class EventosPropios {
           }
 
           evento = new EventosPropios(eventoPropio: nueva);
+          
+         evento.eventoPropio.solicitantes = await  obtenerSolicitudesEventoUsuario(evento);
+        print( "${evento.eventoPropio.solicitantes.length}  eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
           listaEventosPropios.add(evento);
+          
         }
       }
     });
+  }
+
+  Future<List<SolicitanteEventoUsuario>> obtenerSolicitudesEventoUsuario (
+      EventosPropios evento) async{
+   List<SolicitanteEventoUsuario>solicitudes=new List();
+    SolicitudEventos solicitud;
+    SolicitanteEventoUsuario tarjetaSolicitud;
+   await referenciaBaseDatos
+        .collection("usuarios")
+        .document(Usuario.esteUsuario.idUsuario)
+        .collection("solicitudes actividad")
+        .where("Plan de Interes", isEqualTo: evento.eventoPropio.codigoEvento)
+        .getDocuments()
+        .then((datos) {
+      if (datos != null) {
+        for (DocumentSnapshot dato in datos.documents) {
+          solicitud = SolicitudEventos.solicitudDeParticipacionUsuario(
+              horaSolicitud: (dato["Hora Solicitud"]).toDate(),
+              fechaEvento: (dato["Hora Solicitud"]).toDate(),
+              edadSolicitante: (dato["Edad Solicitante"]).toString(),
+              nombreSolicitante: dato["Nombre Solicitante"],
+              idSolicitante: dato["ID Solicitante"],
+              lugarEvento: dato["Lugar Evento"],
+              imagenSolicitante: dato["Imagen Solicitante"],
+              idPlanSolicitud: dato["Plan de Interes"]);
+              
+          tarjetaSolicitud =
+              new SolicitanteEventoUsuario(estaSolicitud: solicitud);
+          solicitudes=List.from(solicitudes)..add(tarjetaSolicitud);
+           print( "${solicitudes.length}  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            print( " eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        }
+      }
+        //print( "${solicitudes.length}  eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+    
+    });
+    return solicitudes;
   }
 }
 
@@ -1153,8 +1292,10 @@ class TarjetaEventoPropio extends StatefulWidget {
   String lugarEvento;
   String comentariosEvento;
   Actividad evento;
+ 
   bool dejarDeBuscarImagen = true;
-  TarjetaEventoPropio({@required this.evento}) {
+
+  TarjetaEventoPropio({@required this.evento,}) {
     for (int i = 0;
         i < evento.listaDeImagenes.length && dejarDeBuscarImagen;
         i++) {
@@ -1183,8 +1324,10 @@ class _TarjetaEventoPropioState extends State<TarjetaEventoPropio> {
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    PantallaDetallesEventoPropio(evento: widget.evento))),
+                builder: (context) => PantallaDetallesEventoPropio(
+                      evento: widget.evento,
+                      
+                    ))),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -1366,11 +1509,14 @@ class _TarjetaEventoPropioState extends State<TarjetaEventoPropio> {
 
 class PantallaDetallesEventoPropio extends StatefulWidget {
   Actividad evento;
+  EventosPropios eventos;
   TextEditingController controladorNombreEvento;
   TextEditingController controladorLugarEvento;
   TextEditingController controladorComentariosEvento;
+  final dia = new DateFormat("yMMMMEEEEd");
+  final f = new DateFormat('HH:mm');
 
-  PantallaDetallesEventoPropio({@required this.evento}) {}
+  PantallaDetallesEventoPropio({@required this.evento});
   @override
   _PantallaDetallesEventoPropioState createState() =>
       _PantallaDetallesEventoPropioState();
@@ -1380,214 +1526,265 @@ class _PantallaDetallesEventoPropioState
     extends State<PantallaDetallesEventoPropio> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.evento.nombreEvento,
-          style: TextStyle(fontSize: ScreenUtil().setSp(70)),
+    return ChangeNotifierProvider.value(
+      value: Actividad.esteEvento,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            widget.evento.nombreEvento,
+            style: TextStyle(fontSize: ScreenUtil().setSp(70)),
+          ),
         ),
-      ),
-      body: Consumer<Actividad>(
-          builder: (BuildContext context, Actividad actividad, Widget child) {
-        return SingleChildScrollView(
-          child: Container(
-              child: Column(
-            children: <Widget>[
-              Container(
-                height: ScreenUtil().setHeight(600),
-                child: ListView.builder(
-                    itemCount: 6,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (BuildContext context, int indice) {
-                      return Container(
-                          padding: const EdgeInsets.all(10),
-                          child: widget.evento.fotosEventoEditar[indice]);
-                    }),
-              ),
-              Container(
-                child: FlatButton(
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text("Solicitudes"),
-                        Icon(Icons.people)
-                      ],
-                    )),
-              ),
-              Container(
-                child: FlatButton(
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text("Participantes 10/30"),
-                        Icon(Icons.people)
-                      ],
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(Icons.contacts),
-                          Text("Nombre Evento")
-                        ],
-                      ),
-                      TextFormField(
-                        initialValue: widget.evento.nombreEvento,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ],
-                  ),
+        body: Consumer<Actividad>(
+            builder: (BuildContext context, Actividad actividad, Widget child) {
+          return SingleChildScrollView(
+            child: Container(
+                child: Column(
+              children: <Widget>[
+                Container(
+                  height: ScreenUtil().setHeight(600),
+                  child: ListView.builder(
+                      itemCount: 6,
+                      addAutomaticKeepAlives: true,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (BuildContext context, int indice) {
+                        return Container(
+                            padding: const EdgeInsets.all(10),
+                            child: widget.evento.fotosEventoEditar[indice]);
+                      }),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                Container(
+                  child: FlatButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ListaDeSolicitudesEvento(
+                                      evento: widget.evento,
+                                    )));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          Icon(Icons.map),
-                          Text("Lugar Evento")
+                          Text("Solicitudes"),
+                          Icon(Icons.people)
                         ],
-                      ),
-                      Container(
-                        child: TextField(
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: widget.evento.nombreEvento),
-                        ),
-                      ),
-                    ],
-                  ),
+                      )),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        width: ScreenUtil().setWidth(600),
-                        child: Column(
+                Container(
+                  child: FlatButton(
+                      onPressed: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text("Participantes 10/30"),
+                          Icon(Icons.people)
+                        ],
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Icon(Icons.timer),
-                                Text("Hora Evento")
-                              ],
-                            ),
-                            Container(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    hintText: widget.evento.nombreEvento),
-                              ),
-                            ),
+                            Icon(Icons.contacts),
+                            Text("Nombre Evento")
                           ],
                         ),
-                      ),
-                      Container(
-                        width: ScreenUtil().setWidth(600),
-                        child: Column(
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Icon(Icons.calendar_today),
-                                Text("Fecha Evento")
-                              ],
-                            ),
-                            FlatButton(
-                              onPressed: () => showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(2020),
-                                  lastDate: DateTime(2100)).then((value) =>widget.evento.fechaEvento),
-                              child: Container(
-                                height: ScreenUtil().setHeight(180),
-                                width: ScreenUtil().setWidth(500),
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(3))),
-                                child: Center(
-                                  child: Text(widget.evento._fechaEvento),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(Icons.label_important),
-                          Text("Comentarios Evento")
-                        ],
-                      ),
-                      Container(
-                        child: TextFormField(
-                          initialValue: widget.evento.comentariosEvento,
-                          maxLines: 10,
+                        TextFormField(
+                          initialValue: widget.evento.nombreEvento,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                           ),
+                          controller: widget.controladorNombreEvento,
+                          onChanged: (valor) {
+                            widget.evento.nombreEvento = valor;
+                            print(widget.evento.nombreEvento);
+                          },
+                          textInputAction: TextInputAction.done,
                         ),
-                      ),
-                      Divider(
-                        height: ScreenUtil().setHeight(100),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Container(
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(Icons.map),
+                            Text("Lugar Evento")
+                          ],
+                        ),
+                        Container(
+                          child: TextFormField(
+                            initialValue: widget.evento.ubicacionEvento,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (valor) =>
+                                widget.evento.ubicacionEvento = valor,
+                            textInputAction: TextInputAction.done,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        FlatButton(
+                          onPressed: () {
+                            DatePicker.showTimePicker(context).then((value) {
+                              widget.evento.fechaEvento = value;
+                              Actividad.esteEvento.notifyListeners();
+                              print(widget.evento.fechaEvento);
+                            });
+                          },
+                          child: Container(
+                            width: ScreenUtil().setWidth(600),
+                            child: Column(
+                              children: <Widget>[
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Icon(Icons.timer),
+                                    Text("Hora Evento")
+                                  ],
+                                ),
+                                Container(
+                                  height: ScreenUtil().setHeight(180),
+                                  width: ScreenUtil().setWidth(500),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(3))),
+                                  child: Center(
+                                    child: Text(
+                                        widget.f
+                                            .format(widget.evento.fechaEvento),
+                                        style: TextStyle(
+                                          fontSize: ScreenUtil().setSp(90),
+                                        )),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: ScreenUtil().setWidth(600),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Icon(Icons.calendar_today),
+                                  Text("Fecha Evento")
+                                ],
+                              ),
+                              FlatButton(
+                                onPressed: () => showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(2020),
+                                        lastDate: DateTime(2100))
+                                    .then((value) {
+                                  widget.evento.fechaEvento = value;
+                                  Actividad.esteEvento.notifyListeners();
+                                }),
+                                child: Container(
+                                  height: ScreenUtil().setHeight(180),
+                                  width: ScreenUtil().setWidth(500),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(3))),
+                                  child: Center(
+                                    child: Text(widget.dia
+                                        .format(widget.evento.fechaEvento)),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(Icons.label_important),
+                            Text("Comentarios Evento")
+                          ],
+                        ),
+                        Container(
+                          child: TextFormField(
+                            initialValue: widget.evento.comentariosEvento,
+                            maxLines: 10,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (valor) =>
+                                widget.evento.comentariosEvento,
+                            textInputAction: TextInputAction.done,
+                          ),
+                        ),
+                        Divider(
+                          height: ScreenUtil().setHeight(100),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Container(
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(3)),
+                                    color: Colors.red),
+                                child: FlatButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Cancelar"),
+                                )),
+                            Container(
                               decoration: BoxDecoration(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(3)),
-                                  color: Colors.red),
+                                  color: Colors.green),
                               child: FlatButton(
-                                onPressed: () {},
-                                child: Text("Cancelar"),
-                              )),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                                color: Colors.green),
-                            child: FlatButton(
-                                onPressed: () {}, child: Text("Guardar")),
-                          )
-                        ],
-                      )
-                    ],
+                                  onPressed: () =>
+                                      widget.evento.SubirEventoEditado(),
+                                  child: Text("Guardar")),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
-          )),
-        );
-      }),
+                )
+              ],
+            )),
+          );
+        }),
+      ),
     );
   }
 }
@@ -1595,7 +1792,7 @@ class _PantallaDetallesEventoPropioState
 class EditarFotoEvento extends StatefulWidget {
   int box;
   File Imagen;
-  bool imagenDesdeRed = true;
+  bool imagenDesdeRed;
   Actividad esteEvento;
 
   EditarFotoEvento(
@@ -1605,6 +1802,8 @@ class EditarFotoEvento extends StatefulWidget {
       for (int i = 0; i < esteEvento.listaDeImagenes.length; i++) {
         if (esteEvento.listaDeImagenes[box] == null) {
           imagenDesdeRed = false;
+        } else {
+          imagenDesdeRed = true;
         }
       }
     }
@@ -1617,7 +1816,11 @@ class EditarFotoEvento extends StatefulWidget {
   }
 }
 
-class EditarFotoEventoState extends State<EditarFotoEvento> {
+class EditarFotoEventoState extends State<EditarFotoEvento>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   @override
   File Image_picture;
   File imagen;
@@ -1628,7 +1831,7 @@ class EditarFotoEventoState extends State<EditarFotoEvento> {
 
   static List<File> pictures = List(6);
   int box;
-  EditarFotoEventoState(this.box, this.imagen) {}
+  EditarFotoEventoState(this.box, this.imagen);
   void opcionesImagenPerfil() {
     showDialog(
         context: context,
@@ -1805,9 +2008,8 @@ class EditarFotoEventoState extends State<EditarFotoEvento> {
 
   Widget build(BuildContext context) {
     imagen = widget.Imagen;
-    if (widget.box >= widget.esteEvento.listaDeImagenes.length) {
-      widget.imagenDesdeRed = false;
-    }
+    print("Construido de nuevo");
+
     // TODO: implement build
     return Container(
       decoration: BoxDecoration(
@@ -1832,7 +2034,7 @@ class EditarFotoEventoState extends State<EditarFotoEvento> {
                 ),
               )
             : Stack(alignment: AlignmentDirectional.center, children: [
-                widget.imagenDesdeRed
+                widget.imagenDesdeRed && imagenFinal == null
                     ? Container(
                         height: ScreenUtil().setHeight(500),
                         child: Image.network(
@@ -1863,285 +2065,67 @@ class EditarFotoEventoState extends State<EditarFotoEvento> {
   }
 }
 
-class when_button extends StatefulWidget {
-  String birth;
-  when_button(String birth) {
-    this.birth = birth;
-  }
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return when_button_state(birth);
-  }
-}
-
-class when_button_state extends State<when_button> {
-  String birth_text;
-  DateTime date;
-  static int age;
-  when_button_state(String birth_text) {
-    this.birth_text = birth_text;
-  }
-  static int GetAge() {
-    return age;
-  }
-
+class SolicitanteEventoUsuario extends StatelessWidget {
+  SolicitudEventos estaSolicitud;
+  SolicitanteEventoUsuario({@required this.estaSolicitud});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(470),
-          height: ScreenUtil().setHeight(120),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            child: RaisedButton(
-              color: Colors.deepPurple,
-              elevation: 0,
-              onPressed: () {
-                setState(() {
-                  showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2100))
-                      .then((data) {
-                    if (data != null) {
-                      DateTime dato = data;
-                      plan_date_shower_state.fecha_final.value = dato;
-                    }
-
-                    print(data);
-                    return data;
-                  });
-                });
-              },
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(
-                  Icons.today,
-                  size: ScreenUtil().setSp(70),
-                  color: Colors.white,
-                ),
-                Text(
-                  birth_text,
-                  style: TextStyle(
-                      fontSize: ScreenUtil().setSp(70), color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 10,bottom: 10),
+      child: Container(
+        child: Row(
+          
+          children: <Widget>[
+          Flexible(
+            flex: 3,
+            fit:FlexFit.tight,
+                      child: Container(
+              height: ScreenUtil().setHeight(300),
+              child: Image.network(estaSolicitud.imagenSolicitante)),
           ),
+            Flexible(
+              flex: 6,
+            fit:FlexFit.tight,
+                          child: Container(
+                child: Text(estaSolicitud.nombreSolicitante),
+              ),
+            ),
+            Flexible(
+              flex: 3,
+            fit:FlexFit.tight,
+                          child: Container(
+                child: Text(estaSolicitud.edadSolicitante,style: TextStyle(fontSize:ScreenUtil().setSp(80)),),
+              ),
+            )
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-class plan_date_shower extends StatefulWidget {
-  String formatted_data;
-  Actividad esteEvento;
-
+class ListaDeSolicitudesEvento extends StatefulWidget {
+  Actividad evento;
+  ListaDeSolicitudesEvento({@required this.evento});
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return plan_date_shower_state();
-  }
+  _ListaDeSolicitudesEventoState createState() =>
+      _ListaDeSolicitudesEventoState();
 }
 
-class plan_date_shower_state extends State<plan_date_shower> {
-  var f = new DateFormat('dd-MM-yyyy');
-  var h = new DateFormat('yyyy-MM-dd');
-  var temp;
-
-  static ValueNotifier<DateTime> fecha_final = ValueNotifier<DateTime>(null);
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(400),
-          height: ScreenUtil().setHeight(120),
-          child: Material(
-            color: Colors.white,
-            elevation: 0,
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(3))),
-              child: Center(
-                  child: ValueListenableBuilder(
-                      valueListenable: fecha_final,
-                      builder: (BuildContext context, fecha, Widget child) {
-                        if (fecha == null) {
-                          return Text(
-                            "   -   -   - ",
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: ScreenUtil().setSp(60),
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          );
-                        } else {
-                          temp = h.format(fecha);
-                          widget.esteEvento.Fecha = temp;
-                          return Text(
-                            f.format(fecha),
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: ScreenUtil().setSp(60),
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          );
-                        }
-                      })),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class hour_button extends StatefulWidget {
-  String birth;
-
-  hour_button(String birth) {
-    this.birth = birth;
-  }
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return hour_button_state(birth);
-  }
-}
-
-class hour_button_state extends State<hour_button> {
-  DateTime Time;
-  String birth_text;
-  DateTime date;
-  static int age;
-  hour_button_state(String birth_text) {
-    this.birth_text = birth_text;
-  }
-  static int GetAge() {
-    return age;
-  }
-
+class _ListaDeSolicitudesEventoState extends State<ListaDeSolicitudesEvento> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(470),
-          height: ScreenUtil().setHeight(120),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            child: RaisedButton(
-              color: Colors.deepPurple,
-              elevation: 0,
-              onPressed: () {
-                DatePicker.showTimePicker(context, showSecondsColumn: false,
-                    onConfirm: (time) {
-                  print(time);
-                  setState(() {
-                    Time = time;
-                    plan_hour_shower_state.fecha_final.value = Time;
-                  });
-                });
-              },
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(
-                  Icons.access_time,
-                  size: ScreenUtil().setSp(70),
-                  color: Colors.white,
-                ),
-                Text(
-                  birth_text,
-                  style: TextStyle(
-                      fontSize: ScreenUtil().setSp(70), color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-            ),
-          ),
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Solicitudes"),
         ),
-      ],
-    );
-  }
-}
+        body: widget.evento.solicitantes.length==0? Center(
 
-class plan_hour_shower extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return plan_hour_shower_state();
-  }
-}
-
-class plan_hour_shower_state extends State<plan_hour_shower> {
-  final f = new DateFormat('HH:mm');
-  static DateTime Hora;
-  static ValueNotifier<DateTime> fecha_final = ValueNotifier<DateTime>(Hora);
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(400),
-          height: ScreenUtil().setHeight(120),
-          child: Material(
-            color: Colors.white,
-            elevation: 0,
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(3))),
-              child: Center(
-                  child: ValueListenableBuilder(
-                      valueListenable: fecha_final,
-                      builder: (BuildContext context, fecha, Widget child) {
-                        print("$fecha en casa");
-                        if (fecha == null) {
-                          return SizedBox(
-                            width: ScreenUtil().setWidth(300),
-                            child: Text(
-                              "  ",
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  fontSize: ScreenUtil().setSp(60),
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          );
-                        } else {
-                          Actividad.esteEvento.Hora = f.format(fecha);
-
-                          return Text(
-                            f.format(fecha),
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: ScreenUtil().setSp(60),
-                                color: Colors.deepPurple,
-                                fontWeight: FontWeight.bold),
-                          );
-                        }
-                      })),
-            ),
-          ),
-        ),
-      ],
-    );
+          child: Text("No hay Solicitudes"),
+        ):ListView.builder(
+            itemCount: widget.evento.solicitantes==null?0:widget.evento.solicitantes.length,
+            itemBuilder: (BuildContext context, int indice) {
+              return widget.evento.solicitantes[indice];
+            }));
   }
 }
