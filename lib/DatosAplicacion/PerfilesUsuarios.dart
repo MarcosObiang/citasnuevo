@@ -272,12 +272,13 @@ class Perfiles extends ChangeNotifier {
         await obtenetPerfilesCitas(Usuario.esteUsuario.DatosUsuario);
     ReceivePort puertoRecepcion = ReceivePort();
     WidgetsFlutterBinding.ensureInitialized();
-    Isolate proceso=await Isolate.spawn(isolateCitas, puertoRecepcion.sendPort,
+    Isolate proceso = await Isolate.spawn(
+        isolateCitas, puertoRecepcion.sendPort,
         debugName: "IsolateCitas");
     SendPort puertoEnvio = await puertoRecepcion.first;
     Perfiles.perfilesCitas.listaPerfiles = await enviarRecibirCitas(
         Usuario.esteUsuario, puertoEnvio, listaProvisional);
-        proceso.kill();
+    proceso.kill();
   }
 
   Future<dynamic> enviarRecibirCitas(Usuario user, SendPort puertos,
@@ -307,12 +308,13 @@ class Perfiles extends ChangeNotifier {
         await obtenerPerfilesAmistad(Usuario.esteUsuario.DatosUsuario);
     ReceivePort puertoRecepcion = ReceivePort();
     WidgetsFlutterBinding.ensureInitialized();
-   Isolate proceso= await Isolate.spawn(isolateCitas, puertoRecepcion.sendPort,
+    Isolate proceso = await Isolate.spawn(
+        isolateCitas, puertoRecepcion.sendPort,
         debugName: "IsolateAmistad");
     SendPort puertoEnvio = await puertoRecepcion.first;
     Perfiles.perfilesAmistad.listaPerfiles = await enviarRecibirAmistad(
         Usuario.esteUsuario, puertoEnvio, listaProvisional);
-        proceso.kill();
+    proceso.kill();
   }
 
   Future<dynamic> enviarRecibirAmistad(Usuario user, SendPort puertos,
@@ -603,13 +605,8 @@ class _creadorImagenPerfilState extends State<creadorImagenPerfil> {
                   child: Stack(
                     alignment: AlignmentDirectional.bottomStart,
                     children: <Widget>[
-                      FadeInImage(
-                        height: ScreenUtil().setHeight(2500),
-                       
-                        placeholder: MemoryImage(kTransparentImage), image: NetworkImage(widget.urlImagen),
-                        fadeInCurve: Curves.easeIn,
-                        fadeInDuration: Duration(milliseconds:200),
-                      
+                      CachedNetworkImage(
+                        imageUrl: widget.urlImagen,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 10),
@@ -724,12 +721,8 @@ class _creadorImagenPerfilAmistadState
                   child: Stack(
                     alignment: AlignmentDirectional.bottomStart,
                     children: <Widget>[
-                      FadeInImage(
-                        height: ScreenUtil().setHeight(2500),
-                        placeholder: null, image: NetworkImage(widget.urlImagen),
-                        fadeInCurve: Curves.easeIn,
-                        fadeInDuration: Duration(milliseconds:200),
-                      
+                      CachedNetworkImage(
+                        imageUrl: widget.urlImagen,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 10),
@@ -945,7 +938,8 @@ class DatosPerfiles {
     datosValoracion["id valoracion"] = crearCodigo();
     _enviarValoracion();
   }
-DatosPerfiles();
+
+  DatosPerfiles();
   DatosPerfiles.citas(
       {@required this.carrete,
       @required this.valoracion,

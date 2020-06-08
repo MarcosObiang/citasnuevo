@@ -82,7 +82,7 @@ class Pantalla_Actividades extends State<pantalla>
                   FlatButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                       Navigator.push(
+                        Navigator.push(
                             context,
                             PageRouteBuilder(
                                 transitionDuration: Duration(milliseconds: 100),
@@ -121,81 +121,78 @@ class Pantalla_Actividades extends State<pantalla>
             builder: (BuildContext context, actividad, Widget child) {
           return Scaffold(
             resizeToAvoidBottomInset: false,
-            resizeToAvoidBottomPadding: true,
+            resizeToAvoidBottomPadding: false,
             backgroundColor: Color.fromRGBO(255, 78, 132, 100),
             body: Padding(
               padding:
-                  const EdgeInsets.only(top: 3, bottom: 3, left: 5, right: 5),
+                  const EdgeInsets.only( left: 5, right: 5),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   Container(
-                    height: ScreenUtil().setHeight(150),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                   
-                        Container(
-                          height: ScreenUtil().setHeight(150),
-                          child: FlatButton(
-                            onPressed: () {
-                              _showActivityDialog();
-                            },
-                            child: Row(
-                              children: <Widget>[
-                                 Icon(
-                                  Icons.people,
-                                  color: Colors.white,
-                                  size: ScreenUtil().setSp(130),
-                                ),
-                                Text(
-                                  "Crear Plan",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: ScreenUtil().setSp(50)),
-                                ),
-                               
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          child: Row(
-                            children: <Widget>[
-                              Text(
-                                "En directo",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: ScreenUtil().setSp(50)),
-                              ),
-                              Icon(
-                                LineAwesomeIcons.globe,
-                                color: Colors.white,
-                                size: ScreenUtil().setSp(130),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: ScreenUtil().setHeight(110),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(3)),
                     ),
                     child: getTabBar(),
                   ),
                   Container(
-                      height: ScreenUtil().setHeight(2300),
-                      child: getTabBarView()),
-
-                  /* FloatingActionButton(
-                    onPressed: ()=>Perfiles().ObtenerPerfil(),
-                  )*/
+                    height: ScreenUtil().setHeight(2600),
+                    child: Stack(children: <Widget>[
+                      Container(
+                          height: ScreenUtil().setHeight(2600),
+                          child: getTabBarView()),
+                      Positioned(
+                        left: ScreenUtil().setWidth(1100),
+                        top: ScreenUtil().setHeight(1600),
+                        child: FlatButton(
+                          onPressed: () {
+                            _showActivityDialog();
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.people,
+                                color: Colors.white,
+                                size: ScreenUtil().setSp(130),
+                              ),
+                              Text(
+                                "Crear Plan",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: ScreenUtil().setWidth(1100),
+                        top: ScreenUtil().setHeight(1200),
+                        child: Container(
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  LineAwesomeIcons.globe,
+                                  color: Colors.white,
+                                  size: ScreenUtil().setSp(130),
+                                ),
+                                Text(
+                                  "En directo",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: ScreenUtil().setSp(40)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
                 ],
               ),
             ),
@@ -248,8 +245,8 @@ class Citas extends StatefulWidget {
   }
 }
 
-class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin<Citas>{
-  
+class CitasState extends State<Citas>
+    with AutomaticKeepAliveClientMixin<Citas> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -260,9 +257,9 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin<Citas>{
           return Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            height: ScreenUtil().setHeight(2400),
+            height: ScreenUtil().setHeight(2900),
             child: Stack(
-                alignment: AlignmentDirectional.bottomCenter,
+                alignment: AlignmentDirectional.center,
                 children: <Widget>[
                   perfiles.listaPerfiles == null
                       ? Center(
@@ -278,7 +275,7 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin<Citas>{
                           ),
                         )
                       : Container(
-                          height: ScreenUtil().setHeight(2400),
+                          height: ScreenUtil().setHeight(3000),
                           width: ScreenUtil().setWidth(1500),
                           child: PerfilesGenteCitas()),
                 ]),
@@ -301,7 +298,8 @@ class Amistad extends StatefulWidget {
   }
 }
 
-class AmistadState extends State<Amistad>with AutomaticKeepAliveClientMixin<Amistad> {
+class AmistadState extends State<Amistad>
+    with AutomaticKeepAliveClientMixin<Amistad> {
   bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
@@ -313,7 +311,7 @@ class AmistadState extends State<Amistad>with AutomaticKeepAliveClientMixin<Amis
           return Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            height: ScreenUtil().setHeight(2400),
+            height: ScreenUtil().setHeight(2900),
             child: Stack(
                 alignment: AlignmentDirectional.bottomCenter,
                 children: <Widget>[
@@ -330,7 +328,10 @@ class AmistadState extends State<Amistad>with AutomaticKeepAliveClientMixin<Amis
                             ],
                           ),
                         )
-                      : PerfilesGenteAmistad(),
+                      : Container(
+                        height: ScreenUtil().setHeight(2900),
+                          width: ScreenUtil().setWidth(1500),
+                        child: PerfilesGenteAmistad()),
                 ]),
           );
         },
@@ -338,19 +339,18 @@ class AmistadState extends State<Amistad>with AutomaticKeepAliveClientMixin<Amis
     );
   }
 }
-class Populares extends StatefulWidget{
+
+class Populares extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
     return PopularesState();
   }
-  
 }
 
-
-
-class PopularesState extends State<Populares> with AutomaticKeepAliveClientMixin<Populares> {
-    bool get wantKeepAlive => true;
+class PopularesState extends State<Populares>
+    with AutomaticKeepAliveClientMixin<Populares> {
+  bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

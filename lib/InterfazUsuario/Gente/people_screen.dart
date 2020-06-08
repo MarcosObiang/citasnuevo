@@ -39,41 +39,43 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return people();
+    return people(context);
   }
 
-  Widget people() {
-    return DefaultTabController(
-        length: 2,
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: new ThemeData(
-              highlightColor: Colors.deepPurple,
-              tabBarTheme: TabBarTheme(
-                  labelColor: Colors.deepPurple,
-                  unselectedLabelColor: Colors.black87,
-                  labelStyle: TextStyle(
-                      fontSize:
-                          ScreenUtil().setSp(60, allowFontScalingSelf: true),
-                      fontWeight: FontWeight.bold)),
-              primaryColor: Colors.white,
-              accentColor: Colors.deepPurple),
-          home: Scaffold(
-              backgroundColor: Colors.white,
-              //////////////////////////////////////////////////////////////////*********************************AppBar*********************************************************************************
-              appBar: PreferredSize(
-                preferredSize: Size.fromHeight(65.0),
-                child: AppBar(
-                  backgroundColor: Colors.white,
-                  bottom: getTabBar(),
-                ),
-              ),
-              body: getTabBarView()
+  Widget people(BuildContext context) {
+    return SafeArea(
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            child: DefaultTabController(
+            length: 2,
+            child: Material(
+            
+                  
+              child: Column(
+                children: <Widget>[
+                  Flexible(
+                     flex: 2,
+                    fit: FlexFit.tight,
+                                      child: Container(
+                     
+                      child: getTabBar()),
+                  ),
+                  Flexible(
+                    flex: 30,
+                    fit: FlexFit.tight,
+                                      child: Container(
+                    
+                      child: getTabBarView()),
+                  ),
+                ],
+              )
 
-              //***************************************************************************************Barra Baja
+                  //***************************************************************************************Barra Baja
 
-              ),
-        ));
+                  
+            )),
+          ),
+    );
   }
 
   TabBar getTabBar() {
@@ -129,20 +131,23 @@ class list_date extends StatelessWidget {
     // TODO: implement build
     return ChangeNotifierProvider.value(
       value: Conversacion.conversaciones,
-      child: Scaffold(body: Consumer<Conversacion>(
-        builder: (BuildContext context, conversacion, Widget child) {
-          print("cambio");
-          return Stack(
-                      children:<Widget>[ ListView.builder(
-         itemCount: conversacion.listaDeConversaciones.length,
-              itemBuilder: (BuildContext context,indice){
-             return conversacion.listaDeConversaciones[indice].ventanaChat;
-              },
+      child:  Container(
+          
+          child: Consumer<Conversacion>(
+          builder: (BuildContext context, conversacion, Widget child) {
+            print("cambio");
+            return Stack(
+                        children:<Widget>[ ListView.builder(
+           itemCount: conversacion.listaDeConversaciones.length,
+                itemBuilder: (BuildContext context,indice){
+               return conversacion.listaDeConversaciones[indice].ventanaChat;
+                },
 
-            ),]
-          );
-        },
-      )),
+              ),]
+            );
+          },
+        )),
+      
     );
   }
 }

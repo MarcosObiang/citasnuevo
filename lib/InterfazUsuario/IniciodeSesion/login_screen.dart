@@ -46,70 +46,70 @@ class login_screen_state extends State<login_screen> {
     ScreenUtil.init(context, width: 1440, height: 3120, allowFontScaling: true);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: Container(
-            height: ScreenUtil().setHeight(2400),
-            decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.only(bottomLeft: Radius.circular(100)),
-                color: Colors.deepPurple),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      "  Hello",
-                      style: TextStyle(fontSize: ScreenUtil().setSp(150), color: Colors.white),
+      home: Material(
+              child: SafeArea(
+                    child: Container(
+              height: ScreenUtil().setHeight(2400),
+              decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.only(bottomLeft: Radius.circular(100)),
+                  color: Colors.deepPurple),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        "  Hello",
+                        style: TextStyle(fontSize: ScreenUtil().setSp(150), color: Colors.white),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        new EntradaTextoAcceso(
-                          Icon(
-                            Icons.mail,
-                            color: Colors.white,
-                            size: ScreenUtil().setSp(100),
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          new EntradaTextoAcceso(
+                            Icon(
+                              Icons.mail,
+                              color: Colors.white,
+                              size: ScreenUtil().setSp(100),
+                            ),
+                            entradaEmail,
+                            5,
+                            false,
                           ),
-                          entradaEmail,
-                          5,
-                          false,
-                        ),
-                        new EntradaTextoAcceso(
-                          Icon(
-                            Icons.lock,
-                            color: Colors.white,
-                            size: ScreenUtil().setSp(100),
+                          new EntradaTextoAcceso(
+                            Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: ScreenUtil().setSp(100),
+                            ),
+                            entradaClave,
+                            3,
+                            true,
                           ),
-                          entradaClave,
-                          3,
-                          true,
-                        ),
-                        Container(
-                          height:   ScreenUtil().setHeight(20),
-                        ),
-                        Container(
-                          height: ScreenUtil().setHeight(20),
-                        ),
-                        Container(
-                          height: ScreenUtil().setHeight(60),
-                        ),
-                        BotonAcceso()
-                      ],
+                          Container(
+                            height:   ScreenUtil().setHeight(20),
+                          ),
+                          Container(
+                            height: ScreenUtil().setHeight(20),
+                          ),
+                          Container(
+                            height: ScreenUtil().setHeight(60),
+                          ),
+                          BotonAcceso()
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
       ),
+      
     );
   }
 }

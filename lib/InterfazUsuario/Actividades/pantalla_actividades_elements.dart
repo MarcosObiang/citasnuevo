@@ -560,7 +560,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-      height: ScreenUtil().setHeight(2400),
+      height: ScreenUtil().setHeight(2900),
       width: ScreenUtil().setWidth(1500),
       child: ScrollablePositionedList.builder(
         itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
@@ -582,7 +582,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
 
           return Stack(alignment: Alignment.bottomCenter, children: [
             Container(
-              height: ScreenUtil().setHeight(2400),
+              height: ScreenUtil().setHeight(2900),
               width: ScreenUtil().setWidth(1400),
               child: ListView(
                 children: Perfiles.perfilesCitas.listaPerfiles[indice].carrete,
@@ -590,7 +590,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
             ),
             leGusta
                 ? Container(
-                    height: ScreenUtil().setHeight(2400),
+                    height: ScreenUtil().setHeight(2900),
                     width: ScreenUtil().setWidth(1400),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(
@@ -859,7 +859,7 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
 
         return Stack(alignment: Alignment.bottomCenter, children: [
           Container(
-            height: ScreenUtil().setHeight(2400),
+            height: ScreenUtil().setHeight(2900),
             width: ScreenUtil().setWidth(1400),
             child: ListView(
               children: Perfiles.perfilesAmistad.listaPerfiles[indice].carrete,
@@ -1010,7 +1010,7 @@ class EventosCercaState extends State<EventosCerca> {
 
         return Stack(alignment: Alignment.bottomCenter, children: [
           Container(
-            height: ScreenUtil().setHeight(2400),
+            height: ScreenUtil().setHeight(3100),
             width: ScreenUtil().setWidth(1400),
             child: ListView(
               children: Actividad.cacheActividadesParaTi.listaEventos[indice].carrete,

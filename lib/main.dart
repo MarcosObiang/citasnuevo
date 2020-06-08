@@ -1,3 +1,4 @@
+import 'package:citasnuevo/InterfazUsuario/Gente/people_screen_elements.dart';
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart';
 import 'base_app.dart';

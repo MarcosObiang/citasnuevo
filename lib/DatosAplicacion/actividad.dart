@@ -1646,9 +1646,10 @@ class _PantallaDetallesEventoPropioState
                         FlatButton(
                           onPressed: () {
                             DatePicker.showTimePicker(context).then((value) {
+                              if(value!=null){
                               widget.evento.fechaEvento = value;
                               Actividad.esteEvento.notifyListeners();
-                              print(widget.evento.fechaEvento);
+                              print(widget.evento.fechaEvento);}
                             });
                           },
                           child: Container(
@@ -1700,8 +1701,9 @@ class _PantallaDetallesEventoPropioState
                                         firstDate: DateTime(2020),
                                         lastDate: DateTime(2100))
                                     .then((value) {
+                                      if(value!=null){
                                   widget.evento.fechaEvento = value;
-                                  Actividad.esteEvento.notifyListeners();
+                                  Actividad.esteEvento.notifyListeners();}
                                 }),
                                 child: Container(
                                   height: ScreenUtil().setHeight(180),
