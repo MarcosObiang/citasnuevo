@@ -45,6 +45,13 @@ ImageURL5["Imagen"]="";
 ImageURL6["Imagen"]="";
 
 }
+///************************************************************************ */
+///
+///
+///Datos Personales Basicos-----Informacion OBLIGATORIA paara crear ell perfil
+///
+///
+///************************************************************************ */
   String nombre;
   String alias;
   String clave;
@@ -57,6 +64,81 @@ ImageURL6["Imagen"]="";
   String sexoPareja;
   DateTime _fechaNacimiento;
   String observaciones;
+  ///
+  ///
+  ///Filtros de busqueda------- datos que debes completar para aparecer en la busqueda mas personalizada de otros usuarios
+  ///
+  ///
+  double altura;
+  String complexion;
+  Map<String,String>formacion=new Map();
+  Map<String,String>trabajo=new Map();
+  String alcohol;
+  String tabaco;
+  String idiomas;
+  String mascotas;
+  String busco;
+  String hijos;
+  String zodiaco;
+  String vegetarianoOvegano;
+  String politica;
+  String religion;
+  String vivoCon;
+  ///*************************************+ */
+  ///
+  ///Preguntas perfil---preguntas hechas al usuario y respondidas por este para hacer un perfil mas personal
+  ///
+  ///
+  ///********************************** */
+  String queBuscasEnAlguien;
+  String queOdiasEnAlguien;
+  String recetaFelicidad;
+  String siQuedaUnDiaDeVida;
+  String queMusicaTeGusta;
+  String enQueEresBueno;
+  String queEsLoQueMasValoras;
+  String laGenteDiceQueSoy;
+  String estoyAquiPara;
+  String queMeHaceReir;
+  String citaPErfecta;
+  String cancionFavorita;
+  String comidaFavorita;
+  String unaVerdadUnaMentira;
+  String meHariaFamosoPor;
+  String siFueraUnHeroe;
+  String siFueraUnVillano;
+  String comerUnPlatoElRestoDeMividaSeria;
+  String nosLlevaremosBienSi;
+  String borrachoSoyMuy;
+  String anecdota;
+  String peliculaRecomiendas;
+  String habilidadSecretaa;
+
+  ///******************************************************
+  ///
+  ///
+  ///
+  ///Filtros Eventos---especificar eventos preferidos del usuario
+  ///
+  ///
+  ///
+  ///**************+******************************************* 
+  bool coches=false;
+  bool videoJuegos=false;
+  bool cine=false;
+  bool comida=false;
+  bool modaYBelleza=false;
+  bool animales=false;
+  bool naturaleza=false;
+  bool vidaSocial=false;
+  bool musica=false;
+  bool deporteFitness=false;
+  bool fiesta=false;
+  bool viajes=false;
+  bool politicaSociedad=false;
+  bool cienciaTecnologia=false;
+  bool activismo=false;
+  
 
   void configurarModo(){
     if(citas){

@@ -985,9 +985,11 @@ class TituloChat extends StatefulWidget {
     return TituloChatState(imagen, nombre, ultimoMensaje);
   }
 
-  void enviarMensaje(String mensajeTexto, String idMensaje,) {
+  void enviarMensaje(
+    String mensajeTexto,
+    String idMensaje,
+  ) {
     if (mensajeTexto != null) {
-        
       Map<String, dynamic> mensaje = Map();
       DateTime horaMensaje = DateTime.now();
       mensaje["Hora mensaje"] = horaMensaje;
@@ -1491,7 +1493,9 @@ class PantallaConversacionState extends State<PantallaConversacion> {
   }
 
   TextEditingController controladorTexto = new TextEditingController();
+
   Widget build(BuildContext context) {
+    
     bool empezarListaAbajo = true;
     if (controlador.hasClients) {
       SchedulerBinding.instance.addPostFrameCallback((_) {});
@@ -1501,7 +1505,7 @@ class PantallaConversacionState extends State<PantallaConversacion> {
       value: Conversacion.conversaciones,
       child: Consumer<Conversacion>(
         builder: (BuildContext context, conversacion, Widget child) {
-          // moverChatAbajo();
+          moverChatAbajo();
           List<Mensajes> mensajesTemporales = widget.mensajesTexto();
           if (mensajesTemporales.isEmpty) {
             emprezarListaAbajo();
@@ -1519,13 +1523,15 @@ class PantallaConversacionState extends State<PantallaConversacion> {
           print(estado);
           estado = widget.recibirEstadoConversacionActualizado();
 
-          return Container(
+          return  Container(
             child: Scaffold(
               resizeToAvoidBottomPadding: true,
               resizeToAvoidBottomInset: true,
               primary: true,
               backgroundColor: Colors.pink,
-              appBar: AppBar(title: Text("Atras")),
+              appBar:  AppBar(
+               
+                title: Text("Atras $estado")),
               body: SafeArea(
                 child: Column(
                   children: <Widget>[
@@ -1542,253 +1548,261 @@ class PantallaConversacionState extends State<PantallaConversacion> {
                             child:
                                 LayoutBuilder(builder: (context, constrains) {
                               return SingleChildScrollView(
+                                
                                 reverse: true,
+                               physics: NeverScrollableScrollPhysics(),
                                 child: Container(
-                                  height: MediaQuery.of(context).size.height,
+                                  height:constrains.maxHeight,
                                   child: Stack(children: <Widget>[
                                     Stack(
                                       children: <Widget>[
                                         NotificationListener<
                                             ScrollUpdateNotification>(
-                                          child: Column(
-                                            children: <Widget>[
-                                              Flexible(
-                                                flex: 22,
-                                                fit: FlexFit.tight,
-                                                child: GestureDetector(
-                                                  onTap: ()=>  FocusScope.of(context).unfocus(),
-                                                                                                  child: Container(
-                                                    child: ListView.builder(
-                                                      controller: controlador,
-                                                      itemCount:
-                                                          mensajesTemporales
-                                                              .length,
-                                                      itemBuilder:
-                                                          (BuildContext context,
-                                                              indice) {
-                                                        if (empezarListaAbajo) {
-                                                          emprezarListaAbajo();
-                                                          empezarListaAbajo =
-                                                              false;
-                                                        }
-                                                        mostrarBotonAbajo();
-                                                        return mensajesTemporales[
-                                                            indice];
-                                                      },
+                                          child: Container(
+                                            child: Column(
+                                              children: <Widget>[
+                                                Flexible(
+                                                  flex: 22,
+                                                  fit: FlexFit.tight,
+                                                  child: GestureDetector(
+                                                    onTap: () =>
+                                                        FocusScope.of(context)
+                                                            .unfocus(),
+                                                    child: Container(
+                                                      child: ListView.builder(
+                                                        controller: controlador,
+                                                        itemCount:
+                                                            mensajesTemporales
+                                                                .length,
+                                                        itemBuilder:
+                                                            (BuildContext context,
+                                                                indice) {
+                                                          if (empezarListaAbajo) {
+                                                            emprezarListaAbajo();
+                                                            empezarListaAbajo =
+                                                                false;
+                                                          }
+                                                          mostrarBotonAbajo();
+                                                          return mensajesTemporales[
+                                                              indice];
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              Flexible(
-                                                flex: 2,
-                                                fit: FlexFit.tight,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  3)),
-                                                      color: Colors.white),
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Flexible(
-                                                        flex: 8,
-                                                        fit: FlexFit.tight,
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            10)),
-                                                            color: Colors.white,
-                                                          ),
-                                                          child: TextField(
-                                                            expands: true,
-                                                            controller:
-                                                                controladorTexto,
+                                                Flexible(
+                                                  flex: 3,
+                                                  fit: FlexFit.tight,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    3)),
+                                                        color: Colors.white),
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Flexible(
+                                                          flex: 8,
+                                                          fit: FlexFit.tight,
+                                                          child: Container(
                                                             decoration:
-                                                                InputDecoration(
-                                                              counter:
-                                                                  Offstage(),
-                                                              labelText:
-                                                                  "Mensaje",
+                                                                BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(Radius
+                                                                          .circular(
+                                                                              10)),
+                                                              color: Colors.white,
                                                             ),
-                                                            maxLength: 3000,
-                                                            minLines: null,
-                                                            maxLines: null,
-                                                            onChanged: (valor) {
-                                                              if (valor !=
-                                                                      null ||
-                                                                  valor !=
-                                                                      " " ||
-                                                                  valor
-                                                                      .isNotEmpty) {
-                                                                if (!widget
-                                                                    .estaEscribiendo) {
-                                                                  widget
-                                                                      .estadoConversacion(
-                                                                          true);
-                                                                  widget.estaEscribiendo =
-                                                                      true;
+                                                            child: TextField(
+                                                              expands: true,
+                                                              controller:
+                                                                  controladorTexto,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                counter:
+                                                                    Offstage(),
+                                                                labelText:
+                                                                    "Mensaje",
+                                                              ),
+                                                              maxLength: 3000,
+                                                              minLines: null,
+                                                              maxLines: null,
+                                                              onChanged: (valor) {
+                                                                if (valor !=
+                                                                        null ||
+                                                                    valor !=
+                                                                        " " ||
+                                                                    valor
+                                                                        .isNotEmpty) {
+                                                                  if (!widget
+                                                                      .estaEscribiendo) {
+                                                                    widget
+                                                                        .estadoConversacion(
+                                                                            true);
+                                                                    widget.estaEscribiendo =
+                                                                        true;
+                                                                  }
+                                                                  mostrarBotontexto();
                                                                 }
-                                                                mostrarBotontexto();
-                                                              }
-                                                              if (valor ==
-                                                                      null ||
-                                                                  valor ==
-                                                                      " " ||
-                                                                  valor
-                                                                      .isEmpty) {
-                                                                ocultarBotonEnvio();
-                                                                if (widget
-                                                                    .estaEscribiendo) {
-                                                                  widget
-                                                                      .estadoConversacion(
-                                                                          false);
-                                                                  widget.estaEscribiendo =
-                                                                      false;
-                                                                }
-                                                              }
-                                                              mensajeTemp =
-                                                                  valor;
-                                                              print(valor);
-                                                            },
-                                                            textInputAction:
-                                                                TextInputAction
-                                                                    .done,
-                                                            onSubmitted:
-                                                                (valor) {
-                                                              widget
-                                                                  .estadoConversacion(
-                                                                      false);
-                                                              widget.estaEscribiendo =
-                                                                  false;
-                                                              ocultarBotonEnvio();
-                                                              mensajeTemp =
-                                                                  valor;
-                                                              widget.mensajesEnviar(
-                                                                  mensajeTemp,
-                                                                  widget
-                                                                      .mensajeId);
-                                                              controladorTexto
-                                                                  .clear();
-                                                              mensajeTemp = "";
-                                                              moverChatAbajo();
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      mostrarBotonEnvio
-                                                          ? Flexible(
-                                                              flex: 3,
-                                                              fit:
-                                                                  FlexFit.tight,
-                                                              child: Container(
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  borderRadius:
-                                                                      BorderRadius.all(
-                                                                          Radius.circular(
-                                                                              3)),
-                                                                  color: Colors
-                                                                      .red,
-                                                                ),
-                                                                child:
-                                                                    FlatButton(
-                                                                  onPressed:
-                                                                      () {
-                                                                          FocusScope.of(context).unfocus();
-                                                                    widget.mensajesEnviar(
-                                                                        mensajeTemp,
-                                                                        widget
-                                                                            .mensajeId);
-                                                                    controladorTexto
-                                                                        .clear();
-                                                                    widget.estadoConversacion(
-                                                                        false);
+                                                                if (valor ==
+                                                                        null ||
+                                                                    valor ==
+                                                                        " " ||
+                                                                    valor
+                                                                        .isEmpty) {
+                                                                  ocultarBotonEnvio();
+                                                                  if (widget
+                                                                      .estaEscribiendo) {
+                                                                    widget
+                                                                        .estadoConversacion(
+                                                                            false);
                                                                     widget.estaEscribiendo =
                                                                         false;
-                                                                  },
-                                                                  child: Icon(
-                                                                      Icons
-                                                                          .send),
+                                                                  }
+                                                                }
+                                                                mensajeTemp =
+                                                                    valor;
+                                                                print(valor);
+                                                              },
+                                                              textInputAction:
+                                                                  TextInputAction
+                                                                      .done,
+                                                              onSubmitted:
+                                                                  (valor) {
+                                                                widget
+                                                                    .estadoConversacion(
+                                                                        false);
+                                                                widget.estaEscribiendo =
+                                                                    false;
+                                                                ocultarBotonEnvio();
+                                                                mensajeTemp =
+                                                                    valor;
+                                                                widget.mensajesEnviar(
+                                                                    mensajeTemp,
+                                                                    widget
+                                                                        .mensajeId);
+                                                                controladorTexto
+                                                                    .clear();
+                                                                mensajeTemp = "";
+                                                                moverChatAbajo();
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        mostrarBotonEnvio
+                                                            ? Flexible(
+                                                                flex: 3,
+                                                                fit:
+                                                                    FlexFit.tight,
+                                                                child: Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(
+                                                                                3)),
+                                                                    color: Colors
+                                                                        .red,
+                                                                  ),
+                                                                  child:
+                                                                      FlatButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      widget.mensajesEnviar(
+                                                                          mensajeTemp,
+                                                                          widget
+                                                                              .mensajeId);
+                                                                      controladorTexto
+                                                                          .clear();
+                                                                      widget.estadoConversacion(
+                                                                          false);
+                                                                      widget.estaEscribiendo =
+                                                                          false;
+                                                                    },
+                                                                    child: Icon(
+                                                                        Icons
+                                                                            .send),
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            )
-                                                          : Flexible(
-                                                              flex: 4,
-                                                              fit:
-                                                                  FlexFit.tight,
-                                                              child: Row(
-                                                                children: <
-                                                                    Widget>[
-                                                                  Flexible(
-                                                                    flex: 2,
-                                                                    fit: FlexFit
-                                                                        .tight,
-                                                                    child:
-                                                                        Container(
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        borderRadius:
-                                                                            BorderRadius.all(Radius.circular(3)),
-                                                                        color: Colors
-                                                                            .red,
-                                                                      ),
+                                                              )
+                                                            : Flexible(
+                                                                flex: 4,
+                                                                fit:
+                                                                    FlexFit.tight,
+                                                                child: Row(
+                                                                  children: <
+                                                                      Widget>[
+                                                                    Flexible(
+                                                                      flex: 2,
+                                                                      fit: FlexFit
+                                                                          .tight,
                                                                       child:
-                                                                          GestureDetector(
-                                                                        onLongPress:
-                                                                            () {
-                                                                          iniciarGrabacionAudio();
-                                                                        },
-                                                                        onLongPressUp:
-                                                                            () {
-                                                                          pararGrabacion();
-                                                                        },
+                                                                          Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          borderRadius:
+                                                                              BorderRadius.all(Radius.circular(3)),
+                                                                          color: Colors
+                                                                              .red,
+                                                                        ),
                                                                         child:
-                                                                            FlatButton(
-                                                                          onPressed:
-                                                                              () {},
+                                                                            GestureDetector(
+                                                                          onLongPress:
+                                                                              () {
+                                                                            iniciarGrabacionAudio();
+                                                                          },
+                                                                          onLongPressUp:
+                                                                              () {
+                                                                            pararGrabacion();
+                                                                          },
                                                                           child:
-                                                                              Icon(Icons.mic),
+                                                                              FlatButton(
+                                                                            onPressed:
+                                                                                () {},
+                                                                            child:
+                                                                                Icon(Icons.mic),
+                                                                          ),
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                  Flexible(
-                                                                    flex: 2,
-                                                                    fit: FlexFit
-                                                                        .tight,
-                                                                    child:
-                                                                        Container(
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        borderRadius:
-                                                                            BorderRadius.all(Radius.circular(2)),
-                                                                        color: Colors
-                                                                            .red,
-                                                                      ),
+                                                                    Flexible(
+                                                                      flex: 2,
+                                                                      fit: FlexFit
+                                                                          .tight,
                                                                       child:
-                                                                          FlatButton(
-                                                                        onPressed:
-                                                                            () {
-                                                                          opcionesImagenPerfil();
-                                                                        },
-                                                                        child: Icon(
-                                                                            Icons.add_photo_alternate),
+                                                                          Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          borderRadius:
+                                                                              BorderRadius.all(Radius.circular(2)),
+                                                                          color: Colors
+                                                                              .red,
+                                                                        ),
+                                                                        child:
+                                                                            FlatButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            opcionesImagenPerfil();
+                                                                          },
+                                                                          child: Icon(
+                                                                              Icons.add_photo_alternate),
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                ],
+                                                                  ],
+                                                                ),
                                                               ),
-                                                            ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                           onNotification: (valor) {
                                             // print("movido");
@@ -1854,7 +1868,6 @@ class PantallaConversacionState extends State<PantallaConversacion> {
                   ],
                 ),
               ),
-              
             ),
           );
         },

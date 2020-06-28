@@ -114,20 +114,17 @@ class Pantalla_Actividades extends State<pantalla>
     ScreenUtil.init(context,
         width: 1440, height: 3120, allowFontScaling: false);
     // TODO: implement build
-    return SafeArea(
+    return Container(
       child: DefaultTabController(
         length: 3,
-        child: Consumer<Actividad>(
-            builder: (BuildContext context, actividad, Widget child) {
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            resizeToAvoidBottomPadding: false,
-            backgroundColor: Color.fromRGBO(255, 78, 132, 100),
-            body: Padding(
-              padding:
-                  const EdgeInsets.only( left: 5, right: 5),
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomPadding: false,
+          backgroundColor: Color.fromRGBO(255, 78, 132, 100),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 5, right: 5),
               child: Column(
-
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
@@ -141,7 +138,7 @@ class Pantalla_Actividades extends State<pantalla>
                     height: ScreenUtil().setHeight(2600),
                     child: Stack(children: <Widget>[
                       Container(
-                          height: ScreenUtil().setHeight(2600),
+                          height: ScreenUtil().setHeight(3000),
                           child: getTabBarView()),
                       Positioned(
                         left: ScreenUtil().setWidth(1100),
@@ -196,8 +193,8 @@ class Pantalla_Actividades extends State<pantalla>
                 ],
               ),
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }
@@ -254,10 +251,11 @@ class CitasState extends State<Citas>
       value: Perfiles.perfilesCitas,
       child: Consumer<Perfiles>(
         builder: (BuildContext context, perfiles, Widget child) {
+          print("actividadconstruida");
           return Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            height: ScreenUtil().setHeight(2900),
+            height: ScreenUtil().setHeight(3200),
             child: Stack(
                 alignment: AlignmentDirectional.center,
                 children: <Widget>[
@@ -329,9 +327,9 @@ class AmistadState extends State<Amistad>
                           ),
                         )
                       : Container(
-                        height: ScreenUtil().setHeight(2900),
+                          height: ScreenUtil().setHeight(2900),
                           width: ScreenUtil().setWidth(1500),
-                        child: PerfilesGenteAmistad()),
+                          child: PerfilesGenteAmistad()),
                 ]),
           );
         },
@@ -341,6 +339,7 @@ class AmistadState extends State<Amistad>
 }
 
 class Populares extends StatefulWidget {
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -354,7 +353,15 @@ class PopularesState extends State<Populares>
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return EventosCerca();
+    return ChangeNotifierProvider.value(
+      value:Actividad.cacheActividadesParaTi,
+          child: Consumer<Actividad>(
+        builder: (BuildContext context, actividad, Widget child) {
+         
+          return Container(child: EventosCerca());
+        },
+      ),
+    );
   }
 }
 

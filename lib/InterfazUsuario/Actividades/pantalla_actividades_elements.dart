@@ -561,8 +561,8 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
     // TODO: implement build
     return Container(
       height: ScreenUtil().setHeight(2900),
-     
-      decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+      decoration:
+          BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
       child: ScrollablePositionedList.builder(
         itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
         physics: NeverScrollableScrollPhysics(),
@@ -585,7 +585,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
             Container(
               height: ScreenUtil().setHeight(2900),
               width: ScreenUtil().setWidth(1400),
-              padding: EdgeInsets.only(left: 10,right: 10),
+              padding: EdgeInsets.only(left: 10, right: 10),
               child: ListView(
                 children: Perfiles.perfilesCitas.listaPerfiles[indice].carrete,
               ),
@@ -750,9 +750,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                     ),
                     child: FlatButton(
                       padding: EdgeInsets.all(8),
-                      onPressed: () => {
-                        
-                      },
+                      onPressed: () => {},
                       child: Icon(
                         LineAwesomeIcons.star,
                         color: Colors.white,
@@ -863,7 +861,7 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
           Container(
             height: ScreenUtil().setHeight(2900),
             width: ScreenUtil().setWidth(1400),
-            padding: EdgeInsets.only(left: 10,right: 10),
+            padding: EdgeInsets.only(left: 10, right: 10),
             child: ListView(
               children: Perfiles.perfilesAmistad.listaPerfiles[indice].carrete,
             ),
@@ -977,6 +975,7 @@ class EventosCerca extends StatefulWidget {
 }
 
 class EventosCercaState extends State<EventosCerca> {
+  final f = DateFormat(DateFormat.YEAR_MONTH_WEEKDAY_DAY);
   ItemScrollController mover = new ItemScrollController();
 
   double valorSlider = 5;
@@ -989,8 +988,18 @@ class EventosCercaState extends State<EventosCerca> {
     print("Fuera");
   }
 
+  void rebuildAllChildren(BuildContext context) {
+    void rebuild(Element el) {
+      el.markNeedsBuild();
+      el.visitChildren(rebuild);
+    }
+
+    (context as Element).visitChildren(rebuild);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("Stronggg");
     // TODO: implement build
     return ScrollablePositionedList.builder(
       itemCount: Actividad.cacheActividadesParaTi.listaEventos.length,
@@ -999,7 +1008,7 @@ class EventosCercaState extends State<EventosCerca> {
       reverse: false,
       scrollDirection: Axis.horizontal,
       itemBuilder: (BuildContext context, int indice) {
-        void noLike(DatosPerfiles datos) {
+        void noLike() {
           if (Actividad.cacheActividadesParaTi.listaEventos.length >
               indice + 1) {
             print(indice);
@@ -1015,58 +1024,75 @@ class EventosCercaState extends State<EventosCerca> {
           Container(
             height: ScreenUtil().setHeight(3100),
             width: ScreenUtil().setWidth(1400),
-            padding: EdgeInsets.only(left: 10,right: 10),
-            child: ListView(
-              
-              children: Actividad.cacheActividadesParaTi.listaEventos[indice].carrete,
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Builder(
+              builder: (BuildContext context) {
+                print("Builder construyendo");
+
+                return ListView.builder(
+                  itemCount:
+                      Actividad.cacheActividadesParaTi.listaEventos.length,
+                  itemBuilder: (BuildContext context, int indice) {
+                    rebuildAllChildren(context);
+                    print("object");
+                    return Actividad.cacheActividadesParaTi.listaEventos[indice]
+                        .carreteListo;
+                  },
+                );
+              },
             ),
           ),
           Container(
             width: ScreenUtil().setWidth(1300),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  height: ScreenUtil().setHeight(250),
-                  width: ScreenUtil().setWidth(200),
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    shape: BoxShape.circle,
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(8),
-                    onPressed: () {
-                      noLike(Perfiles.perfilesAmistad.listaPerfiles[indice]);
-                      Perfiles.perfilesCitas.notifyListeners();
-                    },
-                    child: Icon(
-                      LineAwesomeIcons.times_circle_1,
-                      color: Colors.white,
+            child: Container(
+              child: Align(
+                alignment: AlignmentDirectional.bottomCenter,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    Container(
+                      height: ScreenUtil().setHeight(250),
+                      width: ScreenUtil().setWidth(200),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        shape: BoxShape.circle,
+                        color: Color.fromRGBO(255, 78, 132, 100),
+                      ),
+                      child: FlatButton(
+                        padding: EdgeInsets.all(8),
+                        onPressed: () {
+                          noLike();
+                          // Perfiles.perfilesCitas.notifyListeners();
+                        },
+                        child: Icon(
+                          LineAwesomeIcons.times_circle_1,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(250),
-                  width: ScreenUtil().setWidth(200),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color.fromRGBO(255, 78, 132, 100),
-                  ),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(8),
-                    onPressed: () => {
-                       Actividad.cacheActividadesParaTi.listaEventos[indice].enviarSolicitudEvento()
-
-                    },
-                    child: Icon(
-                      LineAwesomeIcons.star,
-                      color: Colors.white,
+                    Container(
+                      height: ScreenUtil().setHeight(250),
+                      width: ScreenUtil().setWidth(200),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color.fromRGBO(255, 78, 132, 100),
+                      ),
+                      child: FlatButton(
+                        padding: EdgeInsets.all(8),
+                        onPressed: () => {
+                          Actividad.cacheActividadesParaTi.listaEventos[indice]
+                              .enviarSolicitudEvento()
+                        },
+                        child: Icon(
+                          LineAwesomeIcons.star,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ]);
@@ -1243,7 +1269,6 @@ class confirm_plan_screen_state extends State<confirm_plan_screen> {
                         // print(usuario.cine);
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
-                          
                         );
                       }),
                     ),
@@ -1456,18 +1481,19 @@ class FotoEventoState extends State<FotoEvento> {
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
-if(imagenRecortada!=null){
-    this.setState(() {
-      imagenFinal = imagenRecortada;
-      pictures[box] = imagenFinal;
-      Actividad.esteEvento.Images_List = pictures;
-      print("${archivoImagen.lengthSync()} Tamaño original");
-      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-      print(box);
-      Actividad.esteEvento.notifyListeners();
-    });
+    if (imagenRecortada != null) {
+      this.setState(() {
+        imagenFinal = imagenRecortada;
+        pictures[box] = imagenFinal;
+        Actividad.esteEvento.Images_List = pictures;
+        print("${archivoImagen.lengthSync()} Tamaño original");
+        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+        print(box);
+        Actividad.esteEvento.notifyListeners();
+      });
+    }
   }
-  }
+
   abrirCamara(BuildContext context) async {
     var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
     File imagenRecortada = await ImageCropper.cropImage(
@@ -1486,17 +1512,18 @@ if(imagenRecortada!=null){
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
-if(imagenRecortada!=null){
-    this.setState(() {
-      imagenFinal = imagenRecortada;
-      pictures[box] = imagenFinal;
-      Actividad.esteEvento.Images_List = pictures;
-      print("${archivoImagen.lengthSync()} Tamaño original");
-      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-      print(box);
-      Actividad.esteEvento.notifyListeners();
-    });
-  }}
+    if (imagenRecortada != null) {
+      this.setState(() {
+        imagenFinal = imagenRecortada;
+        pictures[box] = imagenFinal;
+        Actividad.esteEvento.Images_List = pictures;
+        print("${archivoImagen.lengthSync()} Tamaño original");
+        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+        print(box);
+        Actividad.esteEvento.notifyListeners();
+      });
+    }
+  }
 
   eliminarImagen(BuildContext context) {
     this.setState(() {
@@ -1574,7 +1601,7 @@ class submit_plan_button_state extends State<submit_plan_button> {
         children: <Widget>[
           FlatButton(
               onPressed: () {
-                Actividad.esteEvento.Upload_Image();
+                Actividad.esteEvento.subirImagenes();
               },
               child: Container(
                 width: ScreenUtil().setWidth(500),
@@ -1595,8 +1622,6 @@ class submit_plan_button_state extends State<submit_plan_button> {
     );
   }
 }
-
-
 
 class SeleccionarTipoPlan extends StatefulWidget {
   @override

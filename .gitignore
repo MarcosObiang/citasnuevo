@@ -41,3 +41,10 @@ app.*.map.json
 
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+FuncionesNubeFirebase/.firebaserc
+FuncionesNubeFirebase/firebase.json
+FuncionesNubeFirebase/functions/tslint.json
+FuncionesNubeFirebase/functions/tsconfig.json
+FuncionesNubeFirebase/functions/package.json
+FuncionesNubeFirebase/functions/package-lock.json
+FuncionesNubeFirebase/functions/src/index.ts
