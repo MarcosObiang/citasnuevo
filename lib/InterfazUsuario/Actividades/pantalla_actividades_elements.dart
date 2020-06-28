@@ -12,7 +12,7 @@ import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
-import '../../DatosAplicacion/actividad.dart';
+import 'package:citasnuevo/DatosAplicacion/actividad.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -561,7 +561,8 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
     // TODO: implement build
     return Container(
       height: ScreenUtil().setHeight(2900),
-      width: ScreenUtil().setWidth(1500),
+     
+      decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
       child: ScrollablePositionedList.builder(
         itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
         physics: NeverScrollableScrollPhysics(),
@@ -584,6 +585,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
             Container(
               height: ScreenUtil().setHeight(2900),
               width: ScreenUtil().setWidth(1400),
+              padding: EdgeInsets.only(left: 10,right: 10),
               child: ListView(
                 children: Perfiles.perfilesCitas.listaPerfiles[indice].carrete,
               ),
@@ -861,6 +863,7 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
           Container(
             height: ScreenUtil().setHeight(2900),
             width: ScreenUtil().setWidth(1400),
+            padding: EdgeInsets.only(left: 10,right: 10),
             child: ListView(
               children: Perfiles.perfilesAmistad.listaPerfiles[indice].carrete,
             ),
@@ -1012,7 +1015,9 @@ class EventosCercaState extends State<EventosCerca> {
           Container(
             height: ScreenUtil().setHeight(3100),
             width: ScreenUtil().setWidth(1400),
+            padding: EdgeInsets.only(left: 10,right: 10),
             child: ListView(
+              
               children: Actividad.cacheActividadesParaTi.listaEventos[indice].carrete,
             ),
           ),

@@ -28,21 +28,23 @@ import 'Usuario.dart';
 
 Future<List<Map<String, Object>>> ActualizarEventos(
     List<DocumentSnapshot> lista) async {
-  TarjetaEvento tarjeta;
-  Timestamp tiempo;
-  DateTime tiempoTransformado;
-
+  
   List<String> Imagenes = new List();
 
+
   List<Map<String, dynamic>> eventosLista = new List();
+  
   final dia = new DateFormat("yMMMMEEEEd");
   final f = new DateFormat('dd-MM-yyyy HH:mm');
-  print("${lista.length}***********************************************++++++");
+ 
   for (int i = 0; i < lista.length; i++) {
+    
     bool etiquetaPlan = false;
+    
     Map<String, Object> eventoUnico = Map();
+ 
 
-    List<Widget> carreteEnLista = new List();
+List<Widget> carreteEnLista = new List();
     creadorImagenesEvento carreteCreado;
     eventoUnico["participantes"] = lista[i].data["Cantidad Participantes"];
     eventoUnico["comentarios"] = lista[i].data["Comentarios"];
@@ -54,8 +56,7 @@ Future<List<Map<String, Object>>> ActualizarEventos(
     if (lista[i].data["Image1"] != null) {
       String ImagenURL1 = lista[i].data["Image1"];
       Imagenes.add(ImagenURL1);
-    }
-    if (lista[i].data["Image2"] != null) {
+    }if (lista[i].data["Image2"] != null) {
       String ImagenURL2 = lista[i].data["Image2"];
       Imagenes.add(ImagenURL2);
     }
@@ -79,7 +80,7 @@ Future<List<Map<String, Object>>> ActualizarEventos(
 
     for (int a = 0; a < Imagenes.length; a++) {
       if (Imagenes[a] != null) {
-        // print("CarreteCreado****************************************************************************************************++++++");
+       
         if (a == 0) {
           etiquetaPlan = true;
         } else {
@@ -103,6 +104,8 @@ Future<List<Map<String, Object>>> ActualizarEventos(
 
     eventoUnico["carrete"] = carreteEnLista;
     eventoUnico["listaImagenes"] = Imagenes;
+
+  
     eventosLista = List.from(eventosLista)..add(eventoUnico);
   }
 
@@ -114,12 +117,31 @@ Future<List<Map<String, Object>>> ActualizarEventos(
 }
 
 class Actividad with ChangeNotifier {
+
   static Actividad esteEvento = new Actividad();
+  
   static Actividad cacheActividadesParaTi;
+  
   List<Actividad> listaEventos = new List();
-  List<Map<String, dynamic>> participantes = new List();
+
+  List<String> participantes = new List();
+  
+
+ 
   List<EditarFotoEvento> fotosEventoEditar = new List();
-    List<SolicitanteEventoUsuario> solicitantes=new List();
+
+  List<SolicitanteEventoUsuario> solicitantes = new List();
+  
+  List<ParticipanteEvento> participantesEventoUsuario = new List();
+
+ 
+  List<SolicitanteEventoUsuario> obtenerSolicitudesEventos() {
+    return this.solicitantes;
+  }
+
+  List<ParticipanteEvento> obtenerParticipantesEventoUsuario() {
+    return this.participantesEventoUsuario;
+  }
 
   int contadorPrueba = 0;
   void aumentarContador() {
@@ -146,22 +168,22 @@ class Actividad with ChangeNotifier {
   double participantesEvento = 0.2;
   String tipoPlan;
   Actividad();
-  Actividad.externa({
-    this.nombreEvento,
-    this.creadorEvento,
-    this.ubicacionEvento,
-    this.fechaEvento,
-    this.comentariosEvento,
-    this.codigoEvento,
-    this.imagenUrl1,
-    this.imagenUrl2,
-    this.imagenUrl3,
-    this.imagenUrl4,
-    this.imagenUrl5,
-    this.imagenUrl6,
-    this.participantesEvento,
-    this.tipoPlan,
-  });
+  Actividad.externa(
+      {this.nombreEvento,
+      this.creadorEvento,
+      this.ubicacionEvento,
+      this.fechaEvento,
+      this.comentariosEvento,
+      this.codigoEvento,
+      this.imagenUrl1,
+      this.imagenUrl2,
+      this.imagenUrl3,
+      this.imagenUrl4,
+      this.imagenUrl5,
+      this.imagenUrl6,
+      this.participantesEvento,
+      this.tipoPlan,
+      this.participantesEventoUsuario});
 
   List<File> _Images_List = new List(6);
   List<Actividad> _EventosUsuario = new List(10);
@@ -184,6 +206,74 @@ class Actividad with ChangeNotifier {
   Map<String, dynamic> CopiaPlan = Map();
   Map<String, Object> gustos = Map();
 
+
+ static void cargarEventos() async {
+    cargarIsolateEventos();
+  }
+   static Future cargarIsolateEventos() async {
+    
+    ReceivePort puertoRecepcion = ReceivePort();
+   
+    List<Map<String, dynamic>> cache = new List();
+
+    WidgetsFlutterBinding.ensureInitialized();
+   
+    List<DocumentSnapshot> listaProvisional = await ObtenerActividad();
+  
+    Isolate proceso = await Isolate.spawn(
+        isolateEventos, puertoRecepcion.sendPort,
+        debugName: "isolateEventos");
+   
+SendPort puertoEnvio = await puertoRecepcion.first;
+    
+
+    cache = await enviarRecibirEventos(puertoEnvio, listaProvisional);
+    if (cache == null) {
+     
+    cacheActividadesParaTi = new Actividad();
+    for (int i = 0; i < cache.length; i++) {
+      Actividad temp = new Actividad();
+      temp.codigoEvento = cache[i]["codigoEvento"];
+      temp.creadorEvento = cache[i]["creadorEvento"];
+      temp.participantesEvento = cache[i]["participantes"];
+      temp.comentariosEvento = cache[i]["comentarios"];
+      temp.ubicacionEvento = cache[i]["lugar"];
+      temp.fechaEvento = cache[i]["fechaEvento"];
+      temp.listaDeImagenes = cache[i]["listaImagenes"];
+      temp.carrete = cache[i]["carrete"] as List<Widget>;
+      cacheActividadesParaTi.listaEventos.add(temp);
+    }
+
+    proceso.kill();
+  }
+
+  static Future<dynamic> enviarRecibirEventos(
+      SendPort envio, List<DocumentSnapshot> lista) async {
+
+   
+    ReceivePort puertoRespuestaIntermedio = ReceivePort();
+  
+    envio.send([lista, puertoRespuestaIntermedio.sendPort]);
+   
+    return puertoRespuestaIntermedio.first;
+  }
+
+  static isolateEventos(SendPort puertoEnvio) async {
+    ReceivePort respuesta = ReceivePort();
+
+    List<Map<String, Object>> nuevo;
+    
+    puertoEnvio.send(respuesta.sendPort);
+    await for (var msj in respuesta) {
+      List<DocumentSnapshot> lista = msj[0];
+      SendPort sendPort = msj[1];
+      // Actividad prueba=msj[3];
+
+      nuevo = await ActualizarEventos(lista);
+    
+      sendPort.send(nuevo);
+    }
+  }
   String getCodigo() {
     return codigoEvento;
   }
@@ -206,7 +296,7 @@ class Actividad with ChangeNotifier {
     plan["Image5"] = esteEvento.imagenUrl5;
     plan["Image6"] = esteEvento.imagenUrl6;
     plan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
-
+    plan["Lista Participantes"] = esteEvento.participantesEventoUsuario;
     plan["Gustos"] = esteEvento.gustos;
     plan["Cantidad Participantes"] = esteEvento.participantesEvento * 20;
     plan["Plazas Disponibles"] = esteEvento.participantesEvento * 20;
@@ -217,8 +307,8 @@ class Actividad with ChangeNotifier {
 
     //  print(plan);
   }
-
-  void CrearPlanEditado() {
+ 
+void CrearPlanEditado() {
     assert(gustos != null);
     if (this.tipoPlan == "Individual") {
       this.participantesEvento = 1;
@@ -236,7 +326,7 @@ class Actividad with ChangeNotifier {
     plan["Image5"] = this.imagenUrl5;
     plan["Image6"] = this.imagenUrl6;
     plan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
-
+    plan["Lista Participantes"] = this.participantesEventoUsuario;
     plan["Gustos"] = this.gustos;
     plan["Cantidad Participantes"] = this.participantesEvento;
     plan["Plazas Disponibles"] = this.participantesEvento;
@@ -245,8 +335,8 @@ class Actividad with ChangeNotifier {
     CopiaPlan["Codigo Plan"] = this.codigoEvento;
     CopiaPlan["Creador Plan"] = Usuario.esteUsuario.idUsuario;
 
-    //  print(plan);
   }
+  
 
   String crearCodigo() {
     List<String> letras = [
@@ -520,6 +610,8 @@ class Actividad with ChangeNotifier {
 
   void enviarSolicitudEvento() {
     String imagenSolicitante;
+    String codigoSolicitud;
+    codigoSolicitud = crearCodigo();
     int imagenIndice = 1;
     for (int i = 0; i < 5; i++) {
       String nombreImagen = "IMAGENPERFIL$imagenIndice";
@@ -541,13 +633,14 @@ class Actividad with ChangeNotifier {
     datosSolicitud["Plan de Interes"] = this.codigoEvento;
     datosSolicitud["Fecha Evento"] = this.fechaEvento;
     datosSolicitud["Lugar Evento"] = this.ubicacionEvento;
-     datosSolicitud["Edad Solicitante"] = Usuario.esteUsuario.edad.toString();
+    datosSolicitud["Edad Solicitante"] = Usuario.esteUsuario.edad.toString();
+    datosSolicitud["Id Solicitud"] = codigoSolicitud;
 
     baseDatos
         .collection("usuarios")
         .document(this.creadorEvento)
         .collection("solicitudes actividad")
-        .document()
+        .document(codigoSolicitud)
         .setData(datosSolicitud);
   }
 
@@ -599,64 +692,7 @@ class Actividad with ChangeNotifier {
     return EventosUsuarioTemp;
   }
 
-  static void cargarEventos() async {
-    cargarIsolateEventos();
-  }
-
-  static Future cargarIsolateEventos() async {
-    ReceivePort puertoRecepcion = ReceivePort();
-    List<Map<String, dynamic>> cache = new List();
-
-    WidgetsFlutterBinding.ensureInitialized();
-    List<DocumentSnapshot> listaProvisional = await ObtenerActividad();
-    Isolate proceso = await Isolate.spawn(
-        isolateEventos, puertoRecepcion.sendPort,
-        debugName: "isolateEventos");
-    SendPort puertoEnvio = await puertoRecepcion.first;
-    cache = await enviarRecibirEventos(puertoEnvio, listaProvisional);
-    if (cache == null) {
-      print(
-          "cache contiene algo********************************************************************************************************************************************");
-    }
-    cacheActividadesParaTi = new Actividad();
-    for (int i = 0; i < cache.length; i++) {
-      Actividad temp = new Actividad();
-      temp.codigoEvento = cache[i]["codigoEvento"];
-      temp.creadorEvento = cache[i]["creadorEvento"];
-      temp.participantesEvento = cache[i]["participantes"];
-      temp.comentariosEvento = cache[i]["comentarios"];
-      temp.ubicacionEvento = cache[i]["lugar"];
-      temp.fechaEvento = cache[i]["fechaEvento"];
-      temp.listaDeImagenes = cache[i]["listaImagenes"];
-      temp.carrete = cache[i]["carrete"] as List<Widget>;
-      cacheActividadesParaTi.listaEventos.add(temp);
-    }
-
-    proceso.kill();
-  }
-
-  static Future<dynamic> enviarRecibirEventos(
-      SendPort envio, List<DocumentSnapshot> lista) async {
-    List<DatosPerfiles> prueba = new List();
-    ReceivePort puertoRespuestaIntermedio = ReceivePort();
-    envio.send([lista, puertoRespuestaIntermedio.sendPort]);
-    return puertoRespuestaIntermedio.first;
-  }
-
-  static isolateEventos(SendPort puertoEnvio) async {
-    ReceivePort respuesta = ReceivePort();
-
-    List<Map<String, Object>> nuevo;
-    puertoEnvio.send(respuesta.sendPort);
-    await for (var msj in respuesta) {
-      List<DocumentSnapshot> lista = msj[0];
-      SendPort sendPort = msj[1];
-      // Actividad prueba=msj[3];
-
-      nuevo = await ActualizarEventos(lista);
-      sendPort.send(nuevo);
-    }
-  }
+ 
 
   Future<List<DocumentSnapshot>> _QuitarDuplicados(
       List<DocumentSnapshot> lista) async {
@@ -939,8 +975,9 @@ class SolicitudEventos {
   String edadSolicitante;
   String imagenSolicitante;
   String idPlanSolicitud;
+  String idSolicitud;
   List<String> participantesEvento = new List();
-
+  Firestore referenciaBaseDatos = Firestore.instance;
   SolicitudEventos.invitacion({
     @required this.fechaEvento,
     @required this.nombreEvento,
@@ -959,6 +996,7 @@ class SolicitudEventos {
     @required this.lugarEvento,
     @required this.idPlanSolicitud,
     @required this.imagenSolicitante,
+    @required this.idSolicitud,
   });
 
   void crearSolicitudParticipacionEventoUsuario(DocumentSnapshot dato) {
@@ -970,6 +1008,31 @@ class SolicitudEventos {
     this.fechaEvento = (dato.data["Fecha Evento"]).toDate();
     this.lugarEvento = dato.data["Lugar Evento"];
   }
+
+  void aceptarSolicitud() async {
+    Map<String, String> datosUsuarioAceptado = new Map();
+    Map<String, String> actividadActiva = new Map();
+    datosUsuarioAceptado["Id Participante"] = this.idSolicitante;
+    actividadActiva["Id Actividad"] = this.idPlanSolicitud;
+    await referenciaBaseDatos
+        .collection("usuarios")
+        .document(Usuario.esteUsuario.idUsuario)
+        .collection("solicitudes actividad")
+        .document(this.idSolicitud)
+        .delete();
+    await referenciaBaseDatos
+        .collection("actividades")
+        .document(this.idPlanSolicitud)
+        .collection("participantes evento")
+        .document()
+        .setData(datosUsuarioAceptado);
+    await referenciaBaseDatos
+        .collection("usuarios")
+        .document(this.idSolicitante)
+        .collection("Tus Planes")
+        .document(this.idPlanSolicitud)
+        .setData(actividadActiva);
+  }
 }
 
 class EventosPropios {
@@ -977,7 +1040,7 @@ class EventosPropios {
   static final dia = new DateFormat("yMMMMEEEEd");
   Actividad eventoPropio;
   TarjetaEventoPropio tarjetaEvento;
-  
+
   static List<EventosPropios> listaEventosPropios = new List();
   static EventosPropios instanciaEventosPoprios = EventosPropios.instancia();
 
@@ -985,8 +1048,8 @@ class EventosPropios {
   EventosPropios({@required this.eventoPropio}) {
     tarjetaEvento = new TarjetaEventoPropio(
       evento: eventoPropio,
-    
-     
+      actualizadorEvento: eventoPropio.obtenerSolicitudesEventos,
+      actualizadorParticipantes: eventoPropio.obtenerParticipantesEventoUsuario,
     );
   }
   void obtenerEventoosPropios() async {
@@ -1047,22 +1110,101 @@ class EventosPropios {
           }
 
           evento = new EventosPropios(eventoPropio: nueva);
-          
-         evento.eventoPropio.solicitantes = await  obtenerSolicitudesEventoUsuario(evento);
-        print( "${evento.eventoPropio.solicitantes.length}  eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+          evento.eventoPropio.solicitantes =
+              await obtenerSolicitudesEventoUsuario(evento);
+          nueva.participantesEventoUsuario =
+              await obtenerListaPrticipantes(nueva);
+
           listaEventosPropios.add(evento);
-          
         }
       }
     });
   }
 
-  Future<List<SolicitanteEventoUsuario>> obtenerSolicitudesEventoUsuario (
-      EventosPropios evento) async{
-   List<SolicitanteEventoUsuario>solicitudes=new List();
+  init() {
+    escuchadorSolicitudesEventosPropios();
+  }
+
+  Future<List<ParticipanteEvento>> obtenerListaPrticipantes(
+      Actividad actividad) async {
+    List<ParticipanteEvento> listaParticipantes = new List();
+    ParticipanteEvento participante;
+    await referenciaBaseDatos
+        .collection("actividades")
+        .document(actividad.codigoEvento)
+        .collection("participantes evento")
+        .getDocuments()
+        .then((value) {
+      if (value != null) {
+        for (DocumentSnapshot dato in value.documents) {
+          print(dato["Id Participante"]);
+          referenciaBaseDatos
+              .collection("usuarios")
+              .document(dato["Id Participante"])
+              .get()
+              .then((value) {
+            if (value != null) {
+              participante = new ParticipanteEvento(
+                  imagenUsuario: value["IMAGENPERFIL1"]["Imagen"],
+                  edadUsuario: value["Edad"].toString(),
+                  nombreUsuario: value["Nombre"]);
+              listaParticipantes.add(participante);
+            }
+          });
+        }
+      }
+    });
+    return listaParticipantes;
+  }
+
+  void escuchadorSolicitudesEventosPropios() async {
+    print("Escuchando estas solicitudes");
     SolicitudEventos solicitud;
     SolicitanteEventoUsuario tarjetaSolicitud;
-   await referenciaBaseDatos
+    referenciaBaseDatos
+        .collection("usuarios")
+        .document(Usuario.esteUsuario.idUsuario)
+        .collection("solicitudes actividad")
+        .limit(1)
+        .orderBy("Hora Solicitud", descending: true)
+        .snapshots()
+        .listen((event) {
+      if (event != null) {
+        for (EventosPropios dato in listaEventosPropios) {
+          if (dato.eventoPropio.codigoEvento ==
+              event.documents[0]["Plan de Interes"]) {
+            print("${event.documents[0]["Plan de Interes"]}");
+            solicitud = SolicitudEventos.solicitudDeParticipacionUsuario(
+                idSolicitud: event.documents[0].data["Id Solicitud"],
+                horaSolicitud: (event.documents[0]["Hora Solicitud"]).toDate(),
+                fechaEvento: (event.documents[0]["Hora Solicitud"]).toDate(),
+                edadSolicitante:
+                    (event.documents[0]["Edad Solicitante"]).toString(),
+                nombreSolicitante: event.documents[0]["Nombre Solicitante"],
+                idSolicitante: event.documents[0]["ID Solicitante"],
+                lugarEvento: event.documents[0]["Lugar Evento"],
+                imagenSolicitante: event.documents[0]["Imagen Solicitante"],
+                idPlanSolicitud: event.documents[0]["Plan de Interes"]);
+            tarjetaSolicitud =
+                new SolicitanteEventoUsuario(estaSolicitud: solicitud);
+            dato.eventoPropio.solicitantes =
+                List.from(dato.eventoPropio.solicitantes)
+                  ..add(tarjetaSolicitud);
+
+            Actividad.esteEvento.notifyListeners();
+          }
+        }
+      }
+    });
+  }
+
+  Future<List<SolicitanteEventoUsuario>> obtenerSolicitudesEventoUsuario(
+      EventosPropios evento) async {
+    List<SolicitanteEventoUsuario> solicitudes = new List();
+    SolicitudEventos solicitud;
+    SolicitanteEventoUsuario tarjetaSolicitud;
+    await referenciaBaseDatos
         .collection("usuarios")
         .document(Usuario.esteUsuario.idUsuario)
         .collection("solicitudes actividad")
@@ -1071,7 +1213,9 @@ class EventosPropios {
         .then((datos) {
       if (datos != null) {
         for (DocumentSnapshot dato in datos.documents) {
+          print(dato.data["Id Solicitud"]);
           solicitud = SolicitudEventos.solicitudDeParticipacionUsuario(
+              idSolicitud: dato.data["Id Solicitud"],
               horaSolicitud: (dato["Hora Solicitud"]).toDate(),
               fechaEvento: (dato["Hora Solicitud"]).toDate(),
               edadSolicitante: (dato["Edad Solicitante"]).toString(),
@@ -1080,16 +1224,12 @@ class EventosPropios {
               lugarEvento: dato["Lugar Evento"],
               imagenSolicitante: dato["Imagen Solicitante"],
               idPlanSolicitud: dato["Plan de Interes"]);
-              
+
           tarjetaSolicitud =
               new SolicitanteEventoUsuario(estaSolicitud: solicitud);
-          solicitudes=List.from(solicitudes)..add(tarjetaSolicitud);
-           print( "${solicitudes.length}  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            print( " eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+          solicitudes = List.from(solicitudes)..add(tarjetaSolicitud);
         }
       }
-        //print( "${solicitudes.length}  eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-    
     });
     return solicitudes;
   }
@@ -1292,10 +1432,15 @@ class TarjetaEventoPropio extends StatefulWidget {
   String lugarEvento;
   String comentariosEvento;
   Actividad evento;
- 
+  Function actualizadorEvento;
+  Function actualizadorParticipantes;
+
   bool dejarDeBuscarImagen = true;
 
-  TarjetaEventoPropio({@required this.evento,}) {
+  TarjetaEventoPropio(
+      {@required this.evento,
+      @required this.actualizadorEvento,
+      @required this.actualizadorParticipantes}) {
     for (int i = 0;
         i < evento.listaDeImagenes.length && dejarDeBuscarImagen;
         i++) {
@@ -1326,7 +1471,7 @@ class _TarjetaEventoPropioState extends State<TarjetaEventoPropio> {
             MaterialPageRoute(
                 builder: (context) => PantallaDetallesEventoPropio(
                       evento: widget.evento,
-                      
+                      actualizadorSolicitudes: widget.actualizadorEvento,
                     ))),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -1509,6 +1654,7 @@ class _TarjetaEventoPropioState extends State<TarjetaEventoPropio> {
 
 class PantallaDetallesEventoPropio extends StatefulWidget {
   Actividad evento;
+  Function actualizadorSolicitudes;
   EventosPropios eventos;
   TextEditingController controladorNombreEvento;
   TextEditingController controladorLugarEvento;
@@ -1516,7 +1662,8 @@ class PantallaDetallesEventoPropio extends StatefulWidget {
   final dia = new DateFormat("yMMMMEEEEd");
   final f = new DateFormat('HH:mm');
 
-  PantallaDetallesEventoPropio({@required this.evento});
+  PantallaDetallesEventoPropio(
+      {@required this.evento, @required this.actualizadorSolicitudes});
   @override
   _PantallaDetallesEventoPropioState createState() =>
       _PantallaDetallesEventoPropioState();
@@ -1561,6 +1708,8 @@ class _PantallaDetallesEventoPropioState
                             MaterialPageRoute(
                                 builder: (context) => ListaDeSolicitudesEvento(
                                       evento: widget.evento,
+                                      actualizarSolicitudes: widget
+                                          .evento.obtenerSolicitudesEventos,
                                     )));
                       },
                       child: Row(
@@ -1573,7 +1722,16 @@ class _PantallaDetallesEventoPropioState
                 ),
                 Container(
                   child: FlatButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ListaDeParticipanteEvento(
+                                      evento: widget.evento,
+                                      actualizarParticipantes: widget
+                                          .evento.obtenerParticipantesEventoUsuario,
+                                    )));
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -1646,10 +1804,11 @@ class _PantallaDetallesEventoPropioState
                         FlatButton(
                           onPressed: () {
                             DatePicker.showTimePicker(context).then((value) {
-                              if(value!=null){
-                              widget.evento.fechaEvento = value;
-                              Actividad.esteEvento.notifyListeners();
-                              print(widget.evento.fechaEvento);}
+                              if (value != null) {
+                                widget.evento.fechaEvento = value;
+                                Actividad.esteEvento.notifyListeners();
+                                print(widget.evento.fechaEvento);
+                              }
                             });
                           },
                           child: Container(
@@ -1701,9 +1860,10 @@ class _PantallaDetallesEventoPropioState
                                         firstDate: DateTime(2020),
                                         lastDate: DateTime(2100))
                                     .then((value) {
-                                      if(value!=null){
-                                  widget.evento.fechaEvento = value;
-                                  Actividad.esteEvento.notifyListeners();}
+                                  if (value != null) {
+                                    widget.evento.fechaEvento = value;
+                                    Actividad.esteEvento.notifyListeners();
+                                  }
                                 }),
                                 child: Container(
                                   height: ScreenUtil().setHeight(180),
@@ -2073,31 +2233,69 @@ class SolicitanteEventoUsuario extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10,bottom: 10),
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
       child: Container(
-        child: Row(
-          
+        child: Column(
           children: <Widget>[
-          Flexible(
-            flex: 3,
-            fit:FlexFit.tight,
-                      child: Container(
-              height: ScreenUtil().setHeight(300),
-              child: Image.network(estaSolicitud.imagenSolicitante)),
-          ),
-            Flexible(
-              flex: 6,
-            fit:FlexFit.tight,
-                          child: Container(
-                child: Text(estaSolicitud.nombreSolicitante),
-              ),
+            Row(
+              children: <Widget>[
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.tight,
+                  child: Container(
+                      height: ScreenUtil().setHeight(300),
+                      child: Image.network(estaSolicitud.imagenSolicitante)),
+                ),
+                Flexible(
+                  flex: 6,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    child: Text(estaSolicitud.nombreSolicitante),
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    child: Text(
+                      estaSolicitud.edadSolicitante,
+                      style: TextStyle(fontSize: ScreenUtil().setSp(80)),
+                    ),
+                  ),
+                )
+              ],
             ),
-            Flexible(
-              flex: 3,
-            fit:FlexFit.tight,
-                          child: Container(
-                child: Text(estaSolicitud.edadSolicitante,style: TextStyle(fontSize:ScreenUtil().setSp(80)),),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          color: Colors.blue,
+                        ),
+                        child: FlatButton(
+                          onPressed: () {
+                            estaSolicitud.aceptarSolicitud();
+                          },
+                          child: Text(
+                            "Aceptar",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                        ),
+                        child: FlatButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Eliminar",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ))
+                  ]),
             )
           ],
         ),
@@ -2108,7 +2306,9 @@ class SolicitanteEventoUsuario extends StatelessWidget {
 
 class ListaDeSolicitudesEvento extends StatefulWidget {
   Actividad evento;
-  ListaDeSolicitudesEvento({@required this.evento});
+  Function actualizarSolicitudes;
+  ListaDeSolicitudesEvento(
+      {@required this.evento, @required this.actualizarSolicitudes});
   @override
   _ListaDeSolicitudesEventoState createState() =>
       _ListaDeSolicitudesEventoState();
@@ -2117,17 +2317,142 @@ class ListaDeSolicitudesEvento extends StatefulWidget {
 class _ListaDeSolicitudesEventoState extends State<ListaDeSolicitudesEvento> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Solicitudes"),
-        ),
-        body: widget.evento.solicitantes.length==0? Center(
+    return Consumer<Actividad>(
+      builder: (BuildContext context, Actividad actividad, Widget child) {
+        widget.evento.solicitantes = widget.actualizarSolicitudes();
+        return Scaffold(
+            appBar: AppBar(
+              title: Text("Solicitudes"),
+            ),
+            body: widget.evento.solicitantes.length == 0
+                ? Center(
+                    child: Text("No hay Solicitudes"),
+                  )
+                : ListView.builder(
+                    itemCount: widget.evento.solicitantes == null
+                        ? 0
+                        : widget.evento.solicitantes.length,
+                    itemBuilder: (BuildContext context, int indice) {
+                      return widget.evento.solicitantes[indice];
+                    }));
+      },
+    );
+  }
+}
 
-          child: Text("No hay Solicitudes"),
-        ):ListView.builder(
-            itemCount: widget.evento.solicitantes==null?0:widget.evento.solicitantes.length,
-            itemBuilder: (BuildContext context, int indice) {
-              return widget.evento.solicitantes[indice];
-            }));
+class ParticipanteEvento extends StatelessWidget {
+  String imagenUsuario;
+  String edadUsuario;
+  String nombreUsuario;
+  ParticipanteEvento(
+      {@required this.imagenUsuario,
+      @required this.edadUsuario,
+      @required this.nombreUsuario});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
+      child: Container(
+        child: Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Flexible(
+                    flex: 3,
+                    fit: FlexFit.tight,
+                    child: Container(
+                      height: ScreenUtil().setHeight(300),
+                      child: Image.network(imagenUsuario),
+                    )),
+                Flexible(
+                  flex: 6,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    child: Text(nombreUsuario),
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    child: Text(
+                      edadUsuario,
+                      style: TextStyle(fontSize: ScreenUtil().setSp(80)),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          color: Colors.blue,
+                        ),
+                        child: FlatButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Aceptar",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                        ),
+                        child: FlatButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Eliminar",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ))
+                  ]),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ListaDeParticipanteEvento extends StatefulWidget {
+  Actividad evento;
+  Function actualizarParticipantes;
+  ListaDeParticipanteEvento(
+      {@required this.evento, @required this.actualizarParticipantes});
+  @override
+  _ListaDeParticipanteEventoState createState() =>
+      _ListaDeParticipanteEventoState();
+}
+
+class _ListaDeParticipanteEventoState extends State<ListaDeParticipanteEvento> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<Actividad>(
+      builder: (BuildContext context, Actividad actividad, Widget child) {
+        widget.evento.participantesEventoUsuario = widget.actualizarParticipantes();
+        return Scaffold(
+            appBar: AppBar(
+              title: Text("Participantes"),
+            ),
+            body: widget.evento.participantesEventoUsuario.length == 0
+                ? Center(
+                    child: Text("No hay Participantes"),
+                  )
+                : ListView.builder(
+                    itemCount: widget.evento.participantesEventoUsuario == null
+                        ? 0
+                        : widget.evento.participantesEventoUsuario.length,
+                    itemBuilder: (BuildContext context, int indice) {
+                      return widget.evento.participantesEventoUsuario[indice];
+                    }));
+      },
+    );
   }
 }
