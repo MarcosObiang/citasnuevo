@@ -1,10 +1,10 @@
 # Details
 
-Date : 2020-06-07 11:46:29
+Date : 2020-06-29 16:42:58
 
 Directory d:\Proyecto\citasnuevo
 
-Total : 49 files,  11051 codes, 609 comments, 859 blanks, all 12519 lines
+Total : 49 files,  17199 codes, 769 comments, 1274 blanks, all 19242 lines
 
 [summary](results.md)
 
@@ -20,7 +20,7 @@ Total : 49 files,  11051 codes, 609 comments, 859 blanks, all 12519 lines
 | [android/app/src/main/res/drawable/launch_background.xml](/android/app/src/main/res/drawable/launch_background.xml) | XML | 4 | 7 | 2 | 13 |
 | [android/app/src/main/res/values/styles.xml](/android/app/src/main/res/values/styles.xml) | XML | 9 | 9 | 1 | 19 |
 | [android/app/src/profile/AndroidManifest.xml](/android/app/src/profile/AndroidManifest.xml) | XML | 4 | 3 | 1 | 8 |
-| [android/build.gradle](/android/build.gradle) | Groovy | 28 | 0 | 5 | 33 |
+| [android/build.gradle](/android/build.gradle) | Groovy | 29 | 0 | 4 | 33 |
 | [android/gradle.properties](/android/gradle.properties) | Properties | 4 | 0 | 1 | 5 |
 | [android/gradle/wrapper/gradle-wrapper.properties](/android/gradle/wrapper/gradle-wrapper.properties) | Properties | 5 | 1 | 1 | 7 |
 | [android/settings.gradle](/android/settings.gradle) | Groovy | 12 | 0 | 4 | 16 |
@@ -34,31 +34,31 @@ Total : 49 files,  11051 codes, 609 comments, 859 blanks, all 12519 lines
 | [ios/Runner/Runner-Bridging-Header.h](/ios/Runner/Runner-Bridging-Header.h) | C++ | 1 | 0 | 1 | 2 |
 | [lib/DatosAplicacion/Conversacion.dart](/lib/DatosAplicacion/Conversacion.dart) | Dart | 306 | 1 | 31 | 338 |
 | [lib/DatosAplicacion/ManejadorMultimedia.dart](/lib/DatosAplicacion/ManejadorMultimedia.dart) | Dart | 0 | 0 | 1 | 1 |
-| [lib/DatosAplicacion/PerfilesUsuarios.dart](/lib/DatosAplicacion/PerfilesUsuarios.dart) | Dart | 682 | 200 | 86 | 968 |
-| [lib/DatosAplicacion/Usuario.dart](/lib/DatosAplicacion/Usuario.dart) | Dart | 227 | 1 | 43 | 271 |
+| [lib/DatosAplicacion/PerfilesUsuarios.dart](/lib/DatosAplicacion/PerfilesUsuarios.dart) | Dart | 678 | 200 | 84 | 962 |
+| [lib/DatosAplicacion/Usuario.dart](/lib/DatosAplicacion/Usuario.dart) | Dart | 280 | 28 | 45 | 353 |
 | [lib/DatosAplicacion/Valoraciones.dart](/lib/DatosAplicacion/Valoraciones.dart) | Dart | 211 | 1 | 15 | 227 |
-| [lib/DatosAplicacion/actividad.dart](/lib/DatosAplicacion/actividad.dart) | Dart | 2,139 | 52 | 122 | 2,313 |
-| [lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart](/lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart) | Dart | 324 | 19 | 25 | 368 |
+| [lib/DatosAplicacion/actividad.dart](/lib/DatosAplicacion/actividad.dart) | Dart | 2,415 | 180 | 164 | 2,759 |
+| [lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart](/lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart) | Dart | 338 | 16 | 21 | 375 |
 | [lib/InterfazUsuario/Actividades/TarjetaEvento.dart](/lib/InterfazUsuario/Actividades/TarjetaEvento.dart) | Dart | 175 | 4 | 15 | 194 |
 | [lib/InterfazUsuario/Actividades/home_screen_elements.dart](/lib/InterfazUsuario/Actividades/home_screen_elements.dart) | Dart | 177 | 4 | 21 | 202 |
-| [lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart](/lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart) | Dart | 1,488 | 48 | 75 | 1,611 |
+| [lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart](/lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart) | Dart | 1,518 | 49 | 74 | 1,641 |
 | [lib/InterfazUsuario/Busqueda/search_screen.dart](/lib/InterfazUsuario/Busqueda/search_screen.dart) | Dart | 124 | 10 | 15 | 149 |
-| [lib/InterfazUsuario/Directo/live_screen.dart](/lib/InterfazUsuario/Directo/live_screen.dart) | Dart | 151 | 6 | 15 | 172 |
+| [lib/InterfazUsuario/Directo/live_screen.dart](/lib/InterfazUsuario/Directo/live_screen.dart) | Dart | 151 | 6 | 17 | 174 |
 | [lib/InterfazUsuario/Directo/live_screen_elements.dart](/lib/InterfazUsuario/Directo/live_screen_elements.dart) | Dart | 150 | 0 | 10 | 160 |
-| [lib/InterfazUsuario/Gente/people_screen.dart](/lib/InterfazUsuario/Gente/people_screen.dart) | Dart | 139 | 10 | 23 | 172 |
-| [lib/InterfazUsuario/Gente/people_screen_elements.dart](/lib/InterfazUsuario/Gente/people_screen_elements.dart) | Dart | 1,674 | 9 | 70 | 1,753 |
-| [lib/InterfazUsuario/IniciodeSesion/login_screen.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen.dart) | Dart | 103 | 2 | 13 | 118 |
-| [lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart) | Dart | 213 | 24 | 24 | 261 |
+| [lib/InterfazUsuario/Gente/people_screen.dart](/lib/InterfazUsuario/Gente/people_screen.dart) | Dart | 138 | 9 | 30 | 177 |
+| [lib/InterfazUsuario/Gente/people_screen_elements.dart](/lib/InterfazUsuario/Gente/people_screen_elements.dart) | Dart | 1,792 | 13 | 73 | 1,878 |
+| [lib/InterfazUsuario/IniciodeSesion/login_screen.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen.dart) | Dart | 102 | 2 | 14 | 118 |
+| [lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart) | Dart | 214 | 24 | 24 | 262 |
 | [lib/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart) | Dart | 28 | 1 | 9 | 38 |
-| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart) | Dart | 353 | 4 | 13 | 370 |
-| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart) | Dart | 1,250 | 91 | 92 | 1,433 |
+| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart) | Dart | 704 | 8 | 18 | 730 |
+| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart) | Dart | 6,541 | 91 | 461 | 7,093 |
 | [lib/InterfazUsuario/Social/social_screen.dart](/lib/InterfazUsuario/Social/social_screen.dart) | Dart | 130 | 10 | 16 | 156 |
 | [lib/InterfazUsuario/Social/social_screen_elements.dart](/lib/InterfazUsuario/Social/social_screen_elements.dart) | Dart | 290 | 0 | 7 | 297 |
 | [lib/ServidorFirebase/firebase_manager.dart](/lib/ServidorFirebase/firebase_manager.dart) | Dart | 34 | 0 | 9 | 43 |
 | [lib/ServidorFirebase/firebase_sign_up.dart](/lib/ServidorFirebase/firebase_sign_up.dart) | Dart | 38 | 6 | 10 | 54 |
-| [lib/base_app.dart](/lib/base_app.dart) | Dart | 129 | 3 | 21 | 153 |
-| [lib/main.dart](/lib/main.dart) | Dart | 20 | 1 | 3 | 24 |
-| [pubspec.yaml](/pubspec.yaml) | YAML | 47 | 47 | 20 | 114 |
+| [lib/base_app.dart](/lib/base_app.dart) | Dart | 134 | 3 | 12 | 149 |
+| [lib/main.dart](/lib/main.dart) | Dart | 33 | 1 | 3 | 37 |
+| [pubspec.yaml](/pubspec.yaml) | YAML | 48 | 47 | 21 | 116 |
 | [test/widget_test.dart](/test/widget_test.dart) | Dart | 14 | 10 | 7 | 31 |
 
 [summary](results.md)

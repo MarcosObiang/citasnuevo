@@ -1,6 +1,5 @@
 import 'package:citasnuevo/DatosAplicacion/actividad.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +12,7 @@ import 'sign_up_methods.dart';
 import '../../main.dart';
 import 'sign_up_screen_elements.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -69,7 +68,6 @@ class PantallaRegistroState extends State<PantallaRegistro> {
         home: SafeArea(
           child: Scaffold(
             resizeToAvoidBottomInset: false,
-            
             resizeToAvoidBottomPadding: false,
             backgroundColor: Color.fromRGBO(255, 78, 132, 100),
             body: Padding(
@@ -80,30 +78,29 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                     color: Colors.red,
                     height: ScreenUtil().setHeight(200),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                      Container(
-                          child: Column(children: [
-                        Icon(Icons.person),
-                        Container(
-                          height: ScreenUtil().setHeight(100),
-                          child: Text("Informacion \nBasica"))
-                      ])),
-                      Container(
-                          child: Column(children: [
-                        Icon(Icons.person),
-                        Text("Preferencias")
-                      ])),
-                      Container(
-                          child: Column(children: [
-                        Icon(Icons.person),
-                        Text("Preguntas")
-                      ])),
-                   
-                    ]),
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                              child: Column(children: [
+                            Icon(Icons.person),
+                            Container(
+                                height: ScreenUtil().setHeight(100),
+                                child: Text("Informacion \nBasica"))
+                          ])),
+                          Container(
+                              child: Column(children: [
+                            Icon(Icons.person),
+                            Text("Preferencias")
+                          ])),
+                          Container(
+                              child: Column(children: [
+                            Icon(Icons.person),
+                            Text("Preguntas")
+                          ])),
+                        ]),
                   ),
                   SingleChildScrollView(
-                    dragStartBehavior: DragStartBehavior.down,
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -336,7 +333,7 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
                 right: ScreenUtil().setWidth(30)),
             child: SingleChildScrollView(
               child: Container(
-                height: ScreenUtil().setHeight(8000),
+                height: ScreenUtil().setHeight(7000),
                 child: Column(
                   children: <Widget>[
                     Text("Add pictures for your date profile"),
@@ -354,7 +351,8 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
                             padding: const EdgeInsets.all(10.0),
                             child: Stack(children: [
                               Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: <Widget>[
                                   Container(
                                     height: ScreenUtil().setHeight(30),
@@ -397,29 +395,31 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
                     Text("Cuentanos un poco sobre ti"),
                     EntradaTexto(Icon(LineAwesomeIcons.comment), descripcion, 5,
                         false, 800, 9, 500),
-                    Container(
-                      height: ScreenUtil().setHeight(80),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                color: Colors.red),
+                            height: ScreenUtil().setHeight(150),
+                            child: FlatButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Atras"))),
+                        Container(
+                            height: ScreenUtil().setHeight(150),
+                            child: FlatButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        pantallaRegistroTres()),
+                              ),
+                              child: Text("Siguiente"),
+                            )),
+                      ],
                     ),
-                    Text("Selecciona los eventos que te interesen"),
-                    Consumer<Usuario>(builder:( context, usuario, child){
-                          return PanelSeleccionPreferenciaEvento();
-
-                    }),
-                    Divider(
-                      height: ScreenUtil().setHeight(150),
-                    ),
-
-                       Consumer<Usuario>(builder:( context, usuario, child){
-                          return ListaDeCaracteristicasUsuario();
-
-                    }),
-                    Container(
-                      height: ScreenUtil().setHeight(800),
-                      child: Center(
-                        child: BotonConfirmarRegistro(context),
-                      ),
-                    ),
-                    
                   ],
                 ),
               ),
@@ -432,3 +432,305 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
 }
 
 // TODO: implement build
+
+class pantallaRegistroTres extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return pantallaRegistroTresState();
+  }
+}
+
+class pantallaRegistroTresState extends State<pantallaRegistroTres> {
+  String coche = "Automoviles";
+  String videojuegos = "VideoJuegos";
+  String cine = "Cine";
+  String bricolaje = "Manualidades y Bricolaje";
+  String comida = "Comida";
+  String moda = "Moda y Belleza";
+  String animales = "Aniimales";
+  String musica = "Musica";
+  String naturaleza = "Naturaleza";
+  String ciencia = "Ciencia y Tecnologia";
+  String politica = "Politica y Sociedad";
+  String viajes = "Viajes";
+  String fiesta = "Fiesta";
+  String vidasocial = "Vida Social";
+  String fittnes = "Deporte y Fittness";
+  String salud = "Salud";
+  String virtudes = "Mis Virtudes";
+  String defectos = "Mis Defectos";
+  String nomegusta = "No me Gusta";
+  String megusta = "Me Gusta";
+  String megustadelagente = "¿Que te gusta en una persona?";
+  String nomegustadelagente = "¿Que no te gusta en una persona?";
+  String descripcion = "Descripcion";
+  static String descripcion_fotos_perfil = "Add pictures to your profile";
+  static String seleccionar_modo = "What do you preffer";
+  static String textocitas = "Cita";
+  static String textoaigos = "Amistad";
+  static String texto_ambos = "Ambos (Predeterminado)";
+  static final GlobalKey claveScaffold = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ChangeNotifierProvider.value(
+      value: Usuario.esteUsuario,
+      child: SafeArea(
+        child: Scaffold(
+          key: claveScaffold,
+          backgroundColor: Color.fromRGBO(255, 78, 132, 100),
+          body: Padding(
+            padding: EdgeInsets.only(
+                left: ScreenUtil().setWidth(30),
+                right: ScreenUtil().setWidth(30)),
+            child: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: ScreenUtil().setHeight(80),
+                    ),
+                    Text("Selecciona los eventos que te interesen"),
+                    Consumer<Usuario>(builder: (context, usuario, child) {
+                      return PanelSeleccionPreferenciaEvento();
+                    }),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                color: Colors.red),
+                            height: ScreenUtil().setHeight(150),
+                            child: FlatButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Atras"))),
+                        Container(
+                            height: ScreenUtil().setHeight(150),
+                            child: FlatButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        pantallaRegistroCuatro()),
+                              ),
+                              child: Text("Siguiente"),
+                            )),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class pantallaRegistroCuatro extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return pantallaRegistroCuatroState();
+  }
+}
+
+class pantallaRegistroCuatroState extends State<pantallaRegistroCuatro> {
+  String coche = "Automoviles";
+  String videojuegos = "VideoJuegos";
+  String cine = "Cine";
+  String bricolaje = "Manualidades y Bricolaje";
+  String comida = "Comida";
+  String moda = "Moda y Belleza";
+  String animales = "Aniimales";
+  String musica = "Musica";
+  String naturaleza = "Naturaleza";
+  String ciencia = "Ciencia y Tecnologia";
+  String politica = "Politica y Sociedad";
+  String viajes = "Viajes";
+  String fiesta = "Fiesta";
+  String vidasocial = "Vida Social";
+  String fittnes = "Deporte y Fittness";
+  String salud = "Salud";
+  String virtudes = "Mis Virtudes";
+  String defectos = "Mis Defectos";
+  String nomegusta = "No me Gusta";
+  String megusta = "Me Gusta";
+  String megustadelagente = "¿Que te gusta en una persona?";
+  String nomegustadelagente = "¿Que no te gusta en una persona?";
+  String descripcion = "Descripcion";
+  static String descripcion_fotos_perfil = "Add pictures to your profile";
+  static String seleccionar_modo = "What do you preffer";
+  static String textocitas = "Cita";
+  static String textoaigos = "Amistad";
+  static String texto_ambos = "Ambos (Predeterminado)";
+  static final GlobalKey claveScaffold = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ChangeNotifierProvider.value(
+      value: Usuario.esteUsuario,
+      child: SafeArea(
+        child: Scaffold(
+          key: claveScaffold,
+          backgroundColor: Color.fromRGBO(255, 78, 132, 100),
+          body: Padding(
+            padding: EdgeInsets.only(
+                left: ScreenUtil().setWidth(30),
+                right: ScreenUtil().setWidth(30)),
+            child: SingleChildScrollView(
+              child: Container(
+                height: ScreenUtil().setHeight(4000),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      height: ScreenUtil().setHeight(200),
+                      child: Center(
+                        child: Text(
+                          "Cuentanos mas sobre ti",
+                          style: TextStyle(
+                            fontSize: ScreenUtil().setSp(120),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Consumer<Usuario>(builder: (context, usuario, child) {
+                      return ListaDeCaracteristicasUsuario();
+                    }),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                color: Colors.red),
+                            height: ScreenUtil().setHeight(150),
+                            child: FlatButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Atras"))),
+                        Container(
+                            height: ScreenUtil().setHeight(150),
+                            child: FlatButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        pantallaRegistroCinco()),
+                              ),
+                              child: Text("Siguiente"),
+                            )),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class pantallaRegistroCinco extends StatefulWidget {
+  static int preguntasRestantes=3;
+  @override
+  _pantallaRegistroCincoState createState() => _pantallaRegistroCincoState();
+}
+
+class _pantallaRegistroCincoState extends State<pantallaRegistroCinco> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        body: Container(
+            color: Colors.red,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                
+                Container(
+                  
+                  child: Consumer<Usuario>(
+                    builder:
+                        (BuildContext context, Usuario user, Widget child) {
+                      return Column(
+                        children: <Widget>[
+                          Container(
+                    height: ScreenUtil().setHeight(200),
+                    child: Center(
+                        child: Text(
+                     pantallaRegistroCinco.preguntasRestantes!=0? "Elige ${pantallaRegistroCinco.preguntasRestantes} Preguntas Personales":"Has respondido el maximo",
+                      style: TextStyle(fontSize: ScreenUtil().setSp(90)),
+                    ))),
+                          Container(
+                            height: ScreenUtil().setHeight(2500),
+                            child: ListView(
+                              children: <Widget>[
+                                PreguntaQueBuscasEnLaGente(),
+                                PreguntaQueOdiasDeLaGente(),
+                                PreguntaTuRecetaDeFelicidad(),
+                                PreguntaSiQuedaraUnDiaDeVida(),
+                                PreguntaQueTipoDeMusicaTeGusta(),
+                                PreguntaEnQueCreesQueEresBueno(),
+                                PreguntaQueEsLoQueMasValoras(),
+                                PreguntaLaGenteDiceQueEres(),
+                                PreguntaQueTeHaceReir(),
+                                PreguntaCitaPErfecta(),
+                                PReguntaCancionFavorita(),
+                                PreguntaUnaVerdadYUnaMentira(),
+                                PreguntaPorQueTeHariasFamoso(),
+                                PreguntaSiFueraUnVillanooSeria(),
+                                PreguntaSiFuerasUnHeroeSerias(),
+                                PreguntaComidaRestoDeMiVida(),
+                                PReguntaNosLLEvamosBienSi(),
+                                PregutnaAnecdota(),
+                                PReguntaBorrachoSoy(),
+                                PreguntaPeliculaRecomendada(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.red),
+                        height: ScreenUtil().setHeight(150),
+                        child: FlatButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("Atras"))),
+                    Container(
+                      color: Colors.green,
+                        height: ScreenUtil().setHeight(150),
+                        child: FlatButton(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => pantallaRegistroCuatro()),
+                          ),
+                          child: Text("Siguiente"),
+                        )),
+                  ],
+                ),
+              ],
+            )),
+      ),
+    );
+  }
+}
