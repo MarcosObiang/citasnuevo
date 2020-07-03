@@ -2448,7 +2448,7 @@ class EditarFotoEventoState extends State<EditarFotoEvento>
 
   Widget build(BuildContext context) {
     imagen = widget.Imagen;
-    print("Construido de nuevo");
+
 
     // TODO: implement build
     return Container(

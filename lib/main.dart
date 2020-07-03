@@ -22,7 +22,7 @@ void main() {
               ChangeNotifierProvider(create: (_) => Perfiles()),
               ChangeNotifierProvider(create: (_) => Valoraciones()),
               ChangeNotifierProvider(create: (_) => Conversacion.Instancia()),
-            ], child: PantallaRegistro()),
+            ], child: login_screen()),
           )));
 }
 

@@ -228,6 +228,7 @@ class BotonAccesoState extends State<BotonAcceso> {
        Conversacion.conversaciones.escucharEstadoConversacion();
       EventosPropios.instanciaEventosPoprios.obtenerEventoosPropios();
       EventosPropios.instanciaEventosPoprios.escuchadorSolicitudesEventosPropios();
+      Usuario.esteUsuario.descargarHistorias();
      
         Actividad.cargarEventos();
        Conversacion.conversaciones.escucharMensajes();

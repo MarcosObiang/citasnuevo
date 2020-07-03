@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -585,7 +588,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
             Container(
               height: ScreenUtil().setHeight(2900),
               width: ScreenUtil().setWidth(1400),
-              padding: EdgeInsets.only(left: 10, right: 10),
               child: ListView(
                 children: Perfiles.perfilesCitas.listaPerfiles[indice].carrete,
               ),
@@ -598,7 +600,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                       borderRadius: BorderRadius.all(
                         Radius.circular(5),
                       ),
-                      color: Color.fromRGBO(255, 78, 132, 50),
+                      color: Color.fromRGBO(0, 0, 0, 90),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
@@ -1636,5 +1638,507 @@ class SeleccionarTipoPlanState extends State<SeleccionarTipoPlan> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return AlertDialog();
+  }
+}
+
+class FotoHistoria extends StatefulWidget {
+  int box;
+  File Imagen;
+  bool imagenRed = false;
+  Firestore baseDatosRef = Firestore.instance;
+
+  static List<Map<String, dynamic>> linksImagenesHistorias =
+      Usuario.esteUsuario.listaDeHistoriasRed;
+
+  FotoHistoria(this.box, this.Imagen);
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return FotoHistoriaState(this.box, this.Imagen);
+  }
+}
+
+class FotoHistoriaState extends State<FotoHistoria> {
+  @override
+  File Image_picture;
+  File imagen;
+  File imagenFinal;
+  static Map<String, Map> datosActualizados = new Map();
+  static Map<String, dynamic> mapaHistorias = new Map();
+  FirebaseStorage storage = FirebaseStorage.instance;
+  static List<File> pictures = List(6);
+  int box;
+  FotoHistoriaState(this.box, this.imagen) {}
+
+  int calculadoraIndice() {
+    return this.box + 12;
+  }
+
+  void opcionesImagenPerfil() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Añadir Imagen"),
+            content: Text("¿Seleccione la fuente de la imagen?"),
+            actions: <Widget>[
+              Row(
+                children: <Widget>[
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        abrirGaleria(context);
+                      },
+                      child: Row(
+                        children: <Widget>[Text("Galeria"), Icon(Icons.image)],
+                      )),
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        abrirCamara(context);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text("Camara"),
+                          Icon(Icons.camera_enhance)
+                        ],
+                      )),
+                ],
+              )
+            ],
+          );
+        });
+  }
+
+  void pieFoto(BuildContext context, File imagen, int indice) {
+    showGeneralDialog(
+        barrierDismissible: false,
+        transitionDuration: const Duration(milliseconds: 200),
+        context: CreadorDeHistorias.clave.currentContext,
+        pageBuilder: (BuildContext context, Animation animation,
+            Animation secondanimation) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: ScreenUtil().setHeight(2600),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: Color.fromRGBO(20, 20, 20, 50),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        height: ScreenUtil().setHeight(1300),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          child: Image.file(imagen),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: Container(
+                          child: Text("Comentarios Foto",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: ScreenUtil().setSp(60))),
+                        ),
+                      ),
+                      Divider(
+                        height: ScreenUtil().setHeight(200),
+                      ),
+                      Material(
+                          color: Color.fromRGBO(0, 0, 0, 100),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Colors.white,
+                                    width: ScreenUtil().setWidth(6)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(3)),
+                                color: Colors.white30,
+                              ),
+                              child: EntradaTexto(
+                                  Icon(LineAwesomeIcons.comment),
+                                  "Pie de Foto",
+                                  indice,
+                                  false,
+                                  200,
+                                  2,
+                                  200))),
+                      Divider(
+                        height: ScreenUtil().setHeight(200),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.green),
+                        child: FlatButton(
+                          child: Text("Hecho"),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  abrirGaleria(BuildContext context) async {
+    var archivoImagen =
+        await ImagePicker.pickImage(source: ImageSource.gallery);
+    File imagenRecortada = await ImageCropper.cropImage(
+        sourcePath: archivoImagen.path,
+        maxHeight: 1280,
+        maxWidth: 720,
+        aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
+        compressQuality: 90,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.ratio16x9,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+    if (imagenRecortada != null) {
+      this.setState(() {
+        imagenFinal = imagenRecortada;
+        pictures[box] = imagenFinal;
+        Usuario.esteUsuario.fotosHistorias = pictures;
+        print("${archivoImagen.lengthSync()} Tamaño original");
+        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+        print(box);
+        Usuario.esteUsuario.notifyListeners();
+        pieFoto(context, imagenFinal, calculadoraIndice());
+      });
+    }
+  }
+
+  abrirCamara(BuildContext context) async {
+    var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
+    File imagenRecortada = await ImageCropper.cropImage(
+        sourcePath: archivoImagen.path,
+
+        // aspectRatio: CropAspectRatio(ratioX: 9,ratioY: 16),
+        maxHeight: 1000,
+        maxWidth: 720,
+        compressQuality: 90,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+    if (imagenRecortada != null) {
+      this.setState(() {
+        imagenFinal = imagenRecortada;
+        pictures[box] = imagenFinal;
+        Usuario.esteUsuario.fotosHistorias = pictures;
+        print("${archivoImagen.lengthSync()} Tamaño original");
+        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+        print(box);
+        Usuario.esteUsuario.notifyListeners();
+        pieFoto(context, imagenFinal, calculadoraIndice());
+      });
+    }
+  }
+
+  eliminarImagen(BuildContext context) {
+    this.setState(() {
+      Usuario.esteUsuario.fotosHistorias[box] = null;
+      imagenFinal = null;
+      widget.imagenRed = false;
+     
+      // ignore: unnecessary_statements
+      FotoHistoria.linksImagenesHistorias[box] = null;
+    
+        if (box == 0) {
+           print("object");
+          if (FotoHistoria.linksImagenesHistorias[box] == null) {
+            datosActualizados =
+                FotoHistoria.linksImagenesHistorias[box];
+
+            Usuario.esteUsuario.notifyListeners();
+            widget.baseDatosRef
+                .collection("usuarios")
+                .document(Usuario.esteUsuario.idUsuario)
+                .collection("historias")
+                .document("Historia1")
+                .delete();
+
+            StorageReference reference = storage.ref();
+
+            String Image1 =
+                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+            StorageReference imagesReference = reference.child(Image1);
+            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+            imagesReference.delete().catchError((error) {
+              print(error);
+            });
+          }
+        }
+        if (box == 1) {
+          if (FotoHistoria.linksImagenesHistorias[box] == null) {
+            datosActualizados =null;
+               
+
+            Usuario.esteUsuario.notifyListeners();
+            widget.baseDatosRef
+                .collection("usuarios")
+                .document(Usuario.esteUsuario.idUsuario)
+                .collection("historias")
+                .document("Historia2")
+                .delete();
+
+            StorageReference reference = storage.ref();
+
+            String Image1 =
+                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+            StorageReference imagesReference = reference.child(Image1);
+            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+            imagesReference.delete().catchError((error) {
+              print(error);
+            });
+          }
+        }
+        if (box == 2) {
+          if (FotoHistoria.linksImagenesHistorias[box] == null) {
+            datosActualizados =
+                FotoHistoria.linksImagenesHistorias[box];
+
+            Usuario.esteUsuario.notifyListeners();
+            widget.baseDatosRef
+                .collection("usuarios")
+                .document(Usuario.esteUsuario.idUsuario)
+                .collection("historias")
+                .document("Historia3")
+                .delete();
+
+            StorageReference reference = storage.ref();
+
+            String Image1 =
+                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+            StorageReference imagesReference = reference.child(Image1);
+            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+            imagesReference.delete().catchError((error) {
+              print(error);
+            });
+          }
+        }
+        if (box == 3) {
+          if (FotoHistoria.linksImagenesHistorias[box] == null) {
+            datosActualizados =
+                FotoHistoria.linksImagenesHistorias[box];
+
+            Usuario.esteUsuario.notifyListeners();
+            widget.baseDatosRef
+                .collection("usuarios")
+                .document(Usuario.esteUsuario.idUsuario)
+                .collection("historias")
+                .document("Historia4")
+                .delete();
+
+            StorageReference reference = storage.ref();
+
+            String Image1 =
+                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+            StorageReference imagesReference = reference.child(Image1);
+            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+            imagesReference.delete().catchError((error) {
+              print(error);
+            });
+          }
+        }
+        if (box == 4) {
+          if (FotoHistoria.linksImagenesHistorias[box] == null) {
+            datosActualizados =
+                FotoHistoria.linksImagenesHistorias[box];
+
+            Usuario.esteUsuario.notifyListeners();
+            widget.baseDatosRef
+                .collection("usuarios")
+                .document(Usuario.esteUsuario.idUsuario)
+                .collection("historias")
+                .document("Historia5")
+                .delete();
+
+            StorageReference reference = storage.ref();
+
+            String Image1 =
+                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+            StorageReference imagesReference = reference.child(Image1);
+            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+            imagesReference.delete().catchError((error) {
+              print(error);
+            });
+          }
+        }
+        if (box == 5) {
+          if (FotoHistoria.linksImagenesHistorias[box] == null) {
+            datosActualizados =
+                FotoHistoria.linksImagenesHistorias[box];
+
+            Usuario.esteUsuario.notifyListeners();
+            widget.baseDatosRef
+                .collection("usuarios")
+                .document(Usuario.esteUsuario.idUsuario)
+                .collection("historias")
+                .document("Historia6")
+                .delete();
+
+            StorageReference reference = storage.ref();
+
+            String Image1 =
+                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+            StorageReference imagesReference = reference.child(Image1);
+            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+            imagesReference.delete().catchError((error) {
+              print(error);
+            });
+          }
+        }
+ 
+      
+    });
+  }
+
+  Future<void> subirHistorioasUsuario(String IDUsuario) async {
+    //  assert(imagenes != null);
+    FirebaseStorage storage = FirebaseStorage.instance;
+    StorageReference reference = storage.ref();
+    if (Usuario.esteUsuario.fotosHistorias[0] != null) {
+      String image1 = "${IDUsuario}/Perfil/Historias/Image1.jpg";
+      StorageReference referenciaImagenes = reference.child(image1);
+      StorageUploadTask uploadTask =
+          referenciaImagenes.putFile(Usuario.esteUsuario.fotosHistorias[0]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Usuario.esteUsuario.historia1["Imagen"] = URL;
+      print(URL);
+    }
+    if (Usuario.esteUsuario.fotosHistorias[1] != null) {
+      String Image2 = "${IDUsuario}/Perfil/Historias/Image2.jpg";
+      StorageReference referenciaImagenes = reference.child(Image2);
+      StorageUploadTask uploadTask =
+          referenciaImagenes.putFile(Usuario.esteUsuario.fotosHistorias[1]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Usuario.esteUsuario.historia2["Imagen"] = URL;
+      print(URL);
+    }
+    if (Usuario.esteUsuario.fotosHistorias[2] != null) {
+      String Image3 = "${IDUsuario}/Perfil/Historias/Image3.jpg";
+      StorageReference referenciaImagenes = reference.child(Image3);
+      StorageUploadTask uploadTask =
+          referenciaImagenes.putFile(Usuario.esteUsuario.fotosHistorias[2]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Usuario.esteUsuario.historia3["Imagen"] = URL;
+      print(URL);
+    }
+    if (Usuario.esteUsuario.fotosHistorias[3] != null) {
+      String Image4 = "${IDUsuario}/Perfil/Historias/Image4.jpg";
+      StorageReference referenciaImagenes = reference.child(Image4);
+      StorageUploadTask uploadTask =
+          referenciaImagenes.putFile(Usuario.esteUsuario.fotosHistorias[3]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Usuario.esteUsuario.historia4["Imagen"] = URL;
+      print(URL);
+    }
+    if (Usuario.esteUsuario.fotosHistorias[4] != null) {
+      String Image5 = "${IDUsuario}/Perfil/Historias/Image5.jpg";
+      StorageReference referenciaImagenes = reference.child(Image5);
+      StorageUploadTask uploadTask =
+          referenciaImagenes.putFile(Usuario.esteUsuario.fotosHistorias[4]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Usuario.esteUsuario.historia5["Imagen"] = URL;
+      print(URL);
+    }
+    if (Usuario.esteUsuario.fotosHistorias[5] != null) {
+      String Image6 = "${IDUsuario}/Perfil/Historias/Image6.jpg";
+      StorageReference referenciaImagenes = reference.child(Image6);
+      StorageUploadTask uploadTask =
+          referenciaImagenes.putFile(Usuario.esteUsuario.fotosHistorias[5]);
+
+      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Usuario.esteUsuario.historia6["Imagen"] = URL;
+      print(URL);
+    }
+    Usuario.esteUsuario.establecerHistorias();
+
+    Usuario.esteUsuario.databaseReference
+        .collection("usuarios")
+        .document(IDUsuario)
+        .collection("historias")
+        .document("DocumentoHistorias")
+        .setData(Usuario.esteUsuario.imagenesHistorias);
+  }
+
+  Widget build(BuildContext context) {
+    if ( FotoHistoria.linksImagenesHistorias[box]==null) {
+      widget.imagenRed = false;
+    } else {
+      widget.imagenRed = true;
+    }
+
+    // TODO: implement build
+    return Container(
+      height: ScreenUtil().setHeight(420),
+      width: ScreenUtil().setWidth(420),
+      decoration: BoxDecoration(
+        border:
+            Border.all(color: Colors.white, width: ScreenUtil().setWidth(6)),
+        borderRadius: BorderRadius.all(Radius.circular(3)),
+        color: Colors.white30,
+      ),
+      child: FlatButton(
+        onPressed: () => opcionesImagenPerfil(),
+        onLongPress: () => eliminarImagen(context),
+        child: imagenFinal == null && !widget.imagenRed
+            ? Center(
+                child: Icon(
+                  Icons.add_a_photo,
+                  color: Colors.red,
+                ),
+              )
+            : Stack(alignment: AlignmentDirectional.center, children: [
+                imagenFinal != null && !widget.imagenRed
+                    ? Image.file(
+                        imagenFinal,
+                        fit: BoxFit.fill,
+                      )
+                    : Image.network(
+                        FotoHistoria.linksImagenesHistorias[box]["Imagen"]),
+                Container(
+                  height: ScreenUtil().setHeight(500),
+                  width: ScreenUtil().setWidth(500),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    color: Colors.transparent,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: ScreenUtil().setSp(150),
+                    ),
+                  ),
+                ),
+              ]),
+      ),
+    );
   }
 }

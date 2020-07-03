@@ -719,11 +719,7 @@ class _pantallaRegistroCincoState extends State<pantallaRegistroCinco> {
                       color: Colors.green,
                         height: ScreenUtil().setHeight(150),
                         child: FlatButton(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => pantallaRegistroCuatro()),
-                          ),
+                          onPressed: () => Usuario.submit(context),
                           child: Text("Siguiente"),
                         )),
                   ],

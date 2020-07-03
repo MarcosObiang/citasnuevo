@@ -222,6 +222,25 @@ class EntradaTextoState extends State<EntradaTexto> {
             if (indice == 11) {
               Usuario.esteUsuario.ImageURL6["PieDeFoto"] = val;
             }
+                 if (indice == 12) {
+              Usuario.esteUsuario.historia1["PieDeFoto"] = val;
+            }
+            if (indice == 13) {
+              Usuario.esteUsuario.historia2["PieDeFoto"] = val;
+            }
+            if (indice == 14) {
+              Usuario.esteUsuario.historia3["PieDeFoto"] = val;
+              print(val);
+            }
+            if (indice == 15) {
+              Usuario.esteUsuario.historia4["PieDeFoto"] = val;
+            }
+            if (indice == 16) {
+              Usuario.esteUsuario.historia5["PieDeFoto"] = val;
+            }
+            if (indice == 17) {
+              Usuario.esteUsuario.historia6["PieDeFoto"] = val;
+            }
           });
         },
       );

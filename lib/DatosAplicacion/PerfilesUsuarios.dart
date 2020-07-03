@@ -596,7 +596,7 @@ class _creadorImagenPerfilState extends State<creadorImagenPerfil> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        padding: const EdgeInsets.only(top: 0, bottom: 0),
         child: Container(
           child: Column(
             children: <Widget>[
@@ -609,7 +609,7 @@ class _creadorImagenPerfilState extends State<creadorImagenPerfil> {
                         imageUrl: widget.urlImagen,
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 10),
+                        padding: const EdgeInsets.only(left: 0, bottom: 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
