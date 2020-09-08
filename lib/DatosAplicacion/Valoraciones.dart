@@ -1,4 +1,7 @@
+import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
+import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,70 +12,151 @@ import 'dart:math';
 import 'package:citasnuevo/InterfazUsuario/Gente/people_screen_elements.dart';
 
 class Valoraciones extends ChangeNotifier {
-  init() {
-    obtenerValoracion();
-  }
-
+  static Valoraciones instanciar = Valoraciones.instancia();
   String imagenEmisor;
   String idEmisor;
   String aliasEmisor;
   String nombreEmisor;
+  DateTime fechaValoracion;
   String mensaje;
-  String valoracion;
-  ValoracionWidget valorWidget;
+  double valoracion;
+  String idValoracion;
+  
+  static double mediaUsuario;
+  static List<Valoraciones>listaDeValoraciones=new List();
+  static int visitasTotales;
+  static String idUsuarioDestino = Usuario.esteUsuario.idUsuario;
+  
   Valoraciones.crear({
+    @required this.idValoracion,
+    @required this.fechaValoracion,
     @required this.idEmisor,
     @required this.imagenEmisor,
     @required this.aliasEmisor,
     @required this.nombreEmisor,
     @required this.mensaje,
     @required this.valoracion,
-    @required this.valorWidget,
+  
+
   });
   Valoraciones();
+  Valoraciones.instancia();
 
   static Valoraciones Puntuaciones = new Valoraciones();
-  static List<Valoraciones> puntuaciones = new List();
+  static List<ValoracionWidget> puntuaciones = new List();
 
-  void obtenerValoracion() {
-   
-    Firestore instanciaBaseDatos = Firestore.instance;
+  void obtenerValoraciones() {
+    FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
+
     print(Usuario.esteUsuario.idUsuario);
     instanciaBaseDatos
         .collection("usuarios")
-        .document(Usuario.esteUsuario.idUsuario)
+        .doc(Usuario.esteUsuario.idUsuario)
         .collection("valoraciones")
-        .limit(1)
-        .orderBy("Time", descending: true)
+        .where("Valoracion", isGreaterThanOrEqualTo: 5)
+        .get()
+        .then((dato) {
+      if (dato.docs.length > 0) {
+        print("escuchado a ${dato.docs.length} valoraciones");
+
+        print(dato.docs.length);
+        for (int i = 0; i < dato.docs.length; i++) {
+          print("Creando");
+          if (dato.docs[i].id != "mediaPuntos") {
+            crearValoracion(
+                (dato.docs[i].get("Id emisor").toString()),
+                (dato.docs[i].get("Nombre emisor").toString()).toString(),
+                (dato.docs[i].get("Alias Emisor").toString()).toString(),
+                (dato.docs[i].get("Imagen Usuario").toString()).toString(),
+                (dato.docs[i].get("Mensaje").toString()).toString(),
+                double.parse((dato.docs[i].get("Valoracion").toString()).toString()),
+                (dato.docs[i].get("Time")).toDate(),
+                (dato.docs[i].get("id valoracion").toString()).toString());
+          }
+          if (dato.docs[i].id == "mediaPuntos") {
+            mediaUsuario = dato.docs[i].get("mediaTotal");
+            visitasTotales = dato.docs[i].get("cantidadValoraciones");
+          }
+        }
+
+        instanciar.notifyListeners();
+      }
+    }).then((val) => escucharValoraciones());
+  }
+
+  void escucharValoraciones() {
+    FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
+    bool coincidencias;
+
+    print(Usuario.esteUsuario.idUsuario);
+    instanciaBaseDatos
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("valoraciones")
+        .where("Valoracion", isGreaterThanOrEqualTo: 5)
         .snapshots()
         .listen((dato) {
-          if(dato!=null){
-           int coincidencias=0;
-      print("escuchado");
-      List<DocumentSnapshot> valoraciones = dato.documents;
-      print(dato.documents.length);
+      if (dato.docs.length > 0) {
+       
+       
 
-      print(
-          "${dato.documents.last.data["Mensaje"]} y puntnnos ${dato.documents.last.data["Valoracion"]}");
       
-      for(int i=0;i<puntuaciones.length;i++){
-        
-        if(dato.documents[0].data["id valoracion"]==puntuaciones[i].valorWidget.idValoracion){
-          coincidencias+=1;
+        for (int a = 0; a < dato.docs.length; a++) {
+         if (dato.docs[a].id == "mediaPuntos") {
+            mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
+            visitasTotales = dato.docs[a].get("cantidadValoraciones");
+          }
+        }
 
+
+
+
+
+
+
+
+
+
+
+
+        for (int b = 0; b < dato.docs.length; b++) {
+            coincidencias =false;
+          for (int i = 0; i < listaDeValoraciones.length; i++) {
+            if(dato.docs[b].id!="mediaPuntos"){
+
+
+            if (dato.docs[b].get("id valoracion") ==
+                listaDeValoraciones[i].idValoracion) {
+              coincidencias=true;
+            }
+          }
         }
+               if (!coincidencias) {
+         
+            print("Creando");
+            if (dato.docs[b].id != "mediaPuntos") {
+                sumarValoracion(
+                (dato.docs[b].get("Id emisor").toString()),
+                (dato.docs[b].get("Nombre emisor").toString()).toString(),
+                (dato.docs[b].get("Alias Emisor").toString()).toString(),
+                (dato.docs[b].get("Imagen Usuario").toString()).toString(),
+                (dato.docs[b].get("Mensaje").toString()).toString(),
+                double.parse((dato.docs[b].get("Valoracion").toString()).toString()),
+                (dato.docs[b].get("Time")).toDate(),
+                (dato.docs[b].get("id valoracion").toString()).toString());
+            }
+          
         }
-        if(coincidencias==0){
-          print("Creando");
-      crearValoracion(
-          (dato.documents.last.data["Id emisor"]).toString(),
-          (dato.documents.last.data["Nombre emisor"]).toString(),
-          (dato.documents.last.data["Alias emisor"]).toString(),
-          (dato.documents.last.data["Imagen Usuario"]).toString(),
-          (dato.documents.last.data["Mensaje"]).toString(),
-          double.parse((dato.documents.last.data["Valoracion"]).toString()),
-          (dato.documents.last.data["id valoracion"]).toString());}}
-    });
+  
+        
+        
+        
+        }
+
+       
+      }
+      instanciar.notifyListeners();
+    }).onError((e) => print(e));
   }
 
   void crearValoracion(
@@ -82,32 +166,60 @@ class Valoraciones extends ChangeNotifier {
       String imagenURl,
       String mensajeUsuario,
       double puntuacion,
+      DateTime fechaValoraciones,
       String valoracionId) {
     print(puntuacion);
-    ValoracionWidget valoracionWidget = new ValoracionWidget(
-        idValoracion: valoracionId,
-        idEmisorValoracion: idEmisor,
-        nombreEmisor: nombreUsuario,
-        aliasEmisor: aliasUsuario,
-        imagenUsuario: imagenURl,
-        mensajeUsuario: mensajeUsuario,
-        puntuacionUsuario: puntuacion);
-   
     Valoraciones valoracion = new Valoraciones.crear(
+        idValoracion: valoracionId,
         idEmisor: idEmisor,
         nombreEmisor: nombreUsuario,
         aliasEmisor: aliasUsuario,
         imagenEmisor: imagenURl,
+        
+        fechaValoracion: fechaValoraciones,
         mensaje: mensajeUsuario,
-        valoracion: puntuacion.toString(),
-        valorWidget: valoracionWidget);
-    puntuaciones = List.from(puntuaciones)..add(valoracion);
- for (int i = 0; i < puntuaciones.length; i++) {
-      print("en bucle   ${puntuaciones[i].valorWidget.puntuacionUsuario}");
-      print(puntuaciones.length);
-    }
-    puntuaciones.reversed;
-    notifyListeners();
+        valoracion: puntuacion);
+        int i=listaDeValoraciones.length>0?listaDeValoraciones.length:0;
+        listaDeValoraciones.insert(i, valoracion);
+         listaDeValoraciones.sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
+    // list_live.llaveListaValoraciones.currentState.(i);
+
+    //listaDeValoraciones = List.from(listaDeValoraciones)..add(valoracion);
+    
+   
+
+    instanciar.notifyListeners();
+  }
+  void sumarValoracion(
+      String idEmisor,
+      String nombreUsuario,
+      String aliasUsuario,
+      String imagenURl,
+      String mensajeUsuario,
+      double puntuacion,
+      DateTime fechaValoraciones,
+      String valoracionId) {
+    print(puntuacion);
+    Valoraciones valoracion = new Valoraciones.crear(
+        idValoracion: valoracionId,
+        idEmisor: idEmisor,
+        nombreEmisor: nombreUsuario,
+        aliasEmisor: aliasUsuario,
+        imagenEmisor: imagenURl,
+        
+        fechaValoracion: fechaValoraciones,
+        mensaje: mensajeUsuario,
+        valoracion: puntuacion);
+        int i=listaDeValoraciones.length>0?listaDeValoraciones.length:0;
+        listaDeValoraciones.insert(0, valoracion);
+         listaDeValoraciones.sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
+    list_live.llaveListaValoraciones.currentState.insertItem(0);
+
+    //listaDeValoraciones = List.from(listaDeValoraciones)..add(valoracion);
+    
+   
+
+    //instanciar.notifyListeners();
   }
 }
 
@@ -121,9 +233,13 @@ class ValoracionWidget extends StatelessWidget {
   double puntuacionUsuario;
   double porciento;
   Key clave;
+  DateTime fechaValoracion;
+  Animation animation; 
+
 
   ValoracionWidget(
       {@required this.idValoracion,
+      @required this.fechaValoracion,
       @required this.idEmisorValoracion,
       @required this.nombreEmisor,
       @required this.aliasEmisor,
@@ -132,95 +248,8 @@ class ValoracionWidget extends StatelessWidget {
       @required this.puntuacionUsuario});
 
   Widget build(BuildContext context) {
-    Valoraciones().notifyListeners();
-    return Padding(
-      key: UniqueKey(),
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-          height: ScreenUtil().setHeight(600),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: Color.fromRGBO(0, 0, 0, 100)),
-          child: Row(
-            children: <Widget>[
-              Flexible(
-                flex: 2,
-                fit: FlexFit.tight,
-                child: ClipRRect(
-                  child: Container(
-                    height: ScreenUtil().setHeight(550),
-                    child: Image.network(
-                      imagenUsuario,
-                    ),
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 6,
-                fit: FlexFit.tight,
-                child: Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                            child: Text(
-                          "$nombreEmisor",
-                          style: TextStyle(
-                              fontSize: ScreenUtil().setSp(60),
-                              fontWeight: FontWeight.bold),
-                        )),
-                        Container(
-                            child: Text(
-                          "$aliasEmisor",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            fontSize: ScreenUtil().setSp(40),
-                          ),
-                        )),
-                        Container(
-                            height: ScreenUtil().setHeight(200),
-                            width: ScreenUtil().setWidth(1000),
-                            child: mensajeUsuario == null
-                                ? Text("")
-                                : Text(
-                                    mensajeUsuario,
-                                    style: TextStyle(
-                                      fontSize: ScreenUtil().setSp(60),
-                                    ),
-                                  )),
-                        Container(
-                          height: ScreenUtil().setHeight(100),
-                          child: Center(
-                            child: LinearPercentIndicator(
-                              //  progressColor: Colors.deepPurple,
-                              percent: puntuacionUsuario / 10,
-                              animationDuration: 3,
-                              lineHeight: ScreenUtil().setHeight(100),
-                              linearGradient: LinearGradient(colors: [
-                                Colors.pink,
-                                Colors.pinkAccent[100]
-                              ]),
-                              center: Text(
-                                "${(puntuacionUsuario).toStringAsFixed(1)}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil()
-                                        .setSp(70, allowFontScalingSelf: true),
-                                    color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ],
-          )),
-    );
+   
   }
+
+
 }

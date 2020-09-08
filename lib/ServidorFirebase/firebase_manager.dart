@@ -18,7 +18,7 @@ import '../main.dart';
 class FirebaseManager {
   static String UID;
 
-  Future<String> getCurrentUserId(AuthResult auth) async {
+  Future<String> getCurrentUserId(dynamic auth) async {
     String usercode = await auth.user.uid;
 
     if (usercode != null) {
@@ -28,15 +28,5 @@ class FirebaseManager {
     }
   }
 
-   bool isLogged() {
-    bool logged;
-   if(FirebaseAuth.instance.currentUser()!=null){
-     logged=true;
-   }
-   else{
-     logged=false;
-   }
-    return logged;
-  }
 
 }

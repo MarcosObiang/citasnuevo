@@ -1,6 +1,10 @@
 import 'dart:ffi';
 
+import 'package:citasnuevo/DatosAplicacion/Directo.dart';
+import 'package:citasnuevo/base_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +16,7 @@ import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/DatosAplicacion/actividad.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -70,7 +74,8 @@ class EntradaTextoAccesoState extends State<EntradaTextoAcceso> {
   int i;
   bool black_text;
 
-  EntradaTextoAccesoState(Icon icon, String nombre_campo, int i, bool black_text) {
+  EntradaTextoAccesoState(
+      Icon icon, String nombre_campo, int i, bool black_text) {
     this.nombre_campo = nombre_campo;
     this.icon = icon;
     this.i = i;
@@ -88,12 +93,13 @@ class EntradaTextoAccesoState extends State<EntradaTextoAcceso> {
             icon,
             Text(
               nombre_campo,
-              style: TextStyle(fontSize: ScreenUtil().setSp(50), color: Colors.white),
+              style: TextStyle(
+                  fontSize: ScreenUtil().setSp(40), color: Colors.white),
             ),
           ],
         ),
         Container(
-            height: ScreenUtil().setHeight(120),
+            height: ScreenUtil().setHeight(70),
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -112,7 +118,7 @@ class EntradaTextoAccesoState extends State<EntradaTextoAcceso> {
             flex: 10,
             child: Container(
               child: TextField(
-                style: TextStyle(fontSize: ScreenUtil().setSp(50)),
+                style: TextStyle(fontSize: ScreenUtil().setSp(30)),
                 obscureText: invisible,
                 onChanged: (String val) {
                   setState(() {
@@ -150,7 +156,8 @@ class EntradaTextoAccesoState extends State<EntradaTextoAcceso> {
                   });
                 }),
                 child: Icon(
-                  Icons.remove_red_eye,size: ScreenUtil().setSp(80),
+                  Icons.remove_red_eye,
+                  size: ScreenUtil().setSp(60),
                 ),
               ),
             ),
@@ -160,7 +167,7 @@ class EntradaTextoAccesoState extends State<EntradaTextoAcceso> {
     } else {
       return Container(
         child: TextField(
-          style: TextStyle(fontSize: ScreenUtil().setSp(50)),
+          style: TextStyle(fontSize: ScreenUtil().setSp(40)),
           obscureText: false,
           onChanged: (String val) {
             setState(() {
@@ -190,16 +197,24 @@ class BotonAcceso extends StatefulWidget {
 
 class BotonAccesoState extends State<BotonAcceso> {
   var basedatos = Firestore.instance;
+  static bool primeraConexion = false;
+  FirebaseDatabase baseDatosConexion = FirebaseDatabase(
+      app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
+  FirebaseDatabase referenciaStatus = FirebaseDatabase(
+      app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
+
   Future<void> sign_in_user() async {
     DocumentSnapshot val;
+
     String IdUsuario;
 
     try {
-      AuthResult user = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      dynamic user = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: login_screen_state.email.trim(),
           password: login_screen_state.pass);
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => start()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => start()));
 
 //print(user);
 
@@ -210,28 +225,32 @@ class BotonAccesoState extends State<BotonAcceso> {
         Usuario.esteUsuario.DatosUsuario = null;
       }
 
-      val = await basedatos.collection("usuarios").document(IdUsuario).get();
+      val = await basedatos.collection("usuarios").doc(IdUsuario).get();
       Usuario.esteUsuario.DatosUsuario = null;
       if (Usuario.esteUsuario.DatosUsuario != null) {
         Usuario.esteUsuario.DatosUsuario = null;
-        Usuario.esteUsuario.DatosUsuario = val.data;
+        Usuario.esteUsuario.DatosUsuario = val.data();
         print("Estaba lleno");
-       
       }
       if (Usuario.esteUsuario.DatosUsuario == null) {
-        Usuario.esteUsuario.DatosUsuario = val.data;
+        Usuario.esteUsuario.DatosUsuario = val.data();
         Usuario.esteUsuario.InicializarUsuario();
-       Perfiles.cargarPerfilesCitas();
-       Perfiles.perfilesAmistad.cargarIsolateAmistad();
-      Conversacion.obtenerConversaciones();
-       Valoraciones.Puntuaciones.obtenerValoracion();
-       Conversacion.conversaciones.escucharEstadoConversacion();
-      EventosPropios.instanciaEventosPoprios.obtenerEventoosPropios();
-      EventosPropios.instanciaEventosPoprios.escuchadorSolicitudesEventosPropios();
-      Usuario.esteUsuario.descargarHistorias();
+        Perfiles.cargarPerfilesCitas();
+       
+      
+        Conversacion.conversaciones.obtenerConversaciones();
+        Valoraciones.Puntuaciones.obtenerValoraciones();
+
      
-        Actividad.cargarEventos();
-       Conversacion.conversaciones.escucharMensajes();
+        Usuario.esteUsuario.descargarHistorias();
+   
+        Usuario.esteUsuario.escuchadorHistorias();
+      
+
+        Conversacion.conversaciones.escucharMensajes();
+        HistoriasDirecto.cargarHistoriasDirecto();
+        confirmarEstadoConexion();
+
         print("Estaba vacio");
       }
     } catch (e) {
@@ -239,15 +258,59 @@ class BotonAccesoState extends State<BotonAcceso> {
     }
   }
 
+  void confirmarEstadoConexion() {
+    baseDatosConexion
+        .reference()
+        .child(".info/connected")
+        .onValue
+        .listen((event) {
+      Map<String, dynamic> ultimaConexion = new Map();
+      ultimaConexion["Status"] = "Conectado";
+      ultimaConexion["Hora"] = DateTime.now().toString();
+      ultimaConexion["idUsuario"] = Usuario.esteUsuario.idUsuario;
+      Map<String, dynamic> ultimaDesconexion = new Map();
+      ultimaDesconexion["Status"] = "Desconectado";
+      ultimaDesconexion["Hora"] = DateTime.now().toString();
+      ultimaDesconexion["idUsuario"] = Usuario.esteUsuario.idUsuario;
+
+      referenciaStatus
+          .reference()
+          .child("/status/${Usuario.esteUsuario.idUsuario}")
+          .set(ultimaConexion);
+
+      referenciaStatus
+          .reference()
+          .child("/status/${Usuario.esteUsuario.idUsuario}")
+          .onDisconnect()
+          .set(ultimaDesconexion);
+
+      if (event.snapshot.value) {
+        Citas.estaConectado=true;
+        
+        primeraConexion=true;
+        starter_app.mostrarNotificacionConexionCorrecta(
+            starter_app.claveBase.currentContext);
+             Usuario.esteUsuario.notifyListeners();
+      } else {
+        Citas.estaConectado=false;
+        if (primeraConexion) {
+          starter_app.mostrarNotificacionConexionPerdida(
+              starter_app.claveBase.currentContext);
+        }
+        Usuario.esteUsuario.notifyListeners();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return SizedBox(
-        width: ScreenUtil().setWidth(800),
-        height: ScreenUtil().setHeight(150),
+        width: ScreenUtil().setWidth(600),
+        height: ScreenUtil().setHeight(100),
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
               color: Colors.green),
           child: FlatButton(
             onPressed: () {
@@ -255,7 +318,11 @@ class BotonAccesoState extends State<BotonAcceso> {
                 sign_in_user();
               });
             },
-            child: Text("Sign Up",style: TextStyle(fontSize: ScreenUtil().setSp(60)),),
+            child: Text(
+              "Sign Up",
+              style: TextStyle(
+                  fontSize: ScreenUtil().setSp(40, allowFontScalingSelf: true)),
+            ),
           ),
         ));
   }

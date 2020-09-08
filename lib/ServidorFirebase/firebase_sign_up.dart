@@ -24,17 +24,17 @@ class AuthService {
 
   static final auth = FirebaseAuth.instance;
   static final firestore = Firestore.instance;
-  static String UserId;
+  static String userId;
 
   static Future<String> signUpUser(
        String nombre, String alias,String password, String email,int edad,String sexo,String interes_sexual) async {
     try {
-      AuthResult authResult = await auth.createUserWithEmailAndPassword(
+      dynamic authResult = await auth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
       // ignore: missing_return
       ).then((respuesta){
-       UserId=respuesta.user.uid;
+       userId=respuesta.user.uid;
       /* if(UserId!=null){
          Usuario.esteUsuario.InicializarUsuario();
          Perfiles.perfilesCitas.obtenetPerfilesCitas();
@@ -48,6 +48,6 @@ class AuthService {
     } catch (e) {
       print(e);
     }
-    return UserId;
+    return userId;
   }
 }

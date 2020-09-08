@@ -12,9 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
-import 'package:video_trimmer/trim_editor.dart';
-import 'package:video_trimmer/video_trimmer.dart';
-import 'package:video_trimmer/video_viewer.dart';
+
 import 'sign_up_methods.dart';
 import '../../main.dart';
 import 'sign_up_screen.dart';
@@ -23,7 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:flutter_video_compress/flutter_video_compress.dart';
+
 
 ///**************************************************************************************************************************************************************
 /// EN ESTE ARCHIVO DART ENCONTRAREMOS LOS ELEMENTOS QUE COMPONEN LA PANTALLA DE REGISTRO DE LA APLICACION
@@ -791,9 +789,8 @@ class FotosPerfilState extends State<FotosPerfil> {
   @override
   File imagenFinal;
   File imagen;
-  final Trimmer trimmer = Trimmer();
-  final flutterVideoCompress = FlutterVideoCompress();
-
+  
+  
   static List<File> pictures = List(6);
   int box;
   int indice;
@@ -831,7 +828,7 @@ class FotosPerfilState extends State<FotosPerfil> {
                           Icon(Icons.camera_enhance)
                         ],
                       )),
-                  FlatButton(
+                /*  FlatButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         abrirGaleriaVideo(
@@ -839,7 +836,7 @@ class FotosPerfilState extends State<FotosPerfil> {
                       },
                       child: Row(
                         children: <Widget>[Text("Video"), Icon(Icons.videocam)],
-                      )),
+                      )),*/
                 ],
               )
             ],
@@ -879,7 +876,7 @@ class FotosPerfilState extends State<FotosPerfil> {
     });
   }
 
-  abrirGaleriaVideo(BuildContext context) async {
+  /*abrirGaleriaVideo(BuildContext context) async {
     var archivoImagen =
         await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (archivoImagen != null) {
@@ -887,7 +884,7 @@ class FotosPerfilState extends State<FotosPerfil> {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => TrimmerView(trimmer)));
     } else {}
-  }
+  }*/
 
   abrirCamara(BuildContext context) async {
     var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
@@ -953,7 +950,7 @@ class FotosPerfilState extends State<FotosPerfil> {
                   child: Column(
                     children: <Widget>[
                       Container(
-                        height: ScreenUtil().setHeight(1300),
+                        height: ScreenUtil().setHeight(500),
                         child: ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           child: Image.file(imagen),
@@ -969,7 +966,7 @@ class FotosPerfilState extends State<FotosPerfil> {
                         ),
                       ),
                       Divider(
-                        height: ScreenUtil().setHeight(200),
+                        height: ScreenUtil().setHeight(50),
                       ),
                       Material(
                           color: Color.fromRGBO(0, 0, 0, 100),
@@ -1059,127 +1056,9 @@ class FotosPerfilState extends State<FotosPerfil> {
   }
 }
 
-class TrimmerView extends StatefulWidget {
-  final Trimmer _trimmer;
-  TrimmerView(this._trimmer);
-  @override
-  _TrimmerViewState createState() => _TrimmerViewState();
-}
 
-class _TrimmerViewState extends State<TrimmerView> {
-  double _startValue = 0.0;
-  double _endValue = 10.0;
 
-  bool _isPlaying = false;
-  bool _progressVisibility = false;
 
-  Future<String> _saveVideo() async {
-    setState(() {
-      _progressVisibility = true;
-    });
-
-    String _value;
-
-    await widget._trimmer
-        .saveTrimmedVideo(startValue: _startValue, endValue: _endValue)
-        .then((value) {
-      setState(() {
-        _progressVisibility = false;
-        _value = value;
-      });
-    });
-
-    return _value;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Video Trimmer"),
-      ),
-      body: Builder(
-        builder: (context) => Center(
-          child: Container(
-            padding: EdgeInsets.only(bottom: 30.0),
-            color: Colors.black,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Visibility(
-                  visible: _progressVisibility,
-                  child: LinearProgressIndicator(
-                    backgroundColor: Colors.red,
-                  ),
-                ),
-                RaisedButton(
-                  onPressed: _progressVisibility
-                      ? null
-                      : () async {
-                          _saveVideo().then((outputPath) {
-                            print('OUTPUT PATH: $outputPath');
-                            final snackBar = SnackBar(
-                                content: Text('Video Saved successfully'));
-                            Scaffold.of(context).showSnackBar(snackBar);
-                            Future.delayed(Duration(milliseconds: 500), () {
-                              Navigator.pop(context);
-                            });
-                          });
-                        },
-                  child: Text("SAVE"),
-                ),
-                Expanded(
-                  child: VideoViewer(),
-                ),
-                Center(
-                  child: TrimEditor(
-                    viewerHeight: 50.0,
-                    viewerWidth: MediaQuery.of(context).size.width,
-                    onChangeStart: (value) {
-                      _startValue = value;
-                    },
-                    onChangeEnd: (value) {
-                      _endValue = 10;
-                    },
-                    onChangePlaybackState: (value) {
-                      setState(() {
-                        _isPlaying = value;
-                      });
-                    },
-                  ),
-                ),
-                FlatButton(
-                  child: _isPlaying
-                      ? Icon(
-                          Icons.pause,
-                          size: 80.0,
-                          color: Colors.white,
-                        )
-                      : Icon(
-                          Icons.play_arrow,
-                          size: 80.0,
-                          color: Colors.white,
-                        ),
-                  onPressed: () async {
-                    bool playbackState =
-                        await widget._trimmer.videPlaybackControl(
-                      startValue: _startValue,
-                      endValue: _endValue,
-                    );
-                    setState(() {
-                      _isPlaying = playbackState;
-                    });
-                  },
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class ElegirModo extends StatefulWidget {
   String sex;
@@ -1597,317 +1476,7 @@ class Validadores {
   }
 }
 
-class PanelSeleccionPreferenciaEvento extends StatefulWidget {
-  @override
-  _PanelSeleccionPreferenciaEventoState createState() =>
-      _PanelSeleccionPreferenciaEventoState();
-}
 
-class _PanelSeleccionPreferenciaEventoState
-    extends State<PanelSeleccionPreferenciaEvento> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: ScreenUtil().setHeight(900),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(3)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    color: Usuario.esteUsuario.coches
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.coches == true
-                            ? Usuario.esteUsuario.coches = false
-                            : Usuario.esteUsuario.coches = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.car),
-                            Text("Automoviles"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.videoJuegos
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.videoJuegos == true
-                            ? Usuario.esteUsuario.videoJuegos = false
-                            : Usuario.esteUsuario.videoJuegos = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.gamepad),
-                            Text("VideoJuegos"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.cine
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.cine == true
-                            ? Usuario.esteUsuario.cine = false
-                            : Usuario.esteUsuario.cine = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.film),
-                            Text("Cine"),
-                          ],
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    color: Usuario.esteUsuario.comida
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.comida == true
-                            ? Usuario.esteUsuario.comida = false
-                            : Usuario.esteUsuario.comida = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.pizza_slice),
-                            Text("Comida"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.modaYBelleza
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.modaYBelleza == true
-                            ? Usuario.esteUsuario.modaYBelleza = false
-                            : Usuario.esteUsuario.modaYBelleza = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.t_shirt),
-                            Text("Moda y Belleza"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.animales
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.animales == true
-                            ? Usuario.esteUsuario.animales = false
-                            : Usuario.esteUsuario.animales = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.dog),
-                            Text("Animales"),
-                          ],
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    color: Usuario.esteUsuario.vidaSocial
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.vidaSocial == true
-                            ? Usuario.esteUsuario.vidaSocial = false
-                            : Usuario.esteUsuario.vidaSocial = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.cocktail),
-                            Text("Vida Social"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.musica
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.musica == true
-                            ? Usuario.esteUsuario.musica = false
-                            : Usuario.esteUsuario.musica = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.music),
-                            Text("Musica"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.deporteFitness
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.deporteFitness == true
-                            ? Usuario.esteUsuario.deporteFitness = false
-                            : Usuario.esteUsuario.deporteFitness = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.dumbbell),
-                            Text("Deporte y Fitness"),
-                          ],
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    color: Usuario.esteUsuario.fiesta
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.fiesta == true
-                            ? Usuario.esteUsuario.fiesta = false
-                            : Usuario.esteUsuario.fiesta = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.glass_cheers),
-                            Text("Fiesta"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.viajes
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.viajes == true
-                            ? Usuario.esteUsuario.viajes = false
-                            : Usuario.esteUsuario.viajes = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.plane_departure),
-                            Text("Viajes"),
-                          ],
-                        ),
-                      ),
-                    )),
-                Container(
-                    color: Usuario.esteUsuario.politicaSociedad
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.politicaSociedad == true
-                            ? Usuario.esteUsuario.politicaSociedad = false
-                            : Usuario.esteUsuario.politicaSociedad = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.balance_scale),
-                            Text("Politica y Sociedad"),
-                          ],
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    color: Usuario.esteUsuario.cienciaTecnologia
-                        ? Colors.blue
-                        : Colors.transparent,
-                    child: FlatButton(
-                      onPressed: () {
-                        Usuario.esteUsuario.cienciaTecnologia == true
-                            ? Usuario.esteUsuario.cienciaTecnologia = false
-                            : Usuario.esteUsuario.cienciaTecnologia = true;
-                        Usuario.esteUsuario.notifyListeners();
-                      },
-                      child: Center(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(LineAwesomeIcons.flask),
-                            Text("Ciencia y Tecnologia"),
-                          ],
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class ListaDeCaracteristicasUsuario extends StatefulWidget {
   @override
@@ -2328,7 +1897,7 @@ class _ModificadorFormacionState extends State<ModificadorFormacion> {
           color: Usuario.esteUsuario.formacion == null
               ? Colors.white
               : Colors.green,
-          height: ScreenUtil().setHeight(250),
+          height: ScreenUtil().setHeight(200),
           child: FlatButton(
             onPressed: () {},
             child: Column(
@@ -2409,7 +1978,7 @@ class _ModificadorTrabajoState extends State<ModificadorTrabajo> {
       child: Container(
           color:
               Usuario.esteUsuario.trabajo == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(250),
+          height: ScreenUtil().setHeight(200),
           child: FlatButton(
             onPressed: () {},
             child: Column(

@@ -1,10 +1,10 @@
 # Details
 
-Date : 2020-07-02 16:58:59
+Date : 2020-08-04 09:48:17
 
 Directory d:\Proyecto\citasnuevo
 
-Total : 49 files,  19285 codes, 820 comments, 1284 blanks, all 21389 lines
+Total : 53 files,  24014 codes, 1155 comments, 1781 blanks, all 26950 lines
 
 [summary](results.md)
 
@@ -32,33 +32,37 @@ Total : 49 files,  19285 codes, 820 comments, 1284 blanks, all 21389 lines
 | [ios/Runner/Base.lproj/LaunchScreen.storyboard](/ios/Runner/Base.lproj/LaunchScreen.storyboard) | XML | 36 | 1 | 1 | 38 |
 | [ios/Runner/Base.lproj/Main.storyboard](/ios/Runner/Base.lproj/Main.storyboard) | XML | 25 | 1 | 1 | 27 |
 | [ios/Runner/Runner-Bridging-Header.h](/ios/Runner/Runner-Bridging-Header.h) | C++ | 1 | 0 | 1 | 2 |
-| [lib/DatosAplicacion/Conversacion.dart](/lib/DatosAplicacion/Conversacion.dart) | Dart | 306 | 1 | 31 | 338 |
+| [lib/DatosAplicacion/Conversacion.dart](/lib/DatosAplicacion/Conversacion.dart) | Dart | 726 | 4 | 76 | 806 |
+| [lib/DatosAplicacion/Directo.dart](/lib/DatosAplicacion/Directo.dart) | Dart | 871 | 12 | 77 | 960 |
 | [lib/DatosAplicacion/ManejadorMultimedia.dart](/lib/DatosAplicacion/ManejadorMultimedia.dart) | Dart | 0 | 0 | 1 | 1 |
-| [lib/DatosAplicacion/PerfilesUsuarios.dart](/lib/DatosAplicacion/PerfilesUsuarios.dart) | Dart | 678 | 200 | 84 | 962 |
-| [lib/DatosAplicacion/Usuario.dart](/lib/DatosAplicacion/Usuario.dart) | Dart | 446 | 73 | 64 | 583 |
-| [lib/DatosAplicacion/Valoraciones.dart](/lib/DatosAplicacion/Valoraciones.dart) | Dart | 211 | 1 | 15 | 227 |
-| [lib/DatosAplicacion/actividad.dart](/lib/DatosAplicacion/actividad.dart) | Dart | 2,415 | 180 | 164 | 2,759 |
-| [lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart](/lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart) | Dart | 645 | 17 | 31 | 693 |
+| [lib/DatosAplicacion/PerfilesUsuarios.dart](/lib/DatosAplicacion/PerfilesUsuarios.dart) | Dart | 900 | 386 | 236 | 1,522 |
+| [lib/DatosAplicacion/Usuario.dart](/lib/DatosAplicacion/Usuario.dart) | Dart | 554 | 143 | 74 | 771 |
+| [lib/DatosAplicacion/Valoraciones.dart](/lib/DatosAplicacion/Valoraciones.dart) | Dart | 212 | 1 | 11 | 224 |
+| [lib/DatosAplicacion/actividad.dart](/lib/DatosAplicacion/actividad.dart) | Dart | 2,228 | 194 | 167 | 2,589 |
+| [lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart](/lib/InterfazUsuario/Actividades/Pantalla_Actividades.dart) | Dart | 814 | 15 | 55 | 884 |
 | [lib/InterfazUsuario/Actividades/TarjetaEvento.dart](/lib/InterfazUsuario/Actividades/TarjetaEvento.dart) | Dart | 175 | 4 | 15 | 194 |
 | [lib/InterfazUsuario/Actividades/home_screen_elements.dart](/lib/InterfazUsuario/Actividades/home_screen_elements.dart) | Dart | 177 | 4 | 21 | 202 |
-| [lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart](/lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart) | Dart | 1,852 | 54 | 101 | 2,007 |
+| [lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart](/lib/InterfazUsuario/Actividades/pantalla_actividades_elements.dart) | Dart | 1,996 | 60 | 119 | 2,175 |
 | [lib/InterfazUsuario/Busqueda/search_screen.dart](/lib/InterfazUsuario/Busqueda/search_screen.dart) | Dart | 124 | 10 | 15 | 149 |
+| [lib/InterfazUsuario/Descubrir/descubir.dart](/lib/InterfazUsuario/Descubrir/descubir.dart) | Dart | 2,358 | 19 | 100 | 2,477 |
 | [lib/InterfazUsuario/Directo/live_screen.dart](/lib/InterfazUsuario/Directo/live_screen.dart) | Dart | 151 | 6 | 17 | 174 |
 | [lib/InterfazUsuario/Directo/live_screen_elements.dart](/lib/InterfazUsuario/Directo/live_screen_elements.dart) | Dart | 150 | 0 | 10 | 160 |
-| [lib/InterfazUsuario/Gente/people_screen.dart](/lib/InterfazUsuario/Gente/people_screen.dart) | Dart | 138 | 9 | 30 | 177 |
-| [lib/InterfazUsuario/Gente/people_screen_elements.dart](/lib/InterfazUsuario/Gente/people_screen_elements.dart) | Dart | 1,792 | 13 | 73 | 1,878 |
-| [lib/InterfazUsuario/IniciodeSesion/login_screen.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen.dart) | Dart | 102 | 2 | 14 | 118 |
-| [lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart) | Dart | 215 | 24 | 24 | 263 |
+| [lib/InterfazUsuario/Gente/people_screen.dart](/lib/InterfazUsuario/Gente/people_screen.dart) | Dart | 139 | 9 | 30 | 178 |
+| [lib/InterfazUsuario/Gente/people_screen_elements.dart](/lib/InterfazUsuario/Gente/people_screen_elements.dart) | Dart | 2,429 | 23 | 131 | 2,583 |
+| [lib/InterfazUsuario/IniciodeSesion/login_screen.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen.dart) | Dart | 119 | 2 | 14 | 135 |
+| [lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart](/lib/InterfazUsuario/IniciodeSesion/login_screen_elements.dart) | Dart | 231 | 24 | 23 | 278 |
+| [lib/InterfazUsuario/Notificaciones/notificacionLlamada.dart](/lib/InterfazUsuario/Notificaciones/notificacionLlamada.dart) | Dart | 5 | 0 | 8 | 13 |
 | [lib/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart) | Dart | 28 | 1 | 9 | 38 |
-| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart) | Dart | 704 | 8 | 21 | 733 |
-| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart) | Dart | 7,811 | 91 | 413 | 8,315 |
+| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart) | Dart | 717 | 8 | 21 | 746 |
+| [lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart](/lib/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart) | Dart | 7,673 | 109 | 412 | 8,194 |
 | [lib/InterfazUsuario/Social/social_screen.dart](/lib/InterfazUsuario/Social/social_screen.dart) | Dart | 130 | 10 | 16 | 156 |
 | [lib/InterfazUsuario/Social/social_screen_elements.dart](/lib/InterfazUsuario/Social/social_screen_elements.dart) | Dart | 290 | 0 | 7 | 297 |
+| [lib/PrimeraPantalla.dart](/lib/PrimeraPantalla.dart) | Dart | 54 | 0 | 6 | 60 |
 | [lib/ServidorFirebase/firebase_manager.dart](/lib/ServidorFirebase/firebase_manager.dart) | Dart | 34 | 0 | 9 | 43 |
 | [lib/ServidorFirebase/firebase_sign_up.dart](/lib/ServidorFirebase/firebase_sign_up.dart) | Dart | 38 | 6 | 10 | 54 |
-| [lib/base_app.dart](/lib/base_app.dart) | Dart | 141 | 3 | 11 | 155 |
-| [lib/main.dart](/lib/main.dart) | Dart | 33 | 1 | 3 | 37 |
-| [pubspec.yaml](/pubspec.yaml) | YAML | 49 | 47 | 21 | 117 |
+| [lib/base_app.dart](/lib/base_app.dart) | Dart | 157 | 2 | 11 | 170 |
+| [lib/main.dart](/lib/main.dart) | Dart | 35 | 1 | 4 | 40 |
+| [pubspec.yaml](/pubspec.yaml) | YAML | 49 | 47 | 22 | 118 |
 | [test/widget_test.dart](/test/widget_test.dart) | Dart | 14 | 10 | 7 | 31 |
 
 [summary](results.md)

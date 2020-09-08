@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:citasnuevo/DatosAplicacion/Directo.dart';
+import 'package:horizontal_blocked_scroll_physics/horizontal_blocked_scroll_physics.dart';
 
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -15,7 +19,7 @@ import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
-import 'package:citasnuevo/DatosAplicacion/actividad.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -23,518 +27,34 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:swipe_gesture_recognizer/swipe_gesture_recognizer.dart';
 import 'TarjetaEvento.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 import '../../main.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../ServidorFirebase/firebase_manager.dart';
 
-class plan_screen extends StatefulWidget {
-  bool masDeUnParticipante;
-  plan_screen(this.masDeUnParticipante);
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return plan_screen_state();
-  }
-}
-
-class plan_screen_state extends State<plan_screen> {
-  Widget build(BuildContext context) {
-    ScreenUtil.init(context, width: 1440, height: 3120, allowFontScaling: true);
-    return SafeArea(
-      child: Material(
-        child: Container(
-          color: Colors.deepPurple.shade300,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                height: ScreenUtil().setHeight(500),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12)),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      "Hola Marcos",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextoPlan(
-                    Icon(
-                      Icons.featured_play_list,
-                      color: Colors.black,
-                    ),
-                    "Nombre de Plan",
-                    0,
-                    false,
-                    100,
-                    1,
-                    100),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextoPlan(
-                    Icon(
-                      Icons.featured_play_list,
-                      color: Colors.black,
-                    ),
-                    "Ubicacion",
-                    1,
-                    false,
-                    100,
-                    1,
-                    100),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: SizedBox(
-                  height: ScreenUtil().setHeight(200),
-                  width: ScreenUtil().setWidth(1500),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(9))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        plan_date_shower(),
-                        when_button("Select"),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: SizedBox(
-                  height: ScreenUtil().setHeight(200),
-                  width: ScreenUtil().setWidth(1500),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(9))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        plan_hour_shower(),
-                        hour_button("Select"),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: TextoPlan(
-                        Icon(
-                          Icons.featured_play_list,
-                          color: Colors.black,
-                        ),
-                        "Comentarios",
-                        2,
-                        false,
-                        300,
-                        4,
-                        250),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      cancel_button(),
-                      next_button(widget.masDeUnParticipante),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-///**************************************************************************************************************************************************************
-///  PLAN TEXT FIELD : Entrada de texto
-///
-/// STRING NAME: Recibe una cadena de caracteres con la traduccion de SEXO adecuada al idioma traducido
-///
-/// STRING MALE_SEX_NAME: Recibe una cadena de caracteres con la traduccion adecuada de HOMBRE
-///
-/// STRING FEMALE_SEX_NAME: Recibe una cadena de caracteres con la traduccion adecuada de MUJER
-///
-/// *************************************************************************************************************************************************************
-class TextoPlan extends StatefulWidget {
-  Icon icon;
-  int altura;
-  String nombre_campo;
-  int indice;
-  bool texto_oscuro;
-  int lineas;
-  int caracteres;
-
-  TextoPlan(this.icon, this.nombre_campo, this.indice, this.texto_oscuro,
-      this.altura, this.lineas, this.caracteres);
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return TextoPlanState(
-        icon, nombre_campo, indice, texto_oscuro, altura, lineas, caracteres);
-  }
-}
-
-class TextoPlanState extends State<TextoPlan> {
-  bool invisible = true;
-  bool aux = true;
-  Icon icon;
-  String nombre_campo;
-  int indice;
-  bool texto_oscuro;
-  int altura;
-  int lineas;
-  int caracteres;
-
-  TextoPlanState(this.icon, this.nombre_campo, this.indice, this.texto_oscuro,
-      this.altura, this.lineas, this.caracteres);
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(3)),
-            color: Colors.white),
-        child: text_black());
-  }
-
-  Widget text_black() {
-    return TextField(
-      maxLines: lineas,
-      maxLength: caracteres,
-      decoration: InputDecoration(
-        isDense: true,
-        contentPadding: EdgeInsets.only(bottom: 0),
-        counter: Offstage(),
-        labelText: "$nombre_campo",
-        labelStyle:
-            TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(60)),
-        icon: icon,
-      ),
-      obscureText: false,
-      onChanged: (String val) {
-        setState(() {
-          if (indice == 0) {
-            Actividad.esteEvento.nombreEvento = val;
-          }
-          if (indice == 1) {
-            Actividad.esteEvento.ubicacionEvento = val;
-          }
-          if (indice == 2) {
-            Actividad.esteEvento.comentariosEvento = val;
-          }
-        });
-      },
-    );
-  }
-}
-
-class when_button extends StatefulWidget {
-  String birth;
-  when_button(String birth) {
-    this.birth = birth;
-  }
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return when_button_state(birth);
-  }
-}
-
-class when_button_state extends State<when_button> {
-  String birth_text;
-  DateTime date;
-  static int age;
-  when_button_state(String birth_text) {
-    this.birth_text = birth_text;
-  }
-  static int GetAge() {
-    return age;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(470),
-          height: ScreenUtil().setHeight(120),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            child: RaisedButton(
-              color: Colors.deepPurple,
-              elevation: 0,
-              onPressed: () {
-                setState(() {
-                  showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2100))
-                      .then((data) {
-                    if (data != null) {
-                      DateTime dato = data;
-                      plan_date_shower_state.fecha_final.value = dato;
-                    }
-
-                    print(data);
-                    return data;
-                  });
-                });
-              },
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(
-                  Icons.today,
-                  size: ScreenUtil().setSp(70),
-                  color: Colors.white,
-                ),
-                Text(
-                  birth_text,
-                  style: TextStyle(
-                      fontSize: ScreenUtil().setSp(70), color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class plan_date_shower extends StatefulWidget {
-  String formatted_data;
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return plan_date_shower_state();
-  }
-}
-
-class plan_date_shower_state extends State<plan_date_shower> {
-  var f = new DateFormat('dd-MM-yyyy');
-  var h = new DateFormat('yyyy-MM-dd');
-  var temp;
-
-  static ValueNotifier<DateTime> fecha_final = ValueNotifier<DateTime>(null);
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(400),
-          height: ScreenUtil().setHeight(120),
-          child: Material(
-            color: Colors.white,
-            elevation: 0,
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(3))),
-              child: Center(
-                  child: ValueListenableBuilder(
-                      valueListenable: fecha_final,
-                      builder: (BuildContext context, fecha, Widget child) {
-                        if (fecha == null) {
-                          return Text(
-                            "   -   -   - ",
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: ScreenUtil().setSp(60),
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          );
-                        } else {
-                          temp = h.format(fecha);
-                          Actividad.esteEvento.Fecha = temp;
-                          return Text(
-                            f.format(fecha),
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: ScreenUtil().setSp(60),
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          );
-                        }
-                      })),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class hour_button extends StatefulWidget {
-  String birth;
-
-  hour_button(String birth) {
-    this.birth = birth;
-  }
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return hour_button_state(birth);
-  }
-}
-
-class hour_button_state extends State<hour_button> {
-  DateTime Time;
-  String birth_text;
-  DateTime date;
-  static int age;
-  hour_button_state(String birth_text) {
-    this.birth_text = birth_text;
-  }
-  static int GetAge() {
-    return age;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(470),
-          height: ScreenUtil().setHeight(120),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            child: RaisedButton(
-              color: Colors.deepPurple,
-              elevation: 0,
-              onPressed: () {
-                DatePicker.showTimePicker(context, showSecondsColumn: false,
-                    onConfirm: (time) {
-                  print(time);
-                  setState(() {
-                    Time = time;
-                    plan_hour_shower_state.fecha_final.value = Time;
-                  });
-                });
-              },
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(
-                  Icons.access_time,
-                  size: ScreenUtil().setSp(70),
-                  color: Colors.white,
-                ),
-                Text(
-                  birth_text,
-                  style: TextStyle(
-                      fontSize: ScreenUtil().setSp(70), color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class plan_hour_shower extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return plan_hour_shower_state();
-  }
-}
-
-class plan_hour_shower_state extends State<plan_hour_shower> {
-  final f = new DateFormat('HH:mm');
-  static DateTime Hora;
-  static ValueNotifier<DateTime> fecha_final = ValueNotifier<DateTime>(Hora);
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(
-          width: ScreenUtil().setWidth(400),
-          height: ScreenUtil().setHeight(120),
-          child: Material(
-            color: Colors.white,
-            elevation: 0,
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(3))),
-              child: Center(
-                  child: ValueListenableBuilder(
-                      valueListenable: fecha_final,
-                      builder: (BuildContext context, fecha, Widget child) {
-                        print("$fecha en casa");
-                        if (fecha == null) {
-                          return SizedBox(
-                            width: ScreenUtil().setWidth(300),
-                            child: Text(
-                              "  ",
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  fontSize: ScreenUtil().setSp(60),
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          );
-                        } else {
-                          Actividad.esteEvento.Hora = f.format(fecha);
-
-                          return Text(
-                            f.format(fecha),
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                                fontSize: ScreenUtil().setSp(60),
-                                color: Colors.deepPurple,
-                                fontWeight: FontWeight.bold),
-                          );
-                        }
-                      })),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class PerfilesGenteCitas extends StatefulWidget {
   List<List<Widget>> perfiles = new List();
   static int posicion;
+
+  BoxConstraints limites;
   static double valor;
+  static BoxConstraints limitesPrimeraFoto;
+  static BoxConstraints limitesParaCreador;
+  static int indicePerfil = 0;
+  static double valorPerfilPasado = 0;
+  static double valorPerfilPresente = 0;
+  bool cambiarIndice = false;
+  PerfilesGenteCitas({@required this.limites}) {
+    if (this.limites.biggest.height != null &&
+        this.limites.biggest.width != null) {
+      limitesPrimeraFoto = this.limites;
+    }
+  }
 
   @override
   State<StatefulWidget> createState() {
@@ -543,273 +63,716 @@ class PerfilesGenteCitas extends StatefulWidget {
   }
 }
 
+class ControlarLista {
+  Function noTeGusta;
+  Function teGusta;
+  static ControlarLista controladorLista = ControlarLista();
+
+  ControlarLista.instancia({@required this.noTeGusta, @required this.teGusta});
+  ControlarLista();
+}
+
 class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
-  ItemScrollController mover = new ItemScrollController();
+  static ItemScrollController mover = new ItemScrollController();
+  static SwiperController controladorSwipe = new SwiperController();
+
+  Function soltarLikes;
+  int devolverIndices = 0;
   bool leGusta = false;
   double valorSlider = 5;
-
-  void soltarBotonLike(DatosPerfiles datos) {
-    leGusta = false;
-    Perfiles.perfilesCitas.notifyListeners();
-    datos.crearDatosValoracion();
-    print(" HAY EStos usuarios ${Perfiles.perfilesCitas.listaPerfiles.length}");
-    Perfiles.perfilesCitas.listaPerfiles.length;
-    //  mover.next(animation: true);
-    leGusta = false;
-    print("Fuera");
+  int obtenerIndice(String datos) {
+    print("buscando indice");
+    bool datosCoinciden = false;
+    for (int i = 0; i < Perfiles.perfilesCitas.listaPerfiles.length; i++) {
+      if (datos == Perfiles.perfilesCitas.listaPerfiles[i].idUsuario &&
+          widget.cambiarIndice) {
+        datosCoinciden = true;
+        widget.cambiarIndice = false;
+        return i;
+      }
+      if ((!datosCoinciden) &&
+          (i == Perfiles.perfilesCitas.listaPerfiles.length - 1)) {
+        widget.cambiarIndice = false;
+        return -1;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-      height: ScreenUtil().setHeight(2900),
-      decoration:
-          BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
-      child: ScrollablePositionedList.builder(
-        itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
-        physics: NeverScrollableScrollPhysics(),
-        itemScrollController: mover,
-        reverse: false,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (BuildContext context, int indice) {
-          void noLike(DatosPerfiles datos) {
-            if (Perfiles.perfilesCitas.listaPerfiles.length > indice + 1) {
-              print(indice);
-              mover.scrollTo(
-                  index: indice + 1,
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOutCubic);
-              print(indice);
-            }
-          }
-
-          return Stack(alignment: Alignment.bottomCenter, children: [
-            Container(
-              height: ScreenUtil().setHeight(2900),
-              width: ScreenUtil().setWidth(1400),
-              child: ListView(
-                children: Perfiles.perfilesCitas.listaPerfiles[indice].carrete,
-              ),
-            ),
-            leGusta
-                ? Container(
-                    height: ScreenUtil().setHeight(2900),
-                    width: ScreenUtil().setWidth(1400),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      ),
-                      color: Color.fromRGBO(0, 0, 0, 90),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: <Widget>[
-                          Text(
-                            "¿Cuanto te gusta ${Perfiles.perfilesCitas.listaPerfiles[indice].nombreusuaio}?",
-                            style: TextStyle(
-                                fontSize: ScreenUtil()
-                                    .setSp(100, allowFontScalingSelf: false),
-                                color: Colors.white),
-                            textAlign: TextAlign.center,
-                          ),
-                          Divider(
-                            height: ScreenUtil().setHeight(150),
-                          ),
-                          Container(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: LinearPercentIndicator(
-                                //  progressColor: Colors.deepPurple,
-                                percent: Perfiles.perfilesCitas
-                                        .listaPerfiles[indice].valoracion /
-                                    10,
-                                animationDuration: 0,
-
-                                lineHeight: ScreenUtil().setHeight(150),
-                                linearGradient: LinearGradient(colors: [
-                                  Colors.pink,
-                                  Colors.pinkAccent[100]
-                                ]),
-                                center: Text(
-                                  "${Perfiles.perfilesCitas.listaPerfiles[indice].valoracion.toStringAsFixed(1)}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: ScreenUtil().setSp(100,
-                                          allowFontScalingSelf: false),
-                                      color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Divider(
-                            height: ScreenUtil().setHeight(150),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              color: Colors.white,
-                            ),
-                            child: TextField(
-                              maxLines: 2,
-                              maxLength: 60,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.only(bottom: 0),
-                                labelText: "¿Quieres romper el hielo?",
-                                labelStyle: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontSize: ScreenUtil().setSp(60)),
-                              ),
-                              onChanged: (String val) {
-                                setState(() {
-                                  Perfiles.perfilesCitas.listaPerfiles[indice]
-                                      .mensaje = val;
-                                });
-                              },
-                            ),
-                          ),
-                          Divider(
-                            height: ScreenUtil().setHeight(100),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Container(
-                                decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                child: FlatButton(
-                                  onPressed: () {
-                                    print(leGusta);
-                                    leGusta = false;
-                                    Perfiles.perfilesCitas.listaPerfiles[indice]
-                                        .valoracion = 5;
-                                    Perfiles.perfilesCitas.notifyListeners();
-                                    print(leGusta);
-                                  },
-                                  color: Colors.black,
-                                  child: Text(
-                                    "Atras",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                child: FlatButton(
-                                  onPressed: () {
-                                    soltarBotonLike(Perfiles
-                                        .perfilesCitas.listaPerfiles[indice]);
-                                  },
-                                  color: Colors.green,
-                                  child: Text("Hecho"),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ))
-                : Container(),
-            Container(
-              width: ScreenUtil().setWidth(1300),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Container(
-                    height: ScreenUtil().setHeight(250),
-                    width: ScreenUtil().setWidth(200),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color.fromRGBO(255, 78, 132, 100),
-                    ),
-                    child: FlatButton(
-                      padding: EdgeInsets.all(8),
-                      onPressed: () {
-                        noLike(Perfiles.perfilesCitas.listaPerfiles[indice]);
-                        Perfiles.perfilesCitas.notifyListeners();
-                      },
-                      child: Icon(
-                        LineAwesomeIcons.times_circle_1,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: ScreenUtil().setHeight(250),
-                    width: ScreenUtil().setWidth(200),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color.fromRGBO(255, 78, 132, 100),
-                    ),
-                    child: FlatButton(
-                      padding: EdgeInsets.all(8),
-                      onPressed: () => {},
-                      child: Icon(
-                        LineAwesomeIcons.star,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: ScreenUtil().setHeight(200),
-                    width: ScreenUtil().setWidth(700),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      color: Color.fromRGBO(255, 78, 132, 100),
-                    ),
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                          trackHeight: ScreenUtil().setHeight(60),
-                          activeTrackColor: Colors.pink,
-                          disabledActiveTrackColor: Colors.pink,
-                          disabledInactiveTrackColor: Colors.pink,
-                          disabledThumbColor: Colors.pink,
-                          valueIndicatorShape: SliderComponentShape.noThumb,
-                          thumbColor: Colors.pink,
-                          thumbShape: RoundSliderThumbShape(
-                            enabledThumbRadius: 20,
-                          ),
-                          overlappingShapeStrokeColor: Colors.pink,
-                          overlayColor: Colors.pink),
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Slider(
-                          value: Perfiles
-                              .perfilesCitas.listaPerfiles[indice].valoracion,
-                          onChangeStart: (val) {
-                            print(val);
-                            leGusta = true;
-                            print(leGusta);
+      height: widget.limites.biggest.height,
+      width: widget.limites.biggest.width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: Column(
+        children: <Widget>[
+          Flexible(
+              flex: 10,
+              fit: FlexFit.tight,
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints box) {
+                  PerfilesGenteCitas.limitesPrimeraFoto = box;
+                  PerfilesGenteCitas.limitesParaCreador = box;
+                  return Container(
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(color: Colors.grey, blurRadius: 0)
+                    ]),
+                    height: box.biggest.height,
+                    width: box.biggest.width,
+                    child: GestureDetector(
+                      onHorizontalDragStart: (valor) {},
+                      onHorizontalDragUpdate: (valor) {},
+                      onHorizontalDragCancel: () {},
+                      onHorizontalDragDown: (valor) {},
+                      onHorizontalDragEnd: (valor) {},
+                      onLongPress: () {},
+                      child: Swiper(
+                        loop: false,
+                        physics: NeverScrollableScrollPhysics(),
+                        layout: SwiperLayout.STACK,
+                        itemWidth: box.biggest.width,
+                        curve: Curves.easeInOut,
+                        onIndexChanged: (index) {
+                          PerfilesGenteCitas.indicePerfil = index;
+                          if (Perfiles.perfilesCitas.listaPerfiles.length >
+                              PerfilesGenteCitas.indicePerfil + 1) {
+                            PerfilesGenteCitas.valorPerfilPasado = Perfiles
+                                .perfilesCitas
+                                .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                                .valoracion;
+                            PerfilesGenteCitas.valorPerfilPresente = Perfiles
+                                .perfilesCitas
+                                .listaPerfiles[
+                                    PerfilesGenteCitas.indicePerfil + 1]
+                                .valoracion;
                             Perfiles.perfilesCitas.notifyListeners();
-                          },
-                          onChanged: (valor) {
-                            setState(() {
-                              Perfiles.perfilesCitas.listaPerfiles[indice]
-                                  .valoracion = valor;
-                            });
-                          },
-                          min: 5,
-                          max: 10,
+                          }
+                          print(
+                              "${PerfilesGenteCitas.indicePerfil} la lista esta aqui");
+                          widget.cambiarIndice = false;
+                        },
+                        controller: controladorSwipe,
+                        itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (BuildContext context, int indice) {
+                          print(
+                              "${PerfilesGenteCitas.indicePerfil} indice perfil en builder");
+
+                          void noLike() {
+                            if (Perfiles.perfilesCitas.listaPerfiles.length >
+                                indice + 1) {
+                              /* mover.scrollTo(
+                                index: indice + 1,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOutCubic,
+                              );*/
+
+                            }
+                          }
+
+                          void soltarBotonLike() {
+                            if (Perfiles.perfilesCitas.listaPerfiles.length >
+                                indice + 1) {
+                              Perfiles.perfilesCitas.notifyListeners();
+                              /*   Perfiles.perfilesCitas.listaPerfiles[indice]
+                                  .crearDatosValoracion();
+
+                              mover.scrollTo(
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOutCubic,
+                                  index: indice + 1);*/
+
+                            }
+                          }
+
+                          int devolverIndice() {
+                            return indice;
+                          }
+
+                          return Stack(alignment: Alignment.center, children: [
+                            RepaintBoundary(
+                              child: Container(
+                                height: box.biggest.height,
+                                width: box.biggest.width,
+                                color: Colors.white,
+                                child: Stack(
+                                  children: <Widget>[
+                                    ListView(
+                                      children: Perfiles.perfilesCitas
+                                          .listaPerfiles[indice].carrete,
+                                    ),
+                                    leGusta
+                                        ? pantallaGusta(box, indice)
+                                        : Container(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                                height: box.biggest.height,
+                                width: box.biggest.width,
+                                child: Perfiles
+                                            .perfilesCitas
+                                            .listaPerfiles[indice]
+                                            .linksHistorias
+                                            .length >
+                                        0
+                                    ? Align(
+                                        alignment: Alignment.topRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: [
+                                              BotonHistoriasPerfiles(
+                                                  rutaHistorias: MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          HistoriasPerfiles(
+                                                              linksHistorias: Perfiles
+                                                                  .perfilesCitas
+                                                                  .listaPerfiles[
+                                                                      indice]
+                                                                  .linksHistorias))),
+                                                                  Text("Historias")
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    : Container()),
+                          ]);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              )),
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RepaintBoundary(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      fit: FlexFit.tight,
+                      flex: 2,
+                      child: Container(
+                        child: TweenAnimationBuilder(
+                            tween: Tween<double>(
+                              begin: Perfiles
+                                          .perfilesCitas
+                                          .listaPerfiles[
+                                              PerfilesGenteCitas.indicePerfil]
+                                          .valoracion <
+                                      5
+                                  ? ScreenUtil().setSp(90)
+                                  : ScreenUtil().setSp(170),
+                              end: Perfiles
+                                          .perfilesCitas
+                                          .listaPerfiles[
+                                              PerfilesGenteCitas.indicePerfil]
+                                          .valoracion <
+                                      5
+                                  ? ScreenUtil().setSp(170)
+                                  : ScreenUtil().setSp(90),
+                            ),
+                            duration: Duration(milliseconds: 200),
+                            builder: (BuildContext context, double valor,
+                                Widget child) {
+                              return Icon(
+                                Icons.cancel,
+                                size: valor,
+                                color: Colors.red,
+                              );
+                            }),
+                      ),
+                    ),
+                    Flexible(
+                      fit: FlexFit.tight,
+                      flex: 10,
+                      child: Container(
+                        child: deslizadorPuntuacion(
+                          soltarLikes,
+                          PerfilesGenteCitas.indicePerfil,
                         ),
                       ),
                     ),
-                  )
-                ],
+                    Flexible(
+                      fit: FlexFit.tight,
+                      flex: 2,
+                      child: Container(
+                        child: TweenAnimationBuilder(
+                            tween: Tween<double>(
+                              begin: Perfiles
+                                          .perfilesCitas
+                                          .listaPerfiles[
+                                              PerfilesGenteCitas.indicePerfil]
+                                          .valoracion >
+                                      5
+                                  ? ScreenUtil().setSp(90)
+                                  : ScreenUtil().setSp(170),
+                              end: Perfiles
+                                          .perfilesCitas
+                                          .listaPerfiles[
+                                              PerfilesGenteCitas.indicePerfil]
+                                          .valoracion >
+                                      5
+                                  ? ScreenUtil().setSp(170)
+                                  : ScreenUtil().setSp(90),
+                            ),
+                            duration: Duration(milliseconds: 200),
+                            builder: (BuildContext context, double valor,
+                                Widget child) {
+                              return Icon(
+                                LineAwesomeIcons.heart_1,
+                                size: valor,
+                                color: Colors.green,
+                              );
+                            }),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ]);
-        },
+          )
+        ],
       ),
     );
+  }
+
+  void dialogoFinPerfiles(BuildContext context) {
+    bool denttroDePantalla = false;
+    showGeneralDialog(
+        barrierDismissible: false,
+        transitionDuration: const Duration(milliseconds: 100),
+        context: context,
+        pageBuilder: (BuildContext context, Animation animation,
+            Animation secondanimation) {
+          denttroDePantalla = true;
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  height: ScreenUtil().setHeight(1000),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Color.fromRGBO(20, 20, 20, 50),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            child: Text("Upps... Parece que no queda nadie",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: ScreenUtil().setSp(70))),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Colors.transparent,
+                            child: TweenAnimationBuilder(
+                                tween: Tween<double>(
+                                    begin: ScreenUtil().setSp(0),
+                                    end: ScreenUtil().setSp(300)),
+                                duration: Duration(milliseconds: 250),
+                                builder: (BuildContext context, double valor,
+                                    Widget child) {
+                                  return Icon(
+                                    LineAwesomeIcons
+                                        .frowning_face_with_open_mouth_1,
+                                    size: valor,
+                                    color: Colors.yellow,
+                                  );
+                                }),
+                          ),
+                        ),
+                        Divider(
+                          height: ScreenUtil().setHeight(30),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Container(
+                            child: Text(
+                                "Invita a tus amigos a unirse y gana creditos cuando se registren por ayudarnos a crecer",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: ScreenUtil().setSp(40))),
+                          ),
+                        ),
+                        Divider(
+                          height: ScreenUtil().setHeight(40),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: Colors.green),
+                          child: FlatButton(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Invitar amigos"),
+                                Icon(LineAwesomeIcons.share),
+                              ],
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                        Divider(
+                          height: ScreenUtil().setHeight(50),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Container(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                  "Modifica tus filtros para ver mas perfiles",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: ScreenUtil().setSp(40))),
+                            ),
+                          ),
+                        ),
+                        Divider(
+                          height: ScreenUtil().setHeight(50),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: Colors.green),
+                          child: FlatButton(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Modificar Filtros"),
+                                Icon(LineAwesomeIcons.edit)
+                              ],
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                        Divider(
+                          height: ScreenUtil().setHeight(30),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: Colors.transparent),
+                          child: FlatButton(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Cerrar",
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: ScreenUtil().setSp(40),
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Icon(Icons.close, color: Colors.red)
+                              ],
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  TweenAnimationBuilder<double> pantallaGusta(
+      BoxConstraints limitesPantallaLeGusta, int indice) {
+    return TweenAnimationBuilder(
+        tween:
+            Tween<double>(begin: 0, end: limitesPantallaLeGusta.biggest.height),
+        duration: Duration(milliseconds: 100),
+        curve: Curves.easeInSine,
+        builder: (BuildContext context, double valor, Widget child) {
+          return AnimatedContainer(
+            curve: Curves.linear,
+            duration: Duration(milliseconds: 100),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                color:
+                    Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 5
+                        ? Color.fromRGBO(27, 196, 35, 100)
+                        : Color.fromRGBO(255, 0, 42, 100)),
+            height: valor,
+            width: limitesPantallaLeGusta.biggest.width,
+            child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: valor == limitesPantallaLeGusta.biggest.height
+                    ? mensajePantallaCalificacion(
+                        limitesPantallaLeGusta, indice)
+                    : Container()),
+          );
+        });
+  }
+
+  Column mensajePantallaCalificacion(
+      BoxConstraints limitesPantallaLeGusta, int indice) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 5 &&
+                Perfiles.perfilesCitas.listaPerfiles[indice].valoracion < 6.5
+            ? Text(
+                "No esta mal",
+                style: TextStyle(
+                    fontSize: ScreenUtil().setSp(70),
+                    fontWeight: FontWeight.bold),
+              )
+            : Perfiles.perfilesCitas.listaPerfiles[indice].valoracion > 6.5 &&
+                    Perfiles.perfilesCitas.listaPerfiles[indice].valoracion < 9
+                ? Text(
+                    "Me gustas",
+                    style: TextStyle(
+                        fontSize: ScreenUtil().setSp(70),
+                        fontWeight: FontWeight.bold),
+                  )
+                : Perfiles.perfilesCitas.listaPerfiles[indice].valoracion > 9
+                    ? Text(
+                        "Smash",
+                        style: TextStyle(
+                            fontSize: ScreenUtil().setSp(70),
+                            fontWeight: FontWeight.bold),
+                      )
+                    : Center(
+                        child: Text(
+                          "Pass",
+                          style: TextStyle(
+                              fontSize: ScreenUtil().setSp(150),
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+        Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 0
+            ? anilloPuntuacion(limitesPantallaLeGusta, indice)
+            : Container(),
+        Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 5
+            ? botonEscribirMensaje()
+            : Container(),
+      ],
+    );
+  }
+
+  TweenAnimationBuilder<double> anilloPuntuacion(
+      BoxConstraints limitesPantallaLeGusta, int indice) {
+    return TweenAnimationBuilder(
+        tween: Tween<double>(begin: 10, end: ScreenUtil().setSp(400)),
+        curve: Curves.linearToEaseOut,
+        duration: Duration(milliseconds: 300),
+        builder: (BuildContext context, double valor, Widget child) {
+          return Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Container(
+              child: CircularPercentIndicator(
+                radius: valor,
+                percent:
+                    Perfiles.perfilesCitas.listaPerfiles[indice].valoracion /
+                        10,
+                animationDuration: 200,
+                lineWidth: ScreenUtil().setHeight(50),
+                linearGradient: LinearGradient(
+                    colors: [Colors.pink, Colors.pinkAccent[100]]),
+                center: Text(
+                  "${Perfiles.perfilesCitas.listaPerfiles[indice].valoracion.toStringAsFixed(1)}",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize:
+                          ScreenUtil().setSp(90, allowFontScalingSelf: false),
+                      color: Colors.white),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  AnimatedContainer botonEscribirMensaje() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      curve: Curves.linearToEaseOut,
+      width: ScreenUtil().setWidth(400),
+      height: ScreenUtil().setHeight(100),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          color: Colors.white),
+      child: Center(
+          child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.message,
+            size: ScreenUtil().setSp(40),
+          ),
+          Text(
+            "Enviar Mensaje",
+            style: TextStyle(
+                fontSize: ScreenUtil().setSp(40), fontWeight: FontWeight.bold),
+          ),
+        ],
+      )),
+    );
+  }
+
+  Padding deslizadorPuntuacion(
+    Function soltarLike,
+    int indice,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(1.0),
+      child: Container(
+        child: SliderTheme(
+          data: SliderThemeData(
+              trackHeight: ScreenUtil().setHeight(90),
+              activeTrackColor: Colors.blueAccent,
+              disabledActiveTrackColor: Colors.pink,
+              disabledInactiveTrackColor: Colors.red,
+              disabledThumbColor: Colors.blue,
+              valueIndicatorShape: SliderComponentShape.noOverlay,
+              thumbColor: Colors.blueAccent,
+              thumbShape: RoundSliderThumbShape(
+                enabledThumbRadius: 30,
+              ),
+              overlappingShapeStrokeColor: Colors.red,
+              overlayColor: Colors.pink),
+          child: Slider(
+            value: Perfiles.perfilesCitas.listaPerfiles != null
+                ? Perfiles.perfilesCitas
+                    .listaPerfiles[PerfilesGenteCitas.indicePerfil].valoracion
+                : 5,
+            label: "Holita",
+            onChangeStart: (val) {
+              print(val);
+              leGusta = true;
+
+            },
+            onChanged: (valor) {
+              setState(() {
+                Perfiles
+                    .perfilesCitas
+                    .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                    .valoracion = valor;
+              });
+            },
+            onChangeEnd: (valor) {
+              
+             
+              Future.delayed(Duration(milliseconds: 250)).then((value) {
+                controladorSwipe.next();
+                if (Perfiles.perfilesCitas.listaPerfiles.length ==
+                    PerfilesGenteCitas.indicePerfil + 1) {
+                  dialogoFinPerfiles(context);
+                  Perfiles.perfilesCitas.notifyListeners();
+                  Perfiles.perfilesCitas
+                      .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                      .crearDatosValoracion();
+                }
+
+                leGusta = false;
+            
+              });
+            },
+            min: 0,
+            max: 10,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class BotonHistoriasPerfiles extends StatefulWidget {
+  MaterialPageRoute rutaHistorias;
+  BotonHistoriasPerfiles({@required this.rutaHistorias});
+  @override
+  _BotonHistoriasPerfilesState createState() => _BotonHistoriasPerfilesState();
+}
+
+class _BotonHistoriasPerfilesState extends State<BotonHistoriasPerfiles>
+    with SingleTickerProviderStateMixin {
+  AnimationController _animacionMicrofono;
+  Animation animacion;
+
+  int duracionAudio;
+  void initState() {
+    _animacionMicrofono =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 600));
+    _animacionMicrofono.repeat(reverse: true);
+    animacion =
+        Tween<double>(begin: 5.0, end: 40.0).animate(_animacionMicrofono)
+          ..addListener(() {
+            setState(() {});
+          });
+    super.initState();
+  }
+  void dispose() {
+if(_animacionMicrofono.status == AnimationStatus.forward || _animacionMicrofono.status == AnimationStatus.reverse)
+{
+_animacionMicrofono.notifyStatusListeners(AnimationStatus.dismissed);
+}
+_animacionMicrofono.dispose();
+super.dispose();
+
+}
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          RepaintBoundary(
+            child: Container(
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.blue,
+                        spreadRadius: ScreenUtil().setSp(animacion.value),
+                        blurRadius: ScreenUtil().setSp(animacion.value))
+                  ]),
+              child: TweenAnimationBuilder(
+                  tween: Tween<double>(
+                      begin: ScreenUtil().setSp(0),
+                      end: ScreenUtil().setSp(250)),
+                  duration: Duration(milliseconds: 250),
+                  builder: (BuildContext context, double valor, Widget child) {
+                    return IconButton(
+                      icon: Icon(
+                        LineAwesomeIcons.film,
+                      ),
+                      color: Colors.white,
+                      onPressed: () =>
+                          Navigator.push(context, widget.rutaHistorias),
+                    );
+                  }),
+            ),
+          )
+        ]);
   }
 }
 
@@ -831,7 +794,7 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
   double valorSlider = 5;
 
   void soltarBotonLike(DatosPerfiles datos) {
-    Valoraciones.Puntuaciones.obtenerValoracion();
+    Valoraciones.Puntuaciones.escucharValoraciones();
     datos.crearDatosValoracion();
     // mover.next(animation: true);
 
@@ -848,14 +811,15 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
       reverse: false,
       scrollDirection: Axis.horizontal,
       itemBuilder: (BuildContext context, int indice) {
+        print(indice);
         void noLike(DatosPerfiles datos) {
           if (Perfiles.perfilesAmistad.listaPerfiles.length > indice + 1) {
             print(indice);
+
             mover.scrollTo(
                 index: indice + 1,
                 duration: Duration(milliseconds: 300),
                 curve: Curves.easeInOutCubic);
-            print(indice);
           }
         }
 
@@ -866,6 +830,31 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
             padding: EdgeInsets.only(left: 10, right: 10),
             child: ListView(
               children: Perfiles.perfilesAmistad.listaPerfiles[indice].carrete,
+            ),
+          ),
+          Container(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                  color: Colors.red,
+                  child: Perfiles.perfilesAmistad.listaPerfiles[indice]
+                              .linksHistorias.length >
+                          0
+                      ? FlatButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HistoriasPerfiles(
+                                        linksHistorias: Perfiles
+                                            .perfilesAmistad
+                                            .listaPerfiles[indice]
+                                            .linksHistorias)));
+                          },
+                          child: Container(
+                            child: Text("data"),
+                          ))
+                      : Container()),
             ),
           ),
           Container(
@@ -916,728 +905,6 @@ class PerfilesGenteAmistadState extends State<PerfilesGenteAmistad> {
         ]);
       },
     );
-  }
-}
-
-class cancel_button extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return cancel_button_state();
-  }
-}
-
-class cancel_button_state extends State<cancel_button> {
-  Widget build(BuildContext build) {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: <Widget>[
-          FlatButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Container(
-                width: ScreenUtil().setWidth(500),
-                height: ScreenUtil().setHeight(120),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    color: Colors.red),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[Icon(Icons.cancel), Text("Cancel")],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-}
-
-class next_button extends StatefulWidget {
-  bool mostrarParticipantes;
-  next_button(this.mostrarParticipantes);
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return next_button_state();
-  }
-}
-
-class EventosCerca extends StatefulWidget {
-  List<List<Widget>> perfiles = new List();
-  static int posicion;
-  static double valor;
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return EventosCercaState();
-  }
-}
-
-class EventosCercaState extends State<EventosCerca> {
-  final f = DateFormat(DateFormat.YEAR_MONTH_WEEKDAY_DAY);
-  ItemScrollController mover = new ItemScrollController();
-
-  double valorSlider = 5;
-
-  void soltarBotonLike(DatosPerfiles datos) {
-    Valoraciones.Puntuaciones.obtenerValoracion();
-    datos.crearDatosValoracion();
-    // mover.next(animation: true);
-
-    print("Fuera");
-  }
-
-  void rebuildAllChildren(BuildContext context) {
-    void rebuild(Element el) {
-      el.markNeedsBuild();
-      el.visitChildren(rebuild);
-    }
-
-    (context as Element).visitChildren(rebuild);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print("Stronggg");
-    // TODO: implement build
-    return ScrollablePositionedList.builder(
-      itemCount: Actividad.cacheActividadesParaTi.listaEventos.length,
-      physics: NeverScrollableScrollPhysics(),
-      itemScrollController: mover,
-      reverse: false,
-      scrollDirection: Axis.horizontal,
-      itemBuilder: (BuildContext context, int indice) {
-        void noLike() {
-          if (Actividad.cacheActividadesParaTi.listaEventos.length >
-              indice + 1) {
-            print(indice);
-            mover.scrollTo(
-                index: indice + 1,
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeInOutCubic);
-            print(indice);
-          }
-        }
-
-        return Stack(alignment: Alignment.bottomCenter, children: [
-          Container(
-            height: ScreenUtil().setHeight(3100),
-            width: ScreenUtil().setWidth(1400),
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: Builder(
-              builder: (BuildContext context) {
-                print("Builder construyendo");
-
-                return ListView.builder(
-                  itemCount:
-                      Actividad.cacheActividadesParaTi.listaEventos.length,
-                  itemBuilder: (BuildContext context, int indice) {
-                    rebuildAllChildren(context);
-                    print("object");
-                    return Actividad.cacheActividadesParaTi.listaEventos[indice]
-                        .carreteListo;
-                  },
-                );
-              },
-            ),
-          ),
-          Container(
-            width: ScreenUtil().setWidth(1300),
-            child: Container(
-              child: Align(
-                alignment: AlignmentDirectional.bottomCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Container(
-                      height: ScreenUtil().setHeight(250),
-                      width: ScreenUtil().setWidth(200),
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(255, 78, 132, 100),
-                      ),
-                      child: FlatButton(
-                        padding: EdgeInsets.all(8),
-                        onPressed: () {
-                          noLike();
-                          // Perfiles.perfilesCitas.notifyListeners();
-                        },
-                        child: Icon(
-                          LineAwesomeIcons.times_circle_1,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: ScreenUtil().setHeight(250),
-                      width: ScreenUtil().setWidth(200),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(255, 78, 132, 100),
-                      ),
-                      child: FlatButton(
-                        padding: EdgeInsets.all(8),
-                        onPressed: () => {
-                          Actividad.cacheActividadesParaTi.listaEventos[indice]
-                              .enviarSolicitudEvento()
-                        },
-                        child: Icon(
-                          LineAwesomeIcons.star,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ]);
-      },
-    );
-  }
-}
-
-class next_button_state extends State<next_button> {
-  Widget build(BuildContext build) {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: <Widget>[
-          FlatButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                        transitionDuration: Duration(milliseconds: 100),
-                        transitionsBuilder: (BuildContext context,
-                            Animation<double> animation,
-                            Animation<double> secAnimation,
-                            Widget child) {
-                          return ScaleTransition(
-                              alignment: Alignment.centerRight,
-                              scale: animation,
-                              child: child);
-                        },
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation,
-                            Animation<double> secAnimation) {
-                          return confirm_plan_screen(
-                              widget.mostrarParticipantes);
-                        }));
-                ;
-              },
-              child: Container(
-                width: ScreenUtil().setWidth(500),
-                height: ScreenUtil().setHeight(120),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                    color: Colors.green),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[Icon(Icons.check_circle), Text("Next")],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-}
-
-///**************************************************************************************************************************************************************
-///                                   PANTALLA DE CONFIRMACION
-///
-/// STRING NAME: Recibe una cadena de caracteres con la traduccion de SEXO adecuada al idioma traducido
-///
-/// STRING MALE_SEX_NAME: Recibe una cadena de caracteres con la traduccion adecuada de HOMBRE
-///
-/// STRING FEMALE_SEX_NAME: Recibe una cadena de caracteres con la traduccion adecuada de MUJER
-///
-/// *************************************************************************************************************************************************************
-
-class confirm_plan_screen extends StatefulWidget {
-  bool masDeUnParticipane;
-  confirm_plan_screen(this.masDeUnParticipane);
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return confirm_plan_screen_state(masDeUnParticipane);
-  }
-}
-
-// ignore: camel_case_types
-class confirm_plan_screen_state extends State<confirm_plan_screen> {
-  confirm_plan_screen_state(this.interuptorMasDeUnParticipante);
-  String coche = "Automoviles";
-  String videojuegos = "VideoJuegos";
-  String cine = "Cine";
-  String bricolaje = "Manualidades y Bricolaje";
-  String comida = "Comida";
-  String moda = "Moda y Belleza";
-  String animales = "Aniimales";
-  String musica = "Musica";
-  String naturaleza = "Naturaleza";
-  String ciencia = "Ciencia y Tecnologia";
-  String politica = "Politica y Sociedad";
-  String viajes = "Viajes";
-  String fiesta = "Fiesta";
-  String vidasocial = "Vida Social";
-  String fittnes = "Deporte y Fittness";
-  String salud = "Salud";
-  bool interuptorMasDeUnParticipante;
-  Widget build(BuildContext context) {
-    if (interuptorMasDeUnParticipante) {
-      Actividad.esteEvento.tipoPlan = "Grupo";
-    } else {
-      Actividad.esteEvento.tipoPlan = "Individual";
-    }
-    ScreenUtil.init(context, width: 1440, height: 3120, allowFontScaling: true);
-    return ChangeNotifierProvider.value(
-      value: Actividad.esteEvento,
-      child: SafeArea(
-        child: Container(
-          color: Colors.deepPurple.shade300,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10, right: 10),
-                      child: Container(
-                        height: ScreenUtil().setHeight(150),
-                        child: Text(
-                          "Add a Picture",
-                          style: TextStyle(fontSize: ScreenUtil().setSp(90)),
-                        ),
-                      ),
-                    ),
-                    Container(
-                        height: ScreenUtil().setHeight(1200),
-                        color: Colors.deepPurple.shade200,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
-                          child: Consumer<Actividad>(
-                            builder: (context, actividad, child) {
-                              return Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: <Widget>[
-                                      FotoEvento(0, actividad.Images_List[0]),
-                                      FotoEvento(1, actividad.Images_List[1]),
-                                      FotoEvento(2, actividad.Images_List[2]),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: <Widget>[
-                                      FotoEvento(3, actividad.Images_List[3]),
-                                      FotoEvento(4, actividad.Images_List[4]),
-                                      FotoEvento(5, actividad.Images_List[5]),
-                                    ],
-                                  )
-                                ],
-                              );
-                            },
-                          ),
-                        )),
-                  ],
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(200),
-                ),
-                Column(
-                  children: <Widget>[
-                    Container(
-                      height: ScreenUtil().setHeight(1300),
-                      color: Colors.white,
-                      child: Consumer<Actividad>(builder:
-                          (BuildContext context, actividad, Widget child) {
-                        // print(usuario.cine);
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                        );
-                      }),
-                    ),
-                    AnimatedOpacity(
-                      opacity: interuptorMasDeUnParticipante ? 1 : 0,
-                      duration: Duration(milliseconds: 300),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          height: ScreenUtil().setHeight(500),
-                          child: Column(
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Participantes:",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(90)),
-                                  ),
-                                  Container(
-                                    child: Text(
-                                        "${(Actividad.esteEvento.participantesEvento * 10).toInt()}",
-                                        style: TextStyle(
-                                            fontSize: ScreenUtil().setSp(90))),
-                                  ),
-                                ],
-                              ),
-                              Divider(
-                                height: ScreenUtil().setHeight(100),
-                              ),
-                              Material(
-                                child: Container(
-                                  child: Slider(
-                                      label:
-                                          "${Actividad.esteEvento.participantesEvento}",
-                                      value: Actividad
-                                              .esteEvento.participantesEvento /
-                                          10,
-                                      min: 0.002,
-                                      max: 0.5,
-                                      onChanged: (valor) {
-                                        setState(() {
-                                          Actividad.esteEvento
-                                              .participantesEvento = valor * 10;
-                                        });
-
-                                        print(
-                                            "${(Actividad.esteEvento.participantesEvento * 10).toInt()}");
-                                      }),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: ScreenUtil().setHeight(500),
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Material(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        interuptorMasDeUnParticipante
-                                            ? "Grupo"
-                                            : "Individual",
-                                        style: TextStyle(
-                                            fontSize: ScreenUtil().setSp(90)),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: ScreenUtil().setWidth(900),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          interuptorMasDeUnParticipante
-                                              ? "Proponer a los usuarios actividades en grupo a los que les interesen, selecciona la cantidad de participantes y publica"
-                                              : "Un plan con una sola persona,recibiras solicitudes y al aceptar una podreis chatear con tu compañero/a antes de quedar",
-                                          style: TextStyle(
-                                              fontSize: ScreenUtil().setSp(60)),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Material(
-                                child: Switch(
-                                    value: interuptorMasDeUnParticipante,
-                                    onChanged: (valor) {
-                                      setState(() {
-                                        interuptorMasDeUnParticipante = valor;
-                                        if (interuptorMasDeUnParticipante) {
-                                          Actividad.esteEvento.tipoPlan =
-                                              "Grupo";
-                                        } else {
-                                          Actividad.esteEvento.tipoPlan =
-                                              "Individual";
-                                        }
-                                      });
-                                    }),
-                              )
-                            ]),
-                      ),
-                    ),
-                    Container(
-                      height: ScreenUtil().setHeight(600),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          cancel_button(),
-                          submit_plan_button()
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class FotoEvento extends StatefulWidget {
-  int box;
-  File Imagen;
-
-  FotoEvento(this.box, this.Imagen);
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return FotoEventoState(this.box, this.Imagen);
-  }
-}
-
-class FotoEventoState extends State<FotoEvento> {
-  @override
-  File Image_picture;
-  File imagen;
-  File imagenFinal;
-
-  static List<File> pictures = List(6);
-  int box;
-  FotoEventoState(this.box, this.imagen) {}
-  void opcionesImagenPerfil() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Añadir Imagen"),
-            content: Text("¿Seleccione la fuente de la imagen?"),
-            actions: <Widget>[
-              Row(
-                children: <Widget>[
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        abrirGaleria(context);
-                      },
-                      child: Row(
-                        children: <Widget>[Text("Galeria"), Icon(Icons.image)],
-                      )),
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        abrirCamara(context);
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Text("Camara"),
-                          Icon(Icons.camera_enhance)
-                        ],
-                      )),
-                ],
-              )
-            ],
-          );
-        });
-  }
-
-  abrirGaleria(BuildContext context) async {
-    var archivoImagen =
-        await ImagePicker.pickImage(source: ImageSource.gallery);
-    File imagenRecortada = await ImageCropper.cropImage(
-        sourcePath: archivoImagen.path,
-        maxHeight: 1280,
-        maxWidth: 720,
-        aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
-        compressQuality: 90,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.ratio16x9,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
-    if (imagenRecortada != null) {
-      this.setState(() {
-        imagenFinal = imagenRecortada;
-        pictures[box] = imagenFinal;
-        Actividad.esteEvento.Images_List = pictures;
-        print("${archivoImagen.lengthSync()} Tamaño original");
-        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-        print(box);
-        Actividad.esteEvento.notifyListeners();
-      });
-    }
-  }
-
-  abrirCamara(BuildContext context) async {
-    var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
-    File imagenRecortada = await ImageCropper.cropImage(
-        sourcePath: archivoImagen.path,
-
-        // aspectRatio: CropAspectRatio(ratioX: 9,ratioY: 16),
-        maxHeight: 1000,
-        maxWidth: 720,
-        compressQuality: 90,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
-    if (imagenRecortada != null) {
-      this.setState(() {
-        imagenFinal = imagenRecortada;
-        pictures[box] = imagenFinal;
-        Actividad.esteEvento.Images_List = pictures;
-        print("${archivoImagen.lengthSync()} Tamaño original");
-        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-        print(box);
-        Actividad.esteEvento.notifyListeners();
-      });
-    }
-  }
-
-  eliminarImagen(BuildContext context) {
-    this.setState(() {
-      Actividad.esteEvento.Images_List[box] = null;
-      imagenFinal = null;
-      print("object");
-      if (Actividad.esteEvento.Images_List[box] == null) {
-        print("vacio en $box");
-        Actividad.esteEvento.notifyListeners();
-      }
-    });
-  }
-
-  Widget build(BuildContext context) {
-    imagen = widget.Imagen;
-    // TODO: implement build
-    return Container(
-      height: ScreenUtil().setHeight(420),
-      width: ScreenUtil().setWidth(420),
-      decoration: BoxDecoration(
-        border:
-            Border.all(color: Colors.white, width: ScreenUtil().setWidth(6)),
-        borderRadius: BorderRadius.all(Radius.circular(3)),
-        color: Colors.white30,
-      ),
-      child: FlatButton(
-        onPressed: () => opcionesImagenPerfil(),
-        onLongPress: () => eliminarImagen(context),
-        child: imagenFinal == null
-            ? Center(
-                child: Icon(
-                  Icons.add_a_photo,
-                  color: Colors.white,
-                ),
-              )
-            : Stack(alignment: AlignmentDirectional.center, children: [
-                Image.file(
-                  imagenFinal,
-                  fit: BoxFit.fill,
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(500),
-                  width: ScreenUtil().setWidth(500),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
-                    color: Colors.transparent,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: ScreenUtil().setSp(150),
-                    ),
-                  ),
-                ),
-              ]),
-      ),
-    );
-  }
-}
-
-class submit_plan_button extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return submit_plan_button_state();
-  }
-}
-
-class submit_plan_button_state extends State<submit_plan_button> {
-  Widget build(BuildContext build) {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: <Widget>[
-          FlatButton(
-              onPressed: () {
-                Actividad.esteEvento.subirImagenes();
-              },
-              child: Container(
-                width: ScreenUtil().setWidth(500),
-                height: ScreenUtil().setHeight(120),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                    color: Colors.green),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.check_circle),
-                    Text("Create Plan")
-                  ],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-}
-
-class SeleccionarTipoPlan extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return SeleccionarTipoPlanState();
-  }
-}
-
-class SeleccionarTipoPlanState extends State<SeleccionarTipoPlan> {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return AlertDialog();
   }
 }
 
@@ -1859,157 +1126,149 @@ class FotoHistoriaState extends State<FotoHistoria> {
       Usuario.esteUsuario.fotosHistorias[box] = null;
       imagenFinal = null;
       widget.imagenRed = false;
-     
+
       // ignore: unnecessary_statements
       FotoHistoria.linksImagenesHistorias[box] = null;
-    
-        if (box == 0) {
-           print("object");
-          if (FotoHistoria.linksImagenesHistorias[box] == null) {
-            datosActualizados =
-                FotoHistoria.linksImagenesHistorias[box];
 
-            Usuario.esteUsuario.notifyListeners();
-            widget.baseDatosRef
-                .collection("usuarios")
-                .document(Usuario.esteUsuario.idUsuario)
-                .collection("historias")
-                .document("Historia1")
-                .delete();
+      if (box == 0) {
+        print("object");
+        if (FotoHistoria.linksImagenesHistorias[box] == null) {
+          datosActualizados = FotoHistoria.linksImagenesHistorias[box];
 
-            StorageReference reference = storage.ref();
+          Usuario.esteUsuario.notifyListeners();
+          widget.baseDatosRef
+              .collection("usuarios")
+              .document(Usuario.esteUsuario.idUsuario)
+              .collection("historias")
+              .document("Historia1")
+              .delete();
 
-            String Image1 =
-                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
-            StorageReference imagesReference = reference.child(Image1);
-            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
-            imagesReference.delete().catchError((error) {
-              print(error);
-            });
-          }
+          StorageReference reference = storage.ref();
+
+          String Image1 =
+              "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+          StorageReference imagesReference = reference.child(Image1);
+          //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+          imagesReference.delete().catchError((error) {
+            print(error);
+          });
         }
-        if (box == 1) {
-          if (FotoHistoria.linksImagenesHistorias[box] == null) {
-            datosActualizados =null;
-               
+      }
+      if (box == 1) {
+        if (FotoHistoria.linksImagenesHistorias[box] == null) {
+          datosActualizados = null;
 
-            Usuario.esteUsuario.notifyListeners();
-            widget.baseDatosRef
-                .collection("usuarios")
-                .document(Usuario.esteUsuario.idUsuario)
-                .collection("historias")
-                .document("Historia2")
-                .delete();
+          Usuario.esteUsuario.notifyListeners();
+          widget.baseDatosRef
+              .collection("usuarios")
+              .document(Usuario.esteUsuario.idUsuario)
+              .collection("historias")
+              .document("Historia2")
+              .delete();
 
-            StorageReference reference = storage.ref();
+          StorageReference reference = storage.ref();
 
-            String Image1 =
-                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
-            StorageReference imagesReference = reference.child(Image1);
-            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
-            imagesReference.delete().catchError((error) {
-              print(error);
-            });
-          }
+          String Image1 =
+              "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+          StorageReference imagesReference = reference.child(Image1);
+          //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+          imagesReference.delete().catchError((error) {
+            print(error);
+          });
         }
-        if (box == 2) {
-          if (FotoHistoria.linksImagenesHistorias[box] == null) {
-            datosActualizados =
-                FotoHistoria.linksImagenesHistorias[box];
+      }
+      if (box == 2) {
+        if (FotoHistoria.linksImagenesHistorias[box] == null) {
+          datosActualizados = FotoHistoria.linksImagenesHistorias[box];
 
-            Usuario.esteUsuario.notifyListeners();
-            widget.baseDatosRef
-                .collection("usuarios")
-                .document(Usuario.esteUsuario.idUsuario)
-                .collection("historias")
-                .document("Historia3")
-                .delete();
+          Usuario.esteUsuario.notifyListeners();
+          widget.baseDatosRef
+              .collection("usuarios")
+              .document(Usuario.esteUsuario.idUsuario)
+              .collection("historias")
+              .document("Historia3")
+              .delete();
 
-            StorageReference reference = storage.ref();
+          StorageReference reference = storage.ref();
 
-            String Image1 =
-                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
-            StorageReference imagesReference = reference.child(Image1);
-            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
-            imagesReference.delete().catchError((error) {
-              print(error);
-            });
-          }
+          String Image1 =
+              "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+          StorageReference imagesReference = reference.child(Image1);
+          //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+          imagesReference.delete().catchError((error) {
+            print(error);
+          });
         }
-        if (box == 3) {
-          if (FotoHistoria.linksImagenesHistorias[box] == null) {
-            datosActualizados =
-                FotoHistoria.linksImagenesHistorias[box];
+      }
+      if (box == 3) {
+        if (FotoHistoria.linksImagenesHistorias[box] == null) {
+          datosActualizados = FotoHistoria.linksImagenesHistorias[box];
 
-            Usuario.esteUsuario.notifyListeners();
-            widget.baseDatosRef
-                .collection("usuarios")
-                .document(Usuario.esteUsuario.idUsuario)
-                .collection("historias")
-                .document("Historia4")
-                .delete();
+          Usuario.esteUsuario.notifyListeners();
+          widget.baseDatosRef
+              .collection("usuarios")
+              .document(Usuario.esteUsuario.idUsuario)
+              .collection("historias")
+              .document("Historia4")
+              .delete();
 
-            StorageReference reference = storage.ref();
+          StorageReference reference = storage.ref();
 
-            String Image1 =
-                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
-            StorageReference imagesReference = reference.child(Image1);
-            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
-            imagesReference.delete().catchError((error) {
-              print(error);
-            });
-          }
+          String Image1 =
+              "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+          StorageReference imagesReference = reference.child(Image1);
+          //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+          imagesReference.delete().catchError((error) {
+            print(error);
+          });
         }
-        if (box == 4) {
-          if (FotoHistoria.linksImagenesHistorias[box] == null) {
-            datosActualizados =
-                FotoHistoria.linksImagenesHistorias[box];
+      }
+      if (box == 4) {
+        if (FotoHistoria.linksImagenesHistorias[box] == null) {
+          datosActualizados = FotoHistoria.linksImagenesHistorias[box];
 
-            Usuario.esteUsuario.notifyListeners();
-            widget.baseDatosRef
-                .collection("usuarios")
-                .document(Usuario.esteUsuario.idUsuario)
-                .collection("historias")
-                .document("Historia5")
-                .delete();
+          Usuario.esteUsuario.notifyListeners();
+          widget.baseDatosRef
+              .collection("usuarios")
+              .document(Usuario.esteUsuario.idUsuario)
+              .collection("historias")
+              .document("Historia5")
+              .delete();
 
-            StorageReference reference = storage.ref();
+          StorageReference reference = storage.ref();
 
-            String Image1 =
-                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
-            StorageReference imagesReference = reference.child(Image1);
-            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
-            imagesReference.delete().catchError((error) {
-              print(error);
-            });
-          }
+          String Image1 =
+              "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+          StorageReference imagesReference = reference.child(Image1);
+          //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+          imagesReference.delete().catchError((error) {
+            print(error);
+          });
         }
-        if (box == 5) {
-          if (FotoHistoria.linksImagenesHistorias[box] == null) {
-            datosActualizados =
-                FotoHistoria.linksImagenesHistorias[box];
+      }
+      if (box == 5) {
+        if (FotoHistoria.linksImagenesHistorias[box] == null) {
+          datosActualizados = FotoHistoria.linksImagenesHistorias[box];
 
-            Usuario.esteUsuario.notifyListeners();
-            widget.baseDatosRef
-                .collection("usuarios")
-                .document(Usuario.esteUsuario.idUsuario)
-                .collection("historias")
-                .document("Historia6")
-                .delete();
+          Usuario.esteUsuario.notifyListeners();
+          widget.baseDatosRef
+              .collection("usuarios")
+              .document(Usuario.esteUsuario.idUsuario)
+              .collection("historias")
+              .document("Historia6")
+              .delete();
 
-            StorageReference reference = storage.ref();
+          StorageReference reference = storage.ref();
 
-            String Image1 =
-                "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
-            StorageReference imagesReference = reference.child(Image1);
-            //  widget.esteEvento.fotosEventoEditar.removeAt(box);
-            imagesReference.delete().catchError((error) {
-              print(error);
-            });
-          }
+          String Image1 =
+              "${Usuario.esteUsuario.idUsuario}/Perfil//Historias/Image${box + 1}.jpg";
+          StorageReference imagesReference = reference.child(Image1);
+          //  widget.esteEvento.fotosEventoEditar.removeAt(box);
+          imagesReference.delete().catchError((error) {
+            print(error);
+          });
         }
- 
-      
+      }
     });
   }
 
@@ -2081,14 +1340,14 @@ class FotoHistoriaState extends State<FotoHistoria> {
 
     Usuario.esteUsuario.databaseReference
         .collection("usuarios")
-        .document(IDUsuario)
+        .doc(IDUsuario)
         .collection("historias")
-        .document("DocumentoHistorias")
-        .setData(Usuario.esteUsuario.imagenesHistorias);
+        .doc("DocumentoHistorias")
+        .set(Usuario.esteUsuario.imagenesHistorias);
   }
 
   Widget build(BuildContext context) {
-    if ( FotoHistoria.linksImagenesHistorias[box]==null) {
+    if (FotoHistoria.linksImagenesHistorias[box] == null) {
       widget.imagenRed = false;
     } else {
       widget.imagenRed = true;

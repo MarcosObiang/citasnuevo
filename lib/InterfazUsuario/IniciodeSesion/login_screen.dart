@@ -43,13 +43,13 @@ class login_screen_state extends State<login_screen> {
   }
 
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, width: 1440, height: 3120, allowFontScaling: true);
+   
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Material(
               child: SafeArea(
                     child: Container(
-              height: ScreenUtil().setHeight(2400),
+             
               decoration: BoxDecoration(
                   borderRadius:
                       BorderRadius.only(bottomLeft: Radius.circular(100)),
@@ -62,7 +62,7 @@ class login_screen_state extends State<login_screen> {
                     Center(
                       child: Text(
                         "  Hello",
-                        style: TextStyle(fontSize: ScreenUtil().setSp(150), color: Colors.white),
+                        style: TextStyle(fontSize: ScreenUtil().setSp(100,allowFontScalingSelf: true), color: Colors.white),
                       ),
                     ),
                     Padding(
@@ -74,7 +74,7 @@ class login_screen_state extends State<login_screen> {
                             Icon(
                               Icons.mail,
                               color: Colors.white,
-                              size: ScreenUtil().setSp(100),
+                              size: ScreenUtil().setSp(50),
                             ),
                             entradaEmail,
                             5,
@@ -84,22 +84,39 @@ class login_screen_state extends State<login_screen> {
                             Icon(
                               Icons.lock,
                               color: Colors.white,
-                              size: ScreenUtil().setSp(100),
+                              size: ScreenUtil().setSp(50),
                             ),
                             entradaClave,
                             3,
                             true,
                           ),
                           Container(
-                            height:   ScreenUtil().setHeight(20),
+                            height:   ScreenUtil().setHeight(10),
                           ),
                           Container(
-                            height: ScreenUtil().setHeight(20),
+                            height: ScreenUtil().setHeight(10),
                           ),
                           Container(
                             height: ScreenUtil().setHeight(60),
                           ),
-                          BotonAcceso()
+                          BotonAcceso(),
+                          Divider(
+                            height: ScreenUtil().setHeight(100),
+                          ),
+                        Container(
+                             height:   ScreenUtil().setHeight(100),
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                    child: FlatButton(
+                      highlightColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PantallaRegistro())),
+                        child: Text("Registrarse")))
                         ],
                       ),
                     ),

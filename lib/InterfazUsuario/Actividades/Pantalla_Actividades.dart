@@ -1,18 +1,25 @@
+import 'dart:math';
+
+import 'package:citasnuevo/DatosAplicacion/Directo.dart';
+import 'package:citasnuevo/InterfazUsuario/Descubrir/descubir.dart';
+import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:story_view/story_view.dart';
+
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'dart:math';
-import 'package:citasnuevo/DatosAplicacion/actividad.dart';
+
+
 import 'TarjetaEvento.dart';
 import 'pantalla_actividades_elements.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:story_view/story_view.dart';
 
 class pantalla extends StatefulWidget {
   @override
@@ -24,7 +31,7 @@ class pantalla extends StatefulWidget {
 }
 
 class Pantalla_Actividades extends State<pantalla>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin{
   Color colorPrincipal = Color.fromRGBO(27, 189, 163, 100);
   TabController controller;
   static bool citas = true;
@@ -32,11 +39,12 @@ class Pantalla_Actividades extends State<pantalla>
   static bool eventos = false;
   static String tituloModo = "";
   static String descripcionModo = "";
+  static GlobalKey claveListaCitas = GlobalKey();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller = TabController(length: 3, vsync: this);
+    controller = TabController(length: 2, vsync: this);
 
     //fill in the screen size of the device in the design
 
@@ -52,73 +60,11 @@ class Pantalla_Actividades extends State<pantalla>
     super.dispose();
   }
 
-  void _showActivityDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Nuevo Plan"),
-            content: Text("Selecciona el tipo de plan"),
-            actions: <Widget>[
-              Row(
-                children: <Widget>[
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                                transitionDuration: Duration(milliseconds: 100),
-                                transitionsBuilder: (BuildContext context,
-                                    Animation<double> animation,
-                                    Animation<double> secAnimation,
-                                    Widget child) {
-                                  return ScaleTransition(
-                                      alignment: Alignment.center,
-                                      scale: animation,
-                                      child: child);
-                                },
-                                pageBuilder: (BuildContext context,
-                                    Animation<double> animation,
-                                    Animation<double> secAnimation) {
-                                  return plan_screen(false);
-                                }));
-                      },
-                      child: Text("Individual")),
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                                transitionDuration: Duration(milliseconds: 100),
-                                transitionsBuilder: (BuildContext context,
-                                    Animation<double> animation,
-                                    Animation<double> secAnimation,
-                                    Widget child) {
-                                  return ScaleTransition(
-                                      alignment: Alignment.center,
-                                      scale: animation,
-                                      child: child);
-                                },
-                                pageBuilder: (BuildContext context,
-                                    Animation<double> animation,
-                                    Animation<double> secAnimation) {
-                                  return plan_screen(true);
-                                }));
-                      },
-                      child: Text("Grupo")),
-                ],
-              )
-            ],
-          );
-        });
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context,
-        width: 1440, height: 3120, allowFontScaling: false);
+    
     void seleccionarModo() {
       if (citas) {
         controller.index = 0;
@@ -248,6 +194,7 @@ class Pantalla_Actividades extends State<pantalla>
 
     // TODO: implement build
     return Container(
+      height: ScreenUtil.screenHeight - kBottomNavigationBarHeight,
       child: DefaultTabController(
         length: 3,
         child: ChangeNotifierProvider.value(
@@ -262,116 +209,91 @@ class Pantalla_Actividades extends State<pantalla>
                     child: Padding(
                       padding: const EdgeInsets.only(left: 5, right: 5),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Flexible(
-                            flex: 1,
-                            fit: FlexFit.tight,
-                            child: Container(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Column(
-                                    children: <Widget>[
-                                      Icon(
-                                        LineAwesomeIcons.coins,
-                                        color: Colors.black,
-                                        size: ScreenUtil().setSp(80),
-                                      ),
-                                      Text(
-                                        "10000",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: ScreenUtil().setSp(40)),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.people,
-                                        color: Colors.black,
-                                        size: ScreenUtil().setSp(80),
-                                      ),
-                                      Text(
-                                        "Crear Plan",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: ScreenUtil().setSp(30)),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(3)),
-                                      ),
-                                      child: FlatButton(
-                                          onPressed: () {
-                                            opcionesModoAplicacion();
-                                          },
-                                          child: Text(tituloModo))),
-                                  Container(
-                                    child: GestureDetector(
-                                      onTap: () => !Usuario.esteUsuario
-                                                  .tieneHistorias
-                                              
-                                          ? Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CreadorDeHistorias()))
-                                          : Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      HistoriasUsuario())),
-                                      child: Column(
-                                        children: <Widget>[
-                                          Icon(
-                                            LineAwesomeIcons.plus_circle,
-                                            color: Colors.black,
-                                            size: ScreenUtil().setSp(95),
-                                          ),
-                                          Text(
-                                            " Tu historia",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize:
-                                                    ScreenUtil().setSp(30)),
-                                          ),
-                                        ],
-                                      ),
+                          Container(
+                            height: AppBar().preferredSize.height,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                    Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      LineAwesomeIcons.backward,
+                                      color: Colors.black,
+                                      size: ScreenUtil().setSp(80),
                                     ),
+                                    Text(
+                                      "Atras",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: ScreenUtil().setSp(40)),
+                                    ),
+                                  ],
+                                ),
+                           
+                           
+                               
+                                Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      LineAwesomeIcons.wavy_money_bill,
+                                      color: Colors.black,
+                                      size: ScreenUtil().setSp(80),
+                                    ),
+                                    Text(
+                                      "Gold",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: ScreenUtil().setSp(40)),
+                                    ),
+                                  ],
+                                ),
+                             /*   Container(
+                                  height: ScreenUtil().setHeight(150),
+                                  width: ScreenUtil().setWidth(150),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        image: NetworkImage(StatusDirectos
+                                            .obtenerImagenUsuarioLocal()),
+                                        fit: BoxFit.cover),
                                   ),
-                                  Column(
-                                    children: <Widget>[
-                                      Icon(
-                                        LineAwesomeIcons.globe,
-                                        color: Colors.black,
-                                        size: ScreenUtil().setSp(80),
-                                      ),
-                                      Text(
-                                        "En directo",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: ScreenUtil().setSp(30)),
-                                      ),
-                                    ],
+                                  child: GestureDetector(
+                                    onTap: () => !Usuario
+                                            .esteUsuario.tieneHistorias
+                                        ? Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CreadorDeHistorias()))
+                                        : Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    HistoriasUsuario())),
                                   ),
-                                ],
-                              ),
+                                ),*/
+                              ],
                             ),
                           ),
-                          Flexible(
-                            flex: 16,
-                            fit: FlexFit.tight,
-                            child: Container(
-                                //  height: ScreenUtil().setHeight(2660),
-                                child: getTabBarView()),
-                          ),
+                          Expanded(
+                            child: LayoutBuilder(
+                              builder: (BuildContext contexto,
+                                  BoxConstraints limites) {
+                                return Container(
+                                  height: limites.biggest.height,
+                                  child: Perfiles.perfilesCitas.listaPerfiles==null?Center(
+                                    child: Container(
+                                      height: ScreenUtil().setHeight(150),
+                                      width: ScreenUtil().setWidth(150),
+                                      child: CircularProgressIndicator()),
+                                  ):getTabBarView(limites),
+                                );
+                              },
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -405,21 +327,36 @@ class Pantalla_Actividades extends State<pantalla>
     );
   }
 
-  TabBarView getTabBarView() {
+  TabBarView getTabBarView(BoxConstraints limitesHeredados) {
     controller.notifyListeners();
     return TabBarView(
       physics: NeverScrollableScrollPhysics(),
       children: <Widget>[
-        Citas(),
+        Citas(
+          limites: limitesHeredados,
+        ),
         Amistad(),
-        Populares(),
+        
       ],
       controller: controller,
     );
   }
+
+
 }
 
 class Citas extends StatefulWidget {
+  BoxConstraints limites;
+  static bool estaConectado=false;
+  static bool pantallaCalificacion = false;
+  bool leGustaPerfil = false;
+  static final verdeRojo =
+      ColorTween(begin: Color.fromRGBO(27, 196, 35, 100), end: Colors.red);
+  static final rojoVerde = ColorTween(
+    begin: Colors.red,
+    end: Color.fromRGBO(27, 196, 35, 100),
+  );
+  Citas({@required this.limites});
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -427,7 +364,8 @@ class Citas extends StatefulWidget {
   }
 }
 
-class CitasState extends State<Citas> {
+class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
+  bool haTerminado = false;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -439,33 +377,76 @@ class CitasState extends State<Citas> {
           return Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            height: ScreenUtil().setHeight(3200),
-            child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: <Widget>[
-                  perfiles.listaPerfiles == null
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              CircularProgressIndicator(),
-                              Text(
-                                "Cargando",
-                                style: TextStyle(color: Colors.white),
-                              )
+            height: ScreenUtil().setHeight(2000),
+            child: Stack(alignment: AlignmentDirectional.center, children: <
+                Widget>[
+                 ! Citas.estaConectado? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                         
+                            children: [
+                              Icon(LineAwesomeIcons.broadcast_tower,size: ScreenUtil().setSp(500),),
+                              Positioned(
+                                right: ScreenUtil().setWidth(300),
+                                
+                                child: Icon(Icons.cancel,size: ScreenUtil().setSp(200),color: Colors.red,))
                             ],
                           ),
-                        )
-                      : Container(
-                          height: ScreenUtil().setHeight(3000),
-                          width: ScreenUtil().setWidth(1500),
-                          child: PerfilesGenteCitas()),
-                ]),
+                          Divider(height: ScreenUtil().setHeight(100)),
+                          Text(
+                            "No tiene conexion",
+                            style: TextStyle(color: Colors.black,fontSize: ScreenUtil().setSp(60)),
+                          )
+                        ],
+                      ),
+                    ):
+              
+              
+              
+              
+              perfiles.listaPerfiles == null
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          CircularProgressIndicator(),
+                          Text(
+                            "Cargando",
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                    )
+                  : Container(
+                    height: widget.limites.biggest.height,
+                    width: widget.limites.biggest.width,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: LayoutBuilder(
+                        builder: (BuildContext context,
+                            BoxConstraints espacioPerfiles) {
+                          return PerfilesGenteCitas(
+                              limites: espacioPerfiles);
+                        },
+                      ),
+                    ),
+                  ),
+            ]),
           );
         },
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+
+ 
+ 
 }
 
 class Amistad extends StatefulWidget {
@@ -560,137 +541,303 @@ class _CreadorDeHistoriasState extends State<CreadorDeHistorias> {
 }
 
 class HistoriasUsuario extends StatefulWidget {
- static final controlador = StoryController();
+  static final controlador = StoryController();
   static List<StoryItem> historias = new List();
 
-   static void cargarHistorias(){
-       for (int i = 0; i < Usuario.esteUsuario.listaDeHistoriasRed.length; i++) {
+  static void cargarHistorias() {
+    for (int i = 0; i < Usuario.esteUsuario.listaDeHistoriasRed.length; i++) {
       if (Usuario.esteUsuario.listaDeHistoriasRed[i] != null) {
-              if(Usuario.esteUsuario.listaDeHistoriasRed[i]["Imagen"] != null){
-     
-        StoryItem historia = StoryItem.pageImage(
-            url: Usuario.esteUsuario.listaDeHistoriasRed[i]["Imagen"],
-            controller: HistoriasUsuario.controlador);
-        HistoriasUsuario.historias.add(historia);
-           print("${Usuario.esteUsuario.listaDeHistoriasRed[i]["Imagen"]}jajjjjjjjjjjjjjjjjjjjjjjajjjjjjjjjjjjjjjjjjjjjj");}
+        if (Usuario.esteUsuario.listaDeHistoriasRed[i]["Imagen"] != null) {
+          StoryItem historia = StoryItem.pageImage(
+              url: Usuario.esteUsuario.listaDeHistoriasRed[i]["Imagen"],
+              controller: HistoriasUsuario.controlador);
+          HistoriasUsuario.historias.add(historia);
+        }
       }
     }
   }
+
   @override
   _HistoriasUsuarioState createState() => _HistoriasUsuarioState();
 }
 
 class _HistoriasUsuarioState extends State<HistoriasUsuario> {
-
   @override
   Widget build(BuildContext context) {
-    
-   
- 
     HistoriasUsuario.controlador.play();
 
-    return Material(
-      child: SafeArea(
-        child: Container(
-          child: Stack(
-            children: <Widget>[
-              StoryView(
-                storyItems: HistoriasUsuario.historias,
-                controller: HistoriasUsuario.controlador,
-                repeat: false,
-                onComplete: () {
-                  // Navigator.pop(context);
-                },
-              ),
-              Positioned(
-                top: ScreenUtil().setHeight(100),
-                
+    return ChangeNotifierProvider.value(
+        value: Usuario.esteUsuario,
+        child: Consumer<Usuario>(
+          builder: (BuildContext context, Usuario user, Widget child) {
+            return Material(
+              child: SafeArea(
                 child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 
+                  child: Stack(
                     children: <Widget>[
-                      Container(
-                        child: FlatButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Icon(
-                              Icons.arrow_back,
-                              size: ScreenUtil().setSp(100),
-                              color: Colors.white,
-                            )),
+                      StoryView(
+                        storyItems: HistoriasUsuario.historias,
+                        controller: HistoriasUsuario.controlador,
+                        repeat: false,
+                        onComplete: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                      Text(
-                        "Tu historia",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: ScreenUtil().setSp(60)),
-                      ),
-                    
-                    ],
-                  ),
-                  
-                ),
-              ),
-                Positioned(
-                        top:ScreenUtil().setHeight(100),
-                        left: ScreenUtil.screenWidth/4,
+                      Positioned(
+                        top: ScreenUtil().setHeight(100),
                         child: Container(
-                        child: GestureDetector(
-                          onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => CreadorDeHistorias()));
-                                     HistoriasUsuario.controlador.pause();
-                                      },
-                            
-                          child: Column(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              Icon(
-                                Icons.menu,
-                                color: Colors.white,
-                                size: ScreenUtil().setSp(95),
+                              Container(
+                                child: FlatButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      size: ScreenUtil().setSp(100),
+                                      color: Colors.white,
+                                    )),
                               ),
                               Text(
-                                " Editar",
+                                "Tu historia",
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: ScreenUtil().setSp(30)),
+                                    fontSize: ScreenUtil().setSp(60)),
                               ),
                             ],
                           ),
                         ),
-                      ),)
-            ],
-          ),
-        ),
-      ),
-    );
+                      ),
+                      Positioned(
+                        top: ScreenUtil().setHeight(100),
+                        left: ScreenUtil.screenWidth / 4,
+                        child: Container(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          CreadorDeHistorias()));
+                              HistoriasUsuario.controlador.pause();
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.menu,
+                                  color: Colors.white,
+                                  size: ScreenUtil().setSp(95),
+                                ),
+                                Text(
+                                  " Editar",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: ScreenUtil().setSp(30)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ));
   }
 }
 
-class Populares extends StatefulWidget {
+class HistoriasPerfiles extends StatefulWidget {
+  final controlador = StoryController();
+  List<StoryItem> historias = new List();
+  List<Map<String, dynamic>> linksHistorias = new List();
+  int indice = 1;
+
+  HistoriasPerfiles({@required this.linksHistorias}) {
+    if (this.linksHistorias.length > 0) {
+      this.cargarHistorias();
+    }
+  }
+
+  void cargarHistorias() {
+    for (int i = 0; i < linksHistorias.length; i++) {
+      String historia = "Historia $indice";
+      if (linksHistorias != null) {
+        print("dentrrr");
+        if (linksHistorias[i][historia] != null) {
+          String historiaLinkImagen = "Historia $indice";
+          StoryItem historia = StoryItem.pageImage(
+              url: linksHistorias[i][historiaLinkImagen]["Imagen"],
+              controller: this.controlador);
+          this.historias.add(historia);
+        }
+      }
+      indice++;
+    }
+    indice = 1;
+  }
+
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return PopularesState();
-  }
+  _HistoriasPerfilesState createState() => _HistoriasPerfilesState();
 }
 
-class PopularesState extends State<Populares> {
+class _HistoriasPerfilesState extends State<HistoriasPerfiles> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+    widget.controlador.play();
+
     return ChangeNotifierProvider.value(
-      value: Actividad.cacheActividadesParaTi,
-      child: Consumer<Actividad>(
-        builder: (BuildContext context, actividad, Widget child) {
-          return Container(child: EventosCerca());
-        },
-      ),
-    );
+        value: Usuario.esteUsuario,
+        child: Consumer<Usuario>(
+          builder: (BuildContext context, Usuario user, Widget child) {
+            return Material(
+              child: SafeArea(
+                child: Container(
+                  child: Stack(
+                    children: <Widget>[
+                      StoryView(
+                        storyItems: widget.historias,
+                        controller: widget.controlador,
+                        repeat: false,
+                        onComplete: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      Positioned(
+                        top: ScreenUtil().setHeight(100),
+                        child: Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Container(
+                                child: FlatButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      size: ScreenUtil().setSp(100),
+                                      color: Colors.white,
+                                    )),
+                              ),
+                              Text(
+                                " Historia",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: ScreenUtil().setSp(60)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ));
   }
 }
+
+class HistoriasPerfilesDirecto extends StatefulWidget {
+  final controlador = StoryController();
+  List<StoryItem> historias = new List();
+  List<Map<String, dynamic>> linksHistorias = new List();
+  int indice = 1;
+  String idHistoria;
+
+  HistoriasPerfilesDirecto(
+      {@required this.linksHistorias, @required this.idHistoria}) {
+    if (this.linksHistorias.length > 0) {
+      this.cargarHistorias();
+      this.controlador.pause();
+    }
+  }
+
+  void cargarHistorias() {
+    for (int i = 0; i < linksHistorias.length; i++) {
+      String historia = "Historia $indice";
+      if (linksHistorias != null) {
+        print("${linksHistorias[i]["Imagen"]} longitud historias red");
+        if (linksHistorias[i]["Imagen"] != null) {
+          String historiaLinkImagen = "Historia $indice";
+          StoryItem historia = StoryItem.pageImage(
+              url: linksHistorias[i]["Imagen"], controller: this.controlador);
+          this.historias.add(historia);
+        }
+      }
+
+      indice++;
+    }
+    indice = 1;
+  }
+
+  @override
+  _HistoriasPerfilesStateDirecto createState() =>
+      _HistoriasPerfilesStateDirecto();
+}
+
+class _HistoriasPerfilesStateDirecto extends State<HistoriasPerfilesDirecto> {
+  @override
+  Widget build(BuildContext context) {
+    widget.controlador.pause();
+
+    return ChangeNotifierProvider.value(
+        value: Usuario.esteUsuario,
+        child: Consumer<Usuario>(
+          builder: (BuildContext context, Usuario user, Widget child) {
+            return Container(
+              child: Stack(
+                children: <Widget>[
+                  StoryView(
+                    storyItems: widget.historias,
+                    inline: true,
+                    controller: widget.controlador,
+                    repeat: false,
+                    onComplete: () {
+                      if (VisorEnListaHistorias.siguienteHistoriaDirecto() ==
+                          0) {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  Positioned(
+                    top: ScreenUtil().setHeight(100),
+                    child: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  size: ScreenUtil().setSp(100),
+                                  color: Colors.white,
+                                )),
+                          ),
+                          Text(
+                            " Historia",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: ScreenUtil().setSp(60)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ));
+  }
+}
+
+
+
+
 
 class Historial extends StatelessWidget {
   @override

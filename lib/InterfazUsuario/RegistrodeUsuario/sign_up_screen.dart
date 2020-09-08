@@ -1,4 +1,4 @@
-import 'package:citasnuevo/DatosAplicacion/actividad.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -60,7 +60,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
   }
 
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, width: 1440, height: 3120, allowFontScaling: true);
+  
     return ChangeNotifierProvider.value(
       value: Usuario.esteUsuario,
       child: MaterialApp(
@@ -76,7 +76,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                 children: <Widget>[
                   Container(
                     color: Colors.red,
-                    height: ScreenUtil().setHeight(200),
+                    height: ScreenUtil().setHeight(100),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -84,7 +84,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                               child: Column(children: [
                             Icon(Icons.person),
                             Container(
-                                height: ScreenUtil().setHeight(100),
+                                height: ScreenUtil().setHeight(50),
                                 child: Text("Informacion \nBasica"))
                           ])),
                           Container(
@@ -114,7 +114,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                               color: Colors.white),
                         ),
                         Divider(
-                          height: ScreenUtil().setHeight(100),
+                          height: ScreenUtil().setHeight(50),
                         ),
                         Text(
                           "Informacion Basica",
@@ -215,7 +215,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                                       BorderRadius.all(Radius.circular(10)),
                                   color: Color.fromRGBO(69, 76, 80, 90),
                                 ),
-                                height: ScreenUtil().setHeight(200),
+                                height: ScreenUtil().setHeight(100),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: Consumer<Usuario>(
@@ -242,7 +242,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                           height: ScreenUtil().setHeight(80),
                         ),
                         Container(
-                          height: ScreenUtil().setHeight(400),
+                          height: ScreenUtil().setHeight(300),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             color: Color.fromRGBO(69, 76, 80, 90),
@@ -260,12 +260,25 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                           ),
                         ),
                         Divider(
-                          height: ScreenUtil().setHeight(80),
+                          height: ScreenUtil().setHeight(40),
                         ),
                         Center(child: next_button()),
                         Container(
-                          height: ScreenUtil().setHeight(70),
+                          height: ScreenUtil().setHeight(30),
                         ),
+                          Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                    child: FlatButton(
+                      highlightColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => login_screen())),
+                        child: Text("Iniciar Sesion"))),
                       ],
                     ),
                   ),
@@ -333,7 +346,7 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
                 right: ScreenUtil().setWidth(30)),
             child: SingleChildScrollView(
               child: Container(
-                height: ScreenUtil().setHeight(7000),
+                height: ScreenUtil().setHeight(5000),
                 child: Column(
                   children: <Widget>[
                     Text("Add pictures for your date profile"),
@@ -490,13 +503,7 @@ class pantallaRegistroTresState extends State<pantallaRegistroTres> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Container(
-                      height: ScreenUtil().setHeight(80),
-                    ),
-                    Text("Selecciona los eventos que te interesen"),
-                    Consumer<Usuario>(builder: (context, usuario, child) {
-                      return PanelSeleccionPreferenciaEvento();
-                    }),
+                
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -673,7 +680,7 @@ class _pantallaRegistroCincoState extends State<pantallaRegistroCinco> {
                       style: TextStyle(fontSize: ScreenUtil().setSp(90)),
                     ))),
                           Container(
-                            height: ScreenUtil().setHeight(2500),
+                            height: ScreenUtil().setHeight(1400),
                             child: ListView(
                               children: <Widget>[
                                 PreguntaQueBuscasEnLaGente(),
