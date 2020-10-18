@@ -21,7 +21,7 @@ import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'TarjetaEvento.dart';
 import 'pantalla_actividades_elements.dart';
 
-class pantalla extends StatefulWidget {
+class PantallaPrincipal extends StatefulWidget {
   @override
   @override
   State<StatefulWidget> createState() {
@@ -30,7 +30,7 @@ class pantalla extends StatefulWidget {
   }
 }
 
-class Pantalla_Actividades extends State<pantalla>
+class Pantalla_Actividades extends State<PantallaPrincipal>
     with SingleTickerProviderStateMixin{
   Color colorPrincipal = Color.fromRGBO(27, 189, 163, 100);
   TabController controller;
@@ -207,77 +207,12 @@ class Pantalla_Actividades extends State<pantalla>
                   backgroundColor: Colors.white,
                   body: SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 5, right: 5),
+                      padding: const EdgeInsets.only(left: 1, right: 1),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Container(
-                            height: AppBar().preferredSize.height,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                    Row(
-                                  children: <Widget>[
-                                    Icon(
-                                      LineAwesomeIcons.backward,
-                                      color: Colors.black,
-                                      size: ScreenUtil().setSp(80),
-                                    ),
-                                    Text(
-                                      "Atras",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: ScreenUtil().setSp(40)),
-                                    ),
-                                  ],
-                                ),
-                           
-                           
-                               
-                                Row(
-                                  children: <Widget>[
-                                    Icon(
-                                      LineAwesomeIcons.wavy_money_bill,
-                                      color: Colors.black,
-                                      size: ScreenUtil().setSp(80),
-                                    ),
-                                    Text(
-                                      "Gold",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: ScreenUtil().setSp(40)),
-                                    ),
-                                  ],
-                                ),
-                             /*   Container(
-                                  height: ScreenUtil().setHeight(150),
-                                  width: ScreenUtil().setWidth(150),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        image: NetworkImage(StatusDirectos
-                                            .obtenerImagenUsuarioLocal()),
-                                        fit: BoxFit.cover),
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () => !Usuario
-                                            .esteUsuario.tieneHistorias
-                                        ? Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CreadorDeHistorias()))
-                                        : Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HistoriasUsuario())),
-                                  ),
-                                ),*/
-                              ],
-                            ),
-                          ),
+                    
                           Expanded(
                             child: LayoutBuilder(
                               builder: (BuildContext contexto,
@@ -373,7 +308,7 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
       value: Perfiles.perfilesCitas,
       child: Consumer<Perfiles>(
         builder: (BuildContext context, perfiles, Widget child) {
-          print("actividadconstruida");
+        
           return Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -512,29 +447,41 @@ class _CreadorDeHistoriasState extends State<CreadorDeHistorias> {
         title: Text("Subir Historias"),
       ),
       body: Container(
-          color: Colors.grey,
-          child: Container(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(children: [
-                    FotoHistoria(0, Usuario.esteUsuario.fotosHistorias[0]),
-                    FotoHistoria(1, Usuario.esteUsuario.fotosHistorias[1]),
-                    FotoHistoria(2, Usuario.esteUsuario.fotosHistorias[2]),
-                  ]),
-                  Row(children: [
-                    FotoHistoria(3, Usuario.esteUsuario.fotosHistorias[3]),
-                    FotoHistoria(4, Usuario.esteUsuario.fotosHistorias[4]),
-                    FotoHistoria(5, Usuario.esteUsuario.fotosHistorias[5]),
-                  ]),
+          color: Colors.white,
+          child: Column(
+            children: [
+              Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 2,
+                    crossAxisSpacing: 1,
+                    childAspectRatio: 1/1.5,
+
+                      children: [
+                        FotoHistoria(0, Usuario.esteUsuario.fotosHistorias[0]),
+                        FotoHistoria(1, Usuario.esteUsuario.fotosHistorias[1]),
+                        FotoHistoria(2, Usuario.esteUsuario.fotosHistorias[2]),
+                        FotoHistoria(3, Usuario.esteUsuario.fotosHistorias[3]),
+                        FotoHistoria(4, Usuario.esteUsuario.fotosHistorias[4]),
+                        FotoHistoria(5, Usuario.esteUsuario.fotosHistorias[5]),
+                    
+                      ]),
+                ),
+                              ),
+              ),
                   Container(
+                    height: ScreenUtil.statusBarHeight*2,
+                    width: ScreenUtil.defaultWidth.toDouble(),
                       color: Colors.green,
                       child: FlatButton(
                           onPressed: () => Usuario.esteUsuario
                               .subirHistorioasUsuario(
                                   Usuario.esteUsuario.idUsuario),
-                          child: Text("Subir historias")))
-                ]),
+                          child: Text("Publicar")))
+            ],
           )),
     );
   }

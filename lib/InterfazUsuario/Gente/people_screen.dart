@@ -13,7 +13,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'people_screen_elements.dart';
 
-class people extends StatelessWidget {
+class ConversacionesLikes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -163,6 +163,8 @@ class Conversaciones extends StatelessWidget {
               return Stack(children: <Widget>[
                 Column(
                   children: [
+             
+
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(

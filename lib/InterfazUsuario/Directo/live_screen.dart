@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -42,7 +43,16 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ChangeNotifierProvider.value(
-        value: Valoraciones.Puntuaciones, child: live_screen_widget());
+        value: Valoraciones.instanciar,
+       child: Consumer<Valoraciones>(
+          builder: (context, myType, child) {
+            return  live_screen_widget();
+          },
+        )
+        
+        
+        
+        );
   }
 
   Widget live_screen_widget() {
@@ -221,22 +231,31 @@ class _list_liveState extends State<list_live> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Column(
-      children: [
-        barraExito(),
-        Expanded(
-          child: Container(
-            child: AnimatedList(
-              key:list_live.llaveListaValoraciones,
-              initialItemCount: Valoraciones.listaDeValoraciones.length,
+    return ChangeNotifierProvider.value(
+      value: Valoraciones.instanciar,
+      child:
+      Consumer<Valoraciones>(
+        builder: (context, myType, child) {
+          return Column(
+        children: [
+          barraExito(),
+          Expanded(
+            child: Container(
+              child: AnimatedList(
+                key:list_live.llaveListaValoraciones,
+                initialItemCount: Valoraciones.listaDeValoraciones.length,
 
-              itemBuilder: (BuildContext context, int indice, animation) {
-                return buildSlideTransition(context, animation, indice, Valoraciones.listaDeValoraciones[indice]);
-              },
+                itemBuilder: (BuildContext context, int indice, animation) {
+                  return buildSlideTransition(context, animation, indice, Valoraciones.listaDeValoraciones[indice]);
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      );
+        },
+      )
+          
     );
   }
 

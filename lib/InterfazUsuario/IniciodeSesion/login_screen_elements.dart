@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/DatosAplicacion/Directo.dart';
 import 'package:citasnuevo/base_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -234,21 +235,23 @@ class BotonAccesoState extends State<BotonAcceso> {
       }
       if (Usuario.esteUsuario.DatosUsuario == null) {
         Usuario.esteUsuario.DatosUsuario = val.data();
-        Usuario.esteUsuario.InicializarUsuario();
+        Usuario.esteUsuario.inicializarUsuario();
         Perfiles.cargarPerfilesCitas();
        
-      
+        
         Conversacion.conversaciones.obtenerConversaciones();
         Valoraciones.Puntuaciones.obtenerValoraciones();
+      
 
      
-        Usuario.esteUsuario.descargarHistorias();
+       
+        Valoraciones.Puntuaciones.obtenerMedia();
+   VideoLlamada.escucharLLamadasEntrantes();
    
-        Usuario.esteUsuario.escuchadorHistorias();
       
 
         Conversacion.conversaciones.escucharMensajes();
-        HistoriasDirecto.cargarHistoriasDirecto();
+     
         confirmarEstadoConexion();
 
         print("Estaba vacio");
@@ -288,14 +291,14 @@ class BotonAccesoState extends State<BotonAcceso> {
         Citas.estaConectado=true;
         
         primeraConexion=true;
-        starter_app.mostrarNotificacionConexionCorrecta(
-            starter_app.claveBase.currentContext);
+        BaseAplicacion.mostrarNotificacionConexionCorrecta(
+            BaseAplicacion.claveBase.currentContext);
              Usuario.esteUsuario.notifyListeners();
       } else {
         Citas.estaConectado=false;
         if (primeraConexion) {
-          starter_app.mostrarNotificacionConexionPerdida(
-              starter_app.claveBase.currentContext);
+          BaseAplicacion.mostrarNotificacionConexionPerdida(
+              BaseAplicacion.claveBase.currentContext);
         }
         Usuario.esteUsuario.notifyListeners();
       }

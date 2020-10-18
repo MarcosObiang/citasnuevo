@@ -1,42 +1,36 @@
 import 'dart:io';
-import 'dart:math';
+
 import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:citasnuevo/DatosAplicacion/Directo.dart';
-import 'package:horizontal_blocked_scroll_physics/horizontal_blocked_scroll_physics.dart';
+
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:provider/provider.dart';
+
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
-import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:swipe_gesture_recognizer/swipe_gesture_recognizer.dart';
-import 'TarjetaEvento.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
-import '../../main.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:image_cropper/image_cropper.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import '../../ServidorFirebase/firebase_manager.dart';
 
+
+// ignore: must_be_immutable
 class PerfilesGenteCitas extends StatefulWidget {
   List<List<Widget>> perfiles = new List();
   static int posicion;
@@ -110,16 +104,14 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
       child: Column(
         children: <Widget>[
           Flexible(
-              flex: 10,
+              flex: 15,
               fit: FlexFit.tight,
               child: LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints box) {
                   PerfilesGenteCitas.limitesPrimeraFoto = box;
                   PerfilesGenteCitas.limitesParaCreador = box;
+                  ImagenesCarrete.limitesCuadro=box;
                   return Container(
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(color: Colors.grey, blurRadius: 0)
-                    ]),
                     height: box.biggest.height,
                     width: box.biggest.width,
                     child: GestureDetector(
@@ -131,6 +123,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                       onLongPress: () {},
                       child: Swiper(
                         loop: false,
+                        
                         physics: NeverScrollableScrollPhysics(),
                         layout: SwiperLayout.STACK,
                         itemWidth: box.biggest.width,
@@ -155,43 +148,10 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                           widget.cambiarIndice = false;
                         },
                         controller: controladorSwipe,
+
                         itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (BuildContext context, int indice) {
-                          print(
-                              "${PerfilesGenteCitas.indicePerfil} indice perfil en builder");
-
-                          void noLike() {
-                            if (Perfiles.perfilesCitas.listaPerfiles.length >
-                                indice + 1) {
-                              /* mover.scrollTo(
-                                index: indice + 1,
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOutCubic,
-                              );*/
-
-                            }
-                          }
-
-                          void soltarBotonLike() {
-                            if (Perfiles.perfilesCitas.listaPerfiles.length >
-                                indice + 1) {
-                              Perfiles.perfilesCitas.notifyListeners();
-                              /*   Perfiles.perfilesCitas.listaPerfiles[indice]
-                                  .crearDatosValoracion();
-
-                              mover.scrollTo(
-                                  duration: Duration(milliseconds: 300),
-                                  curve: Curves.easeInOutCubic,
-                                  index: indice + 1);*/
-
-                            }
-                          }
-
-                          int devolverIndice() {
-                            return indice;
-                          }
-
                           return Stack(alignment: Alignment.center, children: [
                             RepaintBoundary(
                               child: Container(
@@ -200,9 +160,12 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                 color: Colors.white,
                                 child: Stack(
                                   children: <Widget>[
-                                    ListView(
-                                      children: Perfiles.perfilesCitas
-                                          .listaPerfiles[indice].carrete,
+                                    Padding(
+                                      padding: const EdgeInsets.only(left:3.0,right: 3),
+                                      child: ListView(
+                                        children: Perfiles.perfilesCitas
+                                            .listaPerfiles[indice].carrete,
+                                      ),
                                     ),
                                     leGusta
                                         ? pantallaGusta(box, indice)
@@ -235,7 +198,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                                                   .listaPerfiles[
                                                                       indice]
                                                                   .linksHistorias))),
-                                                                  Text("Historias")
+                                              Text("Historias")
                                             ],
                                           ),
                                         ),
@@ -667,7 +630,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
             onChangeStart: (val) {
               print(val);
               leGusta = true;
-
             },
             onChanged: (valor) {
               setState(() {
@@ -678,8 +640,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
               });
             },
             onChangeEnd: (valor) {
-              
-             
               Future.delayed(Duration(milliseconds: 250)).then((value) {
                 controladorSwipe.next();
                 if (Perfiles.perfilesCitas.listaPerfiles.length ==
@@ -689,10 +649,18 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                   Perfiles.perfilesCitas
                       .listaPerfiles[PerfilesGenteCitas.indicePerfil]
                       .crearDatosValoracion();
+                  print("calificao");
+                }
+                if (Perfiles.perfilesCitas.listaPerfiles.length >
+                    PerfilesGenteCitas.indicePerfil + 1) {
+                  Perfiles.perfilesCitas.notifyListeners();
+                  Perfiles.perfilesCitas
+                      .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                      .crearDatosValoracion();
+                  print("calificao");
                 }
 
                 leGusta = false;
-            
               });
             },
             min: 0,
@@ -729,15 +697,15 @@ class _BotonHistoriasPerfilesState extends State<BotonHistoriasPerfiles>
           });
     super.initState();
   }
-  void dispose() {
-if(_animacionMicrofono.status == AnimationStatus.forward || _animacionMicrofono.status == AnimationStatus.reverse)
-{
-_animacionMicrofono.notifyStatusListeners(AnimationStatus.dismissed);
-}
-_animacionMicrofono.dispose();
-super.dispose();
 
-}
+  void dispose() {
+    if (_animacionMicrofono.status == AnimationStatus.forward ||
+        _animacionMicrofono.status == AnimationStatus.reverse) {
+      _animacionMicrofono.notifyStatusListeners(AnimationStatus.dismissed);
+    }
+    _animacionMicrofono.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -912,7 +880,7 @@ class FotoHistoria extends StatefulWidget {
   int box;
   File Imagen;
   bool imagenRed = false;
-  Firestore baseDatosRef = Firestore.instance;
+  FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
 
   static List<Map<String, dynamic>> linksImagenesHistorias =
       Usuario.esteUsuario.listaDeHistoriasRed;
@@ -989,7 +957,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
-                height: ScreenUtil().setHeight(2600),
+                height: ScreenUtil().setHeight(1800),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   color: Color.fromRGBO(20, 20, 20, 50),
@@ -999,7 +967,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
                   child: Column(
                     children: <Widget>[
                       Container(
-                        height: ScreenUtil().setHeight(1300),
+                        height: ScreenUtil().setHeight(800),
                         child: ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           child: Image.file(imagen),
@@ -1015,7 +983,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
                         ),
                       ),
                       Divider(
-                        height: ScreenUtil().setHeight(200),
+                        height: ScreenUtil().setHeight(50),
                       ),
                       Material(
                           color: Color.fromRGBO(0, 0, 0, 100),
@@ -1037,7 +1005,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
                                   2,
                                   200))),
                       Divider(
-                        height: ScreenUtil().setHeight(200),
+                        height: ScreenUtil().setHeight(50),
                       ),
                       Container(
                         decoration: BoxDecoration(
@@ -1059,7 +1027,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
 
   abrirGaleria(BuildContext context) async {
     var archivoImagen =
-        await ImagePicker.pickImage(source: ImageSource.gallery);
+        await ImagePicker().getImage(source: ImageSource.gallery);
     File imagenRecortada = await ImageCropper.cropImage(
         sourcePath: archivoImagen.path,
         maxHeight: 1280,
@@ -1080,7 +1048,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
         imagenFinal = imagenRecortada;
         pictures[box] = imagenFinal;
         Usuario.esteUsuario.fotosHistorias = pictures;
-        print("${archivoImagen.lengthSync()} Tamaño original");
+    
         print("${imagenRecortada.lengthSync()} Tamaño Recortado");
         print(box);
         Usuario.esteUsuario.notifyListeners();
@@ -1090,7 +1058,8 @@ class FotoHistoriaState extends State<FotoHistoria> {
   }
 
   abrirCamara(BuildContext context) async {
-    var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
+    var archivoImagen =
+        await ImagePicker().getImage(source: ImageSource.camera);
     File imagenRecortada = await ImageCropper.cropImage(
         sourcePath: archivoImagen.path,
 
@@ -1112,9 +1081,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
         imagenFinal = imagenRecortada;
         pictures[box] = imagenFinal;
         Usuario.esteUsuario.fotosHistorias = pictures;
-        print("${archivoImagen.lengthSync()} Tamaño original");
-        print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-        print(box);
+
         Usuario.esteUsuario.notifyListeners();
         pieFoto(context, imagenFinal, calculadoraIndice());
       });
@@ -1347,6 +1314,7 @@ class FotoHistoriaState extends State<FotoHistoria> {
   }
 
   Widget build(BuildContext context) {
+    
     if (FotoHistoria.linksImagenesHistorias[box] == null) {
       widget.imagenRed = false;
     } else {
@@ -1354,50 +1322,113 @@ class FotoHistoriaState extends State<FotoHistoria> {
     }
 
     // TODO: implement build
+    return widget.imagenRed==true?historiaImagenRed():Usuario.esteUsuario.fotosHistorias[box]!=null?historiaImagenLocaal():historiaVacia();
+  }
+
+  Container historiaImagenRed() {
     return Container(
-      height: ScreenUtil().setHeight(420),
-      width: ScreenUtil().setWidth(420),
-      decoration: BoxDecoration(
-        border:
-            Border.all(color: Colors.white, width: ScreenUtil().setWidth(6)),
-        borderRadius: BorderRadius.all(Radius.circular(3)),
-        color: Colors.white30,
-      ),
-      child: FlatButton(
-        onPressed: () => opcionesImagenPerfil(),
-        onLongPress: () => eliminarImagen(context),
-        child: imagenFinal == null && !widget.imagenRed
-            ? Center(
-                child: Icon(
-                  Icons.add_a_photo,
-                  color: Colors.red,
-                ),
-              )
-            : Stack(alignment: AlignmentDirectional.center, children: [
-                imagenFinal != null && !widget.imagenRed
-                    ? Image.file(
-                        imagenFinal,
-                        fit: BoxFit.fill,
-                      )
-                    : Image.network(
-                        FotoHistoria.linksImagenesHistorias[box]["Imagen"]),
-                Container(
-                  height: ScreenUtil().setHeight(500),
-                  width: ScreenUtil().setWidth(500),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
-                    color: Colors.transparent,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: ScreenUtil().setSp(150),
-                    ),
-                  ),
-                ),
-              ]),
+       height: 700.h,
+        width: 350.w,
+      child: Stack(
+    fit: StackFit.expand,
+
+children: [
+   Container(
+        height: 700.h,
+        width: 350.w,
+
+        decoration: BoxDecoration(
+         color: Colors.black,
+          borderRadius: BorderRadius.all(Radius.circular(3)
+          
+          ),
+          
+          image: DecorationImage(image: NetworkImage(FotoHistoria.linksImagenesHistorias[box]["Imagen"]))
+          )
+          
+
+
+  ),
+  Align(
+      alignment:Alignment.topLeft,
+      child:IconButton(iconSize:90.sp,   color: Colors.red,icon: Icon(Icons.delete),onPressed: (){
+        eliminarImagen(context);
+
+      },)
+  )
+
+],
+
+           
       ),
     );
   }
+  Widget historiaImagenLocaal() {
+    return Container(
+       height: 700.h,
+        width: 350.w,
+      child: Stack(
+    fit: StackFit.expand,
+
+children: [
+   Container(
+        height: 700.h,
+        width: 350.w,
+
+        decoration: BoxDecoration(
+         color: Colors.black,
+          borderRadius: BorderRadius.all(Radius.circular(3)
+          
+          ),
+          
+          image: DecorationImage(image: FileImage(Usuario.esteUsuario.fotosHistorias[box]))
+          )
+          
+
+
+  ),
+  Align(
+      alignment:Alignment.topLeft,
+      child:IconButton(iconSize:90.sp,   color: Colors.red,icon: Icon(Icons.delete),onPressed: (){
+        eliminarImagen(context);
+
+      },)
+  )
+
+],
+
+           
+      ),
+    );
+  }
+
+  GestureDetector historiaVacia() {
+    return GestureDetector(
+      onTap: (){
+     
+      },
+  
+          child: Container(
+      height: 700.h,
+      width: 350.w,
+
+      decoration: BoxDecoration(
+       color: Colors.grey,
+        borderRadius: BorderRadius.all(Radius.circular(3)
+        
+        ),
+        
+       
+        ),
+        child: Center(
+child:Icon(LineAwesomeIcons.camera,color: Colors.white,)
+        ),
+        
+
+
+  ),
+    );
+  }
 }
+
+

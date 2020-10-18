@@ -1,0 +1,118 @@
+Date : 2020-09-17 16:11:05
+Directory : d:\Proyecto\citasnuevo
+Total : 54 files,  20085 codes, 1650 comments, 1649 blanks, all 23384 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Dart       |         29 |     19,106 |      1,559 |      1,573 |     22,238 |
+| JSON       |          6 |        663 |          0 |          4 |        667 |
+| XML        |          8 |        129 |         40 |         16 |        185 |
+| Groovy     |          4 |         95 |          3 |         21 |        119 |
+| YAML       |          1 |         57 |         47 |         21 |        125 |
+| Markdown   |          2 |         13 |          0 |          9 |         22 |
+| Swift      |          1 |         12 |          0 |          2 |         14 |
+| Properties |          2 |          9 |          1 |          2 |         12 |
+| C++        |          1 |          1 |          0 |          1 |          2 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                      | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                         |         54 |     20,085 |      1,650 |      1,649 |     23,384 |
+| FuncionesNubeFirebase                                                                     |          3 |        478 |          0 |          2 |        480 |
+| android                                                                                   |         13 |        212 |         42 |         37 |        291 |
+| android\app                                                                               |          8 |        161 |         41 |         26 |        228 |
+| android\app\src                                                                           |          6 |         68 |         38 |         14 |        120 |
+| android\app\src\debug                                                                     |          1 |          4 |          3 |          4 |         11 |
+| android\app\src\main                                                                      |          4 |         60 |         32 |          7 |         99 |
+| android\app\src\main\res                                                                  |          3 |         21 |         16 |          3 |         40 |
+| android\app\src\main\res\drawable                                                         |          1 |          4 |          7 |          2 |         13 |
+| android\app\src\main\res\values                                                           |          1 |          9 |          9 |          1 |         19 |
+| android\app\src\main\res\xml                                                              |          1 |          8 |          0 |          0 |          8 |
+| android\app\src\profile                                                                   |          1 |          4 |          3 |          3 |         10 |
+| android\gradle                                                                            |          1 |          5 |          1 |          1 |          7 |
+| android\gradle\wrapper                                                                    |          1 |          5 |          1 |          1 |          7 |
+| ios                                                                                       |          7 |        222 |          2 |          9 |        233 |
+| ios\Runner                                                                                |          7 |        222 |          2 |          9 |        233 |
+| ios\Runner\Assets.xcassets                                                                |          3 |        148 |          0 |          4 |        152 |
+| ios\Runner\Assets.xcassets\AppIcon.appiconset                                             |          1 |        122 |          0 |          1 |        123 |
+| ios\Runner\Assets.xcassets\LaunchImage.imageset                                           |          2 |         26 |          0 |          3 |         29 |
+| ios\Runner\Base.lproj                                                                     |          2 |         61 |          2 |          2 |         65 |
+| lib                                                                                       |         28 |     19,092 |      1,549 |      1,566 |     22,207 |
+| lib\DatosAplicacion                                                                       |          6 |      3,018 |      1,283 |        420 |      4,721 |
+| lib\InterfazUsuario                                                                       |         17 |     15,756 |        257 |      1,093 |     17,106 |
+| lib\InterfazUsuario\Actividades                                                           |          4 |      2,499 |         64 |        225 |      2,788 |
+| lib\InterfazUsuario\Descubrir                                                             |          1 |        382 |          2 |         38 |        422 |
+| lib\InterfazUsuario\Directo                                                               |          2 |        589 |          7 |         68 |        664 |
+| lib\InterfazUsuario\Gente                                                                 |          2 |      3,378 |         30 |        230 |      3,638 |
+| lib\InterfazUsuario\IniciodeSesion                                                        |          2 |        384 |         26 |         56 |        466 |
+| lib\InterfazUsuario\Notificaciones                                                        |          1 |          5 |          0 |          8 |         13 |
+| lib\InterfazUsuario\RegistrodeUsuario                                                     |          3 |      8,099 |        118 |        445 |      8,662 |
+| lib\InterfazUsuario\Social                                                                |          2 |        420 |         10 |         23 |        453 |
+| lib\ServidorFirebase                                                                      |          2 |         62 |          6 |         19 |         87 |
+| test                                                                                      |          1 |         14 |         10 |          7 |         31 |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                  | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\database.rules.json                          | JSON       |          6 |          0 |          0 |          6 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\firestore.indexes.json                       | JSON       |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\package-lock.json                            | JSON       |        468 |          0 |          1 |        469 |
+| d:\Proyecto\citasnuevo\README.md                                                          | Markdown   |         10 |          0 |          7 |         17 |
+| d:\Proyecto\citasnuevo\android\app\build.gradle                                           | Groovy     |         53 |          3 |         12 |         68 |
+| d:\Proyecto\citasnuevo\android\app\google-services.json                                   | JSON       |         40 |          0 |          0 |         40 |
+| d:\Proyecto\citasnuevo\android\app\src\debug\AndroidManifest.xml                          | XML        |          4 |          3 |          4 |         11 |
+| d:\Proyecto\citasnuevo\android\app\src\main\AndroidManifest.xml                           | XML        |         39 |         16 |          4 |         59 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\drawable\launch_background.xml            | XML        |          4 |          7 |          2 |         13 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\values\styles.xml                         | XML        |          9 |          9 |          1 |         19 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\xml\network_security_config.xml           | XML        |          8 |          0 |          0 |          8 |
+| d:\Proyecto\citasnuevo\android\app\src\profile\AndroidManifest.xml                        | XML        |          4 |          3 |          3 |         10 |
+| d:\Proyecto\citasnuevo\android\build.gradle                                               | Groovy     |         29 |          0 |          4 |         33 |
+| d:\Proyecto\citasnuevo\android\gradle.properties                                          | Properties |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\android\gradle\wrapper\gradle-wrapper.properties                   | Properties |          5 |          1 |          1 |          7 |
+| d:\Proyecto\citasnuevo\android\settings.gradle                                            | Groovy     |         12 |          0 |          4 |         16 |
+| d:\Proyecto\citasnuevo\android\settings_aar.gradle                                        | Groovy     |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\ios\Runner\AppDelegate.swift                                       | Swift      |         12 |          0 |          2 |         14 |
+| d:\Proyecto\citasnuevo\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json        | JSON       |        122 |          0 |          1 |        123 |
+| d:\Proyecto\citasnuevo\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json      | JSON       |         23 |          0 |          1 |         24 |
+| d:\Proyecto\citasnuevo\ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md          | Markdown   |          3 |          0 |          2 |          5 |
+| d:\Proyecto\citasnuevo\ios\Runner\Base.lproj\LaunchScreen.storyboard                      | XML        |         36 |          1 |          1 |         38 |
+| d:\Proyecto\citasnuevo\ios\Runner\Base.lproj\Main.storyboard                              | XML        |         25 |          1 |          1 |         27 |
+| d:\Proyecto\citasnuevo\ios\Runner\Runner-Bridging-Header.h                                | C++        |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\Conversacion.dart                              | Dart       |        976 |          4 |        115 |      1,095 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\Directo.dart                                   | Dart       |        135 |        805 |         20 |        960 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\ManejadorMultimedia.dart                       | Dart       |          0 |          0 |          1 |          1 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\PerfilesUsuarios.dart                          | Dart       |      1,136 |        343 |        151 |      1,630 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\Usuario.dart                                   | Dart       |        522 |        127 |        106 |        755 |
+| d:\Proyecto\citasnuevo\lib\DatosAplicacion\Valoraciones.dart                              | Dart       |        249 |          4 |         27 |        280 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\Pantalla_Actividades.dart          | Dart       |        756 |         39 |         66 |        861 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\TarjetaEvento.dart                 | Dart       |        175 |          4 |         15 |        194 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\home_screen_elements.dart          | Dart       |        177 |          4 |         21 |        202 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Actividades\pantalla_actividades_elements.dart | Dart       |      1,391 |         17 |        123 |      1,531 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Descubrir\descubir.dart                        | Dart       |        382 |          2 |         38 |        422 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Directo\live_screen.dart                       | Dart       |        439 |          7 |         58 |        504 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Directo\live_screen_elements.dart              | Dart       |        150 |          0 |         10 |        160 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Gente\people_screen.dart                       | Dart       |        171 |          7 |         16 |        194 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Gente\people_screen_elements.dart              | Dart       |      3,207 |         23 |        214 |      3,444 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\IniciodeSesion\login_screen.dart               | Dart       |        117 |          2 |         16 |        135 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\IniciodeSesion\login_screen_elements.dart      | Dart       |        267 |         24 |         40 |        331 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Notificaciones\notificacionLlamada.dart        | Dart       |          5 |          0 |          8 |         13 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\RegistrodeUsuario\sign_up_methods.dart         | Dart       |         28 |          1 |          9 |         38 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\RegistrodeUsuario\sign_up_screen.dart          | Dart       |        708 |          8 |         24 |        740 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\RegistrodeUsuario\sign_up_screen_elements.dart | Dart       |      7,363 |        109 |        412 |      7,884 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Social\social_screen.dart                      | Dart       |        130 |         10 |         16 |        156 |
+| d:\Proyecto\citasnuevo\lib\InterfazUsuario\Social\social_screen_elements.dart             | Dart       |        290 |          0 |          7 |        297 |
+| d:\Proyecto\citasnuevo\lib\PrimeraPantalla.dart                                           | Dart       |         55 |          0 |          6 |         61 |
+| d:\Proyecto\citasnuevo\lib\ServidorFirebase\firebase_manager.dart                         | Dart       |         24 |          0 |          9 |         33 |
+| d:\Proyecto\citasnuevo\lib\ServidorFirebase\firebase_sign_up.dart                         | Dart       |         38 |          6 |         10 |         54 |
+| d:\Proyecto\citasnuevo\lib\base_app.dart                                                  | Dart       |        159 |          2 |         21 |        182 |
+| d:\Proyecto\citasnuevo\lib\main.dart                                                      | Dart       |         42 |          1 |          7 |         50 |
+| d:\Proyecto\citasnuevo\pubspec.yaml                                                       | YAML       |         57 |         47 |         21 |        125 |
+| d:\Proyecto\citasnuevo\test\widget_test.dart                                              | Dart       |         14 |         10 |          7 |         31 |
+| Total                                                                                     |            |     20,085 |      1,650 |      1,649 |     23,384 |
++-------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

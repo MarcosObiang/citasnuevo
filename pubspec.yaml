@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^4.0.4
+  drag_and_drop_gridview: ^1.0.8
   image_picker: ^0.6.7+4
   percent_indicator: "^2.1.1"
   flutter_screenutil: ^1.0.2
@@ -31,7 +32,7 @@ dependencies:
   firebase_auth: ^0.18.0+1
   firebase_database: ^4.0.0
   cloud_firestore: ^0.14.0+2
-  
+  giphy_picker: ^1.0.6
   flutter_auth_buttons: ^0.6.0
   intl: ^0.16.1
   line_awesome_icons: ^1.0.4+2
@@ -46,7 +47,7 @@ dependencies:
   path_provider: ^1.6.5
   network_image_to_byte: ^0.0.1
   image_cropper: ^1.2.1
-  
+  flutter_local_notifications: ^2.0.0+1
   audioplayers: ^0.13.2
   flutter_image_compress: ^0.6.0
   cached_network_image: 2.2.0
@@ -64,6 +65,7 @@ dependencies:
   characters: ^1.0.0
   liquid_progress_indicator: ^0.3.2
   cloud_functions: ^0.6.0
+  flutter_launcher_icons: ^0.8.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -77,6 +79,12 @@ dev_dependencies:
     sdk: flutter
   google_sign_in: ^4.1.1
   firebase_storage: ^4.0.0
+ 
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/presente.png"
 
 
 
@@ -93,9 +101,9 @@ flutter:
 
 
     # To add assets to your application, add an assets section, like this:
-  # assets:
-  #  - images/a_dot_burr.jpeg
-  #  - images/a_dot_ham.jpeg
+  assets:
+    - assets/presente.png
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

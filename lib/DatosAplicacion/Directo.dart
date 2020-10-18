@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
-import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_Actividades_elements.dart';
 import 'package:citasnuevo/InterfazUsuario/Descubrir/descubir.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart' as nube;

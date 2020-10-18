@@ -622,7 +622,7 @@ class BotonConfirmarRegistroState extends State<BotonConfirmarRegistro> {
     // TODO: implement build
     return SizedBox(
         width: ScreenUtil().setWidth(400),
-        height: ScreenUtil().setHeight(150),
+        height:  200.h,
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -674,7 +674,7 @@ class next_button_state extends State<next_button> {
     // TODO: implement build
     return SizedBox(
         width: ScreenUtil().setWidth(800),
-        height: ScreenUtil().setHeight(150),
+        height:  200.h,
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(3)),
@@ -772,7 +772,7 @@ class ErrorMessages {
   ];
 }
 
-class FotosPerfil extends sign_up_confirm {
+class FotosPerfil extends StatefulWidget {
   int box;
   File Imagen;
 
@@ -846,7 +846,7 @@ class FotosPerfilState extends State<FotosPerfil> {
 
   abrirGaleria(BuildContext context) async {
     var archivoImagen =
-        await ImagePicker.pickImage(source: ImageSource.gallery);
+        await ImagePicker().getImage(source: ImageSource.gallery);
     File imagenRecortada = await ImageCropper.cropImage(
         sourcePath: archivoImagen.path,
         maxHeight: 1280,
@@ -870,7 +870,7 @@ class FotosPerfilState extends State<FotosPerfil> {
       imagenFinal = imagenRecortada;
       pictures[box] = imagenFinal;
       Usuario.esteUsuario.FotosPerfil = pictures;
-      print("${archivoImagen.lengthSync()} Tamaño original");
+
       print("${imagenRecortada.lengthSync()} Tamaño Recortado");
       print(box);
     });
@@ -1215,7 +1215,7 @@ class BotonCrearPrfilState extends State<BotonCrearPerfil> {
     // TODO: implement build
     return SizedBox(
         width: ScreenUtil().setWidth(800),
-        height: ScreenUtil().setHeight(150),
+        height:  200.h,
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -1536,7 +1536,7 @@ class _ModificadorAlturaState extends State<ModificadorAltura> {
       child: Container(
           color:
               Usuario.esteUsuario.altura == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -1674,7 +1674,7 @@ class _ModificadorComplexionState extends State<ModificadorComplexion> {
           color: Usuario.esteUsuario.complexion == null
               ? Colors.white
               : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2056,7 +2056,7 @@ class _ModificadorAlcoholState extends State<ModificadorAlcohol> {
       child: Container(
           color:
               Usuario.esteUsuario.alcohol == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2245,7 +2245,7 @@ class _ModificadorTabacoState extends State<ModificadorTabaco> {
       child: Container(
           color:
               Usuario.esteUsuario.tabaco == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2434,7 +2434,7 @@ class _ModificadorIdiomasState extends State<ModificadorIdiomas> {
       child: Container(
           color:
               Usuario.esteUsuario.idiomas == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -2471,7 +2471,7 @@ class _ModificadorMascotasState extends State<ModificadorMascotas> {
           color: Usuario.esteUsuario.mascotas == null
               ? Colors.white
               : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2696,7 +2696,7 @@ class _ModificadorObjetivoRelacionesState
       child: Container(
           color:
               Usuario.esteUsuario.busco == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2880,7 +2880,7 @@ class _ModificadorHijosState extends State<ModificadorHijos> {
       child: Container(
           color:
               Usuario.esteUsuario.hijos == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -3046,7 +3046,7 @@ class _ModificadorZodiacoState extends State<ModificadorZodiaco> {
       child: Container(
           color:
               Usuario.esteUsuario.zodiaco == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -3083,7 +3083,7 @@ class _ModificadorPoliticaState extends State<ModificadorPolitica> {
           color: Usuario.esteUsuario.politica == null
               ? Colors.white
               : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -3265,7 +3265,7 @@ class _ModificadorReligionState extends State<ModificadorReligion> {
           color: Usuario.esteUsuario.religion == null
               ? Colors.white
               : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -3301,7 +3301,7 @@ class _ModificadorVivirConState extends State<ModificadorVivirCon> {
       child: Container(
           color:
               Usuario.esteUsuario.vivoCon == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -3468,7 +3468,7 @@ class _ModificadorVeganismoState extends State<ModificadorVeganismo> {
           color: Usuario.esteUsuario.vegetarianoOvegano == null
               ? Colors.white
               : Colors.green,
-          height: ScreenUtil().setHeight(150),
+          height:  200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -3527,11 +3527,11 @@ class PreguntaQueBuscasEnLaGenteState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.queBuscasEnAlguien != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queBuscasEnAlguien = null;
@@ -3539,7 +3539,7 @@ class PreguntaQueBuscasEnLaGenteState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queBuscasEnAlguien == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -3548,12 +3548,12 @@ class PreguntaQueBuscasEnLaGenteState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.queBuscasEnAlguien == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -3563,7 +3563,7 @@ class PreguntaQueBuscasEnLaGenteState
                         children: <Widget>[
                           Text("¿Que buscas en la gente?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.queBuscasEnAlguien ??
                                   "En la gente busco....",
@@ -3590,8 +3590,11 @@ class PreguntaQueBuscasEnLaGenteState
     bool vivirAmigos = false;
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
+    if(Usuario.esteUsuario.queBuscasEnAlguien!=null){
+      controladorTexto.text=Usuario.esteUsuario.queBuscasEnAlguien;
+    }
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
@@ -3606,11 +3609,8 @@ class PreguntaQueBuscasEnLaGenteState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: 
+                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -3631,11 +3631,9 @@ class PreguntaQueBuscasEnLaGenteState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.queBuscasEnAlguien =
                                         null;
@@ -3660,7 +3658,7 @@ class PreguntaQueBuscasEnLaGenteState
                           width: ScreenUtil().setWidth(1200),
                           child: TextField(
                             decoration: InputDecoration(
-                                labelText: "En la gente busco.."),
+                                labelText: "Cuentanos"),
                             maxLines: 3,
                             maxLength: 200,
                             controller: controladorTexto,
@@ -3668,8 +3666,8 @@ class PreguntaQueBuscasEnLaGenteState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.queBuscasEnAlguien = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -3705,7 +3703,7 @@ class PreguntaQueBuscasEnLaGenteState
                                     print(
                                         Usuario.esteUsuario.queBuscasEnAlguien);
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -3721,9 +3719,7 @@ class PreguntaQueBuscasEnLaGenteState
                         )
                       ],
                     ),
-                  );
-                },
-              ),
+               
             );
           });
     }
@@ -3746,11 +3742,11 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.queOdiasEnAlguien != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queOdiasEnAlguien = null;
@@ -3758,7 +3754,7 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queOdiasEnAlguien == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -3767,12 +3763,12 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.queOdiasEnAlguien == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -3782,7 +3778,7 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                         children: <Widget>[
                           Text("¿Que odias de la gente?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.queOdiasEnAlguien ??
                                   "En la gente odio....",
@@ -3810,26 +3806,20 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.queOdiasEnAlguien == null) {
-        habraCambio = true;
-      } else {
-        habraCambio = false;
-      }
+      if (Usuario.esteUsuario.queOdiasEnAlguien != null) {
+        controladorTexto.text=Usuario.esteUsuario.queOdiasEnAlguien;
+      } 
 
       showModalBottomSheet(
           context: context,
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -3850,11 +3840,9 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.queOdiasEnAlguien =
                                         null;
@@ -3887,8 +3875,8 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.queOdiasEnAlguien = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -3924,7 +3912,7 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                                     print(
                                         Usuario.esteUsuario.queOdiasEnAlguien);
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -3940,9 +3928,7 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                         )
                       ],
                     ),
-                  );
-                },
-              ),
+                 
             );
           });
     }
@@ -3966,11 +3952,11 @@ class _PreguntaTuRecetaDeFelicidadState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.recetaFelicidad != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.recetaFelicidad = null;
@@ -3978,7 +3964,7 @@ class _PreguntaTuRecetaDeFelicidadState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.recetaFelicidad == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -3987,12 +3973,12 @@ class _PreguntaTuRecetaDeFelicidadState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.recetaFelicidad == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4002,7 +3988,7 @@ class _PreguntaTuRecetaDeFelicidadState
                         children: <Widget>[
                           Text("¿Receta de la felicidad?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.recetaFelicidad ??
                                   "La receta es....",
@@ -4030,12 +4016,12 @@ class _PreguntaTuRecetaDeFelicidadState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.recetaFelicidad == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.recetaFelicidad != null) {
+       controladorTexto.text=Usuario.esteUsuario.recetaFelicidad;
       } else {
         habraCambio = false;
       }
@@ -4045,11 +4031,7 @@ class _PreguntaTuRecetaDeFelicidadState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -4070,11 +4052,9 @@ class _PreguntaTuRecetaDeFelicidadState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.recetaFelicidad =
                                         null;
@@ -4107,8 +4087,8 @@ class _PreguntaTuRecetaDeFelicidadState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.recetaFelicidad = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -4143,7 +4123,7 @@ class _PreguntaTuRecetaDeFelicidadState
                                         controladorTexto.value.text;
                                   
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -4160,9 +4140,7 @@ class _PreguntaTuRecetaDeFelicidadState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+                
           });
     }
   }
@@ -4185,11 +4163,11 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.siQuedaUnDiaDeVida != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.siQuedaUnDiaDeVida = null;
@@ -4197,7 +4175,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.siQuedaUnDiaDeVida == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4206,12 +4184,12 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.siQuedaUnDiaDeVida == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4221,7 +4199,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                         children: <Widget>[
                           Text("¿Si me queda un dia de vida?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.siQuedaUnDiaDeVida ??
                                   "Haria....",
@@ -4249,12 +4227,12 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.siQuedaUnDiaDeVida == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.siQuedaUnDiaDeVida != null) {
+        controladorTexto.text=Usuario.esteUsuario.siQuedaUnDiaDeVida;
       } else {
         habraCambio = false;
       }
@@ -4264,11 +4242,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -4278,6 +4252,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                             children: <Widget>[
                               Container(
                                   child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
                                     "¿Si me queda un dia de vida?",
@@ -4289,11 +4264,9 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.siQuedaUnDiaDeVida =
                                         null;
@@ -4301,15 +4274,9 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                                     Usuario.esteUsuario.notifyListeners();
                                     Navigator.pop(context);
                                   },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
+                                  child: Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
                                   )),
                             ],
                           ),
@@ -4326,8 +4293,8 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.siQuedaUnDiaDeVida = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -4362,7 +4329,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                                         controladorTexto.value.text;
                                
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -4379,9 +4346,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
@@ -4404,11 +4369,11 @@ class _PreguntaQueTipoDeMusicaTeGustaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.queMusicaTeGusta != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queMusicaTeGusta = null;
@@ -4416,7 +4381,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queMusicaTeGusta == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4425,12 +4390,12 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.queMusicaTeGusta == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4440,7 +4405,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                         children: <Widget>[
                           Text("¿Que musica te gusta?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.queMusicaTeGusta ??
                                   "Me gusta....",
@@ -4468,12 +4433,12 @@ class _PreguntaQueTipoDeMusicaTeGustaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.queMusicaTeGusta == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.queMusicaTeGusta != null) {
+        controladorTexto.text=Usuario.esteUsuario.queMusicaTeGusta;
       } else {
         habraCambio = false;
       }
@@ -4483,11 +4448,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -4508,11 +4469,9 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.queMusicaTeGusta =
                                         null;
@@ -4545,8 +4504,8 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.queMusicaTeGusta = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -4581,7 +4540,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                                         controladorTexto.value.text;
                                 
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -4598,9 +4557,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
@@ -4623,11 +4580,11 @@ class _PreguntaEnQueCreesQueEresBuenoState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.enQueEresBueno != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.enQueEresBueno = null;
@@ -4635,7 +4592,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.enQueEresBueno == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4644,12 +4601,12 @@ class _PreguntaEnQueCreesQueEresBuenoState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.enQueEresBueno == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4659,7 +4616,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
                         children: <Widget>[
                           Text("¿Eres bueno en...?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.enQueEresBueno ??
                                   "Soy bueno en....",
@@ -4687,12 +4644,12 @@ class _PreguntaEnQueCreesQueEresBuenoState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.enQueEresBueno == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.enQueEresBueno != null) {
+     controladorTexto.text=Usuario.esteUsuario.enQueEresBueno;
       } else {
         habraCambio = false;
       }
@@ -4702,11 +4659,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -4727,11 +4680,9 @@ class _PreguntaEnQueCreesQueEresBuenoState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.enQueEresBueno =
                                         null;
@@ -4764,8 +4715,8 @@ class _PreguntaEnQueCreesQueEresBuenoState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.enQueEresBueno = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -4800,7 +4751,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
                                         controladorTexto.value.text;
 
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -4817,9 +4768,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+               
           });
     }
   }
@@ -4842,11 +4791,11 @@ class _PreguntaQueEsLoQueMasValorasState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.queEsLoQueMasValoras != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queEsLoQueMasValoras = null;
@@ -4854,7 +4803,7 @@ class _PreguntaQueEsLoQueMasValorasState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queEsLoQueMasValoras == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4863,12 +4812,12 @@ class _PreguntaQueEsLoQueMasValorasState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.queEsLoQueMasValoras == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4878,7 +4827,7 @@ class _PreguntaQueEsLoQueMasValorasState
                         children: <Widget>[
                           Text("¿Que valoras en alguien?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.queEsLoQueMasValoras ??
                                   "Lo que valoro en alguien es....",
@@ -4906,12 +4855,12 @@ class _PreguntaQueEsLoQueMasValorasState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.queEsLoQueMasValoras == null) {
-        habraCambio = true;
+        controladorTexto.text=Usuario.esteUsuario.queEsLoQueMasValoras;
       } else {
         habraCambio = false;
       }
@@ -4921,11 +4870,7 @@ class _PreguntaQueEsLoQueMasValorasState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -4946,11 +4891,9 @@ class _PreguntaQueEsLoQueMasValorasState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.queEsLoQueMasValoras =
                                         null;
@@ -4983,8 +4926,8 @@ class _PreguntaQueEsLoQueMasValorasState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.queEsLoQueMasValoras = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -5020,7 +4963,7 @@ class _PreguntaQueEsLoQueMasValorasState
                                     print(
                                         Usuario.esteUsuario.queBuscasEnAlguien);
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -5037,9 +4980,7 @@ class _PreguntaQueEsLoQueMasValorasState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
@@ -5064,8 +5005,8 @@ class _PreguntaLaGenteDiceQueEresState
             onLongPress: () {
          
               if (Usuario.esteUsuario.laGenteDiceQueSoy != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.laGenteDiceQueSoy = null;
@@ -5073,7 +5014,7 @@ class _PreguntaLaGenteDiceQueEresState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.laGenteDiceQueSoy == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5082,12 +5023,12 @@ class _PreguntaLaGenteDiceQueEresState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.laGenteDiceQueSoy == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5097,7 +5038,7 @@ class _PreguntaLaGenteDiceQueEresState
                         children: <Widget>[
                           Text("¿Que dice la gente de ti?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.laGenteDiceQueSoy ??
                                   "La gente dice que....",
@@ -5125,7 +5066,7 @@ class _PreguntaLaGenteDiceQueEresState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
@@ -5140,11 +5081,7 @@ class _PreguntaLaGenteDiceQueEresState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -5165,11 +5102,9 @@ class _PreguntaLaGenteDiceQueEresState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.laGenteDiceQueSoy =
                                         null;
@@ -5202,8 +5137,8 @@ class _PreguntaLaGenteDiceQueEresState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.laGenteDiceQueSoy = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -5238,7 +5173,7 @@ class _PreguntaLaGenteDiceQueEresState
                                         controladorTexto.value.text;
                                 
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -5255,9 +5190,7 @@ class _PreguntaLaGenteDiceQueEresState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+                
           });
     }
   }
@@ -5278,11 +5211,11 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.queMeHaceReir != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queBuscasEnAlguien = null;
@@ -5290,7 +5223,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queMeHaceReir == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5299,12 +5232,12 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.queMeHaceReir == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5314,7 +5247,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                         children: <Widget>[
                           Text("¿Que te hace reir?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.queMeHaceReir ??
                                   "ME hace reir....",
@@ -5342,12 +5275,12 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.queMeHaceReir == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.queMeHaceReir != null) {
+       controladorTexto.text=Usuario.esteUsuario.queMeHaceReir;
       } else {
         habraCambio = false;
       }
@@ -5357,11 +5290,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -5382,11 +5311,9 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.queMeHaceReir =
                                         null;
@@ -5419,8 +5346,8 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.queMeHaceReir = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -5455,7 +5382,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                                         controladorTexto.value.text;
                                 
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -5472,9 +5399,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
@@ -5495,11 +5420,11 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.citaPErfecta != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.citaPErfecta = null;
@@ -5507,7 +5432,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.citaPErfecta == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5516,12 +5441,12 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.citaPErfecta == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5531,7 +5456,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                         children: <Widget>[
                           Text("¿Como es tu cita perfecta?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.citaPErfecta ??
                                   "Mi cita perfecta es....",
@@ -5559,12 +5484,12 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.citaPErfecta== null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.citaPErfecta!= null) {
+     controladorTexto.text=Usuario.esteUsuario.citaPErfecta;
       } else {
         habraCambio = false;
       }
@@ -5574,11 +5499,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -5599,11 +5520,9 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.citaPErfecta =
                                         null;
@@ -5636,8 +5555,8 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.citaPErfecta = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -5672,7 +5591,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                                         controladorTexto.value.text;
                                
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -5689,9 +5608,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                       ],
                     ),
                   );
-                },
-              ),
-            );
+             
           });
     }
   }
@@ -5713,11 +5630,11 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.cancionFavorita != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.cancionFavorita = null;
@@ -5725,7 +5642,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.cancionFavorita == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5734,12 +5651,12 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.cancionFavorita == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5749,7 +5666,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                         children: <Widget>[
                           Text("¿Cual es tu cancion favorita?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.cancionFavorita ??
                                   "Mi cancion favorita es....",
@@ -5777,12 +5694,12 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.queBuscasEnAlguien == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.cancionFavorita != null) {
+        controladorTexto.text=Usuario.esteUsuario.cancionFavorita;
       } else {
         habraCambio = false;
       }
@@ -5792,11 +5709,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -5817,11 +5730,9 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.cancionFavorita =
                                         null;
@@ -5854,8 +5765,8 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.cancionFavorita = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -5890,7 +5801,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                                         controladorTexto.value.text;
                               
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -5907,9 +5818,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
@@ -5932,11 +5841,11 @@ class _PreguntaUnaVerdadYUnaMentiraState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.unaVerdadUnaMentira != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.unaVerdadUnaMentira = null;
@@ -5944,7 +5853,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.unaVerdadUnaMentira == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5953,12 +5862,12 @@ class _PreguntaUnaVerdadYUnaMentiraState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.unaVerdadUnaMentira == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5968,7 +5877,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
                         children: <Widget>[
                           Text("Una verdad y una mentira",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.unaVerdadUnaMentira ??
                                   "Xd....",
@@ -5996,12 +5905,12 @@ class _PreguntaUnaVerdadYUnaMentiraState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.unaVerdadUnaMentira == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.unaVerdadUnaMentira != null) {
+       controladorTexto.text=Usuario.esteUsuario.unaVerdadUnaMentira;
       } else {
         habraCambio = false;
       }
@@ -6011,11 +5920,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -6036,11 +5941,9 @@ class _PreguntaUnaVerdadYUnaMentiraState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.unaVerdadUnaMentira =
                                         null;
@@ -6073,8 +5976,8 @@ class _PreguntaUnaVerdadYUnaMentiraState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.unaVerdadUnaMentira = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -6109,7 +6012,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
                                         controladorTexto.value.text;
                                   
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -6126,9 +6029,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+               
           });
     }
   }
@@ -6151,11 +6052,11 @@ class _PreguntaPorQueTeHariasFamosoState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.meHariaFamosoPor != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.meHariaFamosoPor = null;
@@ -6163,7 +6064,7 @@ class _PreguntaPorQueTeHariasFamosoState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.meHariaFamosoPor == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6172,12 +6073,12 @@ class _PreguntaPorQueTeHariasFamosoState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.meHariaFamosoPor == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6187,7 +6088,7 @@ class _PreguntaPorQueTeHariasFamosoState
                         children: <Widget>[
                           Text("¿Que te haria famoso?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.meHariaFamosoPor ??
                                   "Seria famoso por....",
@@ -6215,12 +6116,12 @@ class _PreguntaPorQueTeHariasFamosoState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.meHariaFamosoPor == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.meHariaFamosoPor != null) {
+       controladorTexto.text=Usuario.esteUsuario.meHariaFamosoPor;
       } else {
         habraCambio = false;
       }
@@ -6230,11 +6131,7 @@ class _PreguntaPorQueTeHariasFamosoState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -6255,11 +6152,9 @@ class _PreguntaPorQueTeHariasFamosoState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.meHariaFamosoPor =
                                         null;
@@ -6292,8 +6187,8 @@ class _PreguntaPorQueTeHariasFamosoState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.meHariaFamosoPor = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -6328,7 +6223,7 @@ class _PreguntaPorQueTeHariasFamosoState
                                         controladorTexto.value.text;
                                 
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -6345,9 +6240,7 @@ class _PreguntaPorQueTeHariasFamosoState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+                
           });
     }
   }
@@ -6370,11 +6263,11 @@ class _PreguntaSiFuerasUnHeroeSeriasState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.siFueraUnHeroe != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.siFueraUnHeroe = null;
@@ -6382,7 +6275,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.siFueraUnHeroe == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6391,12 +6284,12 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.siFueraUnHeroe == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6406,7 +6299,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                         children: <Widget>[
                           Text("¿Que heroe serias?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.siFueraUnHeroe ??
                                   "Seria....",
@@ -6434,12 +6327,12 @@ class _PreguntaSiFuerasUnHeroeSeriasState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.siFueraUnHeroe == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.siFueraUnHeroe != null) {
+        controladorTexto.text=Usuario.esteUsuario.meHariaFamosoPor;
       } else {
         habraCambio = false;
       }
@@ -6449,11 +6342,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child:  Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -6474,11 +6363,9 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.siFueraUnHeroe =
                                         null;
@@ -6511,8 +6398,8 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.siFueraUnHeroe = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -6547,7 +6434,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                                         controladorTexto.value.text;
                                   
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -6564,9 +6451,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+          
           });
     }
   }
@@ -6592,8 +6477,8 @@ class _PreguntaSiFueraUnVillanooSeriaState
             
           
               if (Usuario.esteUsuario.siFueraUnVillano != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.siFueraUnVillano = null;
@@ -6601,7 +6486,7 @@ class _PreguntaSiFueraUnVillanooSeriaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
                       Usuario.esteUsuario.siFueraUnVillano == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6610,12 +6495,12 @@ class _PreguntaSiFueraUnVillanooSeriaState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.siFueraUnVillano == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6625,7 +6510,7 @@ class _PreguntaSiFueraUnVillanooSeriaState
                         children: <Widget>[
                           Text("¿Que villano serias?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.siFueraUnVillano ??
                                   "Seria...",
@@ -6653,12 +6538,12 @@ class _PreguntaSiFueraUnVillanooSeriaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.siFueraUnVillano == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.siFueraUnVillano != null) {
+       controladorTexto.text=Usuario.esteUsuario.siFueraUnVillano;
       } else {
         habraCambio = false;
       }
@@ -6668,36 +6553,24 @@ class _PreguntaSiFueraUnVillanooSeriaState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Container(
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(
-                                    "¿Que villano serias?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
+                                    FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.siFueraUnVillano =
                                         null;
@@ -6715,6 +6588,14 @@ class _PreguntaSiFueraUnVillanooSeriaState
                                           style: TextStyle(color: Colors.red))
                                     ],
                                   )),
+                                  Text(
+                                    "¿Que villano serias?",
+                                    style: TextStyle(
+                                        fontSize: ScreenUtil().setSp(60)),
+                                  ),
+                                ],
+                              )),
+                            
                             ],
                           ),
                         ),
@@ -6730,8 +6611,8 @@ class _PreguntaSiFueraUnVillanooSeriaState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.siFueraUnVillano = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -6766,7 +6647,7 @@ class _PreguntaSiFueraUnVillanooSeriaState
                                         controladorTexto.value.text;
        
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -6783,9 +6664,7 @@ class _PreguntaSiFueraUnVillanooSeriaState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+            
           });
     }
   }
@@ -6808,11 +6687,11 @@ class _PreguntaComidaRestoDeMiVidaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                 Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria = null;
@@ -6820,7 +6699,7 @@ class _PreguntaComidaRestoDeMiVidaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
                       Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6829,12 +6708,12 @@ class _PreguntaComidaRestoDeMiVidaState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6844,7 +6723,7 @@ class _PreguntaComidaRestoDeMiVidaState
                         children: <Widget>[
                           Text("¿Que comerias el resto de tu vida?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria ??
                                   "Comeria....",
@@ -6872,12 +6751,12 @@ class _PreguntaComidaRestoDeMiVidaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria == null) {
-        habraCambio = true;
+      if (Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria != null) {
+       controladorTexto.text=Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria;
       } else {
         habraCambio = false;
       }
@@ -6887,11 +6766,7 @@ class _PreguntaComidaRestoDeMiVidaState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -6912,11 +6787,9 @@ class _PreguntaComidaRestoDeMiVidaState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria =
                                         null;
@@ -6949,8 +6822,8 @@ class _PreguntaComidaRestoDeMiVidaState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -6985,7 +6858,7 @@ class _PreguntaComidaRestoDeMiVidaState
                                         controladorTexto.value.text;
                               
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -7002,9 +6875,7 @@ class _PreguntaComidaRestoDeMiVidaState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+               
           });
     }
   }
@@ -7026,11 +6897,11 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.nosLlevaremosBienSi != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas+= 1;
                 }
 
                 Usuario.esteUsuario.nosLlevaremosBienSi = null;
@@ -7038,7 +6909,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
                       Usuario.esteUsuario.nosLlevaremosBienSi == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -7047,12 +6918,12 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.nosLlevaremosBienSi == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7062,7 +6933,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                         children: <Widget>[
                           Text("¿Como podemos llevarnos bien?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.nosLlevaremosBienSi ??
                                   "pues....",
@@ -7090,13 +6961,13 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.nosLlevaremosBienSi == null) {
-        habraCambio = true;
-      } else {
+       if (Usuario.esteUsuario.nosLlevaremosBienSi != null) {
+       controladorTexto.text=Usuario.esteUsuario.nosLlevaremosBienSi;
+      }  else {
         habraCambio = false;
       }
 
@@ -7105,11 +6976,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -7130,11 +6997,9 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.nosLlevaremosBienSi =
                                         null;
@@ -7167,8 +7032,8 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.nosLlevaremosBienSi = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -7203,7 +7068,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                                         controladorTexto.value.text;
                                    
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -7220,9 +7085,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                       ],
                     ),
                   );
-                },
-              ),
-            );
+             
           });
     }
   }
@@ -7243,11 +7106,11 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.borrachoSoyMuy != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.borrachoSoyMuy = null;
@@ -7255,7 +7118,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.borrachoSoyMuy == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -7264,12 +7127,12 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.borrachoSoyMuy == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7279,7 +7142,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                         children: <Widget>[
                           Text("¿Como eres borracho/a?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.borrachoSoyMuy ??
                                   "Pues....",
@@ -7307,13 +7170,13 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.borrachoSoyMuy == null) {
-        habraCambio = true;
-      } else {
+       if (Usuario.esteUsuario.borrachoSoyMuy != null) {
+       controladorTexto.text=Usuario.esteUsuario.borrachoSoyMuy;
+      }  else {
         habraCambio = false;
       }
 
@@ -7322,11 +7185,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -7347,11 +7206,9 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.borrachoSoyMuy =
                                         null;
@@ -7384,8 +7241,8 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.borrachoSoyMuy = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -7420,7 +7277,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                                         controladorTexto.value.text;
                             
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
+                                       Usuario.esteUsuario.preguntasContestadas =
                                           pantallaRegistroCinco
                                                   .preguntasRestantes -
                                               1;
@@ -7437,9 +7294,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                       ],
                     ),
                   );
-                },
-              ),
-            );
+           
           });
     }
   }
@@ -7463,8 +7318,8 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
             
           
               if (Usuario.esteUsuario.anecdota != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
+                   Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.anecdota = null;
@@ -7472,7 +7327,7 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.anecdota == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -7481,12 +7336,12 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.anecdota == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7496,7 +7351,7 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                         children: <Widget>[
                           Text("¿Tu mejor anecdota?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.anecdota ??
                                   "Mi mejor anecdota es....",
@@ -7524,12 +7379,12 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.anecdota == null) {
-        habraCambio = true;
+       if (Usuario.esteUsuario.anecdota != null) {
+       controladorTexto.text=Usuario.esteUsuario.anecdota;
       } else {
         habraCambio = false;
       }
@@ -7539,11 +7394,7 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -7564,11 +7415,9 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                        Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas += 1;
                                     }
                                     Usuario.esteUsuario.anecdota =
                                         null;
@@ -7601,8 +7450,8 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.anecdota = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                                 Usuario.esteUsuario.preguntasContestadas =
+                                     Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -7637,9 +7486,8 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                                         controladorTexto.value.text;
                                   
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
+                                     Usuario.esteUsuario.preguntasContestadas =
+                                       Usuario.esteUsuario.preguntasContestadas-
                                               1;
                                     }
                                     Usuario.esteUsuario.notifyListeners();
@@ -7654,9 +7502,7 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
@@ -7680,11 +7526,11 @@ class _PreguntaPeliculaRecomendadaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(pantallaRegistroCinco.preguntasRestantes);
+              print(  Usuario.esteUsuario.preguntasContestadas);
           
               if (Usuario.esteUsuario.peliculaRecomiendas != null) {
-                if (pantallaRegistroCinco.preguntasRestantes < 3) {
-                  pantallaRegistroCinco.preguntasRestantes += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas+= 1;
                 }
 
                 Usuario.esteUsuario.peliculaRecomiendas = null;
@@ -7692,7 +7538,7 @@ class _PreguntaPeliculaRecomendadaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (pantallaRegistroCinco.preguntasRestantes == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
                       Usuario.esteUsuario.peliculaRecomiendas == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -7701,12 +7547,12 @@ class _PreguntaPeliculaRecomendadaState
                 child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(4),
+                          Radius.circular(20),
                         ),
                         color: Usuario.esteUsuario.peliculaRecomiendas == null
                             ? Colors.white
                             : Colors.green),
-                    height: ScreenUtil().setHeight(250),
+                    height:  200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7716,7 +7562,7 @@ class _PreguntaPeliculaRecomendadaState
                         children: <Widget>[
                           Text("¿Que pelicula recomiendas?",
                               style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(80))),
+                                  TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
                               Usuario.esteUsuario.peliculaRecomiendas ??
                                   "Recomiendo...",
@@ -7744,13 +7590,13 @@ class _PreguntaPeliculaRecomendadaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (pantallaRegistroCinco.preguntasRestantes > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas> 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.peliculaRecomiendas == null) {
-        habraCambio = true;
-      } else {
+       if (Usuario.esteUsuario.peliculaRecomiendas != null) {
+       controladorTexto.text=Usuario.esteUsuario.peliculaRecomiendas;
+      }  else {
         habraCambio = false;
       }
 
@@ -7759,11 +7605,7 @@ class _PreguntaPeliculaRecomendadaState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: Consumer<Usuario>(
-                builder: (BuildContext context, Usuario user, Widget child) {
-                  return Scaffold(
-                    resizeToAvoidBottomPadding: true,
-                    body: Column(
+              child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Padding(
@@ -7784,11 +7626,9 @@ class _PreguntaPeliculaRecomendadaState
                               FlatButton(
                                   onPressed: () {
                                     if (!habraCambio &&
-                                        pantallaRegistroCinco
-                                                .preguntasRestantes <
+                                       Usuario.esteUsuario.preguntasContestadas <
                                             3) {
-                                      pantallaRegistroCinco
-                                          .preguntasRestantes += 1;
+                                    Usuario.esteUsuario.preguntasContestadas+= 1;
                                     }
                                     Usuario.esteUsuario.peliculaRecomiendas =
                                         null;
@@ -7821,8 +7661,8 @@ class _PreguntaPeliculaRecomendadaState
                             onSubmitted: (valor) {
                               Usuario.esteUsuario.peliculaRecomiendas = valor;
                               if (habraCambio) {
-                                pantallaRegistroCinco.preguntasRestantes =
-                                    pantallaRegistroCinco.preguntasRestantes -
+                              Usuario.esteUsuario.preguntasContestadas =
+                                  Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
@@ -7857,9 +7697,8 @@ class _PreguntaPeliculaRecomendadaState
                                         controladorTexto.value.text;
                                   
                                     if (habraCambio) {
-                                      pantallaRegistroCinco.preguntasRestantes =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
+                                    Usuario.esteUsuario.preguntasContestadas =
+                                         Usuario.esteUsuario.preguntasContestadas -
                                               1;
                                     }
                                     Usuario.esteUsuario.notifyListeners();
@@ -7874,10 +7713,246 @@ class _PreguntaPeliculaRecomendadaState
                       ],
                     ),
                   );
-                },
-              ),
-            );
+              
           });
     }
   }
 }
+
+
+
+
+
+class PreguntaUsuario extends StatefulWidget {
+  String preguntaUsuario;
+  String respuestaUsuario;
+  int indicePregunta;
+
+
+PreguntaUsuario({@required this.preguntaUsuario,@required this.respuestaUsuario,@required this.indicePregunta} );
+
+
+  @override
+  _PreguntaUsuarioState createState() =>
+      _PreguntaUsuarioState();
+}
+
+class _PreguntaUsuarioState
+    extends State<PreguntaUsuario> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: <Widget>[
+          GestureDetector(
+            onTap: (){ 
+              
+              if(Usuario.esteUsuario.preguntasContestadas<=4)
+             { modificarAtributo(context);}},
+            onLongPress: () {
+             
+          
+              if (widget.respuestaUsuario != null) {
+                if (Usuario.esteUsuario.preguntasContestadas <=4) {
+                  Usuario.esteUsuario.preguntasContestadas+= 1;
+                }
+
+               widget.respuestaUsuario= null;
+               Usuario.esteUsuario.listaRespuestasPreguntasPersonales[widget.indicePregunta]=null;
+                Usuario.esteUsuario.notifyListeners();
+              }
+            },
+            child: ColorFiltered(
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
+                      widget.respuestaUsuario == null)
+                  ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
+                  : ColorFilter.mode(Colors.purple[100], BlendMode.modulate),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15),
+                        ),
+                        color:   widget.respuestaUsuario== null
+                            ? Colors.white
+                            : Colors.green),
+                    height:  200.h,
+                    width: ScreenUtil().setWidth(1500),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: Text("${widget.preguntaUsuario}",
+                            style:
+                                TextStyle(fontSize: ScreenUtil().setSp(60))),
+                      ),
+                    )),
+              ),
+            ),
+          ),
+          Container(
+              child:   widget.respuestaUsuario != null
+                  ? Center(child: Text("Presiona para borrar pregunta"))
+                  : Container())
+        ],
+      ),
+    );
+  }
+
+  void modificarAtributo(BuildContext context) {
+    bool vivirSolo = false;
+    bool vivirPadres = false;
+    bool vivirAmigos = false;
+    bool habraCambio = false;
+    TextEditingController controladorTexto = new TextEditingController();
+
+    if (Usuario.esteUsuario.preguntasContestadas> 0) {
+      vivirSolo = false;
+      vivirPadres = false;
+      vivirAmigos = false;
+       if ( widget.respuestaUsuario != null) {
+       controladorTexto.text= widget.respuestaUsuario;
+      }  else {
+        habraCambio = false;
+      }
+
+      showDialog(
+         useSafeArea: true,
+        context: context,
+        builder: (context) {
+        
+             return Scaffold(
+              resizeToAvoidBottomInset: true,
+              
+              backgroundColor: Colors.transparent,
+                          body: Container(
+                            height:ScreenUtil.screenHeight,
+                             alignment: Alignment.center,
+                            
+              
+                child: SingleChildScrollView(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(left: 50.0, right: 30),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Container(
+                                          child: Row(
+                                        children: <Widget>[
+                                          Text(
+                                            widget.preguntaUsuario,
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                                fontSize: ScreenUtil().setSp(60)),
+                                          ),
+                                        ],
+                                      )),
+                                
+                                    ],
+                                ),
+                              ),
+                              Container(
+                                width: ScreenUtil().setWidth(1200),
+                                child: TextField(
+                                    decoration: InputDecoration(
+                                        labelText: widget.preguntaUsuario,),
+                                    maxLines: 3,
+                                    maxLength: 200,
+                                    controller: controladorTexto,
+                                    textInputAction: TextInputAction.done,
+                                    onSubmitted: (valor) {
+                                       widget.respuestaUsuario = valor;
+                                       Usuario.esteUsuario.listaRespuestasPreguntasPersonales[widget.indicePregunta]=widget.respuestaUsuario;
+                                      print(  Usuario.esteUsuario.recetaFelicidad);
+                                        
+
+                                      if (habraCambio) {
+                                      Usuario.esteUsuario.preguntasContestadas =
+                                          Usuario.esteUsuario.preguntasContestadas -
+                                                1;
+                                      }
+                                      Navigator.pop(context);
+                                   
+                                    },
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                    Container(
+                                      child: FlatButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            "Cancelar",
+                                            style: TextStyle(color: Colors.red),
+                                          )),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.all(Radius.circular(3)),
+                                      ),
+                                      child: FlatButton(
+                                          onPressed: () {
+                                          
+                                            Navigator.pop(context);
+                                            widget.respuestaUsuario =
+                                                controladorTexto.value.text;
+                                                Usuario.esteUsuario.listaRespuestasPreguntasPersonales[widget.indicePregunta]=widget.respuestaUsuario;
+                                          
+                                            if (habraCambio) {
+                                            Usuario.esteUsuario.preguntasContestadas =
+                                                 Usuario.esteUsuario.preguntasContestadas -
+                                                      1;
+                                            }
+                                            Usuario.esteUsuario.notifyListeners();
+                                          },
+                                          child: Text(
+                                            "Aceptar",
+                                            style: TextStyle(color: Colors.white),
+                                          )),
+                                    )
+                                ],
+                              ),    FlatButton(
+                                          onPressed: () {
+                                            if (!habraCambio &&
+                                               Usuario.esteUsuario.preguntasContestadas <
+                                                    3) {
+                                            Usuario.esteUsuario.preguntasContestadas+= 1;
+                                            }
+                                           widget.respuestaUsuario =
+                                                null;
+
+                                            Usuario.esteUsuario.notifyListeners();
+                                            Navigator.pop(context);
+                                          },
+                                          child: Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                              ),
+                                              Text("Borrar",
+                                                  style: TextStyle(color: Colors.red))
+                                            ],
+                                          )),
+                          ],
+                        ),
+                                  ),
+                ),
+                    ),
+            );
+              
+        }
+    );
+  }
+  }}

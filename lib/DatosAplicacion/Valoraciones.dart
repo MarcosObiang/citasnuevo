@@ -1,6 +1,7 @@
 import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
 import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,12 +22,12 @@ class Valoraciones extends ChangeNotifier {
   String mensaje;
   double valoracion;
   String idValoracion;
-  
+
   static double mediaUsuario;
-  static List<Valoraciones>listaDeValoraciones=new List();
+  static List<Valoraciones> listaDeValoraciones = new List();
   static int visitasTotales;
   static String idUsuarioDestino = Usuario.esteUsuario.idUsuario;
-  
+
   Valoraciones.crear({
     @required this.idValoracion,
     @required this.fechaValoracion,
@@ -36,8 +37,6 @@ class Valoraciones extends ChangeNotifier {
     @required this.nombreEmisor,
     @required this.mensaje,
     @required this.valoracion,
-  
-
   });
   Valoraciones();
   Valoraciones.instancia();
@@ -50,10 +49,9 @@ class Valoraciones extends ChangeNotifier {
 
     print(Usuario.esteUsuario.idUsuario);
     instanciaBaseDatos
-        .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario)
         .collection("valoraciones")
         .where("Valoracion", isGreaterThanOrEqualTo: 5)
+        .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .get()
         .then((dato) {
       if (dato.docs.length > 0) {
@@ -69,7 +67,8 @@ class Valoraciones extends ChangeNotifier {
                 (dato.docs[i].get("Alias Emisor").toString()).toString(),
                 (dato.docs[i].get("Imagen Usuario").toString()).toString(),
                 (dato.docs[i].get("Mensaje").toString()).toString(),
-                double.parse((dato.docs[i].get("Valoracion").toString()).toString()),
+                double.parse(
+                    (dato.docs[i].get("Valoracion").toString()).toString()),
                 (dato.docs[i].get("Time")).toDate(),
                 (dato.docs[i].get("id valoracion").toString()).toString());
           }
@@ -84,7 +83,27 @@ class Valoraciones extends ChangeNotifier {
     }).then((val) => escucharValoraciones());
   }
 
-  void escucharValoraciones() {
+  void obtenerMedia() async {
+    FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
+
+    await instanciaBaseDatos
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("valoraciones")
+        .get()
+        .then((dato) {
+      if (dato.docs.length > 0) {
+        for (int a = 0; a < dato.docs.length; a++) {
+          if (dato.docs[a].id == "mediaPuntos") {
+            mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
+            visitasTotales = dato.docs[a].get("cantidadValoraciones");
+          }
+        }
+      }
+    }).then((value) => escucharMedia());
+  }
+
+  void escucharMedia() async {
     FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
     bool coincidencias;
 
@@ -93,67 +112,80 @@ class Valoraciones extends ChangeNotifier {
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("valoraciones")
-        .where("Valoracion", isGreaterThanOrEqualTo: 5)
         .snapshots()
         .listen((dato) {
       if (dato.docs.length > 0) {
-       
-       
-
-      
         for (int a = 0; a < dato.docs.length; a++) {
-         if (dato.docs[a].id == "mediaPuntos") {
+          if (dato.docs[a].id == "mediaPuntos") {
             mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
             visitasTotales = dato.docs[a].get("cantidadValoraciones");
           }
         }
 
+        instanciar.notifyListeners();
+      }
+    });
+  }
 
+  void escucharValoraciones() {
+    FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
+    bool coincidencias;
 
-
-
-
-
-
-
-
-
+    print(Usuario.esteUsuario.idUsuario);
+    instanciaBaseDatos
+        .collection("valoraciones")
+        .where("Valoracion", isGreaterThanOrEqualTo: 5)
+        .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
+        .snapshots()
+        .listen((dato) {
+      if (dato.docs.length > 0) {
+        for (int a = 0; a < dato.docs.length; a++) {
+          if (dato.docs[a].id == "mediaPuntos") {
+            mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
+            visitasTotales = dato.docs[a].get("cantidadValoraciones");
+          }
+        }
 
         for (int b = 0; b < dato.docs.length; b++) {
-            coincidencias =false;
+          coincidencias = false;
           for (int i = 0; i < listaDeValoraciones.length; i++) {
-            if(dato.docs[b].id!="mediaPuntos"){
+            if (dato.docs[b].id != "mediaPuntos") {
+              if (dato.docs[b].get("id valoracion") ==
+                  listaDeValoraciones[i].idValoracion) {
+                coincidencias = true;
 
-
-            if (dato.docs[b].get("id valoracion") ==
-                listaDeValoraciones[i].idValoracion) {
-              coincidencias=true;
+                if (dato.docs[b].get("Nombre emisor") !=
+                    listaDeValoraciones[i].nombreEmisor) {
+                  listaDeValoraciones[i].nombreEmisor =
+                      dato.docs[b].get("Nombre emisor");
+                }
+                if (dato.docs[b].get("Imagen Usuario") !=
+                    listaDeValoraciones[i].imagenEmisor) {
+                  listaDeValoraciones[i].imagenEmisor =
+                      dato.docs[b].get("Imagen Usuario");
+                }
+                instanciar.notifyListeners();
+              } else {
+                coincidencias = false;
+              }
+            }
+          }
+          if (!coincidencias) {
+            print("Creando");
+            if (dato.docs[b].id != "mediaPuntos") {
+              sumarValoracion(
+                  (dato.docs[b].get("Id emisor").toString()),
+                  (dato.docs[b].get("Nombre emisor").toString()).toString(),
+                  (dato.docs[b].get("Alias Emisor").toString()).toString(),
+                  (dato.docs[b].get("Imagen Usuario").toString()).toString(),
+                  (dato.docs[b].get("Mensaje").toString()).toString(),
+                  double.parse(
+                      (dato.docs[b].get("Valoracion").toString()).toString()),
+                  (dato.docs[b].get("Time")).toDate(),
+                  (dato.docs[b].get("id valoracion").toString()).toString());
             }
           }
         }
-               if (!coincidencias) {
-         
-            print("Creando");
-            if (dato.docs[b].id != "mediaPuntos") {
-                sumarValoracion(
-                (dato.docs[b].get("Id emisor").toString()),
-                (dato.docs[b].get("Nombre emisor").toString()).toString(),
-                (dato.docs[b].get("Alias Emisor").toString()).toString(),
-                (dato.docs[b].get("Imagen Usuario").toString()).toString(),
-                (dato.docs[b].get("Mensaje").toString()).toString(),
-                double.parse((dato.docs[b].get("Valoracion").toString()).toString()),
-                (dato.docs[b].get("Time")).toDate(),
-                (dato.docs[b].get("id valoracion").toString()).toString());
-            }
-          
-        }
-  
-        
-        
-        
-        }
-
-       
       }
       instanciar.notifyListeners();
     }).onError((e) => print(e));
@@ -175,21 +207,20 @@ class Valoraciones extends ChangeNotifier {
         nombreEmisor: nombreUsuario,
         aliasEmisor: aliasUsuario,
         imagenEmisor: imagenURl,
-        
         fechaValoracion: fechaValoraciones,
         mensaje: mensajeUsuario,
         valoracion: puntuacion);
-        int i=listaDeValoraciones.length>0?listaDeValoraciones.length:0;
-        listaDeValoraciones.insert(i, valoracion);
-         listaDeValoraciones.sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
+    int i = listaDeValoraciones.length > 0 ? listaDeValoraciones.length : 0;
+    listaDeValoraciones.insert(i, valoracion);
+    listaDeValoraciones
+        .sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
     // list_live.llaveListaValoraciones.currentState.(i);
 
     //listaDeValoraciones = List.from(listaDeValoraciones)..add(valoracion);
-    
-   
 
     instanciar.notifyListeners();
   }
+
   void sumarValoracion(
       String idEmisor,
       String nombreUsuario,
@@ -206,18 +237,16 @@ class Valoraciones extends ChangeNotifier {
         nombreEmisor: nombreUsuario,
         aliasEmisor: aliasUsuario,
         imagenEmisor: imagenURl,
-        
         fechaValoracion: fechaValoraciones,
         mensaje: mensajeUsuario,
         valoracion: puntuacion);
-        int i=listaDeValoraciones.length>0?listaDeValoraciones.length:0;
-        listaDeValoraciones.insert(0, valoracion);
-         listaDeValoraciones.sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
+    int i = listaDeValoraciones.length > 0 ? listaDeValoraciones.length : 0;
+    listaDeValoraciones.insert(0, valoracion);
+    listaDeValoraciones
+        .sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
     list_live.llaveListaValoraciones.currentState.insertItem(0);
 
     //listaDeValoraciones = List.from(listaDeValoraciones)..add(valoracion);
-    
-   
 
     //instanciar.notifyListeners();
   }
@@ -234,8 +263,7 @@ class ValoracionWidget extends StatelessWidget {
   double porciento;
   Key clave;
   DateTime fechaValoracion;
-  Animation animation; 
-
+  Animation animation;
 
   ValoracionWidget(
       {@required this.idValoracion,
@@ -247,9 +275,5 @@ class ValoracionWidget extends StatelessWidget {
       @required this.mensajeUsuario,
       @required this.puntuacionUsuario});
 
-  Widget build(BuildContext context) {
-   
-  }
-
-
+  Widget build(BuildContext context) {}
 }

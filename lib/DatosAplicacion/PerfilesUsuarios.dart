@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_Actividades_elements.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -106,7 +106,7 @@ Future<DatosPerfiles> ActualizarPErfilDeterinado(
       ///
       ///
       /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
-      perfilTemp.add(creadorImagenPerfilAmistad(
+      perfilTemp.add(ImagenesCarrete(
         imagenesPerfiles[a]["Imagen"],
         nombre: nombre,
         alias: alias,
@@ -394,6 +394,8 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
         ///
         ///
         /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
+       
+       print(PerfilesGenteCitas.limitesParaCreador);
         perfilTemp.add(ImagenesCarrete(
           imagenesPerfiles[a]["Imagen"],
           nombre: nombre,
@@ -490,6 +492,7 @@ class Perfiles extends ChangeNotifier {
     Isolate proceso = await Isolate.spawn(
         isolateCitas, puertoRecepcion.sendPort,
         debugName: "IsolateCitas");
+        
 
     /// [puertoEnvio] aqui almacenamos la respuesta que obtenemos de  [isolateCitas] de donde recibimos el puerto de envio del [isolate]
     ///
@@ -836,16 +839,8 @@ class Perfiles extends ChangeNotifier {
         .doc(usuario)
         .get()
         .then((value) => perfilTemporal = value.data());
-    await baseDatosRef
-        .collection("usuarios")
-        .doc(usuario)
-        .collection("historias")
-        .get()
-        .then((value) {
-      if (value != null) {
-        perfilTemporal.putIfAbsent("Lista historias", () => value.docs);
-      }
-    });
+
+    
     return perfilTemporal;
   }
 
@@ -878,6 +873,7 @@ class ImagenesCarrete extends StatefulWidget {
   bool nombreEnFoto;
   Image laimagen;
   bool imagenCargada = false;
+ static BoxConstraints limitesCuadro=new BoxConstraints();
 
   ImagenesCarrete(this.urlImagen,
       {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
@@ -924,8 +920,7 @@ class _ImagenesCarreteState extends State<ImagenesCarrete> {
                       children: <Widget>[
                         widget.nombreEnFoto
                             ? Container(
-                                height: PerfilesGenteCitas
-                                    .limitesParaCreador.biggest.height,
+                                height: ImagenesCarrete.limitesCuadro.biggest.height,
                                 decoration: BoxDecoration(
                                     image: DecorationImage(
                                         image: NetworkImage(widget.urlImagen),
@@ -1271,8 +1266,8 @@ class BloqueFiltrosPersonales extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-      height: ScreenUtil().setHeight(600),
-      width: PerfilesGenteCitas.limitesParaCreador.biggest.width,
+      height: ScreenUtil().setHeight(400),
+      width: ImagenesCarrete.limitesCuadro.biggest.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
@@ -1494,7 +1489,7 @@ class DatosPerfiles {
   List<Widget> carrete = new List();
 
   List<Map<String, dynamic>> linksHistorias = new List();
-  Firestore baseDatosRef;
+  FirebaseFirestore baseDatosRef;
   Map<String, dynamic> datosValoracion = new Map();
   String crearCodigo() {
     List<String> letras = [
@@ -1593,6 +1588,7 @@ class DatosPerfiles {
       imagen = Usuario.esteUsuario.ImageURL6["Imagen"];
       imagenAdquirida = true;
     }
+    
     datosValoracion["Imagen Usuario"] = imagen;
     datosValoracion["Nombre emisor"] = nombreUsuarioLocal;
     datosValoracion["Alias Emisor"] = aliasUsuarioLocal;
@@ -1617,13 +1613,11 @@ class DatosPerfiles {
       @required this.nombreusuaio,
       @required this.linksHistorias,
       @required this.idUsuario});
-  void _enviarValoracion() {
-    baseDatosRef = Firestore.instance;
-    baseDatosRef
-        .collection("usuarios")
-        .document(idUsuario)
+  void _enviarValoracion()async {
+    baseDatosRef = FirebaseFirestore.instance;
+ await   baseDatosRef
         .collection("valoraciones")
-        .document()
-        .setData(datosValoracion);
+        .doc()
+        .set(datosValoracion);
   }
 }

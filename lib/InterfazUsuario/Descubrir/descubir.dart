@@ -5,6 +5,7 @@ import 'package:citasnuevo/DatosAplicacion/Directo.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
@@ -16,6 +17,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class PantallaDirecto extends StatefulWidget {
+  static bool permisoAlmacenamiento;
+  static bool permisoCamara;
+  static bool permisoMicrofono;
   static final clavePantallaDirecto = GlobalKey();
   @override
   _PantallaDirectoState createState() => _PantallaDirectoState();
@@ -70,54 +74,45 @@ class _PantallaDirectoState extends State<PantallaDirecto>
               child: SafeArea(
                 child: Material(
                   child: Container(
-                    color: Colors.white,
+                    color: Colors.red,
                     child: Column(
                       children: <Widget>[
                         Flexible(
                           flex: 1,
                           fit: FlexFit.tight,
                           child: Container(
-                            color: Colors.white,
+                            color: Colors.red,
                             child: Column(
                               children: <Widget>[
-                                Flexible(
-                                    flex: 3,
-                                    fit: FlexFit.tight,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: <Widget>[
-                                            Container(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 30),
-                                                child: Text(
-                                                  textoPantalla,
-                                                  style: TextStyle(
-                                                      fontSize: ScreenUtil()
-                                                          .setSp(90),
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 30),
+                                        child: Text(
+                                          "Historias",
+                                          style: TextStyle(
+                                              fontSize: ScreenUtil()
+                                                  .setSp(90),
+                                              fontWeight:
+                                                  FontWeight.bold,color: Colors.black),
                                         ),
+                                      ),
+                                    ),
                                    configuradorHistoria()
-                                     
-                                      ],
-                                    )),
+                                 
+                                  ],
+                                ),
                             
                               ],
                             ),
                           ),
                         ),
                         Flexible(
-                          flex: 7,
+                          flex: 9,
                           fit: FlexFit.tight,
                           child: Container(child:      VentanaDirectoHistorias()),
                         )
@@ -145,11 +140,28 @@ class _PantallaDirectoState extends State<PantallaDirecto>
               children: <Widget>[
                 Container(
                     child: FlatButton(
-                  onPressed: () => Navigator.push(
+                  
+
+
+                  onPressed: ()async  { 
+                    await Permission.storage.status.then((statusPermisoAlmacenamiento) async{
+                   if (statusPermisoAlmacenamiento.isGranted){
+                     PantallaDirecto.permisoAlmacenamiento=true;
+                      Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              CreadorDeHistorias())),
+                              CreadorDeHistorias()));
+
+
+                   }
+                 if(!statusPermisoAlmacenamiento.isGranted){
+                  await Permission.storage.request();
+                 }
+                    });
+                    
+                    
+                   },
                   child: Column(
                     children: <Widget>[
                       Icon(Icons.movie_filter),
