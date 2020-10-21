@@ -2,11 +2,12 @@ import 'dart:ui';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart' as xd;
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
-import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'live_screen_elements.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../Actividades/TarjetaEvento.dart';
 import '../../main.dart';
-
+import 'dart:ui' as ui;
+import 'package:blurred/blurred.dart';
 class live extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -267,193 +269,237 @@ class _list_liveState extends State<list_live> {
         child: Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
-          height: ScreenUtil().setHeight(500),
-          decoration: BoxDecoration(
-        
-            boxShadow: [BoxShadow(color: Colors.grey,blurRadius:10)],
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              color: Colors.white),
-          child: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        height: ScreenUtil().setHeight(450),
+        decoration: BoxDecoration(
+      
+        boxShadow: [BoxShadow(color: Colors.grey,blurRadius:10)],
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            color: Colors.white),
+        child: Container(
+            child: Stack(
               children: [
-                Flexible(
+                Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+          Flexible(
                   flex: 13,
                   fit: FlexFit.tight,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
-                      children: <Widget>[
-                        Flexible(
-                          flex: 2,
-                          fit: FlexFit.tight,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                image: DecorationImage(
-                                    image: NetworkImage(valoracion.imagenEmisor),
-                                    fit: BoxFit.cover)),
-                          ),
-                        ),
-                        Flexible(
-                          flex: 5,
-                          fit: FlexFit.tight,
-                          child: Container(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Container(
-                                        child: valoracion.nombreEmisor != null
-                                            ? Text(
-                                                "${valoracion.nombreEmisor}",
-                                                style: TextStyle(
-                                                    fontSize: ScreenUtil()
-                                                        .setSp(40),
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            : Text(" ")),
-                                  ),
-                                  Flexible(
-                                    fit: FlexFit.tight,
-                                    flex: 5,
-                                    child: Container(
-                                        child: valoracion.mensaje == null ||
-                                                valoracion.mensaje == "null"
-                                            ? Text("")
-                                            : Text(
-                                                valoracion.mensaje,
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      ScreenUtil().setSp(40),
-                                                ),
-                                              )),
-                                  ),
-                                  Container(
-                                    height: ScreenUtil().setHeight(50),
-                                    child: Center(
-                                      child: LinearPercentIndicator(
-                                        linearStrokeCap: LinearStrokeCap.butt,
-                                        //  progressColor: Colors.deepPurple,
-                                        percent: valoracion.valoracion / 10,
-                                        animationDuration: 300,
-                                        lineHeight:
-                                            ScreenUtil().setHeight(60),
-                                        linearGradient: LinearGradient(
-                                            colors: [
-                                              Colors.pink,
-                                              Colors.pinkAccent[100]
-                                            ]),
-                                        center: Text(
-                                          "${(valoracion.valoracion).toStringAsFixed(1)}",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: ScreenUtil().setSp(40,
-                                                  allowFontScalingSelf: true),
-                                              color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+          children: <Widget>[
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Container(
+        decoration: BoxDecoration(
+                borderRadius:
+                BorderRadius.all(Radius.circular(10)),
+                image: DecorationImage(
+                image: NetworkImage(valoracion.imagenEmisor),
+                fit: BoxFit.cover)),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 5,
+                    fit: FlexFit.tight,
+                    child: Container(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+        Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Container(
+                    child: valoracion.nombreEmisor != null
+          ? Text(
+        "${valoracion.nombreEmisor}",
+        style: TextStyle(
+                fontSize: ScreenUtil()
+                    .setSp(40),
+                fontWeight:
+                    FontWeight.bold),
+                )
+          : Text(" ")),
+        ),
+        Flexible(
+                fit: FlexFit.tight,
+                flex: 5,
+                child: Container(
+                    child: valoracion.mensaje == null ||
+        valoracion.mensaje == "null"
+          ? Text("")
+          : Text(
+        valoracion.mensaje,
+        style: TextStyle(
+          fontSize:
+                  ScreenUtil().setSp(40),
+        ),
+                )),
+        ),
+        Container(
+                height: ScreenUtil().setHeight(50),
+                child: Center(
+                  child: LinearPercentIndicator(
+                    linearStrokeCap: LinearStrokeCap.butt,
+                    //  progressColor: Colors.deepPurple,
+                    percent: valoracion.valoracion / 10,
+                    animationDuration: 300,
+                    lineHeight:
+          ScreenUtil().setHeight(60),
+                    linearGradient: LinearGradient(
+          colors: [
+                Colors.pink,
+                Colors.pinkAccent[100]
+          ]),
+                    center: Text(
+        "${(valoracion.valoracion).toStringAsFixed(1)}",
+        style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: ScreenUtil().setSp(40,
+          allowFontScalingSelf: true),
+                color: Colors.white),
                     ),
                   ),
                 ),
-                Flexible(
+        ),
+                ],
+          ),
+        ),
+                    ),
+                  )
+          ],
+                    ),
+                  ),
+          ),
+          Flexible(
                   flex: 4,
                   fit: FlexFit.tight,
                   child: LayoutBuilder(builder: (BuildContext contex,BoxConstraints limites){
                     return  Container(
-                      decoration: BoxDecoration(
+          decoration: BoxDecoration(
 
-                      ),
-                      height: limites.maxHeight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 2,
-                            fit: FlexFit.tight,
-                            child: Container(
-                              height: limites.maxHeight,
-                              decoration: BoxDecoration(
-                                color: Colors.green
-                            
+          ),
+          height: limites.maxHeight,
+          child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+        flex: 2,
+        fit: FlexFit.tight,
+        child: Container(
+          height: limites.maxHeight,
+          decoration: BoxDecoration(
+                color: Colors.green
+        
 
-                              ),
-                              
-                              child: FlatButton(
-                                
-                                  onPressed: ()  {
-                                     aceptarSolicitud(indice,valoracion.mensaje, valoracion.nombreEmisor, valoracion.imagenEmisor, valoracion.idEmisor, valoracion.idValoracion);
+          ),
+          
+          child: FlatButton(
+                
+        onPressed: ()  {
+                 aceptarSolicitud(indice,valoracion.mensaje, valoracion.nombreEmisor, valoracion.imagenEmisor, valoracion.idEmisor, valoracion.idValoracion);
 
 
-                                   
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    
-                                    children: [
-                                    Text("Me gusta",  style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: ScreenUtil().setSp(50,
-                                                  allowFontScalingSelf: true),
-                                              color: Colors.white),),
-                                    Icon(LineAwesomeIcons.heart_o,color: Colors.white,)
-                                  ])),
-                            ),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            fit: FlexFit.tight,
-                            child: Container(
-                               decoration: BoxDecoration(
-                                 color: Colors.red
-                              
-                              ),
-                              height: limites.maxHeight,
-                               
-                              child: FlatButton(
-                                 
-                                  onPressed: ()  {
+         
+        },
+        child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                
+                children: [
+                Text("Me gusta",  style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: ScreenUtil().setSp(50,
+          allowFontScalingSelf: true),
+                color: Colors.white),),
+                Icon(LineAwesomeIcons.heart_o,color: Colors.white,)
+        ])),
+        ),
+                    ),
+                    Flexible(
+        flex: 2,
+        fit: FlexFit.tight,
+        child: Container(
+           decoration: BoxDecoration(
+                 color: Colors.red
+          
+          ),
+          height: limites.maxHeight,
+           
+          child: FlatButton(
+                 
+        onPressed: ()  {
 
-                                    eliimnarSolicitud(indice,Valoraciones.listaDeValoraciones[indice].idValoracion);
-                                  },
-                                  child: Row(
-                                    
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                    Text("Eliminar",style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: ScreenUtil().setSp(50,
-                                                  allowFontScalingSelf: true),
-                                              color: Colors.white),),
-                                    Icon(Icons.close,color: Colors.white,)
-                                  ])),
-                            ),
-                          )
-                        ],
-                      ),
+                eliimnarSolicitud(indice,Valoraciones.listaDeValoraciones[indice].idValoracion);
+        },
+        child: Row(
+                
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                Text("Eliminar",style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: ScreenUtil().setSp(50,
+          allowFontScalingSelf: true),
+                color: Colors.white),),
+                Icon(Icons.close,color: Colors.white,)
+        ])),
+        ),
+                    )
+                  ],
+          ),
                     );
                   },)
-                                   
+         
                   ),
-                
-              ],
+          
+      ],
+                  ),
+              
+              
+                BackdropFilter(
+                filter: ui.ImageFilter.blur(
+            sigmaX: 10.0,
+            sigmaY: 10.0,
+          ),
+ child: Container(
+   decoration: BoxDecoration(
+     color:Colors.transparent,
+     borderRadius:BorderRadius.all(Radius.circular(10))
+   ),
+
+   height:500.h,
+   child:Center(
+     child: Container(
+       height:200.h,
+             decoration: BoxDecoration(
+     color:Colors.purple,
+     borderRadius:BorderRadius.all(Radius.circular(40)),
+     
+   ),child: Center(
+     child: Padding(
+       padding: const EdgeInsets.all(20.0),
+       child: Row(
+         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+         children:[
+         Text("Revelar",style: TextStyle(fontSize:60.sp),),
+         Row(
+           children: [
+             Text("100",style: TextStyle(fontSize:60.sp),),
+             Icon(xd.LineAwesomeIcons.coins),
+              
+           ],
+         )
+       ]),
+     ),
+   ),
+         ))
+   )
+          ),],
             ),
-          )),
+        )),
     ),
   );
 

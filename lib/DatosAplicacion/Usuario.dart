@@ -10,7 +10,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'ControladorLikes.dart';
-import 'Conversacion.dart';
+import 'ControladorConversacion.dart';
 import 'Directo.dart';
 import 'PerfilesUsuarios.dart';
 import 'dart:math';

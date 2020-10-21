@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import "package:citasnuevo/Inte../../DatosAplicacion/ControladorConversacion.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
@@ -28,6 +28,8 @@ import 'package:image_cropper/image_cropper.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+
+import 'Pantalla_Actividades.dart';
 
 
 // ignore: must_be_immutable

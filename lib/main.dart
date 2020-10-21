@@ -11,12 +11,12 @@ import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
-import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'DatosAplicacion/Valoraciones.dart';
 import 'base_app.dart';
 
 FirebaseApp app;
-
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ControladorNotificacion.controladorNotificacion.inicializarNotificaciones();
@@ -42,6 +42,7 @@ Future<void> main() async {
               ChangeNotifierProvider(create: (_) => Conversacion.instancia(),
               ),
             ], child: PantallaDeInicio()),
+             navigatorObservers: [routeObserver],
           )));
 }
 

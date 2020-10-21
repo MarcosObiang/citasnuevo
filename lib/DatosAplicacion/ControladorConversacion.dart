@@ -1,11 +1,12 @@
 
 import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/TituloChat.dart';
 import 'package:citasnuevo/base_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import "package:citasnuevo/InterfazUsuario/Gente/people_screen_elements.dart";
+import "package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart";
 import 'Usuario.dart';
 
 class Conversacion extends ChangeNotifier {
@@ -33,7 +34,7 @@ static void calcularCantidadMensajesSinLeer(){
   for (int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
     if(Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes!=null){
       for(int x=0;x<Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes.length;x++){
-if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes[x].mensajeLeidoRemitente){
+if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes[x].mensajeLeidoRemitente&&Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes[x].idEmisor!=Usuario.esteUsuario.idUsuario){
  mensajesSinLeerConversaciones+=1;
 }
       }
@@ -102,7 +103,7 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
                 );
               }
 
-            //  BaseAplicacion.mostrarNotificacionMensajeAplicaionAbierta(BaseAplicacion.claveBase.currentContext,  dato.docChanges[a].doc.get("Nombre emisor"), dato.docChanges[a].doc.get("Mensaje"),);
+            
 
               if (conversaciones
                       .listaDeConversaciones[i].ventanaChat.listadeMensajes ==
@@ -305,7 +306,15 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
       /// Al hacerse cualquier cabio en la coleccion conversaciones, ya sea añadir,alterar o eliminar conversaciones, son escuchadas por este metodo,
       /// para detectar eliminaciones comparamos las conversaciones existentes con las de la nube, si alguna falta en la nube se eliina en el dispositivo
       
-
+ for(int s=0;s<datos.docChanges.length;s++){
+       if(datos.docChanges[s].type==DocumentChangeType.removed){
+         for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
+           if(datos.docChanges[s].doc.get("IdConversacion")==Conversacion.conversaciones.listaDeConversaciones[z].idConversacion){
+             Conversacion.conversaciones.listaDeConversaciones.removeAt(z);
+           }
+         }
+       }
+     }
 
 
 
@@ -354,7 +363,7 @@ for(int k=0;k<datos.docs.length;k++){
 }
     }
       
-     
+    
           
        
 
@@ -407,8 +416,9 @@ for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
     });
   }
 
-  static void eliminarConversaciones(
-      String idConversacion, String idRemitente, String idMensaje) {
+  static Future<int> eliminarConversaciones(
+      String idConversacion, String idRemitente, String idMensaje) async{
+        int estadoOperacion;
     print(idConversacion);
     print(idRemitente);
     WriteBatch opceracionEliminacion = baseDatosRef.batch();
@@ -438,7 +448,24 @@ for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
     opceracionEliminacion.delete(referenciaEstadoConversacionEnLocal);
     opceracionEliminacion.delete(referenciaConversacionEnRemitente);
     opceracionEliminacion.delete(referenciaEstadoConversacionEnRemitente);
-    opceracionEliminacion.commit().then((value) async {});
+  await  opceracionEliminacion.commit().then((value){
+      estadoOperacion=0;
+      for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
+if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==idConversacion){
+  Conversacion.conversaciones.listaDeConversaciones.removeAt(i);
+  Conversacion.conversaciones.notifyListeners();
+}
+
+      }
+    }).catchError((onError){
+      print(onError);
+      estadoOperacion=1;
+    });
+    return estadoOperacion;
+
+    
+    
+
   }
 
   Conversacion(

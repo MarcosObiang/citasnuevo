@@ -1,7 +1,8 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/InterfazUsuario/Gente/people_screen_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantalaVidellamada.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
@@ -69,7 +70,7 @@ class VideoLlamada {
 
   static void establecerEstadoLLamada() async {
     Map<String, dynamic> datosLLamada = new Map();
-    datosLLamada["Estado"] = "Disponible";
+    datosLLamada["Estado"] = "Conectado";
 
     await basedatos
         .collection("usuarios")
@@ -93,9 +94,9 @@ class VideoLlamada {
         .set(datosLLamada);
   }
 
-  static void ponerStatusDisponible() async {
+  static void ponerStatusConectado() async {
     Map<String, dynamic> datosLLamada = new Map();
-    datosLLamada["Estado"] = "Disponible";
+    datosLLamada["Estado"] = "Conectado";
     await basedatos
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
@@ -115,8 +116,8 @@ class VideoLlamada {
         .doc("estadoLlamada")
         .get()
         .then((value) {
-      if (value.get("Estado") == "Disponible") {
-        resultado = "Disponible";
+      if (value.get("Estado") == "Conectado") {
+        resultado = "Conectado";
       }
       if (value.get("Estado") == "Desconectado") {
         resultado = "Desconectado";
@@ -126,7 +127,7 @@ class VideoLlamada {
       }
     });
 
-    if (resultado == "Disponible") {
+    if (resultado == "Conectado") {
       iniciarLLamadaVideo(usuario, context);
     } else {
       print("No se piuede llamar al usuario");
@@ -136,26 +137,27 @@ class VideoLlamada {
   static void colgarLLamadaVideo(
       String usuario, Map<String, dynamic> datosLLamada) async {
     print(datosLLamada["StatusLLamada"]);
+    datosLLamada["llamadaFinalizadaPorIniciador"]=true;
 
+    WriteBatch colgarVideoLLamada = basedatos.batch();
+    DocumentReference referenciaDireccionLLamadasUsuario = basedatos
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("llamadas")
+        .doc(datosLLamada["id LLamada"]);
+    DocumentReference referenciaDireccionLLamadasRemitente = basedatos
+        .collection("usuarios")
+        .doc(usuario)
+        .collection("llamadas")
+        .doc(datosLLamada["id LLamada"]);
     datosLLamada.update("StatusLLamada", (value) => "Rechazada",
         ifAbsent: () => "Rechazada");
 
     datosLLamada["StatusLLamada"] = "Rechazada";
 
-    await basedatos
-        .collection("usuarios")
-        .doc(usuario)
-        .collection("llamadas")
-        .doc(datosLLamada["id LLamada"])
-        .set(datosLLamada)
-        .then((value) async {
-      await basedatos
-          .collection("usuarios")
-          .doc(Usuario.esteUsuario.idUsuario)
-          .collection("llamadas")
-          .doc(datosLLamada["id LLamada"])
-          .set(datosLLamada);
-    });
+    colgarVideoLLamada.set(referenciaDireccionLLamadasUsuario, datosLLamada);
+    colgarVideoLLamada.set(referenciaDireccionLLamadasRemitente, datosLLamada);
+    colgarVideoLLamada.commit();
   }
 
   static void contestarLLamadaVideo(String usuarioId, BuildContext context,
@@ -163,30 +165,33 @@ class VideoLlamada {
     Map<String, dynamic> estadoLLamada = new Map();
     estadoLLamada["Estado"] = "Ocpuado";
     datosLLamada["StatusLLamada"] = "Conectado";
-    await basedatos
+
+    WriteBatch contestarLLamada = basedatos.batch();
+    DocumentReference referenciaDireccionLLamadasUsuario = basedatos
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("llamadas")
+        .doc(datosLLamada["id LLamada"]);
+    DocumentReference referenciaEstadoLLamadasUsuario = basedatos
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("estadoLlamada")
-        .doc("estadoLlamada")
-        .set(estadoLLamada)
-        .then((value) async {
-      await basedatos
-          .collection("usuarios")
-          .doc(Usuario.esteUsuario.idUsuario)
-          .collection("llamadas")
-          .doc(datosLLamada["id LLamada"])
-          .set(datosLLamada)
-          .then((value) async {
-        Navigator.pop(context);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => CallPage(
-                    datosLLamada: datosLLamada,
-                    usuario: usuarioId,
-                    channelName: usuarioId,
-                    role: ClientRole.Broadcaster)));
-      });
+        .doc("estadoLlamada");
+
+    contestarLLamada.set(referenciaDireccionLLamadasUsuario, datosLLamada);
+    contestarLLamada.set(referenciaEstadoLLamadasUsuario, estadoLLamada);
+    await contestarLLamada.commit().then((value) async {
+      // Navigator.pop(context);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => CallPage(
+                  datosLLamada: datosLLamada,
+                  usuario: usuarioId,
+                  channelName: usuarioId,
+                  role: ClientRole.Broadcaster)));
+    }).catchError((onError) {
+      print(onError);
     });
   }
 
@@ -198,57 +203,59 @@ class VideoLlamada {
     datosLLamada["Nombre"] = Usuario.esteUsuario.nombre;
     datosLLamada["idCanalLLamada"] = Usuario.esteUsuario.idUsuario;
     datosLLamada["StatusLLamada"] = "Conectando";
+    datosLLamada["llamadaFinalizadaPorIniciador"]=false;
     datosLLamada["id LLamante"] = Usuario.esteUsuario.idUsuario;
     datosLLamada["DuracionLLamada"] = DateTime.now();
     datosLLamada["idRemitente"] = usuario;
     datosLLamada["id LLamada"] = idLLamadaVideo;
     datosLLamada["tipoLlamada"] = "Video";
-
-    await basedatos
+    datosLLamada["fecha"]=DateTime.now();
+    WriteBatch batchIniciarLLamadaVideo = basedatos.batch();
+    DocumentReference referenciaLLamadasUsuario = basedatos
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("llamadas")
-        .doc(idLLamadaVideo)
-        .set(datosLLamada)
-        .then((valor) async {
-      await basedatos
+        .doc(idLLamadaVideo);
+    DocumentReference referenciaLLamadasRemitente = basedatos
+        .collection("usuarios")
+        .doc(usuario)
+        .collection("llamadas")
+        .doc(idLLamadaVideo);
+    batchIniciarLLamadaVideo.set(referenciaLLamadasUsuario, datosLLamada);
+    batchIniciarLLamadaVideo.set(referenciaLLamadasRemitente, datosLLamada);
+    batchIniciarLLamadaVideo.commit().then((value) {
+      escuchadorEstadoLLamada
           .collection("usuarios")
-          .doc(usuario)
+          .doc(Usuario.esteUsuario.idUsuario)
           .collection("llamadas")
           .doc(idLLamadaVideo)
-          .set(datosLLamada)
-          .then((value) async {
-        escuchadorEstadoLLamada
-            .collection("usuarios")
-            .doc(Usuario.esteUsuario.idUsuario)
-            .collection("llamadas")
-            .doc(idLLamadaVideo)
-            .snapshots()
-            .listen((event) async {
-          if (event.get("StatusLLamada") == "Rechazada") {
-            await escuchadorEstadoLLamada
-                .collection("usuarios")
-                .doc(Usuario.esteUsuario.idUsuario)
-                .collection("llamadas")
-                .doc(idLLamadaVideo)
-                .snapshots()
-                .listen((event) {})
-                .cancel()
-                .then((value) {
-              CallPageState.onCallEnd(context);
-            });
-          }
-        });
-
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => CallPage(
-                    datosLLamada: datosLLamada,
-                    usuario: usuario,
-                    channelName: Usuario.esteUsuario.idUsuario,
-                    role: ClientRole.Broadcaster)));
+          .snapshots()
+          .listen((event) async {
+        if (event.get("StatusLLamada") == "Rechazada") {
+          await escuchadorEstadoLLamada
+              .collection("usuarios")
+              .doc(Usuario.esteUsuario.idUsuario)
+              .collection("llamadas")
+              .doc(idLLamadaVideo)
+              .snapshots()
+              .listen((event) {})
+              .cancel()
+              .then((value) {
+            CallPageState.onCallEnd(context);
+          });
+        }
       });
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => CallPage(
+                  datosLLamada: datosLLamada,
+                  usuario: usuario,
+                  channelName: Usuario.esteUsuario.idUsuario,
+                  role: ClientRole.Broadcaster)));
+    }).catchError((onError) {
+      print(onError);
     });
 
     print("Llamada iniciada");
@@ -263,8 +270,10 @@ class VideoLlamada {
         .snapshots()
         .listen((event) {
       if (event.docs.length > 0) {
+        print("llamadaPropia");
         for (DocumentSnapshot llamada in event.docs) {
           if (llamada.get("id LLamante") != Usuario.esteUsuario.idUsuario) {
+
             notificarLLamada(
                 BaseAplicacion.claveNavegacion.currentContext,
                 llamada.get("ImagenLlamadaEntrante"),
@@ -275,10 +284,28 @@ class VideoLlamada {
                 llamada.get("id LLamante"),
                 llamada.get("idRemitente"),
                 llamada.get("tipoLlamada"));
+
+
+
+
+
           } else {
-            print("llamadaPropia");
+          
           }
         }
+      }
+    });
+  }
+
+  static void escucharEstadoLLamadaEntrante(String idLLamadaEntrante,BuildContext context){
+    FirebaseFirestore referenciaBaseDatos=FirebaseFirestore.instance;
+    referenciaBaseDatos.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).collection("llamadas").doc(idLLamadaEntrante).snapshots().listen((event)async {
+      if(event.get("StatusLLamada")=="Conectando"||event.get("StatusLLamada")=="Conectado"){
+
+      }
+      else{
+        await referenciaBaseDatos.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).collection("llamadas").doc(idLLamadaEntrante).snapshots()..listen((event) { }).cancel();
+        Navigator.of(context).pop();
       }
     });
   }
@@ -297,7 +324,7 @@ class VideoLlamada {
     datosLLamada["ImagenLlamadaEntrante"] = imagen;
     datosLLamada["Nombre"] = nombreUsuario;
     datosLLamada["idCanalLLamada"] = canalLLamada;
-    datosLLamada["StatusLLamada"] = "Conectando";
+    datosLLamada["StatusLLamada"] = "Conectado";
     datosLLamada["id LLamante"] = idLLamante;
     datosLLamada["DuracionLLamada"] = DateTime.now();
     datosLLamada["idRemitente"] = idRemitente;
@@ -310,6 +337,9 @@ class VideoLlamada {
         context: BaseAplicacion.claveNavegacion.currentContext,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondanimation) {
+          escucharEstadoLLamadaEntrante(idLLamada, context);
+
+
           // cargarPerfil();
 
           return ChangeNotifierProvider.value(
@@ -371,7 +401,7 @@ class VideoLlamada {
                                             color: Colors.white,
                                             icon: Icon(Icons.call_end),
                                             onPressed: () {
-                                              Navigator.pop(context);
+
                                               colgarLLamadaVideo(
                                                   idLLamante, datosLLamada);
                                             },
@@ -390,11 +420,14 @@ class VideoLlamada {
                                               color: Colors.white,
                                               icon: Icon(Icons.call),
                                               onPressed: () {
-                                                // Navigator.pop(context);
+                                                Navigator.of(context).pop();
+                                               
                                                 contestarLLamadaVideo(
                                                     canalLLamada,
-                                                    context,
+                                                    BaseAplicacion.claveBase.currentContext,
                                                     datosLLamada);
+                                                  
+                                              
                                               }),
                                         ),
                                       )

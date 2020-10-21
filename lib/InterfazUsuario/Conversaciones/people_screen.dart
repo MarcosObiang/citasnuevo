@@ -5,13 +5,13 @@ import 'package:flutter/rendering.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import '../Actividades/TarjetaEvento.dart';
 import '../../main.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'people_screen_elements.dart';
+import 'Mensajes.dart';
 
 class ConversacionesLikes extends StatelessWidget {
   @override

@@ -1,4 +1,4 @@
-import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart';
@@ -10,7 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'Usuario.dart';
 import 'dart:math';
-import 'package:citasnuevo/InterfazUsuario/Gente/people_screen_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 
 class Valoraciones extends ChangeNotifier {
   static Valoraciones instanciar = Valoraciones.instancia();

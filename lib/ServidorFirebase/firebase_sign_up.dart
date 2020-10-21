@@ -8,7 +8,7 @@ import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import '../InterfazUsuario/Directo/live_screen.dart';
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
-import 'package:citasnuevo/InterfazUsuario/Gente/people_screen.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/people_screen.dart';
 import '../InterfazUsuario/Actividades/TarjetaEvento.dart';
 import '../InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

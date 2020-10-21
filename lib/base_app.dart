@@ -1,4 +1,5 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/people_screen.dart';
 import 'package:citasnuevo/InterfazUsuario/Descubrir/descubir.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,13 +9,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:citasnuevo/DatosAplicacion/Conversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
-import 'package:citasnuevo/InterfazUsuario/Gente/people_screen.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/people_screen.dart';
 
 
 import 'package:citasnuevo/InterfazUsuario/Social/social_screen.dart';
@@ -252,33 +253,7 @@ Future<dynamic>onDidReceiveLocalNotification(int canal,String a,String b,String 
       margin: EdgeInsets.all(10),
     )..show(context);
   }
-   static void mostrarNotificacionMensajeAplicaionAbierta(BuildContext context,String emisorMensaje,String mensaje,String codigoConversacion) {
-    Flushbar(
-      message: mensaje,
-      duration: Duration(seconds:3),
-      onTap: (valor){
-        for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
-          if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==codigoConversacion){
-        
-          
-          }
-        }
-        
-
-      },
-      mainButton: FlatButton(onPressed: (){}, child: Text("Leer")),
-      flushbarPosition: FlushbarPosition.TOP,
-      backgroundColor: Colors.purple[100],
-      forwardAnimationCurve: Curves.ease,
-      title: emisorMensaje,
-      icon: Icon(Icons.chat,),
-      reverseAnimationCurve: Curves.ease,
-      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
-      borderRadius: 10,
-      padding: EdgeInsets.all(10),
-      margin: EdgeInsets.all(10),
-    )..show(context);
-  }
+   
 
 
 }
