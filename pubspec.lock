@@ -360,12 +360,12 @@ packages:
     source: hosted
     version: "0.3.10"
   google_sign_in:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.5.4"
+    version: "4.5.5"
   google_sign_in_platform_interface:
     dependency: transitive
     description:

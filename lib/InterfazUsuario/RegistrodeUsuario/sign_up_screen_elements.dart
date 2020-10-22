@@ -1,6 +1,9 @@
 import 'dart:core';
 
+import 'package:citasnuevo/InterfazUsuario/Social/social_screen_elements.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drag_and_drop_gridview/devdrag.dart';
+import 'package:flutter/gestures.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +24,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-
 
 ///**************************************************************************************************************************************************************
 /// EN ESTE ARCHIVO DART ENCONTRAREMOS LOS ELEMENTOS QUE COMPONEN LA PANTALLA DE REGISTRO DE LA APLICACION
@@ -49,6 +51,7 @@ class EntradaTexto extends StatefulWidget {
   final bool texto_oscuro;
   final int lineas;
   final int caracteres;
+  TextEditingController controladorTexto = new TextEditingController();
 
   EntradaTexto(this.icon, this.nombre_campo, this.indice, this.texto_oscuro,
       this.altura, this.lineas, this.caracteres);
@@ -71,6 +74,13 @@ class EntradaTextoState extends State<EntradaTexto> {
   int lineas;
   int caracteres;
 
+  @override
+  void initState() {
+    Usuario.esteUsuario.nombre = widget.nombre_campo;
+    widget.controladorTexto.text = Usuario.esteUsuario.nombre;
+    super.initState();
+  }
+
   EntradaTextoState(this.icon, this.nombre_campo, this.indice,
       this.texto_oscuro, this.altura, this.lineas, this.caracteres);
 
@@ -86,163 +96,31 @@ class EntradaTextoState extends State<EntradaTexto> {
   }
 
   Widget text_black() {
-    if (texto_oscuro) {
-      aux = true;
-      return Row(
-        children: <Widget>[
-          Flexible(
-            fit: FlexFit.tight,
-            flex: 10,
-            child: Container(
-              child: TextField(
-                obscureText: invisible,
-                maxLines: lineas,
-                maxLength: caracteres,
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.only(bottom: 0),
-                  counter: Offstage(),
-                  labelText: "$nombre_campo",
-                  labelStyle: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: ScreenUtil().setSp(60)),
-                  icon: icon,
-                ),
-                onChanged: (String val) {
-                  setState(() {
-                    if (indice == 0) {
-                      Usuario.esteUsuario.nombre = val;
-                    }
-                    if (indice == 1) {
-                      Usuario.esteUsuario.alias = val;
-                    }
-                    if (indice == 2) {
-                      Usuario.esteUsuario.clave = val;
-                    }
-                    if (indice == 3) {
-                      Usuario.esteUsuario.confirmar_clave = val;
-                    }
-                    if (indice == 4) {
-                      Usuario.esteUsuario.email = val;
-                      print(val);
-                    }
-                  });
-                },
-              ),
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.tight,
-            flex: 2,
-            child: Container(
-              color: Colors.transparent,
-              child: RaisedButton(
-                color: Colors.white,
-                elevation: 0,
-                onPressed: (() {
-                  setState(() {
-                    if (invisible == true && aux) {
-                      invisible = false;
-                      aux = false;
-                      print("Visible");
-                    }
-
-                    if (invisible == false && aux) {
-                      invisible = true;
-                      print("innVisible");
-                    }
-                  });
-                }),
-                child: Container(
-                  child: Icon(
-                    Icons.remove_red_eye,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
-      );
-    } else {
-      return TextField(
-        maxLines: lineas,
-        maxLength: caracteres,
-        textInputAction: TextInputAction.done,
-        style: TextStyle(color: Colors.black),
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: EdgeInsets.only(bottom: 0),
-          counter: Offstage(),
-          labelText: "$nombre_campo",
-          labelStyle:
-              TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(60)),
-          icon: icon,
-        ),
-        obscureText: false,
-        onChanged: (String val) {
-          setState(() {
-            print(val);
-            if (indice == 0) {
-              Usuario.esteUsuario.nombre = val;
-            }
-            if (indice == 1) {
-              Usuario.esteUsuario.alias = val;
-            }
-            if (indice == 2) {
-              Usuario.esteUsuario.clave = val;
-            }
-            if (indice == 3) {
-              Usuario.esteUsuario.confirmar_clave = val;
-            }
-            if (indice == 4) {
-              Usuario.esteUsuario.email = val;
-            }
-            if (indice == 5) {
-              Usuario.esteUsuario.observaciones = val;
-            }
-            if (indice == 6) {
-              Usuario.esteUsuario.ImageURL1["PieDeFoto"] = val;
-            }
-            if (indice == 7) {
-              Usuario.esteUsuario.ImageURL2["PieDeFoto"] = val;
-            }
-            if (indice == 8) {
-              Usuario.esteUsuario.ImageURL3["PieDeFoto"] = val;
-              print(val);
-            }
-            if (indice == 9) {
-              Usuario.esteUsuario.ImageURL4["PieDeFoto"] = val;
-            }
-            if (indice == 10) {
-              Usuario.esteUsuario.ImageURL5["PieDeFoto"] = val;
-            }
-            if (indice == 11) {
-              Usuario.esteUsuario.ImageURL6["PieDeFoto"] = val;
-            }
-                 if (indice == 12) {
-              Usuario.esteUsuario.historia1["PieDeFoto"] = val;
-            }
-            if (indice == 13) {
-              Usuario.esteUsuario.historia2["PieDeFoto"] = val;
-            }
-            if (indice == 14) {
-              Usuario.esteUsuario.historia3["PieDeFoto"] = val;
-              print(val);
-            }
-            if (indice == 15) {
-              Usuario.esteUsuario.historia4["PieDeFoto"] = val;
-            }
-            if (indice == 16) {
-              Usuario.esteUsuario.historia5["PieDeFoto"] = val;
-            }
-            if (indice == 17) {
-              Usuario.esteUsuario.historia6["PieDeFoto"] = val;
-            }
-          });
-        },
-      );
-    }
+    return TextField(
+      maxLines: lineas,
+      maxLength: caracteres,
+      textInputAction: TextInputAction.done,
+      controller: widget.controladorTexto,
+      style: TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+        isDense: true,
+        contentPadding: EdgeInsets.only(bottom: 0),
+        counter: Offstage(),
+        labelText: "Nombre",
+        labelStyle:
+            TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(60)),
+        icon: icon,
+      ),
+      obscureText: false,
+      onChanged: (String val) {
+        setState(() {
+          print(val);
+          if (indice == 0) {
+            Usuario.esteUsuario.nombre = val;
+          }
+        });
+      },
+    );
   }
 }
 
@@ -310,7 +188,7 @@ class BotonNacimientoState extends State<BotonNacimiento> {
             child: Text(
               date == null ? "Fecha de Nacimimento" : f.format(widget.dato),
               style: TextStyle(
-                  fontSize: ScreenUtil().setSp(60),
+                  fontSize: ScreenUtil().setSp(40),
                   color: Colors.black,
                   fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
@@ -349,9 +227,9 @@ class MostradorEdadState extends State<MostradorEdad> {
           width: ScreenUtil().setWidth(400),
           height: ScreenUtil().setHeight(120),
           child: Container(
-            height: 40,
+            height: 40.h,
             decoration: BoxDecoration(
-                color: Colors.transparent,
+                color: Colors.white,
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             child: Center(
               child: widget.dato == null
@@ -622,7 +500,7 @@ class BotonConfirmarRegistroState extends State<BotonConfirmarRegistro> {
     // TODO: implement build
     return SizedBox(
         width: ScreenUtil().setWidth(400),
-        height:  200.h,
+        height: 200.h,
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -673,52 +551,15 @@ class next_button_state extends State<next_button> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return SizedBox(
-        width: ScreenUtil().setWidth(800),
-        height:  200.h,
+        width: ScreenUtil().setWidth(400),
+        height: 100.h,
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(3)),
               color: Colors.green),
           child: FlatButton(
             onPressed: () async {
-              int valor = Validadores.validadorGeneral(
-                  Usuario.esteUsuario.nombre,
-                  Usuario.esteUsuario.alias,
-                  Usuario.esteUsuario.clave,
-                  Usuario.esteUsuario.confirmar_clave,
-                  Usuario.esteUsuario.email,
-                  Usuario.esteUsuario.edad,
-                  Usuario.esteUsuario.sexo,
-                  Usuario.esteUsuario.citasCon);
-              int veralias =
-                  await Validadores.validarAlias(Usuario.esteUsuario.alias);
-              print(valor);
-              int veremail =
-                  await Validadores.validadorEmail(Usuario.esteUsuario.email);
-              if (valor == 0) {
-                valor = 0;
-              } else {
-                setState(() {
-                  ErrorMessages.error = valor;
-                  PantallaRegistroState().showErrorDialog(context);
-                });
-              }
-              if (veralias != 0 && valor == 0) {
-                setState(() {
-                  ErrorMessages.error = veralias;
-                  PantallaRegistroState().showErrorDialog(context);
-                });
-              } else {
-                if (veremail != 0 && valor == 0) {
-                  setState(() {
-                    ErrorMessages.error = veremail;
-                    PantallaRegistroState().showErrorDialog(context);
-                  });
-                }
-                if (veremail == 0 && veralias == 0 && valor == 0) {
-                  SiguientePantalla(context);
-                }
-              }
+              SiguientePantalla(context);
             },
             child: Text("Next"),
           ),
@@ -771,294 +612,6 @@ class ErrorMessages {
     espacioemail,
   ];
 }
-
-class FotosPerfil extends StatefulWidget {
-  int box;
-  File Imagen;
-
-  FotosPerfil(this.box, this.Imagen);
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return FotosPerfilState(this.box, this.Imagen);
-  }
-}
-
-class FotosPerfilState extends State<FotosPerfil> {
-  @override
-  File imagenFinal;
-  File imagen;
-  
-  
-  static List<File> pictures = List(6);
-  int box;
-  int indice;
-  int calculadorIndice() {
-    return box + 6;
-  }
-
-  FotosPerfilState(this.box, this.imagen);
-  void opcionesImagenPerfil() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Añadir Imagen"),
-            content: Text("¿Seleccione la fuente de la imagen?"),
-            actions: <Widget>[
-              Row(
-                children: <Widget>[
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        abrirGaleria(context);
-                      },
-                      child: Row(
-                        children: <Widget>[Text("Galeria"), Icon(Icons.image)],
-                      )),
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        abrirCamara(context);
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Text("Camara"),
-                          Icon(Icons.camera_enhance)
-                        ],
-                      )),
-                /*  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        abrirGaleriaVideo(
-                            sign_up_confirm_state.claveScaffold.currentContext);
-                      },
-                      child: Row(
-                        children: <Widget>[Text("Video"), Icon(Icons.videocam)],
-                      )),*/
-                ],
-              )
-            ],
-          );
-        });
-  }
-
-  abrirGaleria(BuildContext context) async {
-    var archivoImagen =
-        await ImagePicker().getImage(source: ImageSource.gallery);
-    File imagenRecortada = await ImageCropper.cropImage(
-        sourcePath: archivoImagen.path,
-        maxHeight: 1280,
-        maxWidth: 720,
-        aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
-        compressQuality: 90,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.ratio16x9,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
-    if (imagenRecortada != null) {
-      pieFoto(context, imagenRecortada, calculadorIndice());
-    }
-
-    this.setState(() {
-      imagenFinal = imagenRecortada;
-      pictures[box] = imagenFinal;
-      Usuario.esteUsuario.FotosPerfil = pictures;
-
-      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-      print(box);
-    });
-  }
-
-  /*abrirGaleriaVideo(BuildContext context) async {
-    var archivoImagen =
-        await ImagePicker.pickVideo(source: ImageSource.gallery);
-    if (archivoImagen != null) {
-      await trimmer.loadVideo(videoFile: archivoImagen);
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => TrimmerView(trimmer)));
-    } else {}
-  }*/
-
-  abrirCamara(BuildContext context) async {
-    var archivoImagen = await ImagePicker.pickImage(source: ImageSource.camera);
-    File imagenRecortada = await ImageCropper.cropImage(
-        sourcePath: archivoImagen.path,
-
-        // aspectRatio: CropAspectRatio(ratioX: 9,ratioY: 16),
-        maxHeight: 1000,
-        maxWidth: 720,
-        compressQuality: 90,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
-    if (imagenRecortada != null) {
-      pieFoto(context, imagenRecortada, calculadorIndice());
-    }
-
-    this.setState(() {
-      imagenFinal = imagenRecortada;
-      pictures[box] = imagenFinal;
-      Usuario.esteUsuario.FotosPerfil = pictures;
-      print("${archivoImagen.lengthSync()} Tamaño original");
-      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
-      print(box);
-    });
-  }
-
-  eliminarImagen(BuildContext context) {
-    this.setState(() {
-      Usuario.esteUsuario.FotosPerfil[box] = null;
-      print("object");
-      if (Usuario.esteUsuario.FotosPerfil[box] == null) {
-        print("vacio en $box");
-      }
-      Usuario.esteUsuario.notifyListeners();
-    });
-  }
-
-  void pieFoto(BuildContext context, File imagen, int indice) {
-    showGeneralDialog(
-        barrierDismissible: false,
-        transitionDuration: const Duration(milliseconds: 200),
-        context: sign_up_confirm_state.claveScaffold.currentContext,
-        pageBuilder: (BuildContext context, Animation animation,
-            Animation secondanimation) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: ScreenUtil().setHeight(2600),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Color.fromRGBO(20, 20, 20, 50),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        height: ScreenUtil().setHeight(500),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          child: Image.file(imagen),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: Container(
-                          child: Text("Comentarios Foto",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: ScreenUtil().setSp(60))),
-                        ),
-                      ),
-                      Divider(
-                        height: ScreenUtil().setHeight(50),
-                      ),
-                      Material(
-                          color: Color.fromRGBO(0, 0, 0, 100),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.white,
-                                    width: ScreenUtil().setWidth(6)),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                                color: Colors.white30,
-                              ),
-                              child: EntradaTexto(
-                                  Icon(LineAwesomeIcons.comment),
-                                  "Pie de Foto",
-                                  indice,
-                                  false,
-                                  200,
-                                  2,
-                                  200))),
-                      Divider(
-                        height: ScreenUtil().setHeight(200),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Colors.green),
-                        child: FlatButton(
-                          child: Text("Hecho"),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
-  Widget build(BuildContext context) {
-    imagen = widget.Imagen;
-    // TODO: implement build
-    return Container(
-      height: ScreenUtil().setHeight(420),
-      width: ScreenUtil().setWidth(420),
-      decoration: BoxDecoration(
-        border:
-            Border.all(color: Colors.white, width: ScreenUtil().setWidth(6)),
-        borderRadius: BorderRadius.all(Radius.circular(3)),
-        color: Colors.white30,
-      ),
-      child: FlatButton(
-        onPressed: () => opcionesImagenPerfil(),
-        onLongPress: () => eliminarImagen(context),
-        child: imagen == null
-            ? Center(
-                child: Icon(
-                  Icons.add_a_photo,
-                  color: Colors.white,
-                ),
-              )
-            : Stack(alignment: AlignmentDirectional.center, children: [
-                Image.file(
-                  imagen,
-                  fit: BoxFit.fill,
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(500),
-                  width: ScreenUtil().setWidth(500),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
-                    color: Colors.transparent,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: ScreenUtil().setSp(150),
-                    ),
-                  ),
-                ),
-              ]),
-      ),
-    );
-  }
-}
-
-
-
-
 
 class ElegirModo extends StatefulWidget {
   String sex;
@@ -1215,7 +768,7 @@ class BotonCrearPrfilState extends State<BotonCrearPerfil> {
     // TODO: implement build
     return SizedBox(
         width: ScreenUtil().setWidth(800),
-        height:  200.h,
+        height: 200.h,
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -1476,8 +1029,6 @@ class Validadores {
   }
 }
 
-
-
 class ListaDeCaracteristicasUsuario extends StatefulWidget {
   @override
   _ListaDeCaracteristicasUsuarioState createState() =>
@@ -1536,7 +1087,7 @@ class _ModificadorAlturaState extends State<ModificadorAltura> {
       child: Container(
           color:
               Usuario.esteUsuario.altura == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -1674,7 +1225,7 @@ class _ModificadorComplexionState extends State<ModificadorComplexion> {
           color: Usuario.esteUsuario.complexion == null
               ? Colors.white
               : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2056,7 +1607,7 @@ class _ModificadorAlcoholState extends State<ModificadorAlcohol> {
       child: Container(
           color:
               Usuario.esteUsuario.alcohol == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2245,7 +1796,7 @@ class _ModificadorTabacoState extends State<ModificadorTabaco> {
       child: Container(
           color:
               Usuario.esteUsuario.tabaco == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2434,7 +1985,7 @@ class _ModificadorIdiomasState extends State<ModificadorIdiomas> {
       child: Container(
           color:
               Usuario.esteUsuario.idiomas == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -2471,7 +2022,7 @@ class _ModificadorMascotasState extends State<ModificadorMascotas> {
           color: Usuario.esteUsuario.mascotas == null
               ? Colors.white
               : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2696,7 +2247,7 @@ class _ModificadorObjetivoRelacionesState
       child: Container(
           color:
               Usuario.esteUsuario.busco == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -2880,7 +2431,7 @@ class _ModificadorHijosState extends State<ModificadorHijos> {
       child: Container(
           color:
               Usuario.esteUsuario.hijos == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -3046,7 +2597,7 @@ class _ModificadorZodiacoState extends State<ModificadorZodiaco> {
       child: Container(
           color:
               Usuario.esteUsuario.zodiaco == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -3083,7 +2634,7 @@ class _ModificadorPoliticaState extends State<ModificadorPolitica> {
           color: Usuario.esteUsuario.politica == null
               ? Colors.white
               : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -3265,7 +2816,7 @@ class _ModificadorReligionState extends State<ModificadorReligion> {
           color: Usuario.esteUsuario.religion == null
               ? Colors.white
               : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -3301,7 +2852,7 @@ class _ModificadorVivirConState extends State<ModificadorVivirCon> {
       child: Container(
           color:
               Usuario.esteUsuario.vivoCon == null ? Colors.white : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () => modificarAtributo(context),
             child: Row(
@@ -3468,7 +3019,7 @@ class _ModificadorVeganismoState extends State<ModificadorVeganismo> {
           color: Usuario.esteUsuario.vegetarianoOvegano == null
               ? Colors.white
               : Colors.green,
-          height:  200.h,
+          height: 200.h,
           child: FlatButton(
             onPressed: () {},
             child: Row(
@@ -3527,11 +3078,11 @@ class PreguntaQueBuscasEnLaGenteState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.queBuscasEnAlguien != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queBuscasEnAlguien = null;
@@ -3539,7 +3090,7 @@ class PreguntaQueBuscasEnLaGenteState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queBuscasEnAlguien == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -3590,11 +3141,11 @@ class PreguntaQueBuscasEnLaGenteState
     bool vivirAmigos = false;
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
-    if(Usuario.esteUsuario.queBuscasEnAlguien!=null){
-      controladorTexto.text=Usuario.esteUsuario.queBuscasEnAlguien;
+    if (Usuario.esteUsuario.queBuscasEnAlguien != null) {
+      controladorTexto.text = Usuario.esteUsuario.queBuscasEnAlguien;
     }
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
@@ -3609,117 +3160,109 @@ class PreguntaQueBuscasEnLaGenteState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child: 
-                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que buscas en alguien?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.queBuscasEnAlguien =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Cuentanos"),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.queBuscasEnAlguien = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que buscas en alguien?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.queBuscasEnAlguien =
-                                        controladorTexto.value.text;
-                                    print(
-                                        Usuario.esteUsuario.queBuscasEnAlguien);
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.queBuscasEnAlguien = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-               
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Cuentanos"),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.queBuscasEnAlguien = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.queBuscasEnAlguien =
+                                  controladorTexto.value.text;
+                              print(Usuario.esteUsuario.queBuscasEnAlguien);
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
             );
           });
     }
@@ -3734,7 +3277,7 @@ class PreguntaQueOdiasDeLaGente extends StatefulWidget {
 
 class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -3742,11 +3285,11 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.queOdiasEnAlguien != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queOdiasEnAlguien = null;
@@ -3754,7 +3297,7 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queOdiasEnAlguien == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -3768,7 +3311,7 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
                         color: Usuario.esteUsuario.queOdiasEnAlguien == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -3806,129 +3349,122 @@ class _PreguntaQueOdiasDeLaGenteState extends State<PreguntaQueOdiasDeLaGente> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.queOdiasEnAlguien != null) {
-        controladorTexto.text=Usuario.esteUsuario.queOdiasEnAlguien;
-      } 
+        controladorTexto.text = Usuario.esteUsuario.queOdiasEnAlguien;
+      }
 
       showModalBottomSheet(
           context: context,
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que odias de la gente?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.queOdiasEnAlguien =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "De la gente odio.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.queOdiasEnAlguien = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que odias de la gente?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                 
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.queOdiasEnAlguien =
-                                        controladorTexto.value.text;
-                                    print(
-                                        Usuario.esteUsuario.queOdiasEnAlguien);
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.queOdiasEnAlguien = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                 
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: "De la gente odio.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.queOdiasEnAlguien = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.queOdiasEnAlguien =
+                                  controladorTexto.value.text;
+                              print(Usuario.esteUsuario.queOdiasEnAlguien);
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
             );
           });
     }
@@ -3944,7 +3480,7 @@ class PreguntaTuRecetaDeFelicidad extends StatefulWidget {
 class _PreguntaTuRecetaDeFelicidadState
     extends State<PreguntaTuRecetaDeFelicidad> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -3952,11 +3488,11 @@ class _PreguntaTuRecetaDeFelicidadState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.recetaFelicidad != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.recetaFelicidad = null;
@@ -3964,7 +3500,7 @@ class _PreguntaTuRecetaDeFelicidadState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.recetaFelicidad == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -3978,7 +3514,7 @@ class _PreguntaTuRecetaDeFelicidadState
                         color: Usuario.esteUsuario.recetaFelicidad == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4016,12 +3552,12 @@ class _PreguntaTuRecetaDeFelicidadState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.recetaFelicidad != null) {
-       controladorTexto.text=Usuario.esteUsuario.recetaFelicidad;
+        controladorTexto.text = Usuario.esteUsuario.recetaFelicidad;
       } else {
         habraCambio = false;
       }
@@ -4032,115 +3568,108 @@ class _PreguntaTuRecetaDeFelicidadState
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Receta de la felicidad?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.recetaFelicidad =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "La receta es.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.recetaFelicidad = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Receta de la felicidad?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                            
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.recetaFelicidad =
-                                        controladorTexto.value.text;
-                                  
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.recetaFelicidad = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-                
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "La receta es.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.recetaFelicidad = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.recetaFelicidad =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -4163,11 +3692,11 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.siQuedaUnDiaDeVida != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.siQuedaUnDiaDeVida = null;
@@ -4175,7 +3704,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.siQuedaUnDiaDeVida == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4189,7 +3718,7 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
                         color: Usuario.esteUsuario.siQuedaUnDiaDeVida == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4227,12 +3756,12 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.siQuedaUnDiaDeVida != null) {
-        controladorTexto.text=Usuario.esteUsuario.siQuedaUnDiaDeVida;
+        controladorTexto.text = Usuario.esteUsuario.siQuedaUnDiaDeVida;
       } else {
         habraCambio = false;
       }
@@ -4243,110 +3772,103 @@ class _PreguntaSiQuedaraUnDiaDeVidaState
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    "¿Si me queda un dia de vida?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.siQuedaUnDiaDeVida =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Icon(
-                                    Icons.cancel,
-                                    color: Colors.red,
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Haria..."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.siQuedaUnDiaDeVida = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Si me queda un dia de vida?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                               
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.siQuedaUnDiaDeVida =
-                                        controladorTexto.value.text;
-                               
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.siQuedaUnDiaDeVida = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.cancel,
+                              color: Colors.red,
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Haria..."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.siQuedaUnDiaDeVida = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.siQuedaUnDiaDeVida =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -4361,7 +3883,7 @@ class PreguntaQueTipoDeMusicaTeGusta extends StatefulWidget {
 class _PreguntaQueTipoDeMusicaTeGustaState
     extends State<PreguntaQueTipoDeMusicaTeGusta> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -4369,11 +3891,11 @@ class _PreguntaQueTipoDeMusicaTeGustaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.queMusicaTeGusta != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queMusicaTeGusta = null;
@@ -4381,7 +3903,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queMusicaTeGusta == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4395,7 +3917,7 @@ class _PreguntaQueTipoDeMusicaTeGustaState
                         color: Usuario.esteUsuario.queMusicaTeGusta == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4433,12 +3955,12 @@ class _PreguntaQueTipoDeMusicaTeGustaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.queMusicaTeGusta != null) {
-        controladorTexto.text=Usuario.esteUsuario.queMusicaTeGusta;
+        controladorTexto.text = Usuario.esteUsuario.queMusicaTeGusta;
       } else {
         habraCambio = false;
       }
@@ -4448,116 +3970,109 @@ class _PreguntaQueTipoDeMusicaTeGustaState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que musica te gusta?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.queMusicaTeGusta =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "ME gusta.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.queMusicaTeGusta = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que musica te gusta?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                              
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.queMusicaTeGusta =
-                                        controladorTexto.value.text;
-                                
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.queMusicaTeGusta = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "ME gusta.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.queMusicaTeGusta = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.queMusicaTeGusta =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -4580,11 +4095,11 @@ class _PreguntaEnQueCreesQueEresBuenoState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.enQueEresBueno != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.enQueEresBueno = null;
@@ -4592,7 +4107,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.enQueEresBueno == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4606,7 +4121,7 @@ class _PreguntaEnQueCreesQueEresBuenoState
                         color: Usuario.esteUsuario.enQueEresBueno == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4644,12 +4159,12 @@ class _PreguntaEnQueCreesQueEresBuenoState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.enQueEresBueno != null) {
-     controladorTexto.text=Usuario.esteUsuario.enQueEresBueno;
+        controladorTexto.text = Usuario.esteUsuario.enQueEresBueno;
       } else {
         habraCambio = false;
       }
@@ -4659,116 +4174,109 @@ class _PreguntaEnQueCreesQueEresBuenoState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Eres bueno en..?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.enQueEresBueno =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Soy bueno en.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.enQueEresBueno = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Eres bueno en..?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                 
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.enQueEresBueno =
-                                        controladorTexto.value.text;
-
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.enQueEresBueno = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-               
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Soy bueno en.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.enQueEresBueno = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.enQueEresBueno =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -4783,7 +4291,7 @@ class PreguntaQueEsLoQueMasValoras extends StatefulWidget {
 class _PreguntaQueEsLoQueMasValorasState
     extends State<PreguntaQueEsLoQueMasValoras> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -4791,11 +4299,11 @@ class _PreguntaQueEsLoQueMasValorasState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.queEsLoQueMasValoras != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queEsLoQueMasValoras = null;
@@ -4803,7 +4311,7 @@ class _PreguntaQueEsLoQueMasValorasState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queEsLoQueMasValoras == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -4817,7 +4325,7 @@ class _PreguntaQueEsLoQueMasValorasState
                         color: Usuario.esteUsuario.queEsLoQueMasValoras == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -4855,12 +4363,12 @@ class _PreguntaQueEsLoQueMasValorasState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.queEsLoQueMasValoras == null) {
-        controladorTexto.text=Usuario.esteUsuario.queEsLoQueMasValoras;
+        controladorTexto.text = Usuario.esteUsuario.queEsLoQueMasValoras;
       } else {
         habraCambio = false;
       }
@@ -4870,117 +4378,111 @@ class _PreguntaQueEsLoQueMasValorasState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que valoras en alguien?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.queEsLoQueMasValoras =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Lo que mas valoro es.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.queEsLoQueMasValoras = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que valoras en alguien?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.queEsLoQueMasValoras =
-                                        controladorTexto.value.text;
-                                    print(
-                                        Usuario.esteUsuario.queBuscasEnAlguien);
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.queEsLoQueMasValoras = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: "Lo que mas valoro es.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.queEsLoQueMasValoras = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.queEsLoQueMasValoras =
+                                  controladorTexto.value.text;
+                              print(Usuario.esteUsuario.queBuscasEnAlguien);
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -5003,10 +4505,9 @@ class _PreguntaLaGenteDiceQueEresState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-         
               if (Usuario.esteUsuario.laGenteDiceQueSoy != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.laGenteDiceQueSoy = null;
@@ -5014,7 +4515,7 @@ class _PreguntaLaGenteDiceQueEresState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.laGenteDiceQueSoy == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5028,7 +4529,7 @@ class _PreguntaLaGenteDiceQueEresState
                         color: Usuario.esteUsuario.laGenteDiceQueSoy == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5066,7 +4567,7 @@ class _PreguntaLaGenteDiceQueEresState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
@@ -5081,116 +4582,110 @@ class _PreguntaLaGenteDiceQueEresState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que dice la gente de ti?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.laGenteDiceQueSoy =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "La gente dice.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.laGenteDiceQueSoy = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que dice la gente de ti?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.laGenteDiceQueSoy =
-                                        controladorTexto.value.text;
-                                
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.laGenteDiceQueSoy = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-                
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "La gente dice.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.laGenteDiceQueSoy = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.laGenteDiceQueSoy =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -5203,7 +4698,7 @@ class PreguntaQueTeHaceReir extends StatefulWidget {
 
 class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -5211,11 +4706,11 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.queMeHaceReir != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.queBuscasEnAlguien = null;
@@ -5223,7 +4718,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.queMeHaceReir == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5237,7 +4732,7 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
                         color: Usuario.esteUsuario.queMeHaceReir == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5275,12 +4770,12 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.queMeHaceReir != null) {
-       controladorTexto.text=Usuario.esteUsuario.queMeHaceReir;
+        controladorTexto.text = Usuario.esteUsuario.queMeHaceReir;
       } else {
         habraCambio = false;
       }
@@ -5290,116 +4785,110 @@ class _PreguntaQueTeHaceReirState extends State<PreguntaQueTeHaceReir> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que te hace reir?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.queMeHaceReir =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Me hace reir.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.queMeHaceReir = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que te hace reir?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.queMeHaceReir =
-                                        controladorTexto.value.text;
-                                
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.queMeHaceReir = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Me hace reir.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.queMeHaceReir = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.queMeHaceReir =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -5412,7 +4901,7 @@ class PreguntaCitaPErfecta extends StatefulWidget {
 
 class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -5420,11 +4909,11 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.citaPErfecta != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.citaPErfecta = null;
@@ -5432,7 +4921,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.citaPErfecta == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5446,7 +4935,7 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
                         color: Usuario.esteUsuario.citaPErfecta == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5484,12 +4973,12 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-      if (Usuario.esteUsuario.citaPErfecta!= null) {
-     controladorTexto.text=Usuario.esteUsuario.citaPErfecta;
+      if (Usuario.esteUsuario.citaPErfecta != null) {
+        controladorTexto.text = Usuario.esteUsuario.citaPErfecta;
       } else {
         habraCambio = false;
       }
@@ -5499,116 +4988,110 @@ class _PreguntaCitaPErfectaState extends State<PreguntaCitaPErfecta> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Como es tu cita perfecta?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.citaPErfecta =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Mi cita perfecta es.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.citaPErfecta = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Como es tu cita perfecta?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                              
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.citaPErfecta =
-                                        controladorTexto.value.text;
-                               
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.citaPErfecta = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-             
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: "Mi cita perfecta es.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.citaPErfecta = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.citaPErfecta =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -5622,7 +5105,7 @@ class PReguntaCancionFavorita extends StatefulWidget {
 
 class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -5630,11 +5113,11 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.cancionFavorita != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.cancionFavorita = null;
@@ -5642,7 +5125,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.cancionFavorita == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5656,7 +5139,7 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
                         color: Usuario.esteUsuario.cancionFavorita == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5694,12 +5177,12 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.cancionFavorita != null) {
-        controladorTexto.text=Usuario.esteUsuario.cancionFavorita;
+        controladorTexto.text = Usuario.esteUsuario.cancionFavorita;
       } else {
         habraCambio = false;
       }
@@ -5709,116 +5192,110 @@ class _PReguntaCancionFavoritaState extends State<PReguntaCancionFavorita> {
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Cual es tu cancion favorita?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.cancionFavorita =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Mi cancion favorita es.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.cancionFavorita = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Cual es tu cancion favorita?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                               
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.cancionFavorita =
-                                        controladorTexto.value.text;
-                              
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.cancionFavorita = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(
+                          labelText: "Mi cancion favorita es.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.cancionFavorita = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.cancionFavorita =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -5833,7 +5310,7 @@ class PreguntaUnaVerdadYUnaMentira extends StatefulWidget {
 class _PreguntaUnaVerdadYUnaMentiraState
     extends State<PreguntaUnaVerdadYUnaMentira> {
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -5841,11 +5318,11 @@ class _PreguntaUnaVerdadYUnaMentiraState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.unaVerdadUnaMentira != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.unaVerdadUnaMentira = null;
@@ -5853,7 +5330,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.unaVerdadUnaMentira == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -5867,7 +5344,7 @@ class _PreguntaUnaVerdadYUnaMentiraState
                         color: Usuario.esteUsuario.unaVerdadUnaMentira == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -5905,12 +5382,12 @@ class _PreguntaUnaVerdadYUnaMentiraState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.unaVerdadUnaMentira != null) {
-       controladorTexto.text=Usuario.esteUsuario.unaVerdadUnaMentira;
+        controladorTexto.text = Usuario.esteUsuario.unaVerdadUnaMentira;
       } else {
         habraCambio = false;
       }
@@ -5921,115 +5398,108 @@ class _PreguntaUnaVerdadYUnaMentiraState
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "Di una verdad y una mentira",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.unaVerdadUnaMentira =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Xd.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.unaVerdadUnaMentira = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "Di una verdad y una mentira",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                      
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.queBuscasEnAlguien =
-                                        controladorTexto.value.text;
-                                  
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.unaVerdadUnaMentira = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-               
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Xd.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.unaVerdadUnaMentira = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.queBuscasEnAlguien =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -6044,7 +5514,7 @@ class PreguntaPorQueTeHariasFamoso extends StatefulWidget {
 class _PreguntaPorQueTeHariasFamosoState
     extends State<PreguntaPorQueTeHariasFamoso> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -6052,11 +5522,11 @@ class _PreguntaPorQueTeHariasFamosoState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.meHariaFamosoPor != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.meHariaFamosoPor = null;
@@ -6064,7 +5534,7 @@ class _PreguntaPorQueTeHariasFamosoState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.meHariaFamosoPor == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6078,7 +5548,7 @@ class _PreguntaPorQueTeHariasFamosoState
                         color: Usuario.esteUsuario.meHariaFamosoPor == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6116,12 +5586,12 @@ class _PreguntaPorQueTeHariasFamosoState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.meHariaFamosoPor != null) {
-       controladorTexto.text=Usuario.esteUsuario.meHariaFamosoPor;
+        controladorTexto.text = Usuario.esteUsuario.meHariaFamosoPor;
       } else {
         habraCambio = false;
       }
@@ -6131,116 +5601,110 @@ class _PreguntaPorQueTeHariasFamosoState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que te haria famoso?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.meHariaFamosoPor =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Seria famoso por.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.meHariaFamosoPor = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que te haria famoso?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.meHariaFamosoPor =
-                                        controladorTexto.value.text;
-                                
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.meHariaFamosoPor = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-                
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: "Seria famoso por.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.meHariaFamosoPor = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.meHariaFamosoPor =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -6255,7 +5719,7 @@ class PreguntaSiFuerasUnHeroeSerias extends StatefulWidget {
 class _PreguntaSiFuerasUnHeroeSeriasState
     extends State<PreguntaSiFuerasUnHeroeSerias> {
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -6263,11 +5727,11 @@ class _PreguntaSiFuerasUnHeroeSeriasState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.siFueraUnHeroe != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.siFueraUnHeroe = null;
@@ -6275,7 +5739,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.siFueraUnHeroe == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6289,7 +5753,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                         color: Usuario.esteUsuario.siFueraUnHeroe == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6301,8 +5765,7 @@ class _PreguntaSiFuerasUnHeroeSeriasState
                               style:
                                   TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
-                              Usuario.esteUsuario.siFueraUnHeroe ??
-                                  "Seria....",
+                              Usuario.esteUsuario.siFueraUnHeroe ?? "Seria....",
                               style:
                                   TextStyle(fontSize: ScreenUtil().setSp(40))),
                         ],
@@ -6327,12 +5790,12 @@ class _PreguntaSiFuerasUnHeroeSeriasState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.siFueraUnHeroe != null) {
-        controladorTexto.text=Usuario.esteUsuario.meHariaFamosoPor;
+        controladorTexto.text = Usuario.esteUsuario.meHariaFamosoPor;
       } else {
         habraCambio = false;
       }
@@ -6342,116 +5805,111 @@ class _PreguntaSiFuerasUnHeroeSeriasState
           builder: (context) {
             return Container(
               height: ScreenUtil.screenHeight / 1,
-              child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que heroe serias?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.siFueraUnHeroe =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Que heroe serias.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.siFueraUnHeroe = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que heroe serias?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.siFueraUnHeroe =
-                                        controladorTexto.value.text;
-                                  
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.siFueraUnHeroe = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-          
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: "Que heroe serias.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.siFueraUnHeroe = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.siFueraUnHeroe =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -6466,7 +5924,7 @@ class PreguntaSiFueraUnVillanooSeria extends StatefulWidget {
 class _PreguntaSiFueraUnVillanooSeriaState
     extends State<PreguntaSiFueraUnVillanooSeria> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -6474,8 +5932,6 @@ class _PreguntaSiFueraUnVillanooSeriaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-            
-          
               if (Usuario.esteUsuario.siFueraUnVillano != null) {
                 if (Usuario.esteUsuario.preguntasContestadas < 3) {
                   Usuario.esteUsuario.preguntasContestadas += 1;
@@ -6486,7 +5942,7 @@ class _PreguntaSiFueraUnVillanooSeriaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.siFueraUnVillano == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6500,7 +5956,7 @@ class _PreguntaSiFueraUnVillanooSeriaState
                         color: Usuario.esteUsuario.siFueraUnVillano == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6538,12 +5994,12 @@ class _PreguntaSiFueraUnVillanooSeriaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.siFueraUnVillano != null) {
-       controladorTexto.text=Usuario.esteUsuario.siFueraUnVillano;
+        controladorTexto.text = Usuario.esteUsuario.siFueraUnVillano;
       } else {
         habraCambio = false;
       }
@@ -6554,117 +6010,110 @@ class _PreguntaSiFueraUnVillanooSeriaState
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                    FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.siFueraUnVillano =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                                  Text(
-                                    "¿Que villano serias?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                            
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Seria..."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.siFueraUnVillano = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            FlatButton(
+                                onPressed: () {
+                                  if (!habraCambio &&
+                                      Usuario.esteUsuario.preguntasContestadas <
+                                          3) {
+                                    Usuario.esteUsuario.preguntasContestadas +=
+                                        1;
+                                  }
+                                  Usuario.esteUsuario.siFueraUnVillano = null;
+
+                                  Usuario.esteUsuario.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
+                                    Text("Borrar",
+                                        style: TextStyle(color: Colors.red))
+                                  ],
+                                )),
+                            Text(
+                              "¿Que villano serias?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                          
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.siFueraUnVillano =
-                                        controladorTexto.value.text;
-       
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
                       ],
                     ),
-                  );
-            
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Seria..."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.siFueraUnVillano = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.siFueraUnVillano =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -6687,11 +6136,12 @@ class _PreguntaComidaRestoDeMiVidaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
-              if (Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria != null) {
+              print(Usuario.esteUsuario.preguntasContestadas);
+
+              if (Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria !=
+                  null) {
                 if (Usuario.esteUsuario.preguntasContestadas < 3) {
-                 Usuario.esteUsuario.preguntasContestadas += 1;
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria = null;
@@ -6699,8 +6149,9 @@ class _PreguntaComidaRestoDeMiVidaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
-                      Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria == null)
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
+                      Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria ==
+                          null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
               child: Material(
@@ -6710,10 +6161,12 @@ class _PreguntaComidaRestoDeMiVidaState
                         borderRadius: BorderRadius.all(
                           Radius.circular(20),
                         ),
-                        color: Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria == null
+                        color: Usuario.esteUsuario
+                                    .comerUnPlatoElRestoDeMividaSeria ==
+                                null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6725,7 +6178,8 @@ class _PreguntaComidaRestoDeMiVidaState
                               style:
                                   TextStyle(fontSize: ScreenUtil().setSp(60))),
                           Text(
-                              Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria ??
+                              Usuario.esteUsuario
+                                      .comerUnPlatoElRestoDeMividaSeria ??
                                   "Comeria....",
                               style:
                                   TextStyle(fontSize: ScreenUtil().setSp(40))),
@@ -6736,9 +6190,10 @@ class _PreguntaComidaRestoDeMiVidaState
             ),
           ),
           Container(
-              child: Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria != null
-                  ? Center(child: Text("Presiona para borrar pregunta"))
-                  : Container())
+              child:
+                  Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria != null
+                      ? Center(child: Text("Presiona para borrar pregunta"))
+                      : Container())
         ],
       ),
     );
@@ -6751,12 +6206,13 @@ class _PreguntaComidaRestoDeMiVidaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
       if (Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria != null) {
-       controladorTexto.text=Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria;
+        controladorTexto.text =
+            Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria;
       } else {
         habraCambio = false;
       }
@@ -6767,115 +6223,112 @@ class _PreguntaComidaRestoDeMiVidaState
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Que comerias el resto de tu vida?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Comeria.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Que comerias el resto de tu vida?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria =
-                                        controladorTexto.value.text;
-                              
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario
+                                  .comerUnPlatoElRestoDeMividaSeria = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-               
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Comeria.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.comerUnPlatoElRestoDeMividaSeria =
+                            valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario
+                                      .comerUnPlatoElRestoDeMividaSeria =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -6889,7 +6342,7 @@ class PReguntaNosLLEvamosBienSi extends StatefulWidget {
 
 class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -6897,11 +6350,11 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.nosLlevaremosBienSi != null) {
                 if (Usuario.esteUsuario.preguntasContestadas < 3) {
-                  Usuario.esteUsuario.preguntasContestadas+= 1;
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.nosLlevaremosBienSi = null;
@@ -6909,7 +6362,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.nosLlevaremosBienSi == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -6923,7 +6376,7 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
                         color: Usuario.esteUsuario.nosLlevaremosBienSi == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -6961,13 +6414,13 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-       if (Usuario.esteUsuario.nosLlevaremosBienSi != null) {
-       controladorTexto.text=Usuario.esteUsuario.nosLlevaremosBienSi;
-      }  else {
+      if (Usuario.esteUsuario.nosLlevaremosBienSi != null) {
+        controladorTexto.text = Usuario.esteUsuario.nosLlevaremosBienSi;
+      } else {
         habraCambio = false;
       }
 
@@ -6977,115 +6430,109 @@ class _PReguntaNosLLEvamosBienSiState extends State<PReguntaNosLLEvamosBienSi> {
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Como llevarnos bien?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.nosLlevaremosBienSi =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Pues.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.nosLlevaremosBienSi = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Como llevarnos bien?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.nosLlevaremosBienSi =
-                                        controladorTexto.value.text;
-                                   
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.nosLlevaremosBienSi = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-             
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Pues.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.nosLlevaremosBienSi = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.nosLlevaremosBienSi =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -7098,7 +6545,7 @@ class PReguntaBorrachoSoy extends StatefulWidget {
 
 class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -7106,8 +6553,8 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.borrachoSoyMuy != null) {
                 if (Usuario.esteUsuario.preguntasContestadas < 3) {
                   Usuario.esteUsuario.preguntasContestadas += 1;
@@ -7132,7 +6579,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                         color: Usuario.esteUsuario.borrachoSoyMuy == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7143,9 +6590,7 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
                           Text("¿Como eres borracho/a?",
                               style:
                                   TextStyle(fontSize: ScreenUtil().setSp(60))),
-                          Text(
-                              Usuario.esteUsuario.borrachoSoyMuy ??
-                                  "Pues....",
+                          Text(Usuario.esteUsuario.borrachoSoyMuy ?? "Pues....",
                               style:
                                   TextStyle(fontSize: ScreenUtil().setSp(40))),
                         ],
@@ -7170,13 +6615,13 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-       if (Usuario.esteUsuario.borrachoSoyMuy != null) {
-       controladorTexto.text=Usuario.esteUsuario.borrachoSoyMuy;
-      }  else {
+      if (Usuario.esteUsuario.borrachoSoyMuy != null) {
+        controladorTexto.text = Usuario.esteUsuario.borrachoSoyMuy;
+      } else {
         habraCambio = false;
       }
 
@@ -7186,115 +6631,108 @@ class _PReguntaBorrachoSoyState extends State<PReguntaBorrachoSoy> {
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Como eres borracho?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.borrachoSoyMuy =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Pues.."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.borrachoSoyMuy = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Como eres borracho?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                   
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.borrachoSoyMuy =
-                                        controladorTexto.value.text;
-                            
-                                    if (habraCambio) {
-                                       Usuario.esteUsuario.preguntasContestadas =
-                                          pantallaRegistroCinco
-                                                  .preguntasRestantes -
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.borrachoSoyMuy = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-           
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Pues.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.borrachoSoyMuy = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.borrachoSoyMuy =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    pantallaRegistroCinco.preguntasRestantes -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
@@ -7315,11 +6753,9 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-            
-          
               if (Usuario.esteUsuario.anecdota != null) {
-                if (  Usuario.esteUsuario.preguntasContestadas < 3) {
-                   Usuario.esteUsuario.preguntasContestadas += 1;
+                if (Usuario.esteUsuario.preguntasContestadas < 3) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.anecdota = null;
@@ -7327,7 +6763,7 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
               }
             },
             child: ColorFiltered(
-              colorFilter: (  Usuario.esteUsuario.preguntasContestadas == 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.anecdota == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -7341,7 +6777,7 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
                         color: Usuario.esteUsuario.anecdota == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7379,12 +6815,12 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (  Usuario.esteUsuario.preguntasContestadas > 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-       if (Usuario.esteUsuario.anecdota != null) {
-       controladorTexto.text=Usuario.esteUsuario.anecdota;
+      if (Usuario.esteUsuario.anecdota != null) {
+        controladorTexto.text = Usuario.esteUsuario.anecdota;
       } else {
         habraCambio = false;
       }
@@ -7395,119 +6831,113 @@ class _PregutnaAnecdotaState extends State<PregutnaAnecdota> {
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "¿Alguna anecdota?",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                        Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas += 1;
-                                    }
-                                    Usuario.esteUsuario.anecdota =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
                         Container(
-                          width: ScreenUtil().setWidth(1200),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                labelText: "Mi mejor anecdota es..."),
-                            maxLines: 3,
-                            maxLength: 200,
-                            controller: controladorTexto,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (valor) {
-                              Usuario.esteUsuario.anecdota = valor;
-                              if (habraCambio) {
-                                 Usuario.esteUsuario.preguntasContestadas =
-                                     Usuario.esteUsuario.preguntasContestadas -
-                                        1;
-                              }
-                              Navigator.pop(context);
-                              print(valor);
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            child: Row(
                           children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
+                            Text(
+                              "¿Alguna anecdota?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                  
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.anecdota =
-                                        controladorTexto.value.text;
-                                  
-                                    if (habraCambio) {
-                                     Usuario.esteUsuario.preguntasContestadas =
-                                       Usuario.esteUsuario.preguntasContestadas-
-                                              1;
-                                    }
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
                           ],
-                        )
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.anecdota = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: "Mi mejor anecdota es..."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.anecdota = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.anecdota =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    Usuario.esteUsuario.preguntasContestadas -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
           });
     }
   }
-  }
-
+}
 
 class PreguntaPeliculaRecomendada extends StatefulWidget {
   @override
@@ -7526,11 +6956,11 @@ class _PreguntaPeliculaRecomendadaState
           GestureDetector(
             onTap: () => modificarAtributo(context),
             onLongPress: () {
-              print(  Usuario.esteUsuario.preguntasContestadas);
-          
+              print(Usuario.esteUsuario.preguntasContestadas);
+
               if (Usuario.esteUsuario.peliculaRecomiendas != null) {
                 if (Usuario.esteUsuario.preguntasContestadas < 3) {
-                  Usuario.esteUsuario.preguntasContestadas+= 1;
+                  Usuario.esteUsuario.preguntasContestadas += 1;
                 }
 
                 Usuario.esteUsuario.peliculaRecomiendas = null;
@@ -7538,7 +6968,7 @@ class _PreguntaPeliculaRecomendadaState
               }
             },
             child: ColorFiltered(
-              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
                       Usuario.esteUsuario.peliculaRecomiendas == null)
                   ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
                   : ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -7552,7 +6982,7 @@ class _PreguntaPeliculaRecomendadaState
                         color: Usuario.esteUsuario.peliculaRecomiendas == null
                             ? Colors.white
                             : Colors.green),
-                    height:  200.h,
+                    height: 200.h,
                     width: ScreenUtil().setWidth(1500),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -7590,13 +7020,13 @@ class _PreguntaPeliculaRecomendadaState
     bool habraCambio = false;
     TextEditingController controladorTexto = new TextEditingController();
 
-    if (Usuario.esteUsuario.preguntasContestadas> 0) {
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
-       if (Usuario.esteUsuario.peliculaRecomiendas != null) {
-       controladorTexto.text=Usuario.esteUsuario.peliculaRecomiendas;
-      }  else {
+      if (Usuario.esteUsuario.peliculaRecomiendas != null) {
+        controladorTexto.text = Usuario.esteUsuario.peliculaRecomiendas;
+      } else {
         habraCambio = false;
       }
 
@@ -7606,7 +7036,221 @@ class _PreguntaPeliculaRecomendadaState
             return Container(
               height: ScreenUtil.screenHeight / 1,
               child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50.0, right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Container(
+                            child: Row(
+                          children: <Widget>[
+                            Text(
+                              "¿Que peliculas recomiendas?",
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(60)),
+                            ),
+                          ],
+                        )),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              Usuario.esteUsuario.peliculaRecomiendas = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: ScreenUtil().setWidth(1200),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Recomiendo.."),
+                      maxLines: 3,
+                      maxLength: 200,
+                      controller: controladorTexto,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (valor) {
+                        Usuario.esteUsuario.peliculaRecomiendas = valor;
+                        if (habraCambio) {
+                          Usuario.esteUsuario.preguntasContestadas =
+                              Usuario.esteUsuario.preguntasContestadas - 1;
+                        }
+                        Navigator.pop(context);
+                        print(valor);
+                      },
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Cancelar",
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              print(Usuario.esteUsuario.altura);
+                              Navigator.pop(context);
+                              Usuario.esteUsuario.peliculaRecomiendas =
+                                  controladorTexto.value.text;
+
+                              if (habraCambio) {
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    Usuario.esteUsuario.preguntasContestadas -
+                                        1;
+                              }
+                              Usuario.esteUsuario.notifyListeners();
+                            },
+                            child: Text(
+                              "Aceptar",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
+          });
+    }
+  }
+}
+
+class PreguntaUsuario extends StatefulWidget {
+  String preguntaUsuario;
+  String respuestaUsuario;
+  int indicePregunta;
+
+  PreguntaUsuario(
+      {@required this.preguntaUsuario,
+      @required this.respuestaUsuario,
+      @required this.indicePregunta});
+
+  @override
+  _PreguntaUsuarioState createState() => _PreguntaUsuarioState();
+}
+
+class _PreguntaUsuarioState extends State<PreguntaUsuario> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: <Widget>[
+          GestureDetector(
+            onTap: () {
+              if (Usuario.esteUsuario.preguntasContestadas <= 4) {
+                modificarAtributo(context);
+              }
+            },
+            onLongPress: () {
+              if (widget.respuestaUsuario != null) {
+                if (Usuario.esteUsuario.preguntasContestadas <= 4) {
+                  Usuario.esteUsuario.preguntasContestadas += 1;
+                }
+
+                widget.respuestaUsuario = null;
+                Usuario.esteUsuario.listaRespuestasPreguntasPersonales[
+                    widget.indicePregunta] = null;
+                Usuario.esteUsuario.notifyListeners();
+              }
+            },
+            child: ColorFiltered(
+              colorFilter: (Usuario.esteUsuario.preguntasContestadas == 0 &&
+                      widget.respuestaUsuario == null)
+                  ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
+                  : ColorFilter.mode(Colors.purple[100], BlendMode.modulate),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15),
+                        ),
+                        color: widget.respuestaUsuario == null
+                            ? Colors.white
+                            : Colors.green),
+                    height: 200.h,
+                    width: ScreenUtil().setWidth(1500),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: Text("${widget.preguntaUsuario}",
+                            style: TextStyle(fontSize: ScreenUtil().setSp(60))),
+                      ),
+                    )),
+              ),
+            ),
+          ),
+          Container(
+              child: widget.respuestaUsuario != null
+                  ? Center(child: Text("Presiona para borrar pregunta"))
+                  : Container())
+        ],
+      ),
+    );
+  }
+
+  void modificarAtributo(BuildContext context) {
+    bool vivirSolo = false;
+    bool vivirPadres = false;
+    bool vivirAmigos = false;
+    bool habraCambio = false;
+    TextEditingController controladorTexto = new TextEditingController();
+
+    if (Usuario.esteUsuario.preguntasContestadas > 0) {
+      vivirSolo = false;
+      vivirPadres = false;
+      vivirAmigos = false;
+      if (widget.respuestaUsuario != null) {
+        controladorTexto.text = widget.respuestaUsuario;
+      } else {
+        habraCambio = false;
+      }
+
+      showDialog(
+          useSafeArea: true,
+          context: context,
+          builder: (context) {
+            return Scaffold(
+              resizeToAvoidBottomInset: true,
+              backgroundColor: Colors.transparent,
+              body: Container(
+                height: ScreenUtil.screenHeight,
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(left: 50.0, right: 30),
@@ -7617,35 +7261,13 @@ class _PreguntaPeliculaRecomendadaState
                                   child: Row(
                                 children: <Widget>[
                                   Text(
-                                    "¿Que peliculas recomiendas?",
+                                    widget.preguntaUsuario,
                                     style: TextStyle(
+                                        color: Colors.white70,
                                         fontSize: ScreenUtil().setSp(60)),
                                   ),
                                 ],
                               )),
-                              FlatButton(
-                                  onPressed: () {
-                                    if (!habraCambio &&
-                                       Usuario.esteUsuario.preguntasContestadas <
-                                            3) {
-                                    Usuario.esteUsuario.preguntasContestadas+= 1;
-                                    }
-                                    Usuario.esteUsuario.peliculaRecomiendas =
-                                        null;
-
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
                             ],
                           ),
                         ),
@@ -7653,20 +7275,26 @@ class _PreguntaPeliculaRecomendadaState
                           width: ScreenUtil().setWidth(1200),
                           child: TextField(
                             decoration: InputDecoration(
-                                labelText: "Recomiendo.."),
+                              labelText: widget.preguntaUsuario,
+                            ),
                             maxLines: 3,
                             maxLength: 200,
                             controller: controladorTexto,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (valor) {
-                              Usuario.esteUsuario.peliculaRecomiendas = valor;
+                              widget.respuestaUsuario = valor;
+                              Usuario.esteUsuario
+                                          .listaRespuestasPreguntasPersonales[
+                                      widget.indicePregunta] =
+                                  widget.respuestaUsuario;
+                              print(Usuario.esteUsuario.recetaFelicidad);
+
                               if (habraCambio) {
-                              Usuario.esteUsuario.preguntasContestadas =
-                                  Usuario.esteUsuario.preguntasContestadas -
+                                Usuario.esteUsuario.preguntasContestadas =
+                                    Usuario.esteUsuario.preguntasContestadas -
                                         1;
                               }
                               Navigator.pop(context);
-                              print(valor);
                             },
                           ),
                         ),
@@ -7691,14 +7319,19 @@ class _PreguntaPeliculaRecomendadaState
                               ),
                               child: FlatButton(
                                   onPressed: () {
-                                    print(Usuario.esteUsuario.altura);
                                     Navigator.pop(context);
-                                    Usuario.esteUsuario.peliculaRecomiendas =
+                                    widget.respuestaUsuario =
                                         controladorTexto.value.text;
-                                  
+                                    Usuario.esteUsuario
+                                            .listaRespuestasPreguntasPersonales[
+                                        widget
+                                            .indicePregunta] = widget
+                                        .respuestaUsuario;
+
                                     if (habraCambio) {
-                                    Usuario.esteUsuario.preguntasContestadas =
-                                         Usuario.esteUsuario.preguntasContestadas -
+                                      Usuario.esteUsuario.preguntasContestadas =
+                                          Usuario.esteUsuario
+                                                  .preguntasContestadas -
                                               1;
                                     }
                                     Usuario.esteUsuario.notifyListeners();
@@ -7709,250 +7342,479 @@ class _PreguntaPeliculaRecomendadaState
                                   )),
                             )
                           ],
-                        )
+                        ),
+                        FlatButton(
+                            onPressed: () {
+                              if (!habraCambio &&
+                                  Usuario.esteUsuario.preguntasContestadas <
+                                      3) {
+                                Usuario.esteUsuario.preguntasContestadas += 1;
+                              }
+                              widget.respuestaUsuario = null;
+
+                              Usuario.esteUsuario.notifyListeners();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                Text("Borrar",
+                                    style: TextStyle(color: Colors.red))
+                              ],
+                            )),
                       ],
                     ),
-                  );
-              
+                  ),
+                ),
+              ),
+            );
           });
     }
   }
 }
 
+class PantallaEdicionPerfil extends StatefulWidget {
+  static List<String> listaDeImagenesUsuario = [
+    Usuario.esteUsuario.ImageURL1["Imagen"],
+    Usuario.esteUsuario.ImageURL2["Imagen"],
+    Usuario.esteUsuario.ImageURL3["Imagen"],
+    Usuario.esteUsuario.ImageURL4["Imagen"],
+    Usuario.esteUsuario.ImageURL5["Imagen"],
+    Usuario.esteUsuario.ImageURL6["Imagen"],
+  ];
 
-
-
-
-class PreguntaUsuario extends StatefulWidget {
-  String preguntaUsuario;
-  String respuestaUsuario;
-  int indicePregunta;
-
-
-PreguntaUsuario({@required this.preguntaUsuario,@required this.respuestaUsuario,@required this.indicePregunta} );
-
-
+  static ScrollController controladorScroll;
   @override
-  _PreguntaUsuarioState createState() =>
-      _PreguntaUsuarioState();
+  _PantallaEdicionPerfilState createState() => _PantallaEdicionPerfilState();
 }
 
-class _PreguntaUsuarioState
-    extends State<PreguntaUsuario> {
+class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
+  int pos;
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: <Widget>[
-          GestureDetector(
-            onTap: (){ 
-              
-              if(Usuario.esteUsuario.preguntasContestadas<=4)
-             { modificarAtributo(context);}},
-            onLongPress: () {
-             
-          
-              if (widget.respuestaUsuario != null) {
-                if (Usuario.esteUsuario.preguntasContestadas <=4) {
-                  Usuario.esteUsuario.preguntasContestadas+= 1;
-                }
+    return ChangeNotifierProvider.value(
+        value: Usuario.esteUsuario,
+        child: Consumer<Usuario>(
+          builder: (context, myType, child) {
+            return Material(
+              child: SafeArea(
+                child: Scaffold(
+                  resizeToAvoidBottomInset: true,
+                  resizeToAvoidBottomPadding: true,
+                  body: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        Flexible(
+                          flex: 2,
+                          fit: FlexFit.loose,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                
+                                Text(
+                                    "Añade tus fotos",style: TextStyle(fontSize:70.sp),),
+                                     Icon(LineAwesomeIcons.camera,size:90.sp ),
+                              ],
+                            ),
+                          ),),
+                        Flexible(
+                          flex: 10,
+                          fit: FlexFit.tight,
+                                                        child: Container(
+                            color: Colors.white,
+                            height: 800.h,
+                            child: Center(
+                              child: DragAndDropGridView(
+                                dragStartBehavior: DragStartBehavior.start,
+                                isCustomChildWhenDragging: false,
+                                physics: NeverScrollableScrollPhysics(),
+                                onReorder: (indiceViejo, indiceNuevo) {
+                                  setState(() {
+                                    if (Usuario.esteUsuario
+                                            .fotosPerfil[indiceViejo] !=
+                                        null) {
+                                      File temporal = Usuario.esteUsuario
+                                          .fotosPerfil[indiceNuevo];
+                                      Usuario.esteUsuario
+                                              .fotosPerfil[indiceNuevo] =
+                                          Usuario.esteUsuario
+                                              .fotosPerfil[indiceViejo];
+                                      Usuario.esteUsuario
+                                              .fotosPerfil[indiceViejo] =
+                                          temporal;
+                                    }
 
-               widget.respuestaUsuario= null;
-               Usuario.esteUsuario.listaRespuestasPreguntasPersonales[widget.indicePregunta]=null;
-                Usuario.esteUsuario.notifyListeners();
-              }
-            },
-            child: ColorFiltered(
-              colorFilter: (Usuario.esteUsuario.preguntasContestadas== 0 &&
-                      widget.respuestaUsuario == null)
-                  ? ColorFilter.mode(Colors.grey.shade700, BlendMode.modulate)
-                  : ColorFilter.mode(Colors.purple[100], BlendMode.modulate),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(15),
+                                    pos = null;
+                                  });
+                                },
+                                onWillAccept: (indiceViejo, indiceNuevo) {
+                                  setState(() {
+                                    pos = indiceNuevo;
+                                  });
+
+                                  if (Usuario.esteUsuario
+                                          .fotosPerfil[indiceNuevo] !=
+                                      null) {
+                                    return true;
+                                  } else {
+                                    return false;
+                                  }
+                                },
+                                controller:
+                                    PantallaEdicionPerfil.controladorScroll,
+                                itemCount:
+                                    Usuario.esteUsuario.fotosPerfil.length,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisSpacing: 0,
+                                      mainAxisSpacing: 0,
+                                  crossAxisCount: 3,
+                                  childAspectRatio: 1 / 1.8,
+                                ),
+                                itemBuilder: (context, indice) {
+                                  return Opacity(
+                                    opacity: pos != null
+                                        ? pos == indice ? 0.4 : 1
+                                        : 1,
+                                    child: FotosPerfilNuevas(
+                                      indice,
+                                      Usuario.esteUsuario.fotosPerfil[indice],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
                         ),
-                        color:   widget.respuestaUsuario== null
-                            ? Colors.white
-                            : Colors.green),
-                    height:  200.h,
-                    width: ScreenUtil().setWidth(1500),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text("${widget.preguntaUsuario}",
-                            style:
-                                TextStyle(fontSize: ScreenUtil().setSp(60))),
-                      ),
-                    )),
+                       
+                        Flexible(
+                          flex: 2,
+                          fit: FlexFit.tight,
+                             child: Text(
+                              "*Presiona y arrastra para cambiar el orden de las imagenes*",style: TextStyle(fontSize:40.sp),),
+                        ),
+
+                            Flexible(
+                              flex: 3,
+                              fit: FlexFit.loose,
+                                                                child: GestureDetector(
+                                                                  onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>AtributosDestacadosUsuario())),
+                                                                                                                                  child: Container(
+                                height: 150.h,
+                                width: 600.w,
+                                decoration: BoxDecoration(
+                                  borderRadius:BorderRadius.all(Radius.circular(40)),
+                                  color:Colors.green
+                                  
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("Siguiente",style: TextStyle(fontSize:70.sp),),
+                                  ),
+                                ),
+                              ),
+                                                                ),
+                            )
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-          Container(
-              child:   widget.respuestaUsuario != null
-                  ? Center(child: Text("Presiona para borrar pregunta"))
-                  : Container())
-        ],
+            );
+          },
+        ));
+  }
+}
+
+class FotosPerfilNuevas extends StatefulWidget {
+  int box;
+  File Imagen;
+
+  FotosPerfilNuevas(this.box, this.Imagen);
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return FotosPerfilStateNuevas(this.box, this.Imagen);
+  }
+}
+
+class FotosPerfilStateNuevas extends State<FotosPerfilNuevas> {
+  @override
+  File imagenFinal;
+  File imagen;
+
+  static List<File> pictures = Usuario.esteUsuario.fotosPerfil;
+  int box;
+  int indice;
+  int calculadorIndice() {
+    return box + 6;
+  }
+
+  FotosPerfilStateNuevas(this.box, this.imagen);
+  void opcionesImagenPerfil() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Añadir Imagen"),
+            content: Text("¿Seleccione la fuente de la imagen?"),
+            actions: <Widget>[
+              Row(
+                children: <Widget>[
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        abrirGaleria(context);
+                      },
+                      child: Row(
+                        children: <Widget>[Text("Galeria"), Icon(Icons.image)],
+                      )),
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        abrirCamara(context);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text("Camara"),
+                          Icon(Icons.camera_enhance)
+                        ],
+                      )),
+                ],
+              )
+            ],
+          );
+        });
+  }
+
+  abrirGaleria(BuildContext context) async {
+    var archivoImagen =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    File imagenRecortada = await ImageCropper.cropImage(
+        sourcePath: archivoImagen.path,
+        maxHeight: 1280,
+        maxWidth: 720,
+        aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
+        compressQuality: 90,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.ratio16x9,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+    if (imagenRecortada != null) {}
+
+    this.setState(() {
+      imagenFinal = imagenRecortada;
+      pictures[box] = imagenFinal;
+      Usuario.esteUsuario.fotosPerfil = pictures;
+
+      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+      print(box);
+    });
+  }
+
+  abrirCamara(BuildContext context) async {
+    var archivoImagen =
+        await ImagePicker().getImage(source: ImageSource.camera);
+    File imagenRecortada = await ImageCropper.cropImage(
+        sourcePath: archivoImagen.path,
+
+        // aspectRatio: CropAspectRatio(ratioX: 9,ratioY: 16),
+        maxHeight: 1000,
+        maxWidth: 720,
+        compressQuality: 90,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+    if (imagenRecortada != null) {}
+
+    this.setState(() {
+      imagenFinal = imagenRecortada;
+      pictures[box] = imagenFinal;
+      Usuario.esteUsuario.fotosPerfil = pictures;
+
+      PantallaEdicionPerfil.listaDeImagenesUsuario[box] = null;
+
+      print("${imagenRecortada.lengthSync()} Tamaño Recortado");
+      print(box);
+    });
+  }
+
+  eliminarImagen(BuildContext context) {
+    this.setState(() {
+      Usuario.esteUsuario.fotosPerfil[box] = null;
+      print("object");
+      if (Usuario.esteUsuario.fotosPerfil[box] == null) {
+        print("vacio en $box");
+      }
+      Usuario.esteUsuario.notifyListeners();
+    });
+  }
+
+  Widget build(BuildContext context) {
+    imagen = widget.Imagen ?? pictures[box];
+    // TODO: implement build
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Container(
+        height: ScreenUtil().setHeight(420),
+        width: ScreenUtil().setWidth(420),
+        decoration: imagen == null
+            ? BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: Colors.grey,
+              )
+            : BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: Colors.white30,
+                image: DecorationImage(
+                    image: FileImage(imagen), fit: BoxFit.cover)),
+        child: GestureDetector(
+          onTap: () => opcionesImagenPerfil(),
+          //  onLongPress: () => eliminarImagen(context),
+        ),
       ),
     );
   }
+}
 
-  void modificarAtributo(BuildContext context) {
-    bool vivirSolo = false;
-    bool vivirPadres = false;
-    bool vivirAmigos = false;
-    bool habraCambio = false;
-    TextEditingController controladorTexto = new TextEditingController();
 
-    if (Usuario.esteUsuario.preguntasContestadas> 0) {
-      vivirSolo = false;
-      vivirPadres = false;
-      vivirAmigos = false;
-       if ( widget.respuestaUsuario != null) {
-       controladorTexto.text= widget.respuestaUsuario;
-      }  else {
-        habraCambio = false;
-      }
 
-      showDialog(
-         useSafeArea: true,
-        context: context,
-        builder: (context) {
-        
-             return Scaffold(
-              resizeToAvoidBottomInset: true,
-              
-              backgroundColor: Colors.transparent,
-                          body: Container(
-                            height:ScreenUtil.screenHeight,
-                             alignment: Alignment.center,
-                            
-              
-                child: SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(left: 50.0, right: 30),
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Container(
-                                          child: Row(
-                                        children: <Widget>[
-                                          Text(
-                                            widget.preguntaUsuario,
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                                fontSize: ScreenUtil().setSp(60)),
-                                          ),
-                                        ],
-                                      )),
-                                
-                                    ],
-                                ),
-                              ),
-                              Container(
-                                width: ScreenUtil().setWidth(1200),
-                                child: TextField(
-                                    decoration: InputDecoration(
-                                        labelText: widget.preguntaUsuario,),
-                                    maxLines: 3,
-                                    maxLength: 200,
-                                    controller: controladorTexto,
-                                    textInputAction: TextInputAction.done,
-                                    onSubmitted: (valor) {
-                                       widget.respuestaUsuario = valor;
-                                       Usuario.esteUsuario.listaRespuestasPreguntasPersonales[widget.indicePregunta]=widget.respuestaUsuario;
-                                      print(  Usuario.esteUsuario.recetaFelicidad);
-                                        
+class AtributosDestacadosUsuario extends StatefulWidget {
+  @override
+  _AtributosDestacadosUsuarioState createState() => _AtributosDestacadosUsuarioState();
+}
 
-                                      if (habraCambio) {
-                                      Usuario.esteUsuario.preguntasContestadas =
-                                          Usuario.esteUsuario.preguntasContestadas -
-                                                1;
-                                      }
-                                      Navigator.pop(context);
-                                   
-                                    },
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                    Container(
-                                      child: FlatButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text(
-                                            "Cancelar",
-                                            style: TextStyle(color: Colors.red),
-                                          )),
+class _AtributosDestacadosUsuarioState extends State<AtributosDestacadosUsuario> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+          child: Scaffold(
+            body: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    Flexible(
+                      fit: FlexFit.loose,
+                      flex: 2,
+                      child:Text("Caracteristicas",style: TextStyle(fontSize:70.sp,color:Colors.black),) ),
+                    Flexible(
+                      flex: 12,
+                      fit: FlexFit.tight,
+                      child: ListaCaracteristicasEditar()),
+                       Flexible(
+                      flex: 1,
+                      fit: FlexFit.loose,
+                      child: GestureDetector(
+                           onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>PantallaPreguntasPerfil())),
+                                                                     
+                                                                                                                                      child: Container(
+                                    height: 150.h,
+                                    width: 600.w,
+                                    decoration: BoxDecoration(
+                                      borderRadius:BorderRadius.all(Radius.circular(40)),
+                                      color:Colors.green
+                                      
                                     ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.all(Radius.circular(3)),
+                                    child: Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text("Siguiente",style: TextStyle(fontSize:50.sp),),
                                       ),
-                                      child: FlatButton(
-                                          onPressed: () {
-                                          
-                                            Navigator.pop(context);
-                                            widget.respuestaUsuario =
-                                                controladorTexto.value.text;
-                                                Usuario.esteUsuario.listaRespuestasPreguntasPersonales[widget.indicePregunta]=widget.respuestaUsuario;
-                                          
-                                            if (habraCambio) {
-                                            Usuario.esteUsuario.preguntasContestadas =
-                                                 Usuario.esteUsuario.preguntasContestadas -
-                                                      1;
-                                            }
-                                            Usuario.esteUsuario.notifyListeners();
-                                          },
-                                          child: Text(
-                                            "Aceptar",
-                                            style: TextStyle(color: Colors.white),
-                                          )),
-                                    )
-                                ],
-                              ),    FlatButton(
-                                          onPressed: () {
-                                            if (!habraCambio &&
-                                               Usuario.esteUsuario.preguntasContestadas <
-                                                    3) {
-                                            Usuario.esteUsuario.preguntasContestadas+= 1;
-                                            }
-                                           widget.respuestaUsuario =
-                                                null;
-
-                                            Usuario.esteUsuario.notifyListeners();
-                                            Navigator.pop(context);
-                                          },
-                                          child: Row(
-                                            children: <Widget>[
-                                              Icon(
-                                                Icons.cancel,
-                                                color: Colors.red,
-                                              ),
-                                              Text("Borrar",
-                                                  style: TextStyle(color: Colors.red))
-                                            ],
-                                          )),
-                          ],
-                        ),
+                                    ),
                                   ),
+                                                                    ))
+                  ],
                 ),
-                    ),
-            );
-              
-        }
+              )
+          
+        ),
+      ),
     );
   }
-  }}
+}
+
+
+
+
+
+
+
+
+
+class ListaCaracteristicasEditar extends StatefulWidget {
+  @override
+  _ListaCaracteristicasEditarState createState() =>
+      _ListaCaracteristicasEditarState();
+}
+
+class _ListaCaracteristicasEditarState
+    extends State<ListaCaracteristicasEditar> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            /*Text("Trabajo y Formacion"),
+            ModificadorFormacion(),
+            ModificadorTrabajo(),*/
+            Divider(
+              height: ScreenUtil().setHeight(100),
+            ),
+         
+            EditorAltura(),
+            EditorComplexion(),
+            EditorAlcohol(),
+            EditorTabaco(),
+            EditorMascotas(),
+            EditorObjetivoRelaciones(),
+            EditorHijos(),
+            EditorPolitica(),
+            EditorVivirCon(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class PantallaPreguntasPerfil extends StatefulWidget {
+  @override
+  _PantallaPreguntasPerfilState createState() => _PantallaPreguntasPerfilState();
+}
+
+class _PantallaPreguntasPerfilState extends State<PantallaPreguntasPerfil> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child:PantallaEdicionPreguntas(),
+    );
+  }
+}

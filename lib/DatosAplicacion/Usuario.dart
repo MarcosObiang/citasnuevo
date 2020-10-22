@@ -38,11 +38,11 @@ class Usuario with ChangeNotifier {
   Map<String, Object> DatosUsuario = new Map();
   List<File> _fotosPerfil = new List(6);
   List<File> fotosHistorias = new List(6);
-  List<File> get FotosPerfil => _fotosPerfil;
+  List<File> get fotosPerfil => _fotosPerfil;
   List<Map<String, dynamic>> listaDeHistoriasRed = new List(6);
   List<File> fotosUsuarioActualizar = new List();
 
-  set FotosPerfil(List<File> value) {
+  set fotosPerfil(List<File> value) {
     _fotosPerfil = value;
     notifyListeners();
   }
@@ -540,61 +540,61 @@ class Usuario with ChangeNotifier {
         .collection("estadoLlamada")
         .doc("estadoLlamada");
     WriteBatch escrituraUsuario = databaseReference.batch();
-    if (esteUsuario.FotosPerfil[0] != null) {
+    if (esteUsuario.fotosPerfil[0] != null) {
       String image1 = "${IDUsuario}/Perfil/imagenes/Image1.jpg";
       StorageReference ImagesReference = reference.child(image1);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[0]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[0]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL1["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[1] != null) {
+    if (esteUsuario.fotosPerfil[1] != null) {
       String Image2 = "${IDUsuario}/Perfil/imagenes/Image2.jpg";
       StorageReference ImagesReference = reference.child(Image2);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[1]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[1]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL2["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[2] != null) {
+    if (esteUsuario.fotosPerfil[2] != null) {
       String Image3 = "${IDUsuario}/Perfil/imagenes/Image3.jpg";
       StorageReference ImagesReference = reference.child(Image3);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[2]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[2]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL3["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[3] != null) {
+    if (esteUsuario.fotosPerfil[3] != null) {
       String Image4 = "${IDUsuario}/Perfil/imagenes/Image4.jpg";
       StorageReference ImagesReference = reference.child(Image4);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[3]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[3]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL4["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[4] != null) {
+    if (esteUsuario.fotosPerfil[4] != null) {
       String Image5 = "${IDUsuario}/Perfil/imagenes/Image5.jpg";
       StorageReference ImagesReference = reference.child(Image5);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[4]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[4]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL5["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[5] != null) {
+    if (esteUsuario.fotosPerfil[5] != null) {
       String Image6 = "${IDUsuario}/Perfil/imagenes/Image6.jpg";
       StorageReference ImagesReference = reference.child(Image6);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[5]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[5]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL6["Imagen"] = URL;
@@ -619,68 +619,68 @@ class Usuario with ChangeNotifier {
 
   Future<void> editarPerfilUsuario(String IDUsuario) async {
     FirebaseStorage storage = FirebaseStorage.instance;
-    Usuario.esteUsuario.FotosPerfil =
+    Usuario.esteUsuario.fotosPerfil =
         Usuario.esteUsuario.fotosUsuarioActualizar;
     StorageReference reference = storage.ref();
     DocumentReference referenciaUsuario =
         databaseReference.collection("usuarios").doc(IDUsuario);
 
     WriteBatch escrituraUsuario = databaseReference.batch();
-    if (esteUsuario.FotosPerfil[0] != null) {
+    if (esteUsuario.fotosPerfil[0] != null) {
       String image1 = "${IDUsuario}/Perfil/imagenes/Image1.jpg";
       StorageReference ImagesReference = reference.child(image1);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[0]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[0]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL1["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[1] != null) {
+    if (esteUsuario.fotosPerfil[1] != null) {
       String Image2 = "${IDUsuario}/Perfil/imagenes/Image2.jpg";
       StorageReference ImagesReference = reference.child(Image2);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[1]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[1]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL2["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[2] != null) {
+    if (esteUsuario.fotosPerfil[2] != null) {
       String Image3 = "${IDUsuario}/Perfil/imagenes/Image3.jpg";
       StorageReference ImagesReference = reference.child(Image3);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[2]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[2]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL3["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[3] != null) {
+    if (esteUsuario.fotosPerfil[3] != null) {
       String Image4 = "${IDUsuario}/Perfil/imagenes/Image4.jpg";
       StorageReference ImagesReference = reference.child(Image4);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[3]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[3]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL4["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[4] != null) {
+    if (esteUsuario.fotosPerfil[4] != null) {
       String Image5 = "${IDUsuario}/Perfil/imagenes/Image5.jpg";
       StorageReference ImagesReference = reference.child(Image5);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[4]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[4]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL5["Imagen"] = URL;
       print(URL);
     }
-    if (esteUsuario.FotosPerfil[5] != null) {
+    if (esteUsuario.fotosPerfil[5] != null) {
       String Image6 = "${IDUsuario}/Perfil/imagenes/Image6.jpg";
       StorageReference ImagesReference = reference.child(Image6);
       StorageUploadTask uploadTask =
-          ImagesReference.putFile(esteUsuario.FotosPerfil[5]);
+          ImagesReference.putFile(esteUsuario.fotosPerfil[5]);
 
       var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.ImageURL6["Imagen"] = URL;

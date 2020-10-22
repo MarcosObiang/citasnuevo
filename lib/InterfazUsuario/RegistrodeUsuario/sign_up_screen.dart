@@ -1,4 +1,6 @@
 
+import 'package:citasnuevo/PrimeraPantalla.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,6 +19,9 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PantallaRegistro extends StatefulWidget {
+  UserCredential credencialUsuario;
+
+  PantallaRegistro({@required this.credencialUsuario});
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -67,221 +72,136 @@ class PantallaRegistroState extends State<PantallaRegistro> {
         debugShowCheckedModeBanner: false,
         home: SafeArea(
           child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            resizeToAvoidBottomPadding: false,
-            backgroundColor: Color.fromRGBO(255, 78, 132, 100),
+            resizeToAvoidBottomInset: true,
+            resizeToAvoidBottomPadding: true,
+            backgroundColor: Colors.tealAccent,
             body: Padding(
               padding: EdgeInsets.only(left: 10, right: 10),
               child: Column(
-                children: <Widget>[
-                  Container(
-                    color: Colors.red,
-                    height: ScreenUtil().setHeight(100),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                              child: Column(children: [
-                            Icon(Icons.person),
-                            Container(
-                                height: ScreenUtil().setHeight(50),
-                                child: Text("Informacion \nBasica"))
-                          ])),
-                          Container(
-                              child: Column(children: [
-                            Icon(Icons.person),
-                            Text("Preferencias")
-                          ])),
-                          Container(
-                              child: Column(children: [
-                            Icon(Icons.person),
-                            Text("Preguntas")
-                          ])),
-                        ]),
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                
+                  Divider(
+                    height: ScreenUtil().setHeight(50),
                   ),
-                  SingleChildScrollView(
-
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text(
-                          "Bienvenid@",
-                          style: TextStyle(
-                              fontSize: ScreenUtil()
-                                  .setSp(120, allowFontScalingSelf: true),
-                              color: Colors.white),
-                        ),
-                        Divider(
-                          height: ScreenUtil().setHeight(50),
-                        ),
-                        Text(
-                          "Informacion Basica",
-                          style: TextStyle(
-                              fontSize: ScreenUtil()
-                                  .setSp(60, allowFontScalingSelf: true),
-                              color: Colors.white),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color.fromRGBO(69, 76, 80, 90),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Column(
-                              children: <Widget>[
-                                new EntradaTexto(
-                                    Icon(
-                                      Icons.person,
-                                      color: Colors.black,
-                                    ),
-                                    campoUsuario,
-                                    0,
-                                    false,
-                                    100,
-                                    1,
-                                    80),
-                                Container(
-                                  height: ScreenUtil().setHeight(40),
-                                ),
-                                new EntradaTexto(
-                                    Icon(
-                                      Icons.face,
-                                      color: Colors.black,
-                                    ),
-                                    campoAlias,
-                                    1,
-                                    false,
-                                    100,
-                                    1,
-                                    80),
-                                Container(
-                                  height: ScreenUtil().setHeight(40),
-                                ),
-                                new EntradaTexto(
-                                    Icon(
-                                      Icons.lock,
-                                      color: Colors.black,
-                                    ),
-                                    campoClave,
-                                    2,
-                                    true,
-                                    120,
-                                    1,
-                                    80),
-                                Container(
-                                  height: ScreenUtil().setHeight(40),
-                                ),
-                                new EntradaTexto(
-                                    Icon(
-                                      Icons.lock,
-                                      color: Colors.black,
-                                    ),
-                                    campoConfirmarClave,
-                                    3,
-                                    true,
-                                    120,
-                                    1,
-                                    80),
-                                Container(
-                                  height: ScreenUtil().setHeight(40),
-                                ),
-                                new EntradaTexto(
-                                    Icon(
-                                      Icons.mail,
-                                      color: Colors.black,
-                                    ),
-                                    campoEmail,
-                                    4,
-                                    false,
-                                    120,
-                                    1,
-                                    80),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: ScreenUtil().setHeight(80),
-                        ),
-                        Container(
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                  color: Color.fromRGBO(69, 76, 80, 90),
-                                ),
-                                height: ScreenUtil().setHeight(100),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Consumer<Usuario>(
-                                    builder: (BuildContext context, usuario,
-                                        Widget child) {
-                                      return Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          BotonNacimiento(
-                                              usuario.fechaNacimiento),
-                                          Divider(),
-                                          MostradorEdad(usuario.edad)
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          height: ScreenUtil().setHeight(80),
-                        ),
-                        Container(
-                          height: ScreenUtil().setHeight(300),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color.fromRGBO(69, 76, 80, 90),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                CampoSexo(),
-                                campoPreferenciaSexual(),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: ScreenUtil().setHeight(40),
-                        ),
-                        Center(child: next_button()),
-                        Container(
-                          height: ScreenUtil().setHeight(30),
-                        ),
-                          Container(
+                  Text(
+                    "Informacion Basica",
+                    style: TextStyle(
+                        fontSize: ScreenUtil()
+                            .setSp(60, allowFontScalingSelf: true),
+                        color: Colors.white),
+                  ),
+                  Container(
                     decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.all(Radius.circular(20))),
-                    child: FlatButton(
-                      highlightColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => login_screen())),
-                        child: Text("Iniciar Sesion"))),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: Color.fromRGBO(69, 76, 80, 90),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        children: <Widget>[
+                          new EntradaTexto(
+                              Icon(
+                                Icons.person,
+                                color: Colors.black,
+                              ),
+                              widget.credencialUsuario.user.displayName,
+                              0,
+                              false,
+                              100,
+                              1,
+                              60),
+                          Container(
+                            height: ScreenUtil().setHeight(40),
+                          ),
+                          
+                    
+                       
+                        ],
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: ScreenUtil().setHeight(80),
+                  ),
+                  Container(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Consumer<Usuario>(
+                            builder: (BuildContext context, usuario,
+                                Widget child) {
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Flexible(
+                                    flex: 7,
+                                    fit: FlexFit.tight,
+                                                                              child: BotonNacimiento(
+                                        usuario.fechaNacimiento),
+                                  ),
+                                  
+                                  Flexible(
+                                    
+                                    flex: 4,
+                                    fit: FlexFit.tight,
+                                    child: MostradorEdad(usuario.edad))
+                                ],
+                              );
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ),
+                  Divider(
+                    height: ScreenUtil().setHeight(30),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        CampoSexo(),
+                        campoPreferenciaSexual(),
+                      ],
+                    ),
+                  ),
+                  Divider(
+                    height: ScreenUtil().setHeight(40),
+                  ),
+                  Center(child:   FlatButton(
+                    color: Colors.blue,
+                    child: Row(
+                      children:[
+                        Icon(Icons.arrow_back),Text("Siguiente")
+                      ]
+                    ),
+                    
+                    onPressed: ()=>   Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PantallaEdicionPerfil(),)))),
+                  Container(
+                    height: ScreenUtil().setHeight(30),
+                  ),
+                  FlatButton(
+                    child: Row(
+                      children:[
+                        Icon(Icons.arrow_back),Text("Atras")
+                      ]
+                    ),
+                    
+                    onPressed: ()=>   Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PantallaDeInicio(),)))
+              
                 ],
               ),
             ),
@@ -352,7 +272,7 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
                     Text("Add pictures for your date profile"),
                     Consumer<Usuario>(
                       builder: (BuildContext context, usuario, Widget child) {
-                        if (usuario.FotosPerfil[0] != null) {
+                        if (usuario.fotosPerfil[0] != null) {
                           print(usuario);
                         }
                         return Container(
@@ -367,30 +287,7 @@ class sign_up_confirm_state extends State<sign_up_confirm> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: <Widget>[
-                                  Container(
-                                    height: ScreenUtil().setHeight(30),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: <Widget>[
-                                      FotosPerfil(0, usuario.FotosPerfil[0]),
-                                      FotosPerfil(1, usuario.FotosPerfil[1]),
-                                      FotosPerfil(2, usuario.FotosPerfil[2]),
-                                    ],
-                                  ),
-                                  Container(
-                                    height: ScreenUtil().setHeight(50),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: <Widget>[
-                                      FotosPerfil(3, usuario.FotosPerfil[3]),
-                                      FotosPerfil(4, usuario.FotosPerfil[4]),
-                                      FotosPerfil(5, usuario.FotosPerfil[5]),
-                                    ],
-                                  )
+                               
                                 ],
                               ),
                             ]),

@@ -1,6 +1,8 @@
+import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
 
 import 'InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart';
 
@@ -22,6 +24,37 @@ class _PantallaDeInicioState extends State<PantallaDeInicio> {
                 
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                   Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                    child: FlatButton(
+                      highlightColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                        onPressed: () {
+                          ControladorInicioSesion.instancia.inicioSesionGoogle().then((value) {
+                         
+                              print(value.credential);
+                              Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PantallaRegistro(credencialUsuario: value,)));
+
+                            
+                          });
+                        },
+                        child: Row(
+                          children: [
+                            Icon(LineAwesomeIcons.google),
+                            Text("Iniciar sesion con Google"),
+                          ],
+                        ))),
+  Divider(
+                          height:50
+                        ),
+
+
                 Container(
                     decoration: BoxDecoration(
                         color: Colors.blue,
