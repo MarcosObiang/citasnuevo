@@ -199,10 +199,7 @@ class BotonAcceso extends StatefulWidget {
 class BotonAccesoState extends State<BotonAcceso> {
   var basedatos = Firestore.instance;
   static bool primeraConexion = false;
-  FirebaseDatabase baseDatosConexion = FirebaseDatabase(
-      app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
-  FirebaseDatabase referenciaStatus = FirebaseDatabase(
-      app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
+  
 
   Future<void> sign_in_user() async {
     DocumentSnapshot val;
@@ -219,91 +216,13 @@ class BotonAccesoState extends State<BotonAcceso> {
 
 //print(user);
 
-      print("Usuario");
-      IdUsuario = await user.user.uid;
-      Usuario.esteUsuario.idUsuario = IdUsuario;
-      if (Usuario.esteUsuario.DatosUsuario != null) {
-        Usuario.esteUsuario.DatosUsuario = null;
-      }
-
-      val = await basedatos.collection("usuarios").doc(IdUsuario).get();
-      Usuario.esteUsuario.DatosUsuario = null;
-      if (Usuario.esteUsuario.DatosUsuario != null) {
-        Usuario.esteUsuario.DatosUsuario = null;
-        Usuario.esteUsuario.DatosUsuario = val.data();
-        print("Estaba lleno");
-      }
-      if (Usuario.esteUsuario.DatosUsuario == null) {
-        Usuario.esteUsuario.DatosUsuario = val.data();
-        Usuario.esteUsuario.inicializarUsuario();
-        Perfiles.cargarPerfilesCitas();
-       
-        
-        Conversacion.conversaciones.obtenerConversaciones();
-        Valoraciones.Puntuaciones.obtenerValoraciones();
-      
-
-     
-       
-        Valoraciones.Puntuaciones.obtenerMedia();
-   VideoLlamada.escucharLLamadasEntrantes();
-   
-      
-
-        Conversacion.conversaciones.escucharMensajes();
-     
-        confirmarEstadoConexion();
-
-        print("Estaba vacio");
-      }
+ 
     } catch (e) {
       print(e);
     }
   }
 
-  void confirmarEstadoConexion() {
-    baseDatosConexion
-        .reference()
-        .child(".info/connected")
-        .onValue
-        .listen((event) {
-      Map<String, dynamic> ultimaConexion = new Map();
-      ultimaConexion["Status"] = "Conectado";
-      ultimaConexion["Hora"] = DateTime.now().toString();
-      ultimaConexion["idUsuario"] = Usuario.esteUsuario.idUsuario;
-      Map<String, dynamic> ultimaDesconexion = new Map();
-      ultimaDesconexion["Status"] = "Desconectado";
-      ultimaDesconexion["Hora"] = DateTime.now().toString();
-      ultimaDesconexion["idUsuario"] = Usuario.esteUsuario.idUsuario;
 
-      referenciaStatus
-          .reference()
-          .child("/status/${Usuario.esteUsuario.idUsuario}")
-          .set(ultimaConexion);
-
-      referenciaStatus
-          .reference()
-          .child("/status/${Usuario.esteUsuario.idUsuario}")
-          .onDisconnect()
-          .set(ultimaDesconexion);
-
-      if (event.snapshot.value) {
-        Citas.estaConectado=true;
-        
-        primeraConexion=true;
-        BaseAplicacion.mostrarNotificacionConexionCorrecta(
-            BaseAplicacion.claveBase.currentContext);
-             Usuario.esteUsuario.notifyListeners();
-      } else {
-        Citas.estaConectado=false;
-        if (primeraConexion) {
-          BaseAplicacion.mostrarNotificacionConexionPerdida(
-              BaseAplicacion.claveBase.currentContext);
-        }
-        Usuario.esteUsuario.notifyListeners();
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -330,3 +249,6 @@ class BotonAccesoState extends State<BotonAcceso> {
         ));
   }
 }
+
+
+ 

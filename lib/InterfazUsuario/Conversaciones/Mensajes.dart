@@ -791,12 +791,6 @@ class _MensajesState extends State<Mensajes> {
   }
 }
 
-
-
-
-
-
-
 class DialogoGrabacion extends StatefulWidget {
   Function pararGrabacion;
   DialogoGrabacion({@required this.pararGrabacion});

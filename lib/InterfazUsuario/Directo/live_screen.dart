@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
+import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart' as xd;
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
@@ -116,7 +117,9 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
 }
 
 class list_live extends StatefulWidget {
-  static final GlobalKey<AnimatedListState> llaveListaValoraciones=GlobalKey();
+  static final GlobalKey<AnimatedListState> llaveListaValoraciones=GlobalKey<AnimatedListState>();
+ 
+ 
   @override
   _list_liveState createState() => _list_liveState();
 }
@@ -129,7 +132,7 @@ class _list_liveState extends State<list_live> {
           builder: (context, myType, child) {
             return Container(
               decoration: BoxDecoration(),
-              height: ScreenUtil().setHeight(290),
+              height: ScreenUtil().setHeight(400),
               child: Container(
                   child: Container(
                 child: Padding(
@@ -221,6 +224,45 @@ class _list_liveState extends State<list_live> {
                           ),
                         ],
                       ),
+                               Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            fit: FlexFit.loose,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Creditos   ",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: ScreenUtil().setSp(40),
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            fit: FlexFit.loose,
+                            flex: 4,
+                            child: FlatButton(
+                              onPressed: () => {},
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.end,
+                                children: [
+                                  Text("${    Usuario.creditosUsuario   }"),
+                                  
+                                  Icon(xd.LineAwesomeIcons.coins,color: Colors.black,),
+                                ],
+                              ),
+                              color: Colors.transparent,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -269,7 +311,7 @@ class _list_liveState extends State<list_live> {
         child: Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
-        height: ScreenUtil().setHeight(450),
+        height: ScreenUtil().setHeight(400),
         decoration: BoxDecoration(
       
         boxShadow: [BoxShadow(color: Colors.grey,blurRadius:10)],
@@ -278,188 +320,15 @@ class _list_liveState extends State<list_live> {
         child: Container(
             child: Stack(
               children: [
-                Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-          Flexible(
-                  flex: 13,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-          children: <Widget>[
-                  Flexible(
-                    flex: 2,
-                    fit: FlexFit.tight,
-                    child: Container(
-        decoration: BoxDecoration(
-                borderRadius:
-                BorderRadius.all(Radius.circular(10)),
-                image: DecorationImage(
-                image: NetworkImage(valoracion.imagenEmisor),
-                fit: BoxFit.cover)),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 5,
-                    fit: FlexFit.tight,
-                    child: Container(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-        Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Container(
-                    child: valoracion.nombreEmisor != null
-          ? Text(
-        "${valoracion.nombreEmisor}",
-        style: TextStyle(
-                fontSize: ScreenUtil()
-                    .setSp(40),
-                fontWeight:
-                    FontWeight.bold),
-                )
-          : Text(" ")),
-        ),
-        Flexible(
-                fit: FlexFit.tight,
-                flex: 5,
-                child: Container(
-                    child: valoracion.mensaje == null ||
-        valoracion.mensaje == "null"
-          ? Text("")
-          : Text(
-        valoracion.mensaje,
-        style: TextStyle(
-          fontSize:
-                  ScreenUtil().setSp(40),
-        ),
-                )),
-        ),
-        Container(
-                height: ScreenUtil().setHeight(50),
-                child: Center(
-                  child: LinearPercentIndicator(
-                    linearStrokeCap: LinearStrokeCap.butt,
-                    //  progressColor: Colors.deepPurple,
-                    percent: valoracion.valoracion / 10,
-                    animationDuration: 300,
-                    lineHeight:
-          ScreenUtil().setHeight(60),
-                    linearGradient: LinearGradient(
-          colors: [
-                Colors.pink,
-                Colors.pinkAccent[100]
-          ]),
-                    center: Text(
-        "${(valoracion.valoracion).toStringAsFixed(1)}",
-        style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: ScreenUtil().setSp(40,
-          allowFontScalingSelf: true),
-                color: Colors.white),
-                    ),
-                  ),
-                ),
-        ),
-                ],
-          ),
-        ),
-                    ),
-                  )
-          ],
-                    ),
-                  ),
-          ),
-          Flexible(
-                  flex: 4,
-                  fit: FlexFit.tight,
-                  child: LayoutBuilder(builder: (BuildContext contex,BoxConstraints limites){
-                    return  Container(
-          decoration: BoxDecoration(
-
-          ),
-          height: limites.maxHeight,
-          child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
                   children: [
-                    Flexible(
-        flex: 2,
-        fit: FlexFit.tight,
-        child: Container(
-          height: limites.maxHeight,
-          decoration: BoxDecoration(
-                color: Colors.green
-        
-
-          ),
-          
-          child: FlatButton(
-                
-        onPressed: ()  {
-                 aceptarSolicitud(indice,valoracion.mensaje, valoracion.nombreEmisor, valoracion.imagenEmisor, valoracion.idEmisor, valoracion.idValoracion);
-
-
-         
-        },
-        child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                
-                children: [
-                Text("Me gusta",  style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: ScreenUtil().setSp(50,
-          allowFontScalingSelf: true),
-                color: Colors.white),),
-                Icon(LineAwesomeIcons.heart_o,color: Colors.white,)
-        ])),
-        ),
-                    ),
-                    Flexible(
-        flex: 2,
-        fit: FlexFit.tight,
-        child: Container(
-           decoration: BoxDecoration(
-                 color: Colors.red
-          
-          ),
-          height: limites.maxHeight,
-           
-          child: FlatButton(
-                 
-        onPressed: ()  {
-
-                eliimnarSolicitud(indice,Valoraciones.listaDeValoraciones[indice].idValoracion);
-        },
-        child: Row(
-                
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                Text("Eliminar",style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: ScreenUtil().setSp(50,
-          allowFontScalingSelf: true),
-                color: Colors.white),),
-                Icon(Icons.close,color: Colors.white,)
-        ])),
-        ),
-                    )
+                    fotoSolicitud(valoracion),
+                    cuadroOpcionesSolicitud(valoracion, indice),
                   ],
-          ),
-                    );
-                  },)
-         
-                  ),
-          
-      ],
-                  ),
+                ),
               
               
-                BackdropFilter(
+            !valoracion.valoracionRevelada?  BackdropFilter(
                 filter: ui.ImageFilter.blur(
             sigmaX: 10.0,
             sigmaY: 10.0,
@@ -470,34 +339,41 @@ class _list_liveState extends State<list_live> {
      borderRadius:BorderRadius.all(Radius.circular(10))
    ),
 
-   height:500.h,
+   height:400.h,
    child:Center(
-     child: Container(
-       height:200.h,
-             decoration: BoxDecoration(
-     color:Colors.purple,
-     borderRadius:BorderRadius.all(Radius.circular(40)),
-     
+     child: GestureDetector(
+       onTap: (){
+         print("guapo");
+         valoracion.revelarValoracion();
+         
+       },
+            child: Container(
+         height:200.h,
+               decoration: BoxDecoration(
+       color:Colors.purple,
+       borderRadius:BorderRadius.all(Radius.circular(20)),
+       
    ),child: Center(
-     child: Padding(
-       padding: const EdgeInsets.all(20.0),
-       child: Row(
-         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-         children:[
-         Text("Revelar",style: TextStyle(fontSize:60.sp),),
-         Row(
-           children: [
-             Text("100",style: TextStyle(fontSize:60.sp),),
-             Icon(xd.LineAwesomeIcons.coins),
-              
-           ],
-         )
-       ]),
-     ),
+       child: Padding(
+         padding: const EdgeInsets.all(20.0),
+         child: Row(
+           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           children:[
+           Text("Revelar",style: TextStyle(fontSize:60.sp),),
+           Row(
+             children: [
+               Text("100",style: TextStyle(fontSize:60.sp),),
+               Icon(xd.LineAwesomeIcons.coins),
+                
+             ],
+           )
+         ]),
+       ),
    ),
-         ))
+           ),
+     ))
    )
-          ),],
+          ):Container()],
             ),
         )),
     ),
@@ -505,6 +381,174 @@ class _list_liveState extends State<list_live> {
 
 
  
+  }
+
+  Flexible cuadroOpcionesSolicitud(Valoraciones valoracion, int indice) {
+    return Flexible(
+                    flex: 5,
+                    fit: FlexFit.tight,
+                                        child: Column(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+        cuadroSuperiorValoracion(valoracion),
+        cuadroOpcionesValoracion(indice, valoracion),
+        
+    ],
+                      ),
+                  );
+  }
+
+  Flexible cuadroOpcionesValoracion(int indice, Valoraciones valoracion) {
+    return Flexible(
+                    flex: 4,
+                    fit: FlexFit.tight,
+                    child: LayoutBuilder(builder: (BuildContext contex,BoxConstraints limites){
+                      return  Container(
+      decoration: BoxDecoration(
+
+      ),
+      height: limites.maxHeight,
+      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+    flex: 2,
+    fit: FlexFit.tight,
+    child: Container(
+      height: limites.maxHeight,
+      decoration: BoxDecoration(
+                  color: Colors.green
+    
+
+      ),
+      
+      child: FlatButton(
+                  
+    onPressed: ()  {
+                   aceptarSolicitud(indice,valoracion.mensaje, valoracion.nombreEmisor, valoracion.imagenEmisor, valoracion.idEmisor, valoracion.idValoracion);
+
+
+     
+    },
+    child: Icon(LineAwesomeIcons.heart_o,color: Colors.white,)),
+    ),
+                      ),
+                      Flexible(
+    flex: 2,
+    fit: FlexFit.tight,
+    child: Container(
+       decoration: BoxDecoration(
+                   color: Colors.red
+      
+      ),
+      height: limites.maxHeight,
+       
+      child: FlatButton(
+                   
+    onPressed: ()  {
+
+                  eliimnarSolicitud(indice,Valoraciones.listaDeValoraciones[indice].idValoracion);
+    },
+    child: Icon(Icons.close,color: Colors.white,)),
+    ),
+                      )
+                    ],
+      ),
+                      );
+                    },)
+     
+                    );
+  }
+
+  Flexible cuadroSuperiorValoracion(Valoraciones valoracion) {
+    return Flexible(
+                    flex: 14,
+                    fit: FlexFit.tight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+    Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Container(
+                      child: valoracion.nombreEmisor != null
+      ? Text(
+    "${valoracion.nombreEmisor}",
+    style: TextStyle(
+                  fontSize: ScreenUtil()
+                      .setSp(40),
+                  fontWeight:
+                      FontWeight.bold),
+                  )
+      : Text(" ")),
+    ),
+    Flexible(
+                  fit: FlexFit.tight,
+                  flex: 5,
+                  child: Container(
+                      child: valoracion.mensaje == null ||
+    valoracion.mensaje == "null"
+      ? Text("")
+      : Text(
+    valoracion.mensaje,
+    style: TextStyle(
+      fontSize:
+                      ScreenUtil().setSp(40),
+    ),
+                  )),
+    ),
+    Container(
+                  height: ScreenUtil().setHeight(50),
+                  child: Center(
+                      child: LinearPercentIndicator(
+                      linearStrokeCap: LinearStrokeCap.butt,
+                      //  progressColor: Colors.deepPurple,
+                      percent: valoracion.valoracion / 10,
+                      animationDuration: 300,
+                      lineHeight:
+      ScreenUtil().setHeight(60),
+                      linearGradient: LinearGradient(
+      colors: [
+                  Colors.pink,
+                  Colors.pinkAccent[100]
+      ]),
+                      center: Text(
+    "${(valoracion.valoracion).toStringAsFixed(1)}",
+    style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: ScreenUtil().setSp(40,
+      allowFontScalingSelf: true),
+                  color: Colors.white),
+                      ),
+                      ),
+                  ),
+    ),
+                  ],
+      ),
+    ),
+                      ),
+                    ),
+      );
+  }
+
+  Flexible fotoSolicitud(Valoraciones valoracion) {
+    return Flexible(flex: 3,
+                  fit: FlexFit.tight,
+                                        child: Container(
+      decoration: BoxDecoration(
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10)),
+                    image: DecorationImage(
+                    image: NetworkImage(valoracion.imagenEmisor),
+                    fit: BoxFit.cover)),
+                        ),
+                  );
   }
 
  void eliimnarSolicitud(int indice,String id){

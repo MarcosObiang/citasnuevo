@@ -22,6 +22,7 @@ class Valoraciones extends ChangeNotifier {
   String mensaje;
   double valoracion;
   String idValoracion;
+  bool valoracionRevelada;
 
   static double mediaUsuario;
   static List<Valoraciones> listaDeValoraciones = new List();
@@ -37,6 +38,7 @@ class Valoraciones extends ChangeNotifier {
     @required this.nombreEmisor,
     @required this.mensaje,
     @required this.valoracion,
+    @required this.valoracionRevelada,
   });
   Valoraciones();
   Valoraciones.instancia();
@@ -70,7 +72,8 @@ class Valoraciones extends ChangeNotifier {
                 double.parse(
                     (dato.docs[i].get("Valoracion").toString()).toString()),
                 (dato.docs[i].get("Time")).toDate(),
-                (dato.docs[i].get("id valoracion").toString()).toString());
+                (dato.docs[i].get("id valoracion").toString()).toString(),
+                dato.docs[i].get("revelada"));
           }
           if (dato.docs[i].id == "mediaPuntos") {
             mediaUsuario = dato.docs[i].get("mediaTotal");
@@ -150,9 +153,12 @@ class Valoraciones extends ChangeNotifier {
           coincidencias = false;
           for (int i = 0; i < listaDeValoraciones.length; i++) {
             if (dato.docs[b].id != "mediaPuntos") {
-              if (dato.docs[b].get("id valoracion") ==
+              if (dato.docs[b].id ==
                   listaDeValoraciones[i].idValoracion) {
+                  b++;
+                   
                 coincidencias = true;
+                
 
                 if (dato.docs[b].get("Nombre emisor") !=
                     listaDeValoraciones[i].nombreEmisor) {
@@ -164,12 +170,25 @@ class Valoraciones extends ChangeNotifier {
                   listaDeValoraciones[i].imagenEmisor =
                       dato.docs[b].get("Imagen Usuario");
                 }
+                if (dato.docs[b].get("revelada") !=
+                    listaDeValoraciones[i].valoracionRevelada) {
+                  listaDeValoraciones[i].valoracionRevelada =
+                      dato.docs[b].get("revelada");
+                }
+
                 instanciar.notifyListeners();
-              } else {
+                break;
+              } if (dato.docs[b].id !=
+                  listaDeValoraciones[i].idValoracion) {
+String id=dato.docs[b].id;
+String miId= listaDeValoraciones[i].idValoracion;
+
+print("id nuevo:$id,     idExistente:$miId ");
+
                 coincidencias = false;
               }
             }
-          }
+          
           if (!coincidencias) {
             print("Creando");
             if (dato.docs[b].id != "mediaPuntos") {
@@ -182,9 +201,10 @@ class Valoraciones extends ChangeNotifier {
                   double.parse(
                       (dato.docs[b].get("Valoracion").toString()).toString()),
                   (dato.docs[b].get("Time")).toDate(),
-                  (dato.docs[b].get("id valoracion").toString()).toString());
+                  (dato.docs[b].get("id valoracion").toString()).toString(),
+                  (dato.docs[b].get("revelada")));
             }
-          }
+          }}
         }
       }
       instanciar.notifyListeners();
@@ -199,7 +219,8 @@ class Valoraciones extends ChangeNotifier {
       String mensajeUsuario,
       double puntuacion,
       DateTime fechaValoraciones,
-      String valoracionId) {
+      String valoracionId,
+      bool revelada) {
     print(puntuacion);
     Valoraciones valoracion = new Valoraciones.crear(
         idValoracion: valoracionId,
@@ -209,6 +230,7 @@ class Valoraciones extends ChangeNotifier {
         imagenEmisor: imagenURl,
         fechaValoracion: fechaValoraciones,
         mensaje: mensajeUsuario,
+        valoracionRevelada: revelada,
         valoracion: puntuacion);
     int i = listaDeValoraciones.length > 0 ? listaDeValoraciones.length : 0;
     listaDeValoraciones.insert(i, valoracion);
@@ -221,6 +243,14 @@ class Valoraciones extends ChangeNotifier {
     instanciar.notifyListeners();
   }
 
+  void revelarValoracion() {
+    FirebaseFirestore referenciaValoraciones = FirebaseFirestore.instance;
+    referenciaValoraciones
+        .collection("valoraciones")
+        .doc(this.idValoracion)
+        .update({"revelada": true});
+  }
+
   void sumarValoracion(
       String idEmisor,
       String nombreUsuario,
@@ -229,7 +259,8 @@ class Valoraciones extends ChangeNotifier {
       String mensajeUsuario,
       double puntuacion,
       DateTime fechaValoraciones,
-      String valoracionId) {
+      String valoracionId,
+      bool revelar) {
     print(puntuacion);
     Valoraciones valoracion = new Valoraciones.crear(
         idValoracion: valoracionId,
@@ -239,7 +270,8 @@ class Valoraciones extends ChangeNotifier {
         imagenEmisor: imagenURl,
         fechaValoracion: fechaValoraciones,
         mensaje: mensajeUsuario,
-        valoracion: puntuacion);
+        valoracion: puntuacion,
+        valoracionRevelada: revelar);
     int i = listaDeValoraciones.length > 0 ? listaDeValoraciones.length : 0;
     listaDeValoraciones.insert(0, valoracion);
     listaDeValoraciones

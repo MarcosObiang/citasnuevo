@@ -786,7 +786,9 @@ class TituloChatState extends State<TituloChat> {
                                                   ? Text("")
                                                   : Text(
                                                       widget.nombre,
+                                                      overflow: TextOverflow.ellipsis,
                                                       style: TextStyle(
+                                                        
                                                           fontSize: ScreenUtil()
                                                               .setSp(40),
                                                           fontWeight:

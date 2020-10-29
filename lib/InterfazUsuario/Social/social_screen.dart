@@ -1,4 +1,8 @@
+import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/PrimeraPantalla.dart';
+import 'package:citasnuevo/base_app.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -65,7 +69,30 @@ class AjustesAplicacion extends StatelessWidget {
                       Flexible(
                           flex: 2,
                   fit: FlexFit.tight,
-                        child: Text("*Selecciona un elemento para comprarlo*"))
+                        child: Text("*Selecciona un elemento para comprarlo*")), Flexible(
+                          flex: 2,
+                  fit: FlexFit.tight,
+                        child: FlatButton(
+                          color: Colors.red,
+                          onPressed: (){
+                            ControladorInicioSesion.instancia.cerrarSesion().then((value) {
+                              if(value){
+                                Navigator.pop(BaseAplicacion.claveBase.currentContext);
+                              }
+                            });
+                          },
+                          child: Text("Cerrar Sesion"))),
+                          Flexible(
+                          flex: 2,
+                  fit: FlexFit.tight,
+                        child: FlatButton(
+                          color: Colors.red,
+                          onPressed: (){
+                           CrontroladorCreditos.sumar(100);
+                          },
+                          child: Text("100 creditoos"))),
+                        
+                        
                     ]),
               ),
             ),

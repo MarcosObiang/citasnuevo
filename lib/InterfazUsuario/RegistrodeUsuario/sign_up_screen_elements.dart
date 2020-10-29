@@ -73,6 +73,7 @@ class EntradaTextoState extends State<EntradaTexto> {
   int altura;
   int lineas;
   int caracteres;
+  
 
   @override
   void initState() {
@@ -120,6 +121,46 @@ class EntradaTextoState extends State<EntradaTexto> {
           }
         });
       },
+    );
+  }
+}
+
+
+
+class CreadorDescripcion extends StatefulWidget {
+ 
+
+  @override
+  _CreadorDescripcionState createState() => _CreadorDescripcionState();
+}
+
+class _CreadorDescripcionState extends State<CreadorDescripcion> {
+   TextEditingController controladorEditorDescripcion =
+      new TextEditingController();
+  @override
+  void initState() {
+    // TODO: implement initState
+    controladorEditorDescripcion.text =
+        Usuario.esteUsuario.observaciones;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        maxLines: 9,
+        controller:controladorEditorDescripcion,
+        decoration: InputDecoration(
+            labelText: "Descripcion",
+            floatingLabelBehavior: FloatingLabelBehavior.always),
+        onChanged: (val) {
+
+          Usuario.esteUsuario.observaciones=val;
+        },
+      ),
     );
   }
 }
@@ -7203,7 +7244,7 @@ class _PreguntaUsuarioState extends State<PreguntaUsuario> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Center(
-                        child: Text("${widget.preguntaUsuario}",
+                        child: Text("${widget.preguntaUsuario} ${widget.indicePregunta}",
                             style: TextStyle(fontSize: ScreenUtil().setSp(60))),
                       ),
                     )),
@@ -7276,6 +7317,9 @@ class _PreguntaUsuarioState extends State<PreguntaUsuario> {
                           child: TextField(
                             decoration: InputDecoration(
                               labelText: widget.preguntaUsuario,
+                              labelStyle: TextStyle(color: Colors.white),
+                              fillColor: Colors.white,
+                              focusColor: Colors.red
                             ),
                             maxLines: 3,
                             maxLength: 200,
@@ -7814,7 +7858,145 @@ class _PantallaPreguntasPerfilState extends State<PantallaPreguntasPerfil> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child:PantallaEdicionPreguntas(),
+      child:PantallaCreacionPreguntas(),
+    );
+  }
+}
+
+
+class PantallaCreacionPreguntas extends StatefulWidget {
+  static int preguntasRestantes = 3;
+
+  @override
+  _PantallaCreacionPreguntasState createState() =>
+      _PantallaCreacionPreguntasState();
+}
+
+class _PantallaCreacionPreguntasState extends State<PantallaCreacionPreguntas> {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: Usuario.esteUsuario,
+          child: SafeArea(
+       
+        
+          child: Material(
+                      child: Container(
+                color: Colors.white,
+                child:Consumer<Usuario>(
+                  builder: (context, myType, child) {
+                    return         Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                              height: ScreenUtil().setHeight(100),
+                              child: Center(
+                                  child: Text(
+                                Usuario.esteUsuario.preguntasContestadas != 0
+                                    ? 
+                                    
+                                    "Elige ${Usuario.esteUsuario.preguntasContestadas} Preguntas Personales"
+                                    : "Has respondido el maximo",
+                                style: TextStyle(fontSize: ScreenUtil().setSp(55)),
+                              ))),
+                             
+                          Container(
+                            height: ScreenUtil().setHeight(1600),
+                            child: ListView.builder(
+                              itemCount: Usuario.listaPreguntasPersonales.length,
+                              itemBuilder: (BuildContext context, int indice) {
+                                return PreguntaUsuario(
+                                    preguntaUsuario: Usuario.listaPreguntasPersonales[indice],
+                                    respuestaUsuario: Usuario.esteUsuario
+                                        .listaRespuestasPreguntasPersonales[indice],
+                                    indicePregunta: indice);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  color: Colors.red),
+                              height: ScreenUtil().setHeight(100),
+                              child: FlatButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text("Atras"))),Container(
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  color: Colors.red),
+                              height: ScreenUtil().setHeight(100),
+                              child: FlatButton(
+                                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>PantallaRegistroFinal())),
+                                  child: Text("Siguiente"))),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+                  },
+                )
+                
+                
+                
+                
+       ),
+          ),
+      
+      ),
+    );
+  }
+}
+
+class PantallaRegistroFinal extends StatefulWidget {
+  @override
+  _PantallaRegistroFinalState createState() => _PantallaRegistroFinalState();
+}
+
+class _PantallaRegistroFinalState extends State<PantallaRegistroFinal> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+          child: Scaffold(
+
+            body: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                child: Center(
+                  child:Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children:[Text("Cuentanos sobre ti",style: TextStyle(fontSize:80.sp),),Icon(LineAwesomeIcons.pen,size: 70.sp,)]
+                      ),
+                      Divider(
+                        height:200.h,
+                      ),
+                      CreadorDescripcion(),
+                      FlatButton(
+                        color: Colors.green,
+                        onPressed: (){
+                          Usuario.submit(context);
+                        }, child: Text("Registrarse"))
+                    ],
+                  )
+                ),
+              ),
+            ),
+        
+      ),
     );
   }
 }

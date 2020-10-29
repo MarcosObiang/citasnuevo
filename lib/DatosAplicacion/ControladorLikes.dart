@@ -160,8 +160,8 @@ class Solicitud {
     solicitudLocal["Grupo"] = false;
     WriteBatch batch = baseDatosRef.batch();
     DocumentReference valoracionEliminar = baseDatosRef
-        .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario)
+       
+        
         .collection("valoraciones")
         .doc(idVal);
     DocumentReference conversacionesRemitente = baseDatosRef
@@ -206,8 +206,8 @@ class Solicitud {
     String id,
   ) async {
     QuerySnapshot documento = await baseDatosRef
-        .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario)
+        
+      
         .collection("valoraciones")
         .where("id valoracion", isEqualTo: id)
         .get();
@@ -215,8 +215,7 @@ class Solicitud {
       if (elemento.get("id valoracion") == id) {
         String idVal = elemento.id;
         await baseDatosRef
-            .collection("usuarios")
-            .doc(Usuario.esteUsuario.idUsuario)
+            
             .collection("valoraciones")
             .doc(idVal)
             .delete()

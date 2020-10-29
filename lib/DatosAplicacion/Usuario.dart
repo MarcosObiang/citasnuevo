@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'dart:io' as Io;
+import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
@@ -34,6 +35,7 @@ import 'Valoraciones.dart';
 class Usuario with ChangeNotifier {
   static Usuario esteUsuario = new Usuario();
   static Usuario cacheEdicionUsuario = new Usuario();
+  static int creditosUsuario=0;
   bool tieneHistorias = false;
   Map<String, Object> DatosUsuario = new Map();
   List<File> _fotosPerfil = new List(6);
@@ -189,20 +191,20 @@ class Usuario with ChangeNotifier {
     "Mi receta de la felicidad es..",
     "Soy bueno en..",
     "Me describen como..",
-    "Estoy aqui para..",
+   
     "Mi cita perfecta seria..",
     "¿Cancion favorita?",
-    "¿Comida favorita?",
+    
     "Una verdad y una mentira",
     "Te harias famoso por..",
     "si fueras un heroe seria..",
     "Si fuera un villano seria..",
-    "Un plato el reto de mi vida",
+    "Un plato el resto de mi vida",
     "Nos llevaremos bien si..",
     "Borracho/a soy...",
     "Anecdota",
     "¿Que pelicula recomiendas?",
-    "Mi habilidad secreta es..",
+    
     "En alguien busco..",
     "Odio a la gente que..",
     "Si me quedara un dia de vida"
@@ -251,6 +253,7 @@ class Usuario with ChangeNotifier {
   }
 
   void cargarPreguntasPersonales() {
+  
     esteUsuario.queBuscasEnAlguien =
         esteUsuario.preguntasPersonales["Que buscas en la gente"];
     esteUsuario.queOdiasEnAlguien =
@@ -351,6 +354,7 @@ class Usuario with ChangeNotifier {
     amigos = DatosUsuario["Solo amigos"];
     citas = DatosUsuario["Solo Citas"];
     ambos = DatosUsuario["Ambos"];
+    creditosUsuario=DatosUsuario["creditos"];
     temporalParaFecha = DatosUsuario["fechaNacimiento"];
     fechaNacimiento = temporalParaFecha.toDate();
     observaciones = DatosUsuario["Descripcion"];
@@ -428,6 +432,7 @@ class Usuario with ChangeNotifier {
     usuario["IMAGENPERFIL6"] = esteUsuario.ImageURL6;
     usuario["Nombre"] = esteUsuario.nombre;
     usuario["Alias"] = esteUsuario.alias;
+    usuario["creditos"]=creditosUsuario;
 
     usuario["Email"] = esteUsuario.email;
     usuario["Edad"] = esteUsuario.edad;
@@ -474,14 +479,16 @@ class Usuario with ChangeNotifier {
     ///
     ///
     ///
+    
+   
     esteUsuario.preguntasPersonales["Que buscas en la gente"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[20]??null;
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[17]??null;
     esteUsuario.preguntasPersonales["Que odias de la gente"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[21];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[18];
     esteUsuario.preguntasPersonales["Receta Felicidad"] =
         Usuario.esteUsuario.listaRespuestasPreguntasPersonales[3];
     esteUsuario.preguntasPersonales["Un dia de vida"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[22];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[19];
     esteUsuario.preguntasPersonales["Musica te gusta"] =
         Usuario.esteUsuario.listaRespuestasPreguntasPersonales[2];
     esteUsuario.preguntasPersonales["En que eres bueno"] =
@@ -493,32 +500,34 @@ class Usuario with ChangeNotifier {
     esteUsuario.preguntasPersonales["Me hace reir"] =
         Usuario.esteUsuario.listaRespuestasPreguntasPersonales[0];
     esteUsuario.preguntasPersonales["Cita perfecta"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[7];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[6];
     esteUsuario.preguntasPersonales["Cancion favorita"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[8];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[7];
     esteUsuario.preguntasPersonales["Verdad y mentira"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[10];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[8];
     esteUsuario.preguntasPersonales["Seria famoso por"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[11];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[9];
     esteUsuario.preguntasPersonales["Heroe"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[12];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[10];
     esteUsuario.preguntasPersonales["Villano"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[13];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[11];
     esteUsuario.preguntasPersonales["Plato resto de mi vida"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[14];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[12];
     esteUsuario.preguntasPersonales["Nos llevamos bien si"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[15];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[13];
     esteUsuario.preguntasPersonales["Como eres borracho"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[16];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[14];
     esteUsuario.preguntasPersonales["Anecdotas"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[17];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[15];
     esteUsuario.preguntasPersonales["Pelicula recomendada"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[18];
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[16];
 
     usuario["Preguntas personales"] = esteUsuario.preguntasPersonales;
     usuario["Filtros usuario"] = esteUsuario.datosParaFiltrosUsuario;
     usuario["Historias"] = esteUsuario.imagenesHistorias;
   }
+
+ 
 
   Future<void> subirImagenPerfil(String IDUsuario) async {
     assert(imagenes != null);
@@ -790,7 +799,7 @@ class Usuario with ChangeNotifier {
   }
 
   static submit(BuildContext context) async {
-    assert(esteUsuario.clave == esteUsuario.confirmar_clave);
+   
     FirebaseStorage storage = FirebaseStorage.instance;
     FirebaseFirestore referenciaBaseDatos = FirebaseFirestore.instance;
 
@@ -798,14 +807,7 @@ class Usuario with ChangeNotifier {
     DocumentSnapshot val;
     FirebaseFirestore referencia = FirebaseFirestore.instance;
 
-    esteUsuario.idUsuario = await AuthService.signUpUser(
-        esteUsuario.nombre,
-        esteUsuario.alias,
-        esteUsuario.clave,
-        esteUsuario.email,
-        esteUsuario.edad,
-        esteUsuario.sexo,
-        esteUsuario.citasCon);
+
 
     print(esteUsuario.idUsuario);
 
@@ -818,16 +820,7 @@ class Usuario with ChangeNotifier {
           .get();
       esteUsuario.DatosUsuario = val.data();
       if (Usuario.esteUsuario.DatosUsuario != null) {
-        Usuario.esteUsuario.inicializarUsuario();
-        Perfiles.cargarPerfilesCitas();
-
-        Conversacion.conversaciones.obtenerConversaciones();
-        Valoraciones.Puntuaciones.escucharValoraciones();
-        Conversacion.conversaciones.escucharEstadoConversacion();
-
-        Conversacion.conversaciones.escucharMensajes();
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => start()));
+       ControladorInicioSesion.instancia.iniciarSesion(esteUsuario.idUsuario,context);
       }
     });
     print("SiguientePantalla");

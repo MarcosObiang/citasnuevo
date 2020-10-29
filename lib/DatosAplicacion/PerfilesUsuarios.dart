@@ -394,8 +394,8 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
         ///
         ///
         /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
-       
-       print(PerfilesGenteCitas.limitesParaCreador);
+
+        print(PerfilesGenteCitas.limitesParaCreador);
         perfilTemp.add(ImagenesCarrete(
           imagenesPerfiles[a]["Imagen"],
           nombre: nombre,
@@ -460,9 +460,7 @@ class Perfiles extends ChangeNotifier {
     Perfiles.perfilesCitas.cargarIsolate();
   }
 
-  static void cargarPerfilesAmistad() {
-  
-  }
+  static void cargarPerfilesAmistad() {}
 
   /// [cargarIsolate]
   ///
@@ -492,7 +490,6 @@ class Perfiles extends ChangeNotifier {
     Isolate proceso = await Isolate.spawn(
         isolateCitas, puertoRecepcion.sendPort,
         debugName: "IsolateCitas");
-        
 
     /// [puertoEnvio] aqui almacenamos la respuesta que obtenemos de  [isolateCitas] de donde recibimos el puerto de envio del [isolate]
     ///
@@ -507,7 +504,7 @@ class Perfiles extends ChangeNotifier {
 
     /// Aqui acabamos con el isolate despues de que el [await] nos devuelva los datos pedidos del otro [isolate]
     proceso.kill();
-   Usuario.esteUsuario.notifyListeners();
+    Usuario.esteUsuario.notifyListeners();
   }
 
   Future<dynamic> enviarRecibirCitas(Usuario user, SendPort puertos,
@@ -558,9 +555,6 @@ class Perfiles extends ChangeNotifier {
     }
   }
 
-
-
- 
   static Future<DatosPerfiles> cargarIsolatePerfilDeterminado(
       String idPerfil) async {
     DatosPerfiles perfil;
@@ -840,14 +834,8 @@ class Perfiles extends ChangeNotifier {
         .get()
         .then((value) => perfilTemporal = value.data());
 
-    
     return perfilTemporal;
   }
-
-
-
-
-  
 
   ///Ambos metodos crean una lista de [DocumentSnapshot], donde cada [DocumentSnapshot] es un [Map] Mapa que contiene los campos y datos necesarios
   ///para en este caso crear perfiles y mostrarselos al usuario
@@ -873,7 +861,7 @@ class ImagenesCarrete extends StatefulWidget {
   bool nombreEnFoto;
   Image laimagen;
   bool imagenCargada = false;
- static BoxConstraints limitesCuadro=new BoxConstraints();
+  static BoxConstraints limitesCuadro = new BoxConstraints();
 
   ImagenesCarrete(this.urlImagen,
       {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
@@ -886,16 +874,6 @@ class ImagenesCarrete extends StatefulWidget {
 
 class _ImagenesCarreteState extends State<ImagenesCarrete> {
   Uint8List bitsImagen;
-  initState() {
-    super.initState();
-    widget.laimagen = Image.network(widget.urlImagen);
-  }
-
-  void didChangeDependencies() {
-    precacheImage(widget.laimagen.image, context)
-        .catchError((error) => print(error));
-    super.didChangeDependencies();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -920,7 +898,8 @@ class _ImagenesCarreteState extends State<ImagenesCarrete> {
                       children: <Widget>[
                         widget.nombreEnFoto
                             ? Container(
-                                height: ImagenesCarrete.limitesCuadro.biggest.height,
+                                height: ImagenesCarrete
+                                    .limitesCuadro.biggest.height,
                                 decoration: BoxDecoration(
                                     image: DecorationImage(
                                         image: NetworkImage(widget.urlImagen),
@@ -932,10 +911,10 @@ class _ImagenesCarreteState extends State<ImagenesCarrete> {
                         Padding(
                           padding: const EdgeInsets.only(left: 0, bottom: 0),
                           child: Container(
-                                decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(1.5)),
-                                            color: Color.fromRGBO(0, 0, 0, 80)),
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(1.5)),
+                                color: Color.fromRGBO(0, 0, 0, 80)),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -943,24 +922,24 @@ class _ImagenesCarreteState extends State<ImagenesCarrete> {
                                 children: <Widget>[
                                   widget.nombreEnFoto
                                       ? Padding(
-                                        padding: const EdgeInsets.all(3.0),
-                                        child: Text("${widget.nombre}, ${widget.edad}",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    ScreenUtil().setSp(40))),
-                                      )
+                                          padding: const EdgeInsets.all(3.0),
+                                          child: Text(
+                                              "${widget.nombre}, ${widget.edad}",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize:
+                                                      ScreenUtil().setSp(40))),
+                                        )
                                       : Container(),
-                        
                                   widget.nombreEnFoto
                                       ? Padding(
-                                        padding: const EdgeInsets.all(2.5),
-                                        child: Text("A 8 Km de ti",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    ScreenUtil().setSp(40))),
-                                      )
+                                          padding: const EdgeInsets.all(2.5),
+                                          child: Text("A 8 Km de ti",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize:
+                                                      ScreenUtil().setSp(40))),
+                                        )
                                       : Container(),
                                 ],
                               ),
@@ -1132,7 +1111,9 @@ class BloqueDescripcion1 extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
+      height: ScreenUtil().setHeight(500),
       decoration: BoxDecoration(
+        color: Colors.red,
         borderRadius: BorderRadius.all(Radius.circular(3)),
       ),
       child: Padding(
@@ -1170,6 +1151,7 @@ class BloquePreguntasPersonales extends StatelessWidget {
     // TODO: implement build
     return Container(
       decoration: BoxDecoration(
+        color: Colors.red,
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: Padding(
@@ -1189,7 +1171,7 @@ class BloquePreguntasPersonales extends StatelessWidget {
               this.preguntaRespuesta["Respuesta"].toString(),
               style: TextStyle(
                   color: Colors.black,
-                  fontSize: ScreenUtil().setSp(60),
+                  fontSize: ScreenUtil().setSp(90),
                   fontWeight: FontWeight.bold),
             )
           ],
@@ -1225,39 +1207,38 @@ class BloqueFiltrosPersonales extends StatelessWidget {
           LineAwesomeIcons.ruler_vertical,
           size: 50,
         );
-        altura=true;
-        valorAltura=filtros["Valor"].toString();
+        altura = true;
+        valorAltura = filtros["Valor"].toString();
       }
       if (filtros["Filtro"] == "Busco") {
         simbolo = Icon(LineAwesomeIcons.ring);
-        valorBusco=filtros["Valor"];
-        busco=true;
+        valorBusco = filtros["Valor"];
+        busco = true;
       }
       if (filtros["Filtro"] == "Complexion") {
         simbolo = Icon(LineAwesomeIcons.snowboarding);
-         valorComplexion=filtros["Valor"];
-         complexion=true;
+        valorComplexion = filtros["Valor"];
+        complexion = true;
       }
       if (filtros["Filtro"] == "Hijos") {
         simbolo = Icon(LineAwesomeIcons.baby);
-         valorHijos=filtros["Valor"];
-         hijos=true;
+        valorHijos = filtros["Valor"];
+        hijos = true;
       }
       if (filtros["Filtro"] == "Mascotas") {
         simbolo = Icon(LineAwesomeIcons.dog);
-         valorMascotas=filtros["Valor"];
-         mascotas=true;
-         
+        valorMascotas = filtros["Valor"];
+        mascotas = true;
       }
       if (filtros["Filtro"] == "Politca") {
         simbolo = Icon(LineAwesomeIcons.landmark);
-         valorPolitica=filtros["Valor"];
-         politica=true;
+        valorPolitica = filtros["Valor"];
+        politica = true;
       }
       if (filtros["Filtro"] == "Que viva con") {
         simbolo = Icon(LineAwesomeIcons.home);
-        valorQueVivaCon=filtros["Valor"];
-        queVivaCon=true;
+        valorQueVivaCon = filtros["Valor"];
+        queVivaCon = true;
       }
     }
   }
@@ -1281,164 +1262,185 @@ class BloqueFiltrosPersonales extends StatelessWidget {
               childAspectRatio: 5 / 1.5,
               crossAxisCount: 3,
               children: [
-               altura? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.ruler_vertical,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorAltura,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                altura
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          color: Colors.purple,
+                          border: Border.all(color: Colors.black),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-               busco? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.ring,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorBusco,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.ruler_vertical,
+                                size: ScreenUtil().setSp(40),
+                                color: Colors.white,
+                              ),
+                              Text(
+                                valorAltura,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-                 complexion? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.dumbbell,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorComplexion,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                      )
+                    : Container(color: Colors.transparent),
+                busco
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(color: Colors.black),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-                 hijos? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.ring,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorHijos,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.ring,
+                                size: ScreenUtil().setSp(40),
+                              ),
+                              Text(
+                                valorBusco,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-                 mascotas? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.dog,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorMascotas,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                      )
+                    : Container(color: Colors.transparent),
+                complexion
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(color: Colors.black),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-                 politica? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.landmark,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorPolitica,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.dumbbell,
+                                size: ScreenUtil().setSp(40),
+                              ),
+                              Text(
+                                valorComplexion,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-                queVivaCon? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      children: [
-                        Icon(LineAwesomeIcons.home,size: ScreenUtil().setSp(40),),
-                        Text(
-                          valorQueVivaCon,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ScreenUtil().setSp(40)),
+                      )
+                    : Container(color: Colors.transparent),
+                hijos
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(color: Colors.black),
                         ),
-                      ],
-                    ),
-                  ),
-                ):Container(
-                  color:Colors.red
-                ),
-                
-
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.ring,
+                                size: ScreenUtil().setSp(40),
+                              ),
+                              Text(
+                                valorHijos,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(color: Colors.transparent),
+                mascotas
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.dog,
+                                size: ScreenUtil().setSp(40),
+                              ),
+                              Text(
+                                valorMascotas,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(color: Colors.transparent),
+                politica
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.landmark,
+                                size: ScreenUtil().setSp(40),
+                              ),
+                              Text(
+                                valorPolitica,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(color: Colors.transparent),
+                queVivaCon
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LineAwesomeIcons.home,
+                                size: ScreenUtil().setSp(40),
+                              ),
+                              Text(
+                                valorQueVivaCon,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(color: Colors.transparent),
               ]),
-              
         ),
       ),
     );
@@ -1588,7 +1590,8 @@ class DatosPerfiles {
       imagen = Usuario.esteUsuario.ImageURL6["Imagen"];
       imagenAdquirida = true;
     }
-    
+    String idValor=crearCodigo();
+
     datosValoracion["Imagen Usuario"] = imagen;
     datosValoracion["Nombre emisor"] = nombreUsuarioLocal;
     datosValoracion["Alias Emisor"] = aliasUsuarioLocal;
@@ -1596,9 +1599,10 @@ class DatosPerfiles {
     datosValoracion["Valoracion"] = valoracion;
     datosValoracion["Mensaje"] = this.mensaje;
     datosValoracion["Time"] = DateTime.now();
-    datosValoracion["idDestino"]=idUsuario;
-    datosValoracion["id valoracion"] = crearCodigo();
-    _enviarValoracion();
+    datosValoracion["idDestino"] = idUsuario;
+    datosValoracion["revelada"] = false;
+    datosValoracion["id valoracion"] = idValor;
+    _enviarValoracion(idValor);
   }
 
   DatosPerfiles();
@@ -1613,11 +1617,8 @@ class DatosPerfiles {
       @required this.nombreusuaio,
       @required this.linksHistorias,
       @required this.idUsuario});
-  void _enviarValoracion()async {
+  void _enviarValoracion(String idvalor) async {
     baseDatosRef = FirebaseFirestore.instance;
- await   baseDatosRef
-        .collection("valoraciones")
-        .doc()
-        .set(datosValoracion);
+    await baseDatosRef.collection("valoraciones").doc(idvalor).set(datosValoracion);
   }
 }

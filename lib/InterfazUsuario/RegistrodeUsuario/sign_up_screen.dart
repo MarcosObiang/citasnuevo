@@ -1,4 +1,5 @@
 
+
 import 'package:citasnuevo/PrimeraPantalla.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +22,10 @@ import 'package:image_picker/image_picker.dart';
 class PantallaRegistro extends StatefulWidget {
   UserCredential credencialUsuario;
 
-  PantallaRegistro({@required this.credencialUsuario});
+  PantallaRegistro({@required this.credencialUsuario}){
+Usuario.esteUsuario.email=credencialUsuario.user.email;
+Usuario.esteUsuario.idUsuario=credencialUsuario.user.uid;
+  }
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -78,7 +82,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
             body: Padding(
               padding: EdgeInsets.only(left: 10, right: 10),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                       crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -116,6 +120,8 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                           Container(
                             height: ScreenUtil().setHeight(40),
                           ),
+                         
+                          
                           
                     
                        
@@ -175,6 +181,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                   Divider(
                     height: ScreenUtil().setHeight(40),
                   ),
+              
                   Center(child:   FlatButton(
                     color: Colors.blue,
                     child: Row(
