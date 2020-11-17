@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
-import 'package:citasnuevo/DatosAplicacion/Directo.dart';
+
 import 'package:citasnuevo/base_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,21 +12,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:intl/intl.dart';
-import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
-import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
-import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
-import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../main.dart';
 import '../RegistrodeUsuario/sign_up_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:line_awesome_icons/line_awesome_icons.dart';
-import '../../ServidorFirebase/firebase_manager.dart';
-import 'dart:isolate';
+
 
 ///**************************************************************************************************************************************************************
 /// EN ESTA CLASE ENCONTRAREMOS LOS ELEMENTOS QUE COMPONEN LA PANTALLA DE ACCESO DE LA APLICACION

@@ -18,9 +18,10 @@ class ControladorNotificacion {
   static List<String> listaDeNombresEmisoresMensajesSinLeer = new List();
   static List<String> listaDeMensajesSinLeer = new List();
   static List<String> listaDeMensajesNotificar = new List();
-  static ControladorNotificacion controladorNotificacion = ControladorNotificacion();
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
+  static ControladorNotificacion controladorNotificacion =
+      ControladorNotificacion();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   void inicializarNotificaciones() async {
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
@@ -41,11 +42,6 @@ class ControladorNotificacion {
         onSelectNotification: BaseAplicacion.instancia.notificacionPulsada);
   }
 
-
-
-
-
-
   void notificacionesMensajesGrupales() async {
     const String groupKey = 'com.android.example.WORK_EMAIL';
     const String groupChannelId = 'grouped channel id';
@@ -60,10 +56,13 @@ class ControladorNotificacion {
             '${Conversacion.cantidadMensajesNoLeidos} mensajes nuevos');
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
+          
+
             groupChannelId, groupChannelName, groupChannelDescription,
             styleInformation: inboxStyleInformation,
             groupKey: groupKey,
-            setAsGroupSummary: true);
+            setAsGroupSummary: true,
+            importance:Importance.high,);
     NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
@@ -73,7 +72,6 @@ class ControladorNotificacion {
         platformChannelSpecifics);
   }
 
-  
   void mostrarNotificacionMensajes(String nombre, String mensaje,
       String idConversacion, String tipoMensaje) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -88,8 +86,6 @@ class ControladorNotificacion {
         0, nombre, mensaje, platformChannelSpecifics,
         payload: idConversacion);
   }
-
-
 
   Future<dynamic> onDidReceiveLocalNotification(
       int canal, String a, String b, String c) {
@@ -108,7 +104,7 @@ class ControladorNotificacion {
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
-      if (mensaje.get("Tipo Mensaje") == "Imagen" &&
+    if (mensaje.get("Tipo Mensaje") == "Imagen" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
       ControladorNotificacion.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
@@ -119,7 +115,7 @@ class ControladorNotificacion {
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
-      if (mensaje.get("Tipo Mensaje") == "Gif" &&
+    if (mensaje.get("Tipo Mensaje") == "Gif" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
       ControladorNotificacion.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
@@ -130,7 +126,7 @@ class ControladorNotificacion {
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
-      if (mensaje.get("Tipo Mensaje") == "Audio" &&
+    if (mensaje.get("Tipo Mensaje") == "Audio" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
       ControladorNotificacion.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
@@ -141,7 +137,6 @@ class ControladorNotificacion {
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
-    
   }
 
   void controladorMensajesLeidoNotificaciones(DocumentSnapshot documetno) {
@@ -182,14 +177,15 @@ class ControladorNotificacion {
         ControladorNotificacion.mostrarNotificacionMensajeAplicaionAbierta(
           BaseAplicacion.claveBase.currentContext,
           documetno.get("Nombre emisor"),
-          documetno.get("Mensaje"),
+       
+          documetno.get("Tipo Mensaje")=="Texto"?documetno.get("Mensaje"):documetno.get("Tipo Mensaje")=="Audio"?"Te ha enviado un mensaje de voz":documetno.get("Tipo Mensaje")=="Imagen"?"Te ha enviado una imagen":"Te ha enviado un Gif"
         );
       }
     } else {
       ControladorNotificacion.mostrarNotificacionMensajeAplicaionAbierta(
         BaseAplicacion.claveBase.currentContext,
         documetno.get("Nombre emisor"),
-        documetno.get("Mensaje"),
+          documetno.get("Tipo Mensaje")=="Texto"?documetno.get("Mensaje"):documetno.get("Tipo Mensaje")=="Audio"?"Te ha enviado un mensaje de voz":documetno.get("Tipo Mensaje")=="Imagen"?"Te ha enviado una imagen":"Te ha enviado un Gif"
       );
     }
   }

@@ -1,128 +1,196 @@
 import 'dart:math';
-
+import 'dart:ui' as ui;
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
-
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart' as xd;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:provider/provider.dart';
 
 import 'Usuario.dart';
 
-class Solicitud {
-  static Solicitud instancia = Solicitud();
+class Solicitudes with ChangeNotifier {
+  static Solicitudes instancia = Solicitudes();
+  List<SolicitudConversacion> listaSolicitudesConversacion = new List();
 
   FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
-  HttpsCallable llamadaFuncionAceptarSolicitud = CloudFunctions.instance
-      .getHttpsCallable(functionName: "aceptarLikeIniciarConversacion");
-  Future<void> aceptarLike(String nombreRemitente, String imagenRemitente,
-      String idRemitente, String mensajeRemitente) async {
-    String idMensajes = crearCodigo();
-    HttpsCallableResult respuesta = await llamadaFuncionAceptarSolicitud.call([
-      <String, dynamic>{
-        "nombreSolicitante": nombreRemitente,
-        "imagenSolicitante": imagenRemitente,
-        "idSolicitante": idRemitente,
-        "nombreAceptador": Usuario.esteUsuario.nombre,
-        "imagenAceptador": VideoLlamada.obtenerImagenUsuarioLocal(),
-        "idAceptador": Usuario.esteUsuario.idUsuario,
-        "idMensajes": idMensajes,
-        "idConversacion": idMensajes,
-        "hora": "DateTime.now().toString()"
+
+  Solicitudes();
+
+  
+
+
+}
+
+class SolicitudConversacion with ChangeNotifier {
+  String nombreEmisor;
+  String idEmisor;
+  String idDestino;
+  String imagenEmisor;
+  double calificacion;
+  String idSolicitudConversacion;
+  FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
+  bool solicitudRevelada = true;
+  WidgetSolicitudConversacion widgetSolicitud;
+  static SolicitudConversacion instancia = SolicitudConversacion();
+  SolicitudConversacion();
+  SolicitudConversacion.crear(
+      {@required this.nombreEmisor,
+      @required this.idDestino,
+      @required this.imagenEmisor,
+      @required this.solicitudRevelada,
+      @required this.calificacion,
+      @required this.idSolicitudConversacion,
+      @required this.idEmisor});
+
+  void obtenerSolicitudes() async {
+    int indice = 0;
+    baseDatosRef
+        .collection("solicitudes conversaciones")
+        .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
+        .get()
+        .then((value) {
+      if (value != null) {
+        for (QueryDocumentSnapshot documento in value.docs) {
+          SolicitudConversacion solicitud = new SolicitudConversacion.crear(
+              idEmisor: documento.get("idEmisor"),
+              nombreEmisor: documento.get("nombreEmisor"),
+              idDestino: documento.get("idDestino"),
+              imagenEmisor: documento.get("imagenEmisor"),
+              solicitudRevelada: documento.get("solicitudRevelada"),
+              calificacion: documento.get("calificacion"),
+              idSolicitudConversacion:
+                  documento.get("idSolicitudConversacion"));
+          // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
+          Solicitudes.instancia.listaSolicitudesConversacion
+              .insert(indice, solicitud);
+        }
       }
-    ]).catchError((onError) {
-      print(onError);
-      print("object");
+    }).then((value) => escucharSolicitudesConversacion());
+  }
+
+  void escucharSolicitudesConversacion() async {
+    baseDatosRef
+        .collection("solicitudes conversaciones")
+        .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
+        .snapshots()
+        .listen((event) {
+      bool coincidencias;
+      if (event.docs.length > 0) {
+        for (int a = 0; a < event.docs.length; a++) {
+          coincidencias = false;
+          int indice = 0;
+
+          for (int b = 0;
+              b < Solicitudes.instancia.listaSolicitudesConversacion.length;
+              b++) {
+            if (event.docs[a].id ==
+                Solicitudes.instancia.listaSolicitudesConversacion[b]
+                    .idSolicitudConversacion) {
+              coincidencias = true;
+              indice = b;
+            }
+          }
+
+          if (coincidencias) {
+            if (event.docs[a].get("nombreEmisor") !=
+                Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                    .nombreEmisor) {
+              Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                  .nombreEmisor = event.docs[a].get("nombreEmisor");
+            }
+            if (event.docs[a].get("imagenEmisor") !=
+                Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                    .imagenEmisor) {
+              Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                  .imagenEmisor = event.docs[a].get("imagenEmisor");
+            }
+            if (event.docs[a].get("solicitudRevelada") !=
+                Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                    .solicitudRevelada) {
+              Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                  .solicitudRevelada = event.docs[a].get("solicitudRevelada");
+            }
+            Solicitudes.instancia.notifyListeners();
+          }
+
+          if (!coincidencias) {
+            SolicitudConversacion solicitud = new SolicitudConversacion.crear(
+                idEmisor: event.docs[a].get("idEmisor"),
+                nombreEmisor: event.docs[a].get("nombreEmisor"),
+                idDestino: event.docs[a].get("idDestino"),
+                imagenEmisor: event.docs[a].get("imagenEmisor"),
+                solicitudRevelada: event.docs[a].get("solicitudRevelada"),
+                calificacion: event.docs[a].get("calificacion"),
+                idSolicitudConversacion:
+                    event.docs[a].get("idSolicitudConversacion"));
+            // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
+            Solicitudes.instancia.listaSolicitudesConversacion
+                .insert(0, solicitud);
+            if (WidgetSolicitudConversacion
+                    .llaveListaSolicitudes.currentState !=
+                null) {
+              WidgetSolicitudConversacion.llaveListaSolicitudes.currentState
+                  .insertItem(0);
+            }
+            Solicitudes.instancia.notifyListeners();
+          }
+        }
+      }
     });
-    print(respuesta);
   }
 
-  String crearCodigo() {
-    List<String> letras = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z"
-    ];
-    List<String> numero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    var random = Random();
-    int primeraLetra = random.nextInt(26);
-    String codigo_final = letras[primeraLetra];
-
-    for (int i = 0; i <= 20; i++) {
-      int selector_aleatorio_num_letra = random.nextInt(20);
-      int aleatorio_letra = random.nextInt(27);
-      int aleatorio_numero = random.nextInt(9);
-      if (selector_aleatorio_num_letra <= 2) {
-        selector_aleatorio_num_letra = 2;
-      }
-      if (selector_aleatorio_num_letra % 2 == 0) {
-        codigo_final = "${codigo_final}${(numero[aleatorio_numero])}";
-      }
-      if (aleatorio_letra % 3 == 0) {
-        int mayuscula = random.nextInt(9);
-        if (selector_aleatorio_num_letra <= 2) {
-          int suerte = random.nextInt(2);
-          suerte == 0
-              ? selector_aleatorio_num_letra = 3
-              : selector_aleatorio_num_letra = 2;
-        }
-        if (mayuscula % 2 == 0) {
-          codigo_final =
-              "${codigo_final}${(letras[aleatorio_letra]).toUpperCase()}";
-        }
-        if (mayuscula % 3 == 0) {
-          codigo_final =
-              "${codigo_final}${(letras[aleatorio_letra]).toLowerCase()}";
-        }
-      }
-    }
-    return codigo_final;
+  void revelarSolicitud() {
+    FirebaseFirestore referenciaValoraciones = FirebaseFirestore.instance;
+    referenciaValoraciones
+        .collection("solicitudes conversaciones")
+        .doc(this.idSolicitudConversacion)
+        .update({"solicitudRevelada": true});
   }
 
-  Solicitud();
-  void aceptarSolicitud(String mensajeRemitente, String nombreRemitente,
-      String imagenRemitente, String idRemitente, String idVal) async {
-    String idMensaje = crearCodigo();
-    String idConversacion = crearCodigo();
+  void eliminarSolicitudConversacion(String idSolicitud) {
+    FirebaseFirestore firebaseRef = FirebaseFirestore.instance;
+    firebaseRef
+        .collection("solicitudes conversaciones")
+        .doc(idSolicitud)
+        .delete();
+  }
+
+
+void rechazarSolicitudConversacion(
+    String id,
+  ) async {
+    await baseDatosRef
+        .collection("solicitudes conversaciones")
+        .doc(id)
+        .delete();
+  }
+
+  void aceptarSolicitud(String nombreRemitente, String imagenRemitente,
+      String idRemitente, String idVal) async {
+    String idMensaje = GeneradorCodigos.instancia.crearCodigo();
+    String idConversacion = GeneradorCodigos.instancia.crearCodigo();
     Map<String, dynamic> mensajeInicial = Map();
-    if (mensajeRemitente != null &&
-        mensajeRemitente != " " &&
-        mensajeRemitente != "null") {
-      mensajeInicial["Hora mensaje"] = DateTime.now();
-      mensajeInicial["Mensaje"] = mensajeRemitente;
-      mensajeInicial["idMensaje"] = idMensaje;
-      mensajeInicial["idEmisor"] = idRemitente;
-      mensajeInicial["Nombre emisor"] = Usuario.esteUsuario.idUsuario;
-      mensajeInicial["Tipo Mensaje"] = "Texto";
-      print(idRemitente);
-      baseDatosRef
-          .collection("usuarios")
-          .doc(Usuario.esteUsuario.idUsuario)
-          .collection("mensajes")
-          .doc()
-          .set(mensajeInicial);
-    }
+
+    mensajeInicial["Hora mensaje"] = DateTime.now();
+
+    mensajeInicial["idMensaje"] = idMensaje;
+    mensajeInicial["idEmisor"] = idRemitente;
+    mensajeInicial["Nombre emisor"] = Usuario.esteUsuario.idUsuario;
+    mensajeInicial["Tipo Mensaje"] = "Texto";
+    print(idRemitente);
+    baseDatosRef
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("mensajes")
+        .doc()
+        .set(mensajeInicial);
 
     Map<String, dynamic> estadoConexionUsuario = Map();
     estadoConexionUsuario["Escribiendo"] = false;
@@ -135,9 +203,11 @@ class Solicitud {
     solicitudParaRemitente["IdConversacion"] = idConversacion;
     solicitudParaRemitente["idUsuario"] = Usuario.esteUsuario.idUsuario;
     solicitudParaRemitente["IdMensajes"] = idMensaje;
+    solicitudParaRemitente["cantidadMensajesSinLeer"] = 0;
+    solicitudParaRemitente["cantidadMensajesSinLeerPropios"] = 0;
     solicitudParaRemitente["IdRemitente"] = idRemitente;
     solicitudParaRemitente["ultimoMensaje"] = {
-      "mensaje": mensajeRemitente ?? " ",
+      "mensaje": " ",
       "tipoMensaje": "texto",
       "duracionMensaje": 0
     };
@@ -151,19 +221,19 @@ class Solicitud {
     solicitudLocal["IdMensajes"] = idMensaje;
     solicitudLocal["IdRemitente"] = Usuario.esteUsuario.idUsuario;
     solicitudLocal["nombreRemitente"] = Usuario.esteUsuario.nombre;
+    solicitudLocal["cantidadMensajesSinLeer"] = 0;
+    solicitudLocal["cantidadMensajesSinLeerPropios"] = 0;
     solicitudLocal["imagenRemitente"] = Usuario.esteUsuario.ImageURL1["Imagen"];
     solicitudLocal["ultimoMensaje"] = {
-      "mensaje": mensajeRemitente ?? "null",
+      "mensaje": "null",
       "tipoMensaje": "texto",
       "duracionMensaje": 0
     };
     solicitudLocal["Grupo"] = false;
     WriteBatch batch = baseDatosRef.batch();
-    DocumentReference valoracionEliminar = baseDatosRef
-       
-        
-        .collection("valoraciones")
-        .doc(idVal);
+
+    DocumentReference valoracionEliminar =
+        baseDatosRef.collection("solicitudes conversaciones").doc(idVal);
     DocumentReference conversacionesRemitente = baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
@@ -194,37 +264,301 @@ class Solicitud {
     batch.set(estadoConversacionesLocal, estadoConexionUsuario);
     batch.delete(valoracionEliminar);
     await batch.commit().then((value) {
-      rechazarSolicitud(
-        idVal,
-      );
-
       print("value");
     }).catchError((onError) => print(onError));
   }
+}
 
-  void rechazarSolicitud(
-    String id,
-  ) async {
-    QuerySnapshot documento = await baseDatosRef
-        
-      
-        .collection("valoraciones")
-        .where("id valoracion", isEqualTo: id)
-        .get();
-    for (DocumentSnapshot elemento in documento.docs) {
-      if (elemento.get("id valoracion") == id) {
-        String idVal = elemento.id;
-        await baseDatosRef
-            
-            .collection("valoraciones")
-            .doc(idVal)
-            .delete()
-            .then((value) {
-          print("valoracion eliminada");
-        }).catchError((onError) {
-          print(onError);
-        });
-      }
-    }
+class WidgetSolicitudConversacion extends StatefulWidget {
+  static final GlobalKey<AnimatedListState> llaveListaSolicitudes =
+      GlobalKey<AnimatedListState>();
+
+  @override
+  _WidgetSolicitudConversacionState createState() =>
+      _WidgetSolicitudConversacionState();
+}
+
+class _WidgetSolicitudConversacionState
+    extends State<WidgetSolicitudConversacion> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ChangeNotifierProvider.value(
+        value: Solicitudes.instancia,
+        child: Consumer<Solicitudes>(
+          builder: (context, myType, child) {
+            return Container(
+              child: AnimatedList(
+                key: WidgetSolicitudConversacion.llaveListaSolicitudes,
+                initialItemCount:
+                    Solicitudes.instancia.listaSolicitudesConversacion.length,
+                itemBuilder: (BuildContext context, int indice, animation) {
+                  return buildSlideTransition(
+                      context,
+                      animation,
+                      indice,
+                      Solicitudes
+                          .instancia.listaSolicitudesConversacion[indice]);
+                },
+              ),
+            );
+          },
+        ));
+  }
+
+  SizeTransition buildSlideTransition(BuildContext context, Animation animation,
+      int indice, SolicitudConversacion solicitud) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+            height: ScreenUtil().setHeight(400),
+            decoration: BoxDecoration(
+                boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 10)],
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                color: Colors.white),
+            child: Container(
+              child: Stack(
+                children: [
+                  Row(
+                    children: [
+                      fotoSolicitud(solicitud),
+                      cuadroOpcionesSolicitud(solicitud, indice),
+                    ],
+                  ),
+                  !solicitud.solicitudRevelada
+                      ? BackdropFilter(
+                          filter: ui.ImageFilter.blur(
+                            sigmaX: 10.0,
+                            sigmaY: 10.0,
+                          ),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              height: 400.h,
+                              child: Center(
+                                  child: GestureDetector(
+                                onTap: () {
+                                  solicitud.revelarSolicitud();
+                                },
+                                child: Container(
+                                  height: 200.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Revelar",
+                                              style: TextStyle(fontSize: 60.sp),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "100",
+                                                  style: TextStyle(
+                                                      fontSize: 60.sp),
+                                                ),
+                                                Icon(xd.LineAwesomeIcons.coins),
+                                              ],
+                                            )
+                                          ]),
+                                    ),
+                                  ),
+                                ),
+                              ))))
+                      : Container()
+                ],
+              ),
+            )),
+      ),
+    );
+  }
+
+  Flexible cuadroOpcionesSolicitud(
+      SolicitudConversacion valoracion, int indice) {
+    return Flexible(
+      flex: 5,
+      fit: FlexFit.tight,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          cuadroSuperiorValoracion(valoracion),
+          cuadroOpcionesValoracion(indice, valoracion),
+        ],
+      ),
+    );
+  }
+
+  Flexible cuadroOpcionesValoracion(
+      int indice, SolicitudConversacion valoracion) {
+    return Flexible(
+        flex: 4,
+        fit: FlexFit.tight,
+        child: LayoutBuilder(
+          builder: (BuildContext contex, BoxConstraints limites) {
+            return Container(
+              decoration: BoxDecoration(),
+              height: limites.maxHeight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Container(
+                      height: limites.maxHeight,
+                      decoration: BoxDecoration(color: Colors.green),
+                      child: FlatButton(
+                          onPressed: () {
+                            aceptarSolicitud(indice, valoracion);
+                          },
+                          child: Icon(
+                            LineAwesomeIcons.heart_o,
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Container(
+                      decoration: BoxDecoration(color: Colors.red),
+                      height: limites.maxHeight,
+                      child: FlatButton(
+                          onPressed: () {
+                            eliimnarSolicitud(
+                                indice,
+                                Solicitudes
+                                    .instancia
+                                    .listaSolicitudesConversacion[indice]
+                                    .idSolicitudConversacion,valoracion);
+                          },
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                          )),
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+        ));
+  }
+
+  Flexible cuadroSuperiorValoracion(SolicitudConversacion valoracion) {
+    return Flexible(
+      flex: 14,
+      fit: FlexFit.tight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Container(
+                      child: valoracion.nombreEmisor != null
+                          ? Text(
+                              "${valoracion.nombreEmisor}",
+                              style: TextStyle(
+                                  fontSize: ScreenUtil().setSp(40),
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : Text(" ")),
+                ),
+                Flexible(
+                  fit: FlexFit.tight,
+                  flex: 5,
+                  child: Container(child: Text("Le calificaste con")),
+                ),
+                Container(
+                  height: ScreenUtil().setHeight(50),
+                  child: Center(
+                    child: LinearPercentIndicator(
+                      linearStrokeCap: LinearStrokeCap.butt,
+                      //  progressColor: Colors.deepPurple,
+                      percent: valoracion.calificacion / 10,
+                      animationDuration: 300,
+                      lineHeight: ScreenUtil().setHeight(60),
+                      linearGradient: LinearGradient(
+                          colors: [Colors.pink, Colors.pinkAccent[100]]),
+                      center: Text(
+                        "${(valoracion.calificacion).toStringAsFixed(1)}",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ScreenUtil()
+                                .setSp(40, allowFontScalingSelf: true),
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Flexible fotoSolicitud(SolicitudConversacion valoracion) {
+    return Flexible(
+      flex: 3,
+      fit: FlexFit.tight,
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            image: DecorationImage(
+                image: NetworkImage(valoracion.imagenEmisor),
+                fit: BoxFit.cover)),
+      ),
+    );
+  }
+
+  void eliimnarSolicitud(int indice, String id,SolicitudConversacion solicitud) {
+    SolicitudConversacion valoracionQuitada =
+        Solicitudes.instancia.listaSolicitudesConversacion.removeAt(indice);
+    AnimatedListRemovedItemBuilder builder = (context, animation) {
+      return buildSlideTransition(
+          context, animation, indice, valoracionQuitada);
+    };
+    WidgetSolicitudConversacion.llaveListaSolicitudes.currentState
+        .removeItem(indice, builder);
+
+    solicitud.rechazarSolicitudConversacion(id);
+  }
+
+  void aceptarSolicitud(int indice, SolicitudConversacion solicitud) {
+    SolicitudConversacion valoracionAceptada =
+        Solicitudes.instancia.listaSolicitudesConversacion.removeAt(indice);
+    AnimatedListRemovedItemBuilder builder = (context, animation) {
+      return buildSlideTransition(
+          context, animation, indice, valoracionAceptada);
+    };
+    WidgetSolicitudConversacion.llaveListaSolicitudes.currentState
+        .removeItem(indice, builder);
+
+    solicitud.aceptarSolicitud(
+      solicitud.nombreEmisor,
+      solicitud.imagenEmisor,
+      solicitud.idEmisor,
+      solicitud.idSolicitudConversacion,
+    );
   }
 }

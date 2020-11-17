@@ -4,11 +4,13 @@ import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Social/AjustesHotty.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -151,94 +153,127 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Flexible(
-          flex: 2,
-          fit:FlexFit.tight,
+          flex: 1,
+          fit: FlexFit.tight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                decoration: BoxDecoration(
+  borderRadius:BorderRadius.all(Radius.circular(10)),
+  color: Colors.deepPurple[900],
+  
+  
+ 
+),
+              height: 100.h,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                    Text("Hotty Premium",style:  GoogleFonts.lemon(fontSize: 60.sp,color: Colors.white),),
+                   Row(
+        children: [
+            Text("${9.99}",style: GoogleFonts.lemon(fontSize: 40.sp,color: Colors.white)),
+            Icon(Icons.euro,color: Colors.white,)
+        ],
+  )
+                ],
+              ),
+            ),
+                  ),
+        ),
 
-                    child: Container(
-            decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            height: 100.h,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text("Hazte Premium"),
-                Icon(LineAwesomeIcons.google_plus),
-              ],
-            ),
-          ),
-        ),
-       
-        Flexible(
-            flex: 8,
-          fit:FlexFit.tight,
-                    child: Container(
-            child: GridView.count(
-              crossAxisCount: 2,
-              childAspectRatio: 2/1,
-              children: [
-                Container(
-                  child: Center(
-                      child: Column(
-                    children: [
-                      Icon(
-                        Icons.videocam,
-                        size: 120.sp,
-                      ),
-                      Text("Minutos de video")
-                    ],
-                  )),
-                ),
-                       Container(
-              child: Center(
-                  child: Column(
-                children: [
-                  Icon(
-                    LineAwesomeIcons.coins,
-                    size: 120.sp,
-                  ),
-                  Text("Creditos")
-                ],
-              )),
-            ),
-     
-            Container(
-              child: Center(
-                  child: Column(
-                children: [
-                  Icon(
-                    Icons.remove_red_eye,
-                    size: 120.sp,
-                  ),
-                  Text("Revelaciones")
-                ],
-              )),
-            ),
-            Container(
-              child: Center(
-                  child: Column(
-                children: [
-                  Icon(
-                    LineAwesomeIcons.rocket,
-                    size: 120.sp,
-                  ),
-                  Text("Visitas")
-                ],
-              )),
-            ),
+        Flexible(fit: FlexFit.tight,flex: 5,
+        
+child: Container(
+  width: ScreenUtil.screenWidth,
+  child:ListView(children: [
+    botonComprasCreditos(2.99, 2000),
+    botonComprasCreditos(4.99, 6000),
+     botonComprasCreditos(9.99, 15000),
+ botonComprasCreditos(39.99, 80000),
+    botonComprasCreditos(99.99, 500000),
+
+
+
+  ],)
+),
+
+        )
+
+
       ],
-    ),
+    );
+   
+  }
+
+  Padding botonComprasCreditos(double precioPaqueteCreditos, int cantidadCreditos ){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+  borderRadius:BorderRadius.all(Radius.circular(10)),
+  color: Colors.green[200],
+  
+  
+ 
+),
+        child: FlatButton(
+          onPressed: (){},
+          
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+children:[
+  Flexible(fit: FlexFit.tight,flex: 2,child: Icon(LineAwesomeIcons.coins,size:90.sp),),
+  Flexible(fit: FlexFit.tight,flex: 9,child:Text("$cantidadCreditos Creditos",style:  GoogleFonts.lemon(fontSize: 50.sp),),),
+  Flexible(fit: FlexFit.tight,flex: 3,child:Row(
+        children: [
+            Text("$precioPaqueteCreditos",style: GoogleFonts.lemon(fontSize: 40.sp),),
+            Icon(Icons.euro)
+        ],
+  ),)
+]
+            
+            ),
+          ),),
+      ),
+    );
+  }
+}
+
+class BotonFiltros extends StatefulWidget {
+  @override
+  _BotonFiltrosState createState() => _BotonFiltrosState();
+}
+
+class _BotonFiltrosState extends State<BotonFiltros> {
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      onPressed: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>Ajustes()));
+      },
+          child: Container(
+        decoration: BoxDecoration(
+          borderRadius:BorderRadius.all(Radius.circular(10)),
+          color:Colors.green,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:[
+              Text("Ajustes",style: GoogleFonts.lato(fontSize:60.sp,fontWeight: FontWeight.bold)),
+              Icon(Icons.settings)
+            ]
           ),
         ),
-    
-          ],
-        );
-   
+        
+      ),
+    );
   }
 }
 
@@ -1084,13 +1119,36 @@ class EditorComplexion extends StatefulWidget {
 }
 
 class _EditorComplexionState extends State<EditorComplexion> {
+  String valorMostrar;
+  void valorUsuario(){
+       if (Usuario.esteUsuario.complexion == 0) {
+  
+    }
+    if (Usuario.esteUsuario.complexion == 1) {
+     valorMostrar="Normal";
+    }
+    if (Usuario.esteUsuario.complexion == 2) {
+      valorMostrar="Atletica";
+    }
+    if (Usuario.esteUsuario.complexion == 3) {
+       valorMostrar="Musculosa";
+    }
+ 
+    if (Usuario.esteUsuario.complexion == 4) {
+       valorMostrar="Talla grande";
+    }
+    if (Usuario.esteUsuario.complexion == 5) {
+     valorMostrar="Delgada";
+    }
+  }
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.complexion == null
+              color: Usuario.esteUsuario.complexion == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -1108,9 +1166,9 @@ class _EditorComplexionState extends State<EditorComplexion> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.complexion == null
+                    child: Text(Usuario.esteUsuario.complexion == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.complexion}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -1126,7 +1184,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
     bool delgada = false;
 
 
-    if (Usuario.esteUsuario.complexion == null) {
+    if (Usuario.esteUsuario.complexion == 0) {
       atletico = false;
       normal = false;
       kiloDeMas = false;
@@ -1134,22 +1192,20 @@ class _EditorComplexionState extends State<EditorComplexion> {
       tallaGrande = false;
       delgada = false;
     }
-    if (Usuario.esteUsuario.complexion == "Normal") {
+    if (Usuario.esteUsuario.complexion == 1) {
       normal = true;
     }
-    if (Usuario.esteUsuario.complexion == "Atletico") {
+    if (Usuario.esteUsuario.complexion == 2) {
       atletico = true;
     }
-    if (Usuario.esteUsuario.complexion == "Musculosa") {
+    if (Usuario.esteUsuario.complexion == 3) {
       musculosa = true;
     }
-    if (Usuario.esteUsuario.complexion == "Kilitos de mas") {
-      kiloDeMas = true;
-    }
-    if (Usuario.esteUsuario.complexion == "Talla Grande") {
+   
+    if (Usuario.esteUsuario.complexion == 4) {
       tallaGrande = true;
     }
-    if (Usuario.esteUsuario.complexion == "Delgado") {
+    if (Usuario.esteUsuario.complexion == 5) {
       delgada = true;
     }
 
@@ -1183,6 +1239,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
             child: 
             Consumer<Usuario>(
               builder: (context, myType, child) {
+                
                 return          Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -1203,7 +1260,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       )),
                       FlatButton(
                           onPressed: () {
-                            Usuario.esteUsuario.complexion = null;
+                            Usuario.esteUsuario.complexion = 0;
                             Usuario.esteUsuario.notifyListeners();
                             Navigator.pop(context);
                           },
@@ -1234,7 +1291,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       musculosa = false;
                       tallaGrande = false;
                       delgada = false;
-                      Usuario.esteUsuario.complexion = "Normal";
+                      Usuario.esteUsuario.complexion = 1;
                       
                     }),
                 CheckboxListTile(
@@ -1248,7 +1305,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       musculosa = false;
                       tallaGrande = false;
                       delgada = false;
-                      Usuario.esteUsuario.complexion = "Atletica";
+                      Usuario.esteUsuario.complexion = 2;
                       Usuario.esteUsuario.notifyListeners();
                     }),
                 CheckboxListTile(
@@ -1262,23 +1319,10 @@ class _EditorComplexionState extends State<EditorComplexion> {
 
                       tallaGrande = false;
                       delgada = false;
-                      Usuario.esteUsuario.complexion = "Musculosa";
+                      Usuario.esteUsuario.complexion = 3;
                       Usuario.esteUsuario.notifyListeners();
                     }),
-                CheckboxListTile(
-                    value: kiloDeMas,
-                    title: Text("Kilitos de mas"),
-                    onChanged: (bool value) {
-                      kiloDeMas = value;
-                      atletico = false;
-                      normal = false;
-
-                      musculosa = false;
-                      tallaGrande = false;
-                      delgada = false;
-                      Usuario.esteUsuario.complexion = "Kilitos de mas";
-                      Usuario.esteUsuario.notifyListeners();
-                    }),
+            
                 CheckboxListTile(
                     value: tallaGrande,
                     title: Text("Talla Grande"),
@@ -1290,7 +1334,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       musculosa = false;
 
                       delgada = false;
-                      Usuario.esteUsuario.complexion = "Talla Grande";
+                      Usuario.esteUsuario.complexion = 4;
                       Usuario.esteUsuario.notifyListeners();
                     }),
                 CheckboxListTile(
@@ -1303,7 +1347,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       kiloDeMas = false;
                       musculosa = false;
                       tallaGrande = false;
-                      Usuario.esteUsuario.complexion = "Delgado";
+                      Usuario.esteUsuario.complexion = 5;
 
                       Usuario.esteUsuario.notifyListeners();
                     }),
@@ -1327,7 +1371,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       ),
                       child: FlatButton(
                           onPressed: () {
-                            print(Usuario.esteUsuario.altura);
+                          
                             Navigator.pop(context);
                             Usuario.esteUsuario.notifyListeners();
                           },
@@ -1348,165 +1392,6 @@ class _EditorComplexionState extends State<EditorComplexion> {
   }
 }
 
-class ModificadorFormacion extends StatefulWidget {
-  @override
-  _ModificadorFormacionState createState() => _ModificadorFormacionState();
-}
-
-class _ModificadorFormacionState extends State<ModificadorFormacion> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
-      child: Container(
-          color: Usuario.esteUsuario.formacion == null
-              ? Colors.white
-              : Colors.green,
-          height: ScreenUtil().setHeight(200),
-          child: FlatButton(
-            onPressed: () {},
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Flexible(
-                        flex: 2,
-                        fit: FlexFit.tight,
-                        child: Icon(LineAwesomeIcons.graduation_cap)),
-                    Flexible(
-                        flex: 10,
-                        fit: FlexFit.tight,
-                        child: Text(
-                          "Formacion",
-                          style: TextStyle(fontSize: ScreenUtil().setSp(70)),
-                        )),
-                    Flexible(
-                        flex: 4,
-                        fit: FlexFit.tight,
-                        child: Text(Usuario.esteUsuario
-                                    .formacion["entidad formadora"] ==
-                                null
-                            ? "Responder"
-                            : "${Usuario.esteUsuario.formacion["entidad formadora"]}"))
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Flexible(
-                        flex: 10,
-                        fit: FlexFit.tight,
-                        child: Text("Donde te formaste")),
-                    Flexible(
-                        flex: 4,
-                        fit: FlexFit.tight,
-                        child: Text(Usuario.esteUsuario
-                                    .formacion["entidad formadora"] ==
-                                null
-                            ? ""
-                            : "${Usuario.esteUsuario.formacion["entidad formadora"]}"))
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Flexible(
-                        flex: 10,
-                        fit: FlexFit.tight,
-                        child: Text("En que te formaste")),
-                    Flexible(
-                        flex: 4,
-                        fit: FlexFit.tight,
-                        child: Text(Usuario
-                                    .esteUsuario.formacion["formacion"] ==
-                                null
-                            ? ""
-                            : "${Usuario.esteUsuario.formacion["entidad formadora"]}"))
-                  ],
-                ),
-              ],
-            ),
-          )),
-    );
-  }
-}
-
-class ModificadorTrabajo extends StatefulWidget {
-  @override
-  _ModificadorTrabajoState createState() => _ModificadorTrabajoState();
-}
-
-class _ModificadorTrabajoState extends State<ModificadorTrabajo> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
-      child: Container(
-          color:
-              Usuario.esteUsuario.trabajo == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(200),
-          child: FlatButton(
-            onPressed: () {},
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Flexible(
-                        flex: 2,
-                        fit: FlexFit.tight,
-                        child: Icon(LineAwesomeIcons.suitcase)),
-                    Flexible(
-                        flex: 10,
-                        fit: FlexFit.tight,
-                        child: Text(
-                          "Trabajo",
-                          style: TextStyle(fontSize: ScreenUtil().setSp(70)),
-                        )),
-                    Flexible(
-                        flex: 4,
-                        fit: FlexFit.tight,
-                        child: Text(Usuario
-                                    .esteUsuario.trabajo["lugar trabajo"] ==
-                                null
-                            ? "Responder"
-                            : "${Usuario.esteUsuario.trabajo["lugar trabajo"]}"))
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Flexible(
-                        flex: 10,
-                        fit: FlexFit.tight,
-                        child: Text("Trabaja en")),
-                    Flexible(
-                        flex: 4,
-                        fit: FlexFit.tight,
-                        child: Text(Usuario
-                                    .esteUsuario.formacion["lugar trabajo"] ==
-                                null
-                            ? ""
-                            : "${Usuario.esteUsuario.trabajo["lugar trabajo"]}"))
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Flexible(
-                        flex: 10, fit: FlexFit.tight, child: Text("Puesto")),
-                    Flexible(
-                        flex: 4,
-                        fit: FlexFit.tight,
-                        child: Text(
-                            Usuario.esteUsuario.trabajo["puesto"] == null
-                                ? ""
-                                : "${Usuario.esteUsuario.formacion["puesto"]}"))
-                  ],
-                ),
-              ],
-            ),
-          )),
-    );
-  }
-}
 
 class EditorAlcohol extends StatefulWidget {
   @override
@@ -1514,13 +1399,32 @@ class EditorAlcohol extends StatefulWidget {
 }
 
 class _EditorAlcoholState extends State<EditorAlcohol> {
+  String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.alcohol == 1) {
+     valorMostrar="En sociedad";
+    }
+    if (Usuario.esteUsuario.alcohol == 2) {
+      valorMostrar="No bebo";
+    }
+    if (Usuario.esteUsuario.alcohol == 3) {
+       valorMostrar="Bebo";
+    }
+ 
+    if (Usuario.esteUsuario.alcohol == 4) {
+       valorMostrar="En contra del alcohol";
+    }
+    
+  }
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.alcohol == null
+              color: Usuario.esteUsuario.alcohol == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -1537,9 +1441,9 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.alcohol == null
+                    child: Text(Usuario.esteUsuario.alcohol == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.alcohol}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -1553,23 +1457,23 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
 
     bool enContraDeLaBebida = false;
 
-    if (Usuario.esteUsuario.alcohol == null) {
+    if (Usuario.esteUsuario.alcohol == 0) {
       sociedad = false;
       noBebo = false;
       beboMucho = false;
 
       enContraDeLaBebida = false;
     }
-    if(Usuario.esteUsuario.alcohol=="En Sociedad"){
+    if(Usuario.esteUsuario.alcohol==1){
       sociedad=true;
     }
-     if(Usuario.esteUsuario.alcohol=="No Bebo"){
+     if(Usuario.esteUsuario.alcohol==2){
       noBebo=true;
     }
-     if(Usuario.esteUsuario.alcohol=="Bebo mucho"){
+     if(Usuario.esteUsuario.alcohol==3){
       beboMucho=true;
     }
-     if(Usuario.esteUsuario.alcohol=="En Contra del Alcohol"){
+     if(Usuario.esteUsuario.alcohol==4){
       enContraDeLaBebida=true;
     }
     
@@ -1642,7 +1546,7 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
 
                     enContraDeLaBebida = false;
 
-                    Usuario.esteUsuario.alcohol = "En Sociedad";
+                    Usuario.esteUsuario.alcohol = 1;
                     Usuario.esteUsuario.notifyListeners();
                   }),
               CheckboxListTile(
@@ -1656,12 +1560,12 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
 
                     enContraDeLaBebida = false;
 
-                    Usuario.esteUsuario.alcohol = "No Bebo";
+                    Usuario.esteUsuario.alcohol = 2;
                     Usuario.esteUsuario.notifyListeners();
                   }),
               CheckboxListTile(
                   value: beboMucho,
-                  title: Text("Bebo mucho"),
+                  title: Text("Bebo"),
                   onChanged: (bool value) {
                     beboMucho = value;
                     sociedad = false;
@@ -1669,7 +1573,7 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
 
                     enContraDeLaBebida = false;
 
-                    Usuario.esteUsuario.alcohol = "Bebo Mucho";
+                    Usuario.esteUsuario.alcohol =3;
                     Usuario.esteUsuario.notifyListeners();
                   }),
               CheckboxListTile(
@@ -1682,7 +1586,7 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
 
                     beboMucho = false;
 
-                    Usuario.esteUsuario.alcohol = "Odio el Alcohol";
+                    Usuario.esteUsuario.alcohol = 4;
                     Usuario.esteUsuario.notifyListeners();
                   }),
               Row(
@@ -1732,13 +1636,33 @@ class EditorTabaco extends StatefulWidget {
 }
 
 class _EditorTabacoState extends State<EditorTabaco> {
+  
+    String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.tabaco == 1) {
+     valorMostrar="Fumo";
+    }
+    if (Usuario.esteUsuario.tabaco == 2) {
+      valorMostrar="No fumo";
+    }
+    if (Usuario.esteUsuario.tabaco == 3) {
+       valorMostrar="Fumador social";
+    }
+ 
+    if (Usuario.esteUsuario.tabaco == 4) {
+       valorMostrar="Odio el tabaco";
+    }
+    
+  }
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.tabaco == null
+              color: Usuario.esteUsuario.tabaco == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -1755,9 +1679,9 @@ class _EditorTabacoState extends State<EditorTabaco> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.tabaco == null
+                    child: Text(Usuario.esteUsuario.tabaco == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.tabaco}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -1771,23 +1695,23 @@ class _EditorTabacoState extends State<EditorTabaco> {
 
     bool odioTabaco = false;
 
-    if (Usuario.esteUsuario.tabaco == null) {
+    if (Usuario.esteUsuario.tabaco == 0) {
       fumo = false;
       noFumo = false;
       fumoSociedad = false;
 
       odioTabaco = false;
     }
-     if(Usuario.esteUsuario.tabaco=="Fumo"){
+     if(Usuario.esteUsuario.tabaco==1){
       fumo=true;
     }
-    if(Usuario.esteUsuario.tabaco=="No Fumo"){
+    if(Usuario.esteUsuario.tabaco==2){
       noFumo=true;
     }
-    if(Usuario.esteUsuario.tabaco=="Fumador Social"){
+    if(Usuario.esteUsuario.tabaco==3){
       fumoSociedad=true;
     }
-    if(Usuario.esteUsuario.tabaco=="Odio el Tabaco"){
+    if(Usuario.esteUsuario.tabaco==4){
       odioTabaco=true;
     }
 
@@ -1831,7 +1755,7 @@ create: (_)=>Usuario.esteUsuario,
                   )),
                   FlatButton(
                       onPressed: () {
-                        Usuario.esteUsuario.tabaco = null;
+                        Usuario.esteUsuario.tabaco = 0;
                         Usuario.esteUsuario.notifyListeners();
                         Navigator.pop(context);
                       },
@@ -1858,7 +1782,7 @@ create: (_)=>Usuario.esteUsuario,
 
                   odioTabaco = false;
 
-                  Usuario.esteUsuario.tabaco = "Fumo";
+                  Usuario.esteUsuario.tabaco = 1;
                   Usuario.esteUsuario.notifyListeners();
                 }),
             CheckboxListTile(
@@ -1872,7 +1796,7 @@ create: (_)=>Usuario.esteUsuario,
 
                   odioTabaco = false;
 
-                  Usuario.esteUsuario.tabaco = "No Fumo";
+                  Usuario.esteUsuario.tabaco =2;
                   Usuario.esteUsuario.notifyListeners();
                 }),
             CheckboxListTile(
@@ -1885,7 +1809,7 @@ create: (_)=>Usuario.esteUsuario,
 
                   odioTabaco = false;
 
-                  Usuario.esteUsuario.tabaco = "Fumador Social";
+                  Usuario.esteUsuario.tabaco = 3;
                   Usuario.esteUsuario.notifyListeners();
                 }),
             CheckboxListTile(
@@ -1898,7 +1822,7 @@ create: (_)=>Usuario.esteUsuario,
 
                   fumoSociedad = false;
 
-                  Usuario.esteUsuario.tabaco = "Odio el Tabaco";
+                  Usuario.esteUsuario.tabaco = 4;
                   Usuario.esteUsuario.notifyListeners();
                 }),
             Row(
@@ -1921,7 +1845,7 @@ create: (_)=>Usuario.esteUsuario,
                   ),
                   child: FlatButton(
                       onPressed: () {
-                        print(Usuario.esteUsuario.altura);
+                 
                         Navigator.pop(context);
                         Usuario.esteUsuario.notifyListeners();
                       },
@@ -1942,41 +1866,6 @@ create: (_)=>Usuario.esteUsuario,
   }
 }
 
-class ModificadorIdiomas extends StatefulWidget {
-  @override
-  _ModificadorIdiomasState createState() => _ModificadorIdiomasState();
-}
-
-class _ModificadorIdiomasState extends State<ModificadorIdiomas> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
-      child: Container(
-          color:
-              Usuario.esteUsuario.idiomas == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
-          child: FlatButton(
-            onPressed: () {},
-            child: Row(
-              children: <Widget>[
-                Flexible(
-                    flex: 2,
-                    fit: FlexFit.tight,
-                    child: Icon(LineAwesomeIcons.language)),
-                Flexible(flex: 10, fit: FlexFit.tight, child: Text("Idiomas")),
-                Flexible(
-                    flex: 4,
-                    fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.idiomas == null
-                        ? "Responder"
-                        : "${Usuario.esteUsuario.idiomas}"))
-              ],
-            ),
-          )),
-    );
-  }
-}
 
 class EditorMascotas extends StatefulWidget {
   @override
@@ -1984,13 +1873,34 @@ class EditorMascotas extends StatefulWidget {
 }
 
 class _EditorMascotasState extends State<EditorMascotas> {
+      String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.mascotas == 1) {
+     valorMostrar="Perros";
+    }
+    if (Usuario.esteUsuario.mascotas == 2) {
+      valorMostrar="Gatos";
+    }
+    if (Usuario.esteUsuario.mascotas == 3) {
+       valorMostrar="No tengo";
+    }
+ 
+    if (Usuario.esteUsuario.mascotas == 4) {
+       valorMostrar="Me gustaria";
+    }
+    
+  }
+
+  
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.mascotas == null
+              color: Usuario.esteUsuario.mascotas == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -2007,9 +1917,9 @@ class _EditorMascotasState extends State<EditorMascotas> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.mascotas == null
+                    child: Text(Usuario.esteUsuario.mascotas == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.mascotas}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -2020,36 +1930,29 @@ class _EditorMascotasState extends State<EditorMascotas> {
     bool perro = false;
     bool gato = false;
     bool nunca = false;
-    bool varias = false;
-    bool otras = false;
+    
     bool meGustaria = false;
 
-    if (Usuario.esteUsuario.mascotas == null) {
+    if (Usuario.esteUsuario.mascotas == 0) {
       perro = false;
       gato = false;
       nunca = false;
-      varias = false;
-      otras = false;
+ 
       meGustaria = false;
     }
-    if (Usuario.esteUsuario.mascotas == "Perro") {
+    if (Usuario.esteUsuario.mascotas == 1) {
       perro = true;
     }
-    if (Usuario.esteUsuario.mascotas == "Gato") {
+    if (Usuario.esteUsuario.mascotas == 2) {
       gato = true;
     }
-    if (Usuario.esteUsuario.mascotas == "Nunca") {
+    if (Usuario.esteUsuario.mascotas == 3) {
       nunca = true;
     }
-    if (Usuario.esteUsuario.mascotas == "Me Gustaria") {
+    if (Usuario.esteUsuario.mascotas == 4) {
       meGustaria = true;
     }
-    if (Usuario.esteUsuario.mascotas == "Otras (Preguntame)") {
-      otras = true;
-    }
-    if (Usuario.esteUsuario.mascotas == "Varias") {
-      varias = true;
-    }
+ 
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -2107,12 +2010,12 @@ class _EditorMascotasState extends State<EditorMascotas> {
                       onChanged: (bool value) {
                         perro = value;
                         gato = false;
-                        varias = false;
+                 
                         nunca = false;
-                        otras = false;
+                  
                         meGustaria = false;
 
-                        Usuario.esteUsuario.mascotas = "Perro";
+                        Usuario.esteUsuario.mascotas = 1;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2120,27 +2023,27 @@ class _EditorMascotasState extends State<EditorMascotas> {
                       title: Text("Gato"),
                       onChanged: (bool value) {
                         gato = value;
-                        varias = false;
+                    
                         perro = false;
                         nunca = false;
-                        otras = false;
+                       
                         meGustaria = false;
 
-                        Usuario.esteUsuario.mascotas = "Gato";
+                        Usuario.esteUsuario.mascotas = 2;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
                       value: nunca,
-                      title: Text("Nunca"),
+                      title: Text("No tengo"),
                       onChanged: (bool value) {
                         nunca = value;
                         perro = false;
                         gato = false;
-                        otras = false;
+                        
                         meGustaria = false;
-                        varias = false;
+                     
 
-                        Usuario.esteUsuario.mascotas = "Nunca";
+                        Usuario.esteUsuario.mascotas = 3;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2150,43 +2053,14 @@ class _EditorMascotasState extends State<EditorMascotas> {
                         meGustaria = value;
                         perro = false;
                         gato = false;
-                        otras = false;
+                       
                         nunca = false;
-                        varias = false;
+                       
 
-                        Usuario.esteUsuario.mascotas = "Me Gustaria";
+                        Usuario.esteUsuario.mascotas = 4;
                         Usuario.esteUsuario.notifyListeners();
                       }),
-                CheckboxListTile(
-                      value: otras,
-                      title: Text("Otras (Preguntame)"),
-                      onChanged: (bool value) {
-                        otras = value;
-                        meGustaria = false;
-                        perro = false;
-                        gato = false;
-
-                        varias = false;
-
-                        nunca = false;
-
-                        Usuario.esteUsuario.mascotas = "Otras";
-                        Usuario.esteUsuario.notifyListeners();
-                      }),
-                CheckboxListTile(
-                      value: varias,
-                      title: Text("Varias"),
-                      onChanged: (bool value) {
-                        varias = value;
-                        meGustaria = false;
-                        perro = false;
-                        gato = false;
-                        otras = false;
-                        nunca = false;
-
-                        Usuario.esteUsuario.mascotas = "Varias";
-                        Usuario.esteUsuario.notifyListeners();
-                      }),
+        
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
@@ -2207,7 +2081,7 @@ class _EditorMascotasState extends State<EditorMascotas> {
                         ),
                         child: FlatButton(
                             onPressed: () {
-                              print(Usuario.esteUsuario.altura);
+                            
                               Navigator.pop(context);
                               Usuario.esteUsuario.notifyListeners();
                             },
@@ -2237,13 +2111,32 @@ class EditorObjetivoRelaciones extends StatefulWidget {
 }
 
 class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
+      String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.busco == 1) {
+     valorMostrar="Relacion seria";
+    }
+    if (Usuario.esteUsuario.busco == 2) {
+      valorMostrar="Lo que surja";
+    }
+    if (Usuario.esteUsuario.busco == 3) {
+       valorMostrar="Algo casual";
+    }
+ 
+    if (Usuario.esteUsuario.busco == 4) {
+       valorMostrar="No se";
+    }
+    
+  }
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.busco == null
+              color: Usuario.esteUsuario.busco == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -2260,9 +2153,9 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.busco == null
+                    child: Text(Usuario.esteUsuario.busco == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.busco}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -2275,23 +2168,23 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
     bool casual = false;
     bool noLoSe = false;
 
-    if (Usuario.esteUsuario.mascotas == null) {
+    if (Usuario.esteUsuario.mascotas == 0) {
       relacionSeria = false;
       loQueSurja = false;
       casual = false;
       noLoSe = false;
     }
 
-    if (Usuario.esteUsuario.busco == "Relacion seria") {
+    if (Usuario.esteUsuario.busco == 1) {
       relacionSeria = true;
     }
-    if (Usuario.esteUsuario.busco == "Lo que surja") {
+    if (Usuario.esteUsuario.busco == 2) {
       loQueSurja = true;
     }
-    if (Usuario.esteUsuario.busco == "Casual") {
+    if (Usuario.esteUsuario.busco == 3) {
       casual = true;
     }
-    if (Usuario.esteUsuario.busco == "No se") {
+    if (Usuario.esteUsuario.busco == 4) {
       noLoSe = true;
     }
 
@@ -2328,7 +2221,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
                         )),
                         FlatButton(
                             onPressed: () {
-                              Usuario.esteUsuario.busco = null;
+                              Usuario.esteUsuario.busco = 0;
                               Usuario.esteUsuario.notifyListeners();
                               Navigator.pop(context);
                             },
@@ -2353,7 +2246,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
                         noLoSe = false;
                         casual = false;
 
-                        Usuario.esteUsuario.busco = "Relacion seria";
+                        Usuario.esteUsuario.busco = 1;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2365,7 +2258,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
                         relacionSeria = false;
                         casual = false;
 
-                        Usuario.esteUsuario.busco = "Lo que surja";
+                        Usuario.esteUsuario.busco =2;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2378,7 +2271,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
 
                         noLoSe = false;
 
-                        Usuario.esteUsuario.busco = "Casual";
+                        Usuario.esteUsuario.busco = 3;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2392,7 +2285,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
 
                         casual = false;
 
-                        Usuario.esteUsuario.busco = "No se";
+                        Usuario.esteUsuario.busco =4;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 Row(
@@ -2415,7 +2308,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
                         ),
                         child: FlatButton(
                             onPressed: () {
-                              print(Usuario.esteUsuario.altura);
+                              
                               Navigator.pop(context);
                               Usuario.esteUsuario.notifyListeners();
                             },
@@ -2443,16 +2336,36 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
 class EditorHijos extends StatefulWidget {
   @override
   _EditorHijosState createState() => _EditorHijosState();
+
+
 }
 
 class _EditorHijosState extends State<EditorHijos> {
+
+      String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.hijos == 1) {
+     valorMostrar="Algun dia";
+    }
+    if (Usuario.esteUsuario.hijos == 2) {
+      valorMostrar="Tengo";
+    }
+    if (Usuario.esteUsuario.hijos == 3) {
+       valorMostrar="Tengo";
+    }
+ 
+
+    
+  }
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.hijos == null
+              color: Usuario.esteUsuario.hijos == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -2469,9 +2382,9 @@ class _EditorHijosState extends State<EditorHijos> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.hijos == null
+                    child: Text(Usuario.esteUsuario.hijos == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.hijos}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -2483,18 +2396,18 @@ class _EditorHijosState extends State<EditorHijos> {
     bool nohijos = false;
     bool tengoHijos = false;
 
-    if (Usuario.esteUsuario.hijos == null) {
+    if (Usuario.esteUsuario.hijos == 0) {
       sihijos = false;
       nohijos = false;
       tengoHijos = false;
     }
-    if(Usuario.esteUsuario.hijos=="Algun dia"){
+    if(Usuario.esteUsuario.hijos==1){
       sihijos=true;
     }
-    if(Usuario.esteUsuario.hijos=="Nunca"){
+    if(Usuario.esteUsuario.hijos==2){
       nohijos=true;
     }
-    if(Usuario.esteUsuario.hijos=="Tengo hijo(s)"){
+    if(Usuario.esteUsuario.hijos==3){
       tengoHijos=true;
     }
 
@@ -2532,7 +2445,7 @@ class _EditorHijosState extends State<EditorHijos> {
                         )),
                         FlatButton(
                             onPressed: () {
-                              Usuario.esteUsuario.hijos = null;
+                              Usuario.esteUsuario.hijos = 0;
                               Usuario.esteUsuario.notifyListeners();
                               Navigator.pop(context);
                             },
@@ -2557,7 +2470,7 @@ class _EditorHijosState extends State<EditorHijos> {
 
                         tengoHijos = false;
 
-                        Usuario.esteUsuario.hijos = "Algun dia";
+                        Usuario.esteUsuario.hijos = 1;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2569,7 +2482,7 @@ class _EditorHijosState extends State<EditorHijos> {
                         sihijos = false;
                         tengoHijos = false;
 
-                        Usuario.esteUsuario.hijos = "Nunca";
+                        Usuario.esteUsuario.hijos = 2;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2580,7 +2493,7 @@ class _EditorHijosState extends State<EditorHijos> {
                         sihijos = false;
                         nohijos = false;
 
-                        Usuario.esteUsuario.hijos = "Tengo hijo(s)";
+                        Usuario.esteUsuario.hijos = 3;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 Row(
@@ -2603,7 +2516,7 @@ class _EditorHijosState extends State<EditorHijos> {
                         ),
                         child: FlatButton(
                             onPressed: () {
-                              print(Usuario.esteUsuario.altura);
+                              
                               Navigator.pop(context);
                               Usuario.esteUsuario.notifyListeners();
                             },
@@ -2629,41 +2542,6 @@ class _EditorHijosState extends State<EditorHijos> {
   }
 }
 
-class ModificadorZodiaco extends StatefulWidget {
-  @override
-  _ModificadorZodiacoState createState() => _ModificadorZodiacoState();
-}
-
-class _ModificadorZodiacoState extends State<ModificadorZodiaco> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
-      child: Container(
-          color:
-              Usuario.esteUsuario.zodiaco == null ? Colors.white : Colors.green,
-          height: ScreenUtil().setHeight(150),
-          child: FlatButton(
-            onPressed: () {},
-            child: Row(
-              children: <Widget>[
-                Flexible(
-                    flex: 2,
-                    fit: FlexFit.tight,
-                    child: Icon(LineAwesomeIcons.star_of_david)),
-                Flexible(flex: 10, fit: FlexFit.tight, child: Text("Zodiaco")),
-                Flexible(
-                    flex: 4,
-                    fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.zodiaco == null
-                        ? "Responder"
-                        : "${Usuario.esteUsuario.zodiaco}"))
-              ],
-            ),
-          )),
-    );
-  }
-}
 
 class EditorPolitica extends StatefulWidget {
   @override
@@ -2671,13 +2549,32 @@ class EditorPolitica extends StatefulWidget {
 }
 
 class _EditorPoliticaState extends State<EditorPolitica> {
+      String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.politica == 1) {
+     valorMostrar="Derechas";
+    }
+    if (Usuario.esteUsuario.politica == 2) {
+      valorMostrar="Izquierdas";
+    }
+    if (Usuario.esteUsuario.politica == 3) {
+       valorMostrar="Centro";
+    }
+ 
+    if (Usuario.esteUsuario.politica == 4) {
+       valorMostrar="Apolitico";
+    }
+    
+  }
   @override
   Widget build(BuildContext context) {
+    valorUsuario();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.politica == null
+              color: Usuario.esteUsuario.politica == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -2694,9 +2591,9 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.politica == null
+                    child: Text(Usuario.esteUsuario.politica == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.politica}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -2709,22 +2606,22 @@ class _EditorPoliticaState extends State<EditorPolitica> {
     bool centro = false;
     bool apolitico = false;
 
-    if (Usuario.esteUsuario.politica == null) {
+    if (Usuario.esteUsuario.politica == 0) {
       derechas = false;
       izquierdas = false;
       centro = false;
       apolitico = false;
     }
-     if(Usuario.esteUsuario.politica=="De Derechas"){
+     if(Usuario.esteUsuario.politica==1){
       derechas=true;
     }
-     if(Usuario.esteUsuario.politica=="De Izquierdas"){
+     if(Usuario.esteUsuario.politica==2){
       izquierdas=true;
     }
-     if(Usuario.esteUsuario.politica=="De centro"){
+     if(Usuario.esteUsuario.politica==3){
       centro=true;
     }
-     if(Usuario.esteUsuario.politica=="Apolitico"){
+     if(Usuario.esteUsuario.politica==4){
       apolitico=true;
     }
 
@@ -2760,7 +2657,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                         )),
                         FlatButton(
                             onPressed: () {
-                              Usuario.esteUsuario.politica = null;
+                              Usuario.esteUsuario.politica = 0;
                               Usuario.esteUsuario.notifyListeners();
                               Navigator.pop(context);
                             },
@@ -2785,7 +2682,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                         apolitico = false;
                         centro = false;
 
-                        Usuario.esteUsuario.politica = "Derechas";
+                        Usuario.esteUsuario.politica = 1;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2797,7 +2694,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                         derechas = false;
                         centro = false;
 
-                        Usuario.esteUsuario.politica = "Izquierdas";
+                        Usuario.esteUsuario.politica = 2;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2809,7 +2706,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                         izquierdas = false;
                         apolitico = false;
 
-                        Usuario.esteUsuario.politica = "Centro";
+                        Usuario.esteUsuario.politica = 3;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -2821,7 +2718,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                         izquierdas = false;
                         centro = false;
 
-                        Usuario.esteUsuario.politica = "Apolitico";
+                        Usuario.esteUsuario.politica = 4;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 Row(
@@ -2844,7 +2741,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                         ),
                         child: FlatButton(
                             onPressed: () {
-                              print(Usuario.esteUsuario.altura);
+                           
                               Navigator.pop(context);
                               Usuario.esteUsuario.notifyListeners();
                             },
@@ -2877,10 +2774,11 @@ class ModificadorReligion extends StatefulWidget {
 class _ModificadorReligionState extends State<ModificadorReligion> {
   @override
   Widget build(BuildContext context) {
+    
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
-          color: Usuario.esteUsuario.religion == null
+          color: Usuario.esteUsuario.religion == 0
               ? Colors.white
               : Colors.green,
           height: ScreenUtil().setHeight(150),
@@ -2896,7 +2794,7 @@ class _ModificadorReligionState extends State<ModificadorReligion> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.religion == null
+                    child: Text(Usuario.esteUsuario.religion == 0
                         ? "Responder"
                         : "${Usuario.esteUsuario.religion}"))
               ],
@@ -2912,13 +2810,33 @@ class EditorVivirCon extends StatefulWidget {
 }
 
 class _EditorVivirConState extends State<EditorVivirCon> {
+      String valorMostrar;
+  void valorUsuario(){
+      
+    if (Usuario.esteUsuario.vivoCon == 1) {
+     valorMostrar="Solo";
+    }
+    if (Usuario.esteUsuario.vivoCon == 2) {
+      valorMostrar="No Con padres";
+    }
+    if (Usuario.esteUsuario.vivoCon == 3) {
+       valorMostrar="Con amigos";
+    }
+ 
+   
+    
+  }
   @override
   Widget build(BuildContext context) {
+valorUsuario();
+
+
+    
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.vivoCon == null
+              color: Usuario.esteUsuario.vivoCon == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -2935,9 +2853,9 @@ class _EditorVivirConState extends State<EditorVivirCon> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.vivoCon == null
+                    child: Text(Usuario.esteUsuario.vivoCon == 0
                         ? "Responder"
-                        : "${Usuario.esteUsuario.vivoCon}"))
+                        : "$valorMostrar"))
               ],
             ),
           )),
@@ -2949,19 +2867,19 @@ class _EditorVivirConState extends State<EditorVivirCon> {
     bool vivirPadres = false;
     bool vivirAmigos = false;
 
-    if (Usuario.esteUsuario.vivoCon == null) {
+    if (Usuario.esteUsuario.vivoCon == 0) {
       vivirSolo = false;
       vivirPadres = false;
       vivirAmigos = false;
     }
 
-    if(Usuario.esteUsuario.vivoCon=="Solo"){
+    if(Usuario.esteUsuario.vivoCon==1){
       vivirSolo=true;
     }
-     if(Usuario.esteUsuario.vivoCon=="Con mis padres"){
+     if(Usuario.esteUsuario.vivoCon==2){
       vivirPadres=true;
     }
-     if(Usuario.esteUsuario.vivoCon=="Con amigos"){
+     if(Usuario.esteUsuario.vivoCon==3){
       vivirAmigos=true;
     }
 
@@ -2998,7 +2916,7 @@ class _EditorVivirConState extends State<EditorVivirCon> {
                         )),
                         FlatButton(
                             onPressed: () {
-                              Usuario.esteUsuario.vivoCon = null;
+                              Usuario.esteUsuario.vivoCon = 0;
                               Usuario.esteUsuario.notifyListeners();
                               Navigator.pop(context);
                             },
@@ -3023,7 +2941,7 @@ class _EditorVivirConState extends State<EditorVivirCon> {
 
                         vivirAmigos = false;
 
-                        Usuario.esteUsuario.vivoCon = "Solo";
+                        Usuario.esteUsuario.vivoCon = 1;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -3035,7 +2953,7 @@ class _EditorVivirConState extends State<EditorVivirCon> {
                         vivirSolo = false;
                         vivirAmigos = false;
 
-                        Usuario.esteUsuario.vivoCon = "Con padres";
+                        Usuario.esteUsuario.vivoCon = 2;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 CheckboxListTile(
@@ -3046,7 +2964,7 @@ class _EditorVivirConState extends State<EditorVivirCon> {
                         vivirSolo = false;
                         vivirPadres = false;
 
-                        Usuario.esteUsuario.vivoCon = "Con amigos";
+                        Usuario.esteUsuario.vivoCon =3;
                         Usuario.esteUsuario.notifyListeners();
                       }),
                 Row(
@@ -3069,7 +2987,7 @@ class _EditorVivirConState extends State<EditorVivirCon> {
                         ),
                         child: FlatButton(
                             onPressed: () {
-                              print(Usuario.esteUsuario.altura);
+                            
                               Navigator.pop(context);
                               Usuario.esteUsuario.notifyListeners();
                             },

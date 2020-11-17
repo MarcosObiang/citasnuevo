@@ -24,8 +24,12 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^4.0.4
+  flutter_xlider: ^3.4.0
   flutter_secure_storage: ^3.3.5
   drag_and_drop_gridview: ^1.0.8
+  bloc_pattern: ^2.3.2
+ 
+  geolocator: ^6.1.5
   image_picker: ^0.6.7+4
   percent_indicator: "^2.1.1"
   flutter_screenutil: ^1.0.2

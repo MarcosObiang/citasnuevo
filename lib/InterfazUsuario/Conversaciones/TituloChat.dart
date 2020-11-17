@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantallaConversacion.dart';
 import 'package:http/http.dart' as http;
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
@@ -22,7 +23,8 @@ class TituloChat extends StatefulWidget {
   String imagen;
   String nombre;
   PantallaConversacion pantalla;
-  int mensajesSinLeer;
+
+  int mensajesSinLeer=0;
 
   Map<String, dynamic> ultimoMensaje = new Map();
   String mensajeId;
@@ -33,6 +35,7 @@ class TituloChat extends StatefulWidget {
       {@required this.conversacion,
       @required this.estadoConexion,
       @required this.idConversacion,
+      @required this.mensajesSinLeer,
       @required this.estadoConversacion,
       @required this.idRemitente,
       @required this.listadeMensajes,
@@ -56,6 +59,7 @@ class TituloChat extends StatefulWidget {
           .limit(100)
           .get()
           .then((dato) async {
+            if(dato!=null){
         if (dato.docs.length > 0) {
           print("${dato.docs.length} mensajes para el en firebase");
           print(rutaRemitente);
@@ -63,7 +67,8 @@ class TituloChat extends StatefulWidget {
           for (int a = 0; a < dato.docs.length; a++) {
             print(dato.docs[a].get("Tipo Mensaje"));
             if (dato.docs[a].get("Tipo Mensaje") == "Texto" ||
-                dato.docs[a].get("Tipo Mensaje") == "Imagen"||   dato.docs[a].get("Tipo Mensaje") == "Gif") {
+                dato.docs[a].get("Tipo Mensaje") == "Imagen" ||
+                dato.docs[a].get("Tipo Mensaje") == "Gif") {
               Mensajes mensaje = new Mensajes(
                 mensajeLeido: dato.docs[a].get("mensajeLeido"),
                 nombreEmisor: dato.docs[a].get("Nombre emisor"),
@@ -100,7 +105,7 @@ class TituloChat extends StatefulWidget {
               temp = List.from(temp)..add(mensaje);
             }
           }
-        }
+        }}
       });
     }
 
@@ -218,7 +223,7 @@ class TituloChat extends StatefulWidget {
     String idMensaje,
   ) async {
     WriteBatch escrituraMensajes = baseDatosRef.batch();
-    String idMensajeUnico = Solicitud.instancia.crearCodigo();
+    String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
     DocumentReference direccionMensajes = baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
@@ -256,6 +261,7 @@ class TituloChat extends StatefulWidget {
         mensaje["Tipo Mensaje"] = "Texto";
 
         escrituraMensajes.update(referenciaConversacionRemitente, {
+          "cantidadMensajesSinLeer": FieldValue.increment(1),
           "ultimoMensaje": {
             "mensaje": mensaje["Mensaje"],
             "tipoMensaje": "texto",
@@ -302,7 +308,7 @@ class TituloChat extends StatefulWidget {
       Uint8List audio, String idMensaje, int duracion) async {
     FirebaseStorage storage = FirebaseStorage.instance;
     StorageReference reference = storage.ref();
-    String idMensajeUnico = Solicitud.instancia.crearCodigo();
+    String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
     String ruta = "${idRemitente}/Perfil/NotasVoz/${crearCodigo()}.aac";
     StorageReference referenciaArchivo = reference.child(ruta);
     WriteBatch escrituraMensajes = baseDatosRef.batch();
@@ -355,6 +361,7 @@ class TituloChat extends StatefulWidget {
       }
       if (!this.conversacion.grupo) {
         escrituraMensajes.update(referenciaConversacionRemitente, {
+          "cantidadMensajesSinLeer": FieldValue.increment(1),
           "ultimoMensaje": {
             "mensaje": mensaje["Mensaje"],
             "tipoMensaje": "audio",
@@ -378,7 +385,7 @@ class TituloChat extends StatefulWidget {
   void enviarMensajeImagen(File imagen, String idMensaje) async {
     if (imagen != null) {
       FirebaseStorage storage = FirebaseStorage.instance;
-      String idMensajeUnico = Solicitud.instancia.crearCodigo();
+      String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
       StorageReference reference = storage.ref();
       String ruta =
           "${idRemitente}/Perfil/ImagenesConversaciones/${crearCodigo()}.jpg";
@@ -434,6 +441,7 @@ class TituloChat extends StatefulWidget {
         }
         if (!conversacion.grupo) {
           escrituraMensajes.update(referenciaConversacionRemitente, {
+            "cantidadMensajesSinLeer": FieldValue.increment(1),
             "ultimoMensaje": {
               "mensaje": mensaje["Mensaje"],
               "tipoMensaje": "imagen",
@@ -460,7 +468,7 @@ class TituloChat extends StatefulWidget {
     http.get(urlImagen).then((value) async {
       if (urlImagen != null) {
         FirebaseStorage storage = FirebaseStorage.instance;
-        String idMensajeUnico = Solicitud.instancia.crearCodigo();
+        String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
         StorageReference reference = storage.ref();
         String ruta =
             "${idRemitente}/Perfil/ImagenesConversaciones/${crearCodigo()}.gif";
@@ -514,6 +522,7 @@ class TituloChat extends StatefulWidget {
           }
           if (!conversacion.grupo) {
             escrituraMensajes.update(referenciaConversacionRemitente, {
+              "cantidadMensajesSinLeer": FieldValue.increment(1),
               "ultimoMensaje": {
                 "mensaje": mensaje["Mensaje"],
                 "tipoMensaje": "gif",
@@ -574,7 +583,7 @@ class TituloChatState extends State<TituloChat> {
   String imagen;
   String nombre;
   Map<String, dynamic> ultimoMensaje = Map();
-  
+
   int cantidadMensajesSinLeer = 0;
   TituloChatState(
       String imagen, String nombre, Map<String, dynamic> ultimoMensaje) {
@@ -596,57 +605,13 @@ class TituloChatState extends State<TituloChat> {
 
 
 
-
-  void crearPantalla(){
-    widget.pantalla = PantallaConversacion(
-              estadoConexion: estadoConexionUsuario,
-              enviarMensajeImagenGif: widget.enviarMensajeImagenGif,
-              idConversacion: widget.idConversacion,
-              imagenId: widget.imagen,
-              marcarMensajeLeidoRemitente: dejarMensajeLeidoRemitente,
-              esGrupo: widget.conversacion.grupo,
-              idRemitente: widget.idRemitente,
-              marcarLeidoMensaje: dejarMensajesEnLeido,
-              recibirEstadoConversacionActualizado: estadoEscribiendo,
-              estadoEscribiendoRemitente: widget.estadoConversacion,
-              estadoConversacion: widget.actualizarEstadoConversacion,
-              mensajesImagen: widget.enviarMensajeImagen,
-              mensajesTexto: mensajes,
-              nombre: nombre,
-              mensajesEnviar: widget.enviarMensaje,
-              mensajesAudio: widget.enviarMensajeAudio,
-              mensajeId: widget.mensajeId,
-            );
-               Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => widget.pantalla));
-  }
-
-  void dejarMensajesEnLeido() async {
-    FirebaseFirestore referenciaBaseDatos = FirebaseFirestore.instance;
-    WriteBatch escrituraLeidoMensajes = referenciaBaseDatos.batch();
-    DocumentReference referenciaMensaje;
-    if (widget.listadeMensajes != null) {
-      for (int i = 0; i < widget.listadeMensajes.length; i++) {
-        if (widget.listadeMensajes[i].mensajeLeido == false &&
-            widget.listadeMensajes[i].mensaje != null) {
-          widget.listadeMensajes[i].mensajeLeido = true;
-          referenciaMensaje = referenciaBaseDatos
-              .collection("usuarios")
-              .doc(widget.idRemitente)
-              .collection("mensajes")
-              .doc(widget.listadeMensajes[i].identificadorUnicoMensaje);
-          escrituraLeidoMensajes
-              .update(referenciaMensaje, {"mensajeLeido": true});
-        }
-      }
-      await escrituraLeidoMensajes.commit().catchError((onError) {
-        print(onError);
-      });
-    }
-  }
-
   void dejarMensajeLeidoRemitente() async {
     FirebaseFirestore referenciaBaseDatos = FirebaseFirestore.instance;
+    DocumentReference referenciaConversacion = referenciaBaseDatos
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("conversaciones")
+        .doc(widget.idConversacion);
     WriteBatch escrituraLeidoMensajes = referenciaBaseDatos.batch();
     DocumentReference referenciaMensaje;
     if (widget.listadeMensajes != null) {
@@ -661,7 +626,8 @@ class TituloChatState extends State<TituloChat> {
               .doc(widget.idRemitente)
               .collection("mensajes")
               .doc(widget.listadeMensajes[i].identificadorUnicoMensaje);
-
+          escrituraLeidoMensajes
+              .update(referenciaConversacion, {"cantidadMensajesSinLeer": 0});
           escrituraLeidoMensajes
               .update(referenciaMensaje, {"mensajeLeidoRemitente": true});
         }
@@ -672,21 +638,7 @@ class TituloChatState extends State<TituloChat> {
     }
   }
 
-  int hayMensajesSinLeer() {
-    int mensajeSinLeer = 0;
-    if (widget.listadeMensajes != null) {
-      for (int i = 0; i < widget.listadeMensajes.length; i++) {
-        if (widget.listadeMensajes[i].mensajeLeido == false) {
-          mensajeSinLeer++;
-          
-        }
-      }
-    }
-  widget.mensajesSinLeer=mensajeSinLeer;
-  print(widget.mensajesSinLeer);
- 
-    return mensajeSinLeer;
-  }
+  
 
   String mostrarDuracion(int duracion) {
     Duration duracionMensajeVoz = new Duration(milliseconds: duracion);
@@ -703,8 +655,8 @@ class TituloChatState extends State<TituloChat> {
         value: Conversacion.conversaciones,
         child: Consumer<Conversacion>(
           builder: (BuildContext context, conversacion, Widget child) {
-            cantidadMensajesSinLeer = hayMensajesSinLeer();
-            widget.mensajesSinLeer=cantidadMensajesSinLeer;
+            
+         cantidadMensajesSinLeer=   widget.mensajesSinLeer  ;
             widget.pantalla = PantallaConversacion(
               estadoConexion: estadoConexionUsuario,
               enviarMensajeImagenGif: widget.enviarMensajeImagenGif,
@@ -713,7 +665,6 @@ class TituloChatState extends State<TituloChat> {
               marcarMensajeLeidoRemitente: dejarMensajeLeidoRemitente,
               esGrupo: widget.conversacion.grupo,
               idRemitente: widget.idRemitente,
-              marcarLeidoMensaje: dejarMensajesEnLeido,
               recibirEstadoConversacionActualizado: estadoEscribiendo,
               estadoEscribiendoRemitente: widget.estadoConversacion,
               estadoConversacion: widget.actualizarEstadoConversacion,
@@ -726,22 +677,27 @@ class TituloChatState extends State<TituloChat> {
             );
 
             return Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(4.0),
               child: FlatButton(
                 onPressed: () async {
                   if (widget.listadeMensajes == null) {
                     widget.listadeMensajes = await widget.obtenerMensajes(
                         widget.mensajeId, widget.idRemitente);
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => widget.pantalla));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => widget.pantalla));
                   } else {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => widget.pantalla));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => widget.pantalla));
                   }
                 },
                 child: Container(
-                    height: ScreenUtil().setHeight(250),
+                    height: ScreenUtil().setHeight(200),
                     decoration: BoxDecoration(
+                      color: widget.mensajesSinLeer>0?Colors.purple[100]:Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     child: Padding(
@@ -786,9 +742,9 @@ class TituloChatState extends State<TituloChat> {
                                                   ? Text("")
                                                   : Text(
                                                       widget.nombre,
-                                                      overflow: TextOverflow.ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                       style: TextStyle(
-                                                        
                                                           fontSize: ScreenUtil()
                                                               .setSp(40),
                                                           fontWeight:
@@ -861,9 +817,7 @@ class TituloChatState extends State<TituloChat> {
                                                                   widget.ultimoMensaje[
                                                                       "duracion"]))
                                                             ])
-                                                          : widget.ultimoMensaje[
-                                                                      "tipoMensaje"] ==
-                                                                  "imagen"
+                                                          : widget.ultimoMensaje["tipoMensaje"] == "imagen"
                                                               ? Row(
                                                                   children: [
                                                                     Icon(Icons
@@ -872,17 +826,16 @@ class TituloChatState extends State<TituloChat> {
                                                                         "Imagen")
                                                                   ],
                                                                 )
-                                                              : widget.ultimoMensaje[
-                                                                      "tipoMensaje"] ==
-                                                                  "gif"
-                                                              ? Row(
-                                                                  children: [
-                                                                    Icon(Icons
-                                                                        .image),
-                                                                    Text(
-                                                                        "Gif")
-                                                                  ],
-                                                                ):Container()),
+                                                              : widget.ultimoMensaje["tipoMensaje"] == "gif"
+                                                                  ? Row(
+                                                                      children: [
+                                                                        Icon(Icons
+                                                                            .image),
+                                                                        Text(
+                                                                            "Gif")
+                                                                      ],
+                                                                    )
+                                                                  : Container()),
                                     )
                                   ],
                                 ),

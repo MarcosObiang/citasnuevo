@@ -9,6 +9,12 @@ import 'package:flutter/material.dart';
 import "package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart";
 import 'Usuario.dart';
 
+
+
+
+
+
+
 class Conversacion extends ChangeNotifier {
   static FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
   static Conversacion conversaciones = new Conversacion.instancia();
@@ -20,29 +26,28 @@ class Conversacion extends ChangeNotifier {
   String idMensajes;
   String imagenRemitente;
   bool grupo;
+  int mensajesSinLeerConversaciones=0;
+  int mensajesPropiosSinLeerConversaciones=0;
   TituloChat ventanaChat;
+  
   Map<String, dynamic> ultimoMensage = new Map();
-  List<Conversacion> listaDeConversaciones = new List();
+   List<Conversacion> listaDeConversaciones = new List();
   List<String> estadosEscribiendoConversacion = [
     " ",
     "Escribiendo",
     "Grabando Audio"
   ];
 
+
+
 static void calcularCantidadMensajesSinLeer(){
-  int mensajesSinLeerConversaciones=0;
-  for (int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
-    if(Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes!=null){
-      for(int x=0;x<Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes.length;x++){
-if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes[x].mensajeLeidoRemitente&&Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMensajes[x].idEmisor!=Usuario.esteUsuario.idUsuario){
- mensajesSinLeerConversaciones+=1;
-}
-      }
-      
-    }
-   
+  int mensajesSInLeerTemporal=0;
+  for(Conversacion conversacion in conversaciones.listaDeConversaciones ){
+
+   mensajesSInLeerTemporal=mensajesSInLeerTemporal+conversacion.ventanaChat.mensajesSinLeer;
+
   }
-  cantidadMensajesNoLeidos=mensajesSinLeerConversaciones;
+  cantidadMensajesNoLeidos=mensajesSInLeerTemporal;
 }
 
   
@@ -56,6 +61,9 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
         .orderBy("Hora mensaje", descending: true)
         .snapshots()
         .listen((dato) {
+
+
+  if(dato.docChanges!=null)  {      
       for (int a = 0; a < dato.docChanges.length; a++) {
         if (dato.docChanges[a].type == DocumentChangeType.added) {
           for (int i = 0;
@@ -157,7 +165,7 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
             }
           }
         }
-      }
+      }}
     });
   }
 
@@ -257,6 +265,7 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
         TituloChat chatVentana = new TituloChat(
           ultimoMensaje: datos.docs[a].get("ultimoMensaje"),
           estadoConexion: estadoConexionConversacion,
+        mensajesSinLeer:datos.docs[a].get("cantidadMensajesSinLeer") ,
           conversacion: null,
           idConversacion: datos.docs[a].get("IdConversacion"),
           estadoConversacion: " ",
@@ -271,6 +280,8 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
             ultimoMensage: datos.docs[a].get("ultimoMensaje"),
             grupo: datos.docs[a].get("Grupo"),
             idConversacion: datos.docs[a].get("IdConversacion"),
+            mensajesPropiosSinLeerConversaciones: datos.docs[a].get("cantidadMensajesSinLeerPropios") ,
+            mensajesSinLeerConversaciones: datos.docs[a].get("cantidadMensajesSinLeer"),
             nombreRemitente: datos.docs[a].get("nombreRemitente"),
             idRemitente: datos.docs[a].get("IdRemitente"),
             idMensajes: datos.docs[a].get("IdMensajes"),
@@ -288,6 +299,7 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
             List.from(conversaciones.listaDeConversaciones)..add(nueva);
       }
     }).then((value) async {
+      calcularCantidadMensajesSinLeer();
       escucharEstadoConversacion();
       escucharConversaciones();
     });
@@ -311,6 +323,7 @@ if(!Conversacion.conversaciones.listaDeConversaciones[i].ventanaChat.listadeMens
          for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
            if(datos.docChanges[s].doc.get("IdConversacion")==Conversacion.conversaciones.listaDeConversaciones[z].idConversacion){
              Conversacion.conversaciones.listaDeConversaciones.removeAt(z);
+    
            }
          }
        }
@@ -357,6 +370,16 @@ for(int k=0;k<datos.docs.length;k++){
                   Conversacion
                       .conversaciones.listaDeConversaciones[g].imagenRemitente;
             }
+                   if (Conversacion
+                    .conversaciones.listaDeConversaciones[g].mensajesSinLeerConversaciones !=
+                datos.docs[k].get("cantidadMensajesSinLeer")) {
+              Conversacion.conversaciones.listaDeConversaciones[g]
+                  .mensajesSinLeerConversaciones = datos.docs[k].get("cantidadMensajesSinLeer");
+              Conversacion.conversaciones.listaDeConversaciones[g].ventanaChat
+                      .mensajesSinLeer =
+                  Conversacion
+                      .conversaciones.listaDeConversaciones[g].mensajesSinLeerConversaciones;
+            }
 
     }
   }
@@ -383,6 +406,7 @@ for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
           TituloChat chatVentana = new TituloChat(
             ultimoMensaje: datos.docs[a].get("ultimoMensaje"),
             estadoConexion: estadoConexionConversacion,
+            mensajesSinLeer:  datos.docs[a].get("cantidadMensajesSinLeer"),
             conversacion: null,
             idConversacion: datos.docs[a].get("IdConversacion"),
             estadoConversacion: " ",
@@ -395,6 +419,8 @@ for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
 
           Conversacion nueva = new Conversacion(
               grupo: datos.docs[a].get("Grupo"),
+              mensajesPropiosSinLeerConversaciones:  datos.docs[a].get("cantidadMensajesSinLeerPropios"),
+              mensajesSinLeerConversaciones: datos.docs[a].get("cantidadMensajesSinLeer"),
               ultimoMensage: datos.docs[a].get("ultimoMensaje"),
               idConversacion: datos.docs[a].get("IdConversacion"),
               nombreRemitente: datos.docs[a].get("nombreRemitente"),
@@ -435,12 +461,12 @@ for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
     DocumentReference referenciaEstadoConversacionEnLocal = baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
-        .collection("estado conversaciones")
+        .collection("estados conversacion")
         .doc(idConversacion);
     DocumentReference referenciaEstadoConversacionEnRemitente = baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
-        .collection("estado conversaciones")
+        .collection("estados conversacion")
         .doc(idConversacion);
 
 
@@ -461,6 +487,7 @@ if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==idConver
       print(onError);
       estadoOperacion=1;
     });
+    Conversacion.conversaciones.notifyListeners();
     return estadoOperacion;
 
     
@@ -471,7 +498,9 @@ if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==idConver
   Conversacion(
       {@required this.grupo,
       @required this.ultimoMensage,
+      @required this.mensajesPropiosSinLeerConversaciones,
       @required this.idConversacion,
+      @required this.mensajesSinLeerConversaciones,
       @required this.nombreRemitente,
       @required this.idRemitente,
       @required this.idMensajes,

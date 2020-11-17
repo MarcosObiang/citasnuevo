@@ -1,16 +1,21 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
+import 'package:citasnuevo/ServidorFirebase/firebase_sign_up.dart';
 import 'package:citasnuevo/base_app.dart';
 import 'package:citasnuevo/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' as usuarioFirebase;
+import 'package:firebase_auth/firebase_auth.dart' as f;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -20,149 +25,127 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ControladorInicioSesion {
   static ControladorInicioSesion instancia = ControladorInicioSesion();
-  final archivoInicioSesionAutomatico=new FlutterSecureStorage();
+  final archivoInicioSesionAutomatico = new FlutterSecureStorage();
   FirebaseDatabase baseDatosConexion = FirebaseDatabase(
       app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
   FirebaseDatabase referenciaStatus = FirebaseDatabase(
       app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
-  usuarioFirebase.FirebaseAuth _auth = usuarioFirebase.FirebaseAuth.instance;
+ static f.FirebaseAuth _auth = f.FirebaseAuth.instance;
   static bool primeraConexion = false;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final facebookLogin = FacebookLogin();
+  static GoogleSignIn googleSignIn = GoogleSignIn();
+  static var facebookLogin = FacebookLogin();
 
-  Future<usuarioFirebase.UserCredential> inicioSesionGoogle(String tokenAcceso,BuildContext context) async {
- usuarioFirebase.AuthCredential credencialGoogle;
-
-
-
-    final GoogleSignInAccount usuarioGoogle = await _googleSignIn.signIn();
-    if (usuarioGoogle == null) {
-      return null;
-    }
-
-    if(tokenAcceso==null){
-final GoogleSignInAuthentication autenticacionGoogle =
-        await usuarioGoogle.authentication;
-    credencialGoogle =
-        usuarioFirebase.GoogleAuthProvider.credential(
-            accessToken: autenticacionGoogle.accessToken,
-            idToken: autenticacionGoogle.idToken);
-              archivoInicioSesionAutomatico.write(key: "Google", value: "${autenticacionGoogle.accessToken}::::${autenticacionGoogle.idToken}");
-              
-
-              
-
-    }
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///Inicio de Sesion en google
+  ///
   
-    else{
-    List<String> separadorToken=  tokenAcceso.split("::::");
-      credencialGoogle=usuarioFirebase.GoogleAuthProvider.credential(accessToken:separadorToken[0],idToken: separadorToken[1]);
 
+  Future<f.UserCredential> inicioSesionGoogle(BuildContext context) async {
+    f.AuthCredential credencialGoogle;
+
+    final GoogleSignInAccount usuarioGoogle = await googleSignIn.signIn();
+    f.UserCredential usuario;
+    if (usuarioGoogle == null) {
+      usuario = null;
+    } else {
+      final GoogleSignInAuthentication autenticacionGoogle =
+          await usuarioGoogle.authentication;
+      credencialGoogle = f.GoogleAuthProvider.credential(
+          accessToken: autenticacionGoogle.accessToken,
+          idToken: autenticacionGoogle.idToken);
+
+      usuario = await _auth.signInWithCredential(credencialGoogle);
+
+      print("sesionIniciada ${usuario.user.displayName}");
     }
-    
 
-    final usuarioFirebase.UserCredential usuario =
-        await _auth.signInWithCredential(credencialGoogle);
-    print("sesionIniciada ${usuario.user.displayName}");
-    iniciarSesion(usuario.user.uid, context);
     return usuario;
   }
 
-  Future<usuarioFirebase.UserCredential> inicioSesionFacebook(String tokenAcceso,BuildContext context) async {
-  FacebookLoginResult result;
-  bool primeraVez=false;
-    if(tokenAcceso==null){
-      primeraVez=true;
-   result = await facebookLogin.logIn(['email']);
-   primeraVez=true;
-   
+  ///
+  ///
+  ///
+  ///
+  ///Inicio de sesion en Facebook
+
+  Future<f.UserCredential> inicioSesionFacebook(BuildContext context) async {
+    FacebookLoginResult result = await facebookLogin.logIn(['email']);
+    f.UserCredential usuarioFacebook;
+    if (result.status == FacebookLoginStatus.cancelledByUser) {
+      usuarioFacebook = null;
+    }
+
+//Problema al iniciar sesion del cual se daran detalles
     if (result.status == FacebookLoginStatus.error) {
-      return null;
+      print(
+          "Ha ocurrido un error al conectar con Facebook:${result.errorMessage}");
+      usuarioFacebook = null;
     }
-    if(result.status==FacebookLoginStatus.loggedIn){
-      tokenAcceso=result.accessToken.token;
-      archivoInicioSesionAutomatico.write(key: "Facebook", value: tokenAcceso);
-     
-      
 
-    }
-    }
- 
-    final usuarioFirebase.AuthCredential credencialFacebook =
-        usuarioFirebase.FacebookAuthProvider.credential(tokenAcceso);
+//El iniciio de sesion ha sido un exito
+    if (result.status == FacebookLoginStatus.loggedIn) {
+      final f.AuthCredential credencialFacebook =
+          f.FacebookAuthProvider.credential(result.accessToken.token);
 
-    final usuarioFirebase.UserCredential usuarioFacebook =
-        await _auth.signInWithCredential(credencialFacebook);
-    print("sesionIniciada ${usuarioFacebook.user.displayName}");
-   if(!primeraVez){
-     iniciarSesionPrimeraVez(usuarioFacebook.user.uid,context);}
-     if(primeraVez){
-       iniciarSesion(usuarioFacebook.user.uid, context);
-     }
+      usuarioFacebook = await _auth.signInWithCredential(credencialFacebook);
+      print("sesionIniciada ${usuarioFacebook.user.displayName}");
+    }
+
     return usuarioFacebook;
   }
 
-  Future<bool> cerrarSesion()async{
+  static Future<bool> cerrarSesion() async {
     bool seCerroSesion;
-    await _auth.signOut().catchError((onError)=> seCerroSesion=false);
- 
-    if(seCerroSesion==null){
-      seCerroSesion=true;
-    await  archivoInicioSesionAutomatico.delete(key: "Facebook");
-    await archivoInicioSesionAutomatico.delete(key: "Google");
-    }
+    await _auth.signOut().
+    then((value)async {seCerroSesion=true;
+    await googleSignIn.isSignedIn().then((value) {if(value){
+seCerroSesion=true;
+      googleSignIn.disconnect();
+    }});
+
+  await  facebookLogin.isLoggedIn.then((value) {
+      if(value){
+        seCerroSesion=true;
+        facebookLogin.logOut();
+    
+      }
+    });
+     PantallaDeInicio.iniciarSesion=false;
+    }).
+    catchError((onError) => seCerroSesion = false);
+print("cerrando");
+
     return seCerroSesion;
   }
 
-  void iniciarSesion(String idUsuario,BuildContext context) async {
+  Future<bool> iniciarSesion(String idUsuario, BuildContext context,) async {
+    bool sinError=true;
     FirebaseFirestore basedatos = FirebaseFirestore.instance;
     print("Usuario");
 
     Usuario.esteUsuario.idUsuario = idUsuario;
 
-    basedatos.collection("usuarios").doc(idUsuario).get().then((value) {
+   await basedatos.collection("usuarios").doc(idUsuario).get().then((value) {
       Usuario.esteUsuario.DatosUsuario = value.data();
 
-      if (Usuario.esteUsuario.DatosUsuario != null) {
+      if (Usuario.esteUsuario.DatosUsuario != null&&value.exists) {
         Usuario.esteUsuario.DatosUsuario = value.data();
         Usuario.esteUsuario.inicializarUsuario();
-        Perfiles.cargarPerfilesCitas();
+        
+ ControladorLocalizacion.instancia.obtenerLocalizacion().then((value) =>
+ 
+   ControladorLocalizacion.instancia.cargarPerfiles());
+       
 
         Conversacion.conversaciones.obtenerConversaciones();
-        Valoraciones.Puntuaciones.obtenerValoraciones();
+        Valoracion.Puntuaciones.obtenerValoraciones();
 
-        Valoraciones.Puntuaciones.obtenerMedia();
-        VideoLlamada.escucharLLamadasEntrantes();
-
-        Conversacion.conversaciones.escucharMensajes();
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => start()));
-
-        _confirmarEstadoConexion();
-
-        print("Estaba vacio");
-         CrontroladorCreditos.escucharCreditos();
-      }
-    });
-  }
-    void iniciarSesionPrimeraVez(String idUsuario,BuildContext context) async {
-    FirebaseFirestore basedatos = FirebaseFirestore.instance;
-    print("Usuario");
-
-    Usuario.esteUsuario.idUsuario = idUsuario;
-
-    basedatos.collection("usuarios").doc(idUsuario).get().then((value) {
-      Usuario.esteUsuario.DatosUsuario = value.data();
-
-      if (Usuario.esteUsuario.DatosUsuario != null) {
-        Usuario.esteUsuario.DatosUsuario = value.data();
-        Usuario.esteUsuario.inicializarUsuario();
-        Perfiles.cargarPerfilesCitas();
-
-        Conversacion.conversaciones.obtenerConversaciones();
-        Valoraciones.Puntuaciones.obtenerValoraciones();
-
-        Valoraciones.Puntuaciones.obtenerMedia();
+        Valoracion.Puntuaciones.obtenerMedia();
         VideoLlamada.escucharLLamadasEntrantes();
 
         Conversacion.conversaciones.escucharMensajes();
@@ -173,8 +156,21 @@ final GoogleSignInAuthentication autenticacionGoogle =
 
         print("Estaba vacio");
         CrontroladorCreditos.escucharCreditos();
+       
+        SolicitudConversacion.instancia.obtenerSolicitudes();
+     
       }
-    });
+      if(Usuario.esteUsuario.DatosUsuario == null&&!value.exists){
+     //  FirebaseAuth.instance.currentUser.delete();
+     // ignore: invalid_use_of_protected_member
+     sinError=false;
+     
+
+      }
+    }).catchError((onError)=>print("Error de inicio de sesion::=>$onError"));
+
+return sinError;
+
   }
 
   void _confirmarEstadoConexion() {
@@ -207,7 +203,7 @@ final GoogleSignInAuthentication autenticacionGoogle =
         Citas.estaConectado = true;
 
         primeraConexion = true;
-       // BaseAplicacion.mostrarNotificacionConexionCorrecta(BaseAplicacion.claveBase.currentContext);
+        // BaseAplicacion.mostrarNotificacionConexionCorrecta(BaseAplicacion.claveBase.currentContext);
         Usuario.esteUsuario.notifyListeners();
       } else {
         Citas.estaConectado = false;

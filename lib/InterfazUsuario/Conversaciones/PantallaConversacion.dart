@@ -6,6 +6,7 @@ import 'dart:io' as Io;
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
+import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -48,7 +49,7 @@ class PantallaConversacion extends StatefulWidget {
     @required this.estadoConexion,
     @required this.enviarMensajeImagenGif,
     @required this.idConversacion,
-    @required this.marcarLeidoMensaje,
+    
     @required this.marcarMensajeLeidoRemitente,
     @required this.recibirEstadoConversacionActualizado,
     @required this.estadoEscribiendoRemitente,
@@ -902,7 +903,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                 detectarConversacionExiste();
                 widget.marcarMensajeLeidoRemitente();
 
-                widget.marcarLeidoMensaje();
+               
                 widget.cantidadMensajes = widget.mensajesTemporales.length;
                 widget.mensajesTemporales = widget.mensajesTexto();
 

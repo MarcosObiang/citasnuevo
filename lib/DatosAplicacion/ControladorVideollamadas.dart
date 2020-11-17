@@ -1,6 +1,7 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantalaVidellamada.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -197,7 +198,7 @@ class VideoLlamada {
 
   static void iniciarLLamadaVideo(String usuario, BuildContext context) async {
     Map<String, dynamic> datosLLamada = new Map();
-    String idLLamadaVideo = Solicitud.instancia.crearCodigo();
+    String idLLamadaVideo =  GeneradorCodigos.instancia.crearCodigo();
     datosLLamada["ImagenLlamadaEntrante"] =
         VideoLlamada.obtenerImagenUsuarioLocal();
     datosLLamada["Nombre"] = Usuario.esteUsuario.nombre;

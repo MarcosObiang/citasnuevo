@@ -18,6 +18,7 @@ import '../Actividades/TarjetaEvento.dart';
 import '../../main.dart';
 import 'dart:ui' as ui;
 import 'package:blurred/blurred.dart';
+
 class live extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -46,16 +47,12 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ChangeNotifierProvider.value(
-        value: Valoraciones.instanciar,
-       child: Consumer<Valoraciones>(
+        value: Valoracion.instanciar,
+        child: Consumer<Valoracion>(
           builder: (context, myType, child) {
-            return  live_screen_widget();
+            return live_screen_widget();
           },
-        )
-        
-        
-        
-        );
+        ));
   }
 
   Widget live_screen_widget() {
@@ -76,7 +73,7 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
               accentColor: Colors.deepPurple),
           home: Scaffold(
               backgroundColor: Colors.white,
-              body: Consumer<Valoraciones>(
+              body: Consumer<Valoracion>(
                 builder: (BuildContext context, valoraciones, Widget child) {
                   return Expanded(
                     child: Column(
@@ -117,9 +114,9 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
 }
 
 class list_live extends StatefulWidget {
-  static final GlobalKey<AnimatedListState> llaveListaValoraciones=GlobalKey<AnimatedListState>();
- 
- 
+  static final GlobalKey<AnimatedListState> llaveListaValoraciones =
+      GlobalKey<AnimatedListState>();
+
   @override
   _list_liveState createState() => _list_liveState();
 }
@@ -127,8 +124,8 @@ class list_live extends StatefulWidget {
 class _list_liveState extends State<list_live> {
   Widget barraExito() {
     return ChangeNotifierProvider.value(
-        value: Valoraciones.instanciar,
-        child: Consumer<Valoraciones>(
+        value: Valoracion.instanciar,
+        child: Consumer<Valoracion>(
           builder: (context, myType, child) {
             return Container(
               decoration: BoxDecoration(),
@@ -166,11 +163,10 @@ class _list_liveState extends State<list_live> {
                                   animation: true,
                                   animationDuration: 300,
                                   animateFromLastPercent: true,
-                                  percent: Valoraciones.mediaUsuario / 10,
+                                  percent: Valoracion.mediaUsuario / 10,
                                   progressColor: Colors.blue,
                                   center: Text(
-                                    Valoraciones.mediaUsuario
-                                        .toStringAsFixed(2),
+                                    Valoracion.mediaUsuario.toStringAsFixed(2),
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: ScreenUtil().setSp(40),
@@ -197,7 +193,7 @@ class _list_liveState extends State<list_live> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  "${Valoraciones.visitasTotales}",
+                                  "${Valoracion.visitasTotales}",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: ScreenUtil().setSp(40),
@@ -224,7 +220,7 @@ class _list_liveState extends State<list_live> {
                           ),
                         ],
                       ),
-                               Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(
@@ -240,7 +236,6 @@ class _list_liveState extends State<list_live> {
                                       fontSize: ScreenUtil().setSp(40),
                                       fontWeight: FontWeight.bold),
                                 ),
-                                
                               ],
                             ),
                           ),
@@ -250,12 +245,13 @@ class _list_liveState extends State<list_live> {
                             child: FlatButton(
                               onPressed: () => {},
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Text("${    Usuario.creditosUsuario   }"),
-                                  
-                                  Icon(xd.LineAwesomeIcons.coins,color: Colors.black,),
+                                  Text("${Usuario.creditosUsuario}"),
+                                  Icon(
+                                    xd.LineAwesomeIcons.coins,
+                                    color: Colors.black,
+                                  ),
                                 ],
                               ),
                               color: Colors.transparent,
@@ -276,313 +272,302 @@ class _list_liveState extends State<list_live> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ChangeNotifierProvider.value(
-      value: Valoraciones.instanciar,
-      child:
-      Consumer<Valoraciones>(
-        builder: (context, myType, child) {
-          return Column(
-        children: [
-          barraExito(),
-          Expanded(
-            child: Container(
-              child: AnimatedList(
-                key:list_live.llaveListaValoraciones,
-                initialItemCount: Valoraciones.listaDeValoraciones.length,
+        value: Valoracion.instanciar,
+        child: Consumer<Valoracion>(
+          builder: (context, myType, child) {
+            return Column(
+              children: [
+                barraExito(),
+                Expanded(
+                  child: Container(
+                    child: AnimatedList(
+                      key: list_live.llaveListaValoraciones,
+                      initialItemCount: Valoracion.listaDeValoraciones.length,
+                      itemBuilder:
+                          (BuildContext context, int indice, animation) {
+                        return buildSlideTransition(context, animation, indice,
+                            Valoracion.listaDeValoraciones[indice]);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ));
+  }
 
-                itemBuilder: (BuildContext context, int indice, animation) {
-                  return buildSlideTransition(context, animation, indice, Valoraciones.listaDeValoraciones[indice]);
-                },
+  SizeTransition buildSlideTransition(BuildContext context, Animation animation,
+      int indice, Valoracion valoracion) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+            height: ScreenUtil().setHeight(400),
+            decoration: BoxDecoration(
+                boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 10)],
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                color: Colors.white),
+            child: Container(
+              child: Stack(
+                children: [
+                  Row(
+                    children: [
+                      fotoSolicitud(valoracion),
+                      cuadroOpcionesSolicitud(valoracion, indice),
+                    ],
+                  ),
+                  !valoracion.valoracionRevelada
+                      ? BackdropFilter(
+                          filter: ui.ImageFilter.blur(
+                            sigmaX: 10.0,
+                            sigmaY: 10.0,
+                          ),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              height: 400.h,
+                              child: Center(
+                                  child: GestureDetector(
+                                onTap: () {
+                                  print("guapo");
+                                  valoracion.revelarValoracion();
+                                },
+                                child: Container(
+                                  height: 200.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Revelar",
+                                              style: TextStyle(fontSize: 60.sp),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "100",
+                                                  style: TextStyle(
+                                                      fontSize: 60.sp),
+                                                ),
+                                                Icon(xd.LineAwesomeIcons.coins),
+                                              ],
+                                            )
+                                          ]),
+                                    ),
+                                  ),
+                                ),
+                              ))))
+                      : Container()
+                ],
               ),
-            ),
-          ),
-        ],
-      );
-        },
-      )
-          
+            )),
+      ),
     );
   }
 
-  SizeTransition buildSlideTransition(BuildContext context,Animation animation,int indice,Valoraciones valoracion) {
-    return SizeTransition(
-      sizeFactor: animation,
-
-  
-        child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        height: ScreenUtil().setHeight(400),
-        decoration: BoxDecoration(
-      
-        boxShadow: [BoxShadow(color: Colors.grey,blurRadius:10)],
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            color: Colors.white),
-        child: Container(
-            child: Stack(
-              children: [
-                Row(
-                  children: [
-                    fotoSolicitud(valoracion),
-                    cuadroOpcionesSolicitud(valoracion, indice),
-                  ],
-                ),
-              
-              
-            !valoracion.valoracionRevelada?  BackdropFilter(
-                filter: ui.ImageFilter.blur(
-            sigmaX: 10.0,
-            sigmaY: 10.0,
-          ),
- child: Container(
-   decoration: BoxDecoration(
-     color:Colors.transparent,
-     borderRadius:BorderRadius.all(Radius.circular(10))
-   ),
-
-   height:400.h,
-   child:Center(
-     child: GestureDetector(
-       onTap: (){
-         print("guapo");
-         valoracion.revelarValoracion();
-         
-       },
-            child: Container(
-         height:200.h,
-               decoration: BoxDecoration(
-       color:Colors.purple,
-       borderRadius:BorderRadius.all(Radius.circular(20)),
-       
-   ),child: Center(
-       child: Padding(
-         padding: const EdgeInsets.all(20.0),
-         child: Row(
-           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-           children:[
-           Text("Revelar",style: TextStyle(fontSize:60.sp),),
-           Row(
-             children: [
-               Text("100",style: TextStyle(fontSize:60.sp),),
-               Icon(xd.LineAwesomeIcons.coins),
-                
-             ],
-           )
-         ]),
-       ),
-   ),
-           ),
-     ))
-   )
-          ):Container()],
-            ),
-        )),
-    ),
-  );
-
-
- 
-  }
-
-  Flexible cuadroOpcionesSolicitud(Valoraciones valoracion, int indice) {
+  Flexible cuadroOpcionesSolicitud(Valoracion valoracion, int indice) {
     return Flexible(
-                    flex: 5,
-                    fit: FlexFit.tight,
-                                        child: Column(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-        cuadroSuperiorValoracion(valoracion),
-        cuadroOpcionesValoracion(indice, valoracion),
-        
-    ],
-                      ),
-                  );
-  }
-
-  Flexible cuadroOpcionesValoracion(int indice, Valoraciones valoracion) {
-    return Flexible(
-                    flex: 4,
-                    fit: FlexFit.tight,
-                    child: LayoutBuilder(builder: (BuildContext contex,BoxConstraints limites){
-                      return  Container(
-      decoration: BoxDecoration(
-
-      ),
-      height: limites.maxHeight,
-      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-    flex: 2,
-    fit: FlexFit.tight,
-    child: Container(
-      height: limites.maxHeight,
-      decoration: BoxDecoration(
-                  color: Colors.green
-    
-
-      ),
-      
-      child: FlatButton(
-                  
-    onPressed: ()  {
-                   aceptarSolicitud(indice,valoracion.mensaje, valoracion.nombreEmisor, valoracion.imagenEmisor, valoracion.idEmisor, valoracion.idValoracion);
-
-
-     
-    },
-    child: Icon(LineAwesomeIcons.heart_o,color: Colors.white,)),
-    ),
-                      ),
-                      Flexible(
-    flex: 2,
-    fit: FlexFit.tight,
-    child: Container(
-       decoration: BoxDecoration(
-                   color: Colors.red
-      
-      ),
-      height: limites.maxHeight,
-       
-      child: FlatButton(
-                   
-    onPressed: ()  {
-
-                  eliimnarSolicitud(indice,Valoraciones.listaDeValoraciones[indice].idValoracion);
-    },
-    child: Icon(Icons.close,color: Colors.white,)),
-    ),
-                      )
-                    ],
-      ),
-                      );
-                    },)
-     
-                    );
-  }
-
-  Flexible cuadroSuperiorValoracion(Valoraciones valoracion) {
-    return Flexible(
-                    flex: 14,
-                    fit: FlexFit.tight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      flex: 5,
+      fit: FlexFit.tight,
       child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-    Padding(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          cuadroSuperiorValoracion(valoracion),
+          cuadroOpcionesValoracion(indice, valoracion),
+        ],
+      ),
+    );
+  }
+
+  Flexible cuadroOpcionesValoracion(int indice, Valoracion valoracion) {
+    return Flexible(
+        flex: 4,
+        fit: FlexFit.tight,
+        child: LayoutBuilder(
+          builder: (BuildContext contex, BoxConstraints limites) {
+            return Container(
+              decoration: BoxDecoration(),
+              height: limites.maxHeight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Container(
+                      height: limites.maxHeight,
+                      decoration: BoxDecoration(color: Colors.green),
+                      child: FlatButton(
+                          onPressed: () {
+                            aceptarSolicitud(
+                                indice,
+                                valoracion.mensaje,
+                                valoracion.nombreEmisor,
+                                valoracion.imagenEmisor,
+                                valoracion.idEmisor,
+                                valoracion.idValoracion,
+                                valoracion.imagenEmisor,
+                                valoracion.valoracion);
+                          },
+                          child: Icon(
+                            LineAwesomeIcons.heart_o,
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Container(
+                      decoration: BoxDecoration(color: Colors.red),
+                      height: limites.maxHeight,
+                      child: FlatButton(
+                          onPressed: () {
+                            eliimnarSolicitud(
+                                indice,
+                                Valoracion
+                                    .listaDeValoraciones[indice].idValoracion);
+                          },
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                          )),
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+        ));
+  }
+
+  Flexible cuadroSuperiorValoracion(Valoracion valoracion) {
+    return Flexible(
+      flex: 14,
+      fit: FlexFit.tight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Container(
                       child: valoracion.nombreEmisor != null
-      ? Text(
-    "${valoracion.nombreEmisor}",
-    style: TextStyle(
-                  fontSize: ScreenUtil()
-                      .setSp(40),
-                  fontWeight:
-                      FontWeight.bold),
-                  )
-      : Text(" ")),
-    ),
-    Flexible(
+                          ? Text(
+                              "${valoracion.nombreEmisor}",
+                              style: TextStyle(
+                                  fontSize: ScreenUtil().setSp(40),
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : Text(" ")),
+                ),
+                Flexible(
                   fit: FlexFit.tight,
                   flex: 5,
                   child: Container(
                       child: valoracion.mensaje == null ||
-    valoracion.mensaje == "null"
-      ? Text("")
-      : Text(
-    valoracion.mensaje,
-    style: TextStyle(
-      fontSize:
-                      ScreenUtil().setSp(40),
-    ),
-                  )),
-    ),
-    Container(
+                              valoracion.mensaje == "null"
+                          ? Text("")
+                          : Text(
+                              valoracion.mensaje,
+                              style: TextStyle(
+                                fontSize: ScreenUtil().setSp(40),
+                              ),
+                            )),
+                ),
+                Container(
                   height: ScreenUtil().setHeight(50),
                   child: Center(
-                      child: LinearPercentIndicator(
+                    child: LinearPercentIndicator(
                       linearStrokeCap: LinearStrokeCap.butt,
                       //  progressColor: Colors.deepPurple,
                       percent: valoracion.valoracion / 10,
                       animationDuration: 300,
-                      lineHeight:
-      ScreenUtil().setHeight(60),
+                      lineHeight: ScreenUtil().setHeight(60),
                       linearGradient: LinearGradient(
-      colors: [
-                  Colors.pink,
-                  Colors.pinkAccent[100]
-      ]),
+                          colors: [Colors.pink, Colors.pinkAccent[100]]),
                       center: Text(
-    "${(valoracion.valoracion).toStringAsFixed(1)}",
-    style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: ScreenUtil().setSp(40,
-      allowFontScalingSelf: true),
-                  color: Colors.white),
-                      ),
-                      ),
-                  ),
-    ),
-                  ],
-      ),
-    ),
+                        "${(valoracion.valoracion).toStringAsFixed(1)}",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ScreenUtil()
+                                .setSp(40, allowFontScalingSelf: true),
+                            color: Colors.white),
                       ),
                     ),
-      );
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  Flexible fotoSolicitud(Valoraciones valoracion) {
-    return Flexible(flex: 3,
-                  fit: FlexFit.tight,
-                                        child: Container(
-      decoration: BoxDecoration(
-                    borderRadius:
-                    BorderRadius.all(Radius.circular(10)),
-                    image: DecorationImage(
-                    image: NetworkImage(valoracion.imagenEmisor),
-                    fit: BoxFit.cover)),
-                        ),
-                  );
+  Flexible fotoSolicitud(Valoracion valoracion) {
+    return Flexible(
+      flex: 3,
+      fit: FlexFit.tight,
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            image: DecorationImage(
+                image: NetworkImage(valoracion.imagenEmisor),
+                fit: BoxFit.cover)),
+      ),
+    );
   }
 
- void eliimnarSolicitud(int indice,String id){
-   Valoraciones valoracionQuitada=Valoraciones.listaDeValoraciones.removeAt(indice);
-AnimatedListRemovedItemBuilder builder=(context,animation){
-  return buildSlideTransition(context, animation, indice, valoracionQuitada);
+  void eliimnarSolicitud(int indice, String id) {
+    Valoracion valoracionQuitada =
+        Valoracion.listaDeValoraciones.removeAt(indice);
+    AnimatedListRemovedItemBuilder builder = (context, animation) {
+      return buildSlideTransition(
+          context, animation, indice, valoracionQuitada);
+    };
+    list_live.llaveListaValoraciones.currentState.removeItem(indice, builder);
 
-};
-list_live.llaveListaValoraciones.currentState.removeItem(indice, builder);
+    Valoracion.instanciar.rechazarValoracion(id);
+  }
 
-Solicitud.instancia.rechazarSolicitud(id);
+  void aceptarSolicitud(
+      int indice,
+      String mensaje,
+      String nombreEmisor,
+      String imagenEmisor,
+      String idEmisor,
+      String idValoracion,
+      String imagenRemitente,
+      double nota) {
+    Valoracion valoracionAceptada =
+        Valoracion.listaDeValoraciones.removeAt(indice);
+    AnimatedListRemovedItemBuilder builder = (context, animation) {
+      return buildSlideTransition(
+          context, animation, indice, valoracionAceptada);
+    };
+    list_live.llaveListaValoraciones.currentState.removeItem(indice, builder);
 
- 
-
-
- }
- void aceptarSolicitud(int indice,String mensaje,String nombreEmisor,String imagenEmisor,String idEmisor,String idValoracion){
-   Valoraciones valoracionAceptada=Valoraciones.listaDeValoraciones.removeAt(indice);
-   AnimatedListRemovedItemBuilder builder=(context,animation){
-  return buildSlideTransition(context, animation, indice, valoracionAceptada);
-
-};
-list_live.llaveListaValoraciones.currentState.removeItem(indice, builder);
-
-
-
- Solicitud.instancia.aceptarSolicitud(mensaje, nombreEmisor,imagenEmisor,idEmisor,idValoracion);
-
-
-
- }
-
-
-
+    Valoracion.instanciar.enviarSolicitudConversacion(
+        idEmisor, nombreEmisor, imagenEmisor, nota, idValoracion);
+  }
 }
 
 class InvitacionesEventos extends StatelessWidget {

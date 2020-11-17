@@ -1,7 +1,9 @@
+import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +57,7 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
                 title: getTabBar(),
               ),
               Expanded(
-                              child: Column(
+                child: Column(
                   children: [
                     Expanded(
                       child: Container(
@@ -72,16 +74,16 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
       ),
     );
   }
+
   Widget barraExito() {
     return Container(
       height: ScreenUtil().setHeight(400),
       padding: EdgeInsets.all(10),
       color: Colors.orange[100],
-      child: Container(
-        
-      ),
+      child: Container(),
     );
   }
+
   TabBar getTabBar() {
     return TabBar(
       tabs: <Widget>[
@@ -163,9 +165,53 @@ class Conversaciones extends StatelessWidget {
               return Stack(children: <Widget>[
                 Column(
                   children: [
-             
-
-                    Expanded(
+                    Flexible(
+                        flex: 1,
+                        fit: FlexFit.tight,
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      PantallaSolicitudesConversaciones())),
+                          child: Container(
+                            color: Colors.deepPurple[900],
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10.0, right: 10, top: 0, bottom: 0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text("Solicitudes",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 60.sp,
+                                                color: Colors.white)),
+                                        Icon(
+                                          Icons.inbox_outlined,
+                                          color: Colors.white,
+                                        )
+                                      ]),
+                                  Container(
+                                    height: 90.w,
+                                    width: 90.w,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle),
+                                    child: Center(child: Text("${Solicitudes.instancia.listaSolicitudesConversacion.length}")),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        )),
+                    Flexible(
+                      flex: 8,
+                      fit: FlexFit.tight,
                       child: Container(
                         decoration: BoxDecoration(
                             color: Colors.white,
@@ -190,4 +236,43 @@ class Conversaciones extends StatelessWidget {
   }
 }
 
+class PantallaSolicitudesConversaciones extends StatefulWidget {
+  @override
+  _PantallaSolicitudesConversacionesState createState() =>
+      _PantallaSolicitudesConversacionesState();
+}
 
+class _PantallaSolicitudesConversacionesState
+    extends State<PantallaSolicitudesConversaciones> {
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.deepPurple[900],
+      child: SafeArea(
+        child: Column(
+          children: [
+            AppBar(
+              iconTheme: IconThemeData(color:Colors.white),
+              backgroundColor: Colors.deepPurple[900],
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                Text("Solicitudes",
+                    style:
+                        GoogleFonts.lato(fontSize: 60.sp, color: Colors.white)),
+                        Icon(Icons.inbox_outlined,color: Colors.white,)
+              ]),
+            ),
+            Expanded(
+              child: Container(
+                color: Colors.deepPurple[900],
+                child: Center(
+                    child:WidgetSolicitudConversacion()),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

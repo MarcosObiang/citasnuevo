@@ -1,4 +1,5 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
+
 import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
@@ -32,65 +33,30 @@ class AjustesAplicacion extends StatelessWidget {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(
-                          flex: 3,
-                  fit: FlexFit.tight,
-                                            child: Container(
-                                              child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Opciones",
-                                style: TextStyle(
-                                    fontSize:80.sp, fontWeight: FontWeight.bold),
-                              ),
-                                BotonAjustesAplicacion(),
-                            
-                            ]),
-                                            ),
-                      ),
+                 
                       Flexible(
                         
-                          flex: 5,
+                          flex: 3,
                   fit: FlexFit.tight,
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(5.0),
                           child: BotonEditarPerfil(),
+                        )),
+                        Flexible(
+                        
+                          flex: 2,
+                  fit: FlexFit.tight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: BotonFiltros(),
                         )),
                     
                       Flexible(
                           flex: 15,
                   fit: FlexFit.tight,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: BotonesTiendaAplicacion(),
-                        )),
+                        child: BotonesTiendaAplicacion()),
                    
-                      Flexible(
-                          flex: 2,
-                  fit: FlexFit.tight,
-                        child: Text("*Selecciona un elemento para comprarlo*")), Flexible(
-                          flex: 2,
-                  fit: FlexFit.tight,
-                        child: FlatButton(
-                          color: Colors.red,
-                          onPressed: (){
-                            ControladorInicioSesion.instancia.cerrarSesion().then((value) {
-                              if(value){
-                                Navigator.pop(BaseAplicacion.claveBase.currentContext);
-                              }
-                            });
-                          },
-                          child: Text("Cerrar Sesion"))),
-                          Flexible(
-                          flex: 2,
-                  fit: FlexFit.tight,
-                        child: FlatButton(
-                          color: Colors.red,
-                          onPressed: (){
-                           CrontroladorCreditos.sumar(100);
-                          },
-                          child: Text("100 creditoos"))),
+                   
                         
                         
                     ]),

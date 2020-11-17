@@ -4,7 +4,9 @@ import 'dart:typed_data';
 
 import 'dart:io' as Io;
 import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -12,7 +14,7 @@ import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'ControladorLikes.dart';
 import 'ControladorConversacion.dart';
-import 'Directo.dart';
+
 import 'PerfilesUsuarios.dart';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,12 +32,11 @@ import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
 
 import '../main.dart';
-import 'Valoraciones.dart';
 
 class Usuario with ChangeNotifier {
   static Usuario esteUsuario = new Usuario();
   static Usuario cacheEdicionUsuario = new Usuario();
-  static int creditosUsuario=0;
+  static int creditosUsuario = 0;
   bool tieneHistorias = false;
   Map<String, Object> DatosUsuario = new Map();
   List<File> _fotosPerfil = new List(6);
@@ -43,6 +44,20 @@ class Usuario with ChangeNotifier {
   List<File> get fotosPerfil => _fotosPerfil;
   List<Map<String, dynamic>> listaDeHistoriasRed = new List(6);
   List<File> fotosUsuarioActualizar = new List();
+  double latitud;
+  double longitud;
+  String geohash;
+  Map<String, dynamic> posicion;
+  int dia = 0;
+  int mes = 0;
+  int anio = 0;
+  List<int> listaEdades = new List();
+  int edadInicial = 18;
+  int edadfinal;
+
+  void establecerEdades() {
+    listaEdades.add(Usuario.esteUsuario.edad);
+  }
 
   set fotosPerfil(List<File> value) {
     _fotosPerfil = value;
@@ -66,7 +81,7 @@ class Usuario with ChangeNotifier {
       if (listaDeImagenesUsuario[i] != null) {
         Uint8List archivo = await networkImageToByte(listaDeImagenes[i]);
         String referenciaCompleta =
-            "$directorioImagenes/${Solicitud.instancia.crearCodigo()}";
+            "$directorioImagenes/${ GeneradorCodigos.instancia.crearCodigo()}";
         Io.File puntero = new Io.File(referenciaCompleta);
         puntero.writeAsBytes(archivo);
         File imagenGuardada = File(referenciaCompleta);
@@ -122,7 +137,7 @@ class Usuario with ChangeNotifier {
   String confirmar_clave;
   String email;
   DateTime nacimiento;
-  int edad;
+  int edad = 0;
   String sexo;
   String citasCon;
   String sexoPareja;
@@ -139,18 +154,18 @@ class Usuario with ChangeNotifier {
   Map<String, String> formacion = new Map();
   Map<String, String> trabajo = new Map();
   double altura;
-  String complexion;
-  String alcohol;
-  String tabaco;
-  String idiomas;
-  String mascotas;
-  String busco;
-  String hijos;
-  String zodiaco;
-  String vegetarianoOvegano;
-  String politica;
-  String religion;
-  String vivoCon;
+  int complexion = 0;
+  int alcohol = 0;
+  int tabaco = 0;
+  int idiomas = 0;
+  int mascotas = 0;
+  int busco = 0;
+  int hijos = 0;
+  int zodiaco = 0;
+  int vegetarianoOvegano = 0;
+  int politica = 0;
+  int religion = 0;
+  int vivoCon = 0;
 
   ///*************************************+ */
   ///
@@ -191,10 +206,8 @@ class Usuario with ChangeNotifier {
     "Mi receta de la felicidad es..",
     "Soy bueno en..",
     "Me describen como..",
-   
     "Mi cita perfecta seria..",
     "¿Cancion favorita?",
-    
     "Una verdad y una mentira",
     "Te harias famoso por..",
     "si fueras un heroe seria..",
@@ -204,7 +217,6 @@ class Usuario with ChangeNotifier {
     "Borracho/a soy...",
     "Anecdota",
     "¿Que pelicula recomiendas?",
-    
     "En alguien busco..",
     "Odio a la gente que..",
     "Si me quedara un dia de vida"
@@ -253,7 +265,6 @@ class Usuario with ChangeNotifier {
   }
 
   void cargarPreguntasPersonales() {
-  
     esteUsuario.queBuscasEnAlguien =
         esteUsuario.preguntasPersonales["Que buscas en la gente"];
     esteUsuario.queOdiasEnAlguien =
@@ -324,7 +335,8 @@ class Usuario with ChangeNotifier {
   }
 
   void cargarFiltrosPersonales() {
-    esteUsuario.altura = esteUsuario.datosParaFiltrosUsuario["Altura"];
+    esteUsuario.altura =
+        esteUsuario.datosParaFiltrosUsuario["Altura"].toDouble();
     esteUsuario.complexion = esteUsuario.datosParaFiltrosUsuario["Complexion"];
     esteUsuario.tabaco = esteUsuario.datosParaFiltrosUsuario["Tabaco"];
     esteUsuario.alcohol = esteUsuario.datosParaFiltrosUsuario["Alcohol"];
@@ -339,8 +351,8 @@ class Usuario with ChangeNotifier {
   bool amigos = false;
   bool ambos = true;
 
-  final databaseReference = Firestore.instance;
-  static final dbRef = Firestore.instance;
+  final databaseReference = FirebaseFirestore.instance;
+  static final dbRef = FirebaseFirestore.instance;
 
   static Map<String, dynamic> imagenes = Map();
   Map<String, dynamic> imagenesHistorias = Map();
@@ -349,12 +361,13 @@ class Usuario with ChangeNotifier {
     nombre = DatosUsuario["Nombre"];
     alias = DatosUsuario["Alias"];
     citasCon = DatosUsuario["Citas con"];
+    posicion = DatosUsuario["posicion"];
     edad = DatosUsuario["Edad"];
     sexo = DatosUsuario["Sexo"];
     amigos = DatosUsuario["Solo amigos"];
     citas = DatosUsuario["Solo Citas"];
     ambos = DatosUsuario["Ambos"];
-    creditosUsuario=DatosUsuario["creditos"];
+    creditosUsuario = DatosUsuario["creditos"];
     temporalParaFecha = DatosUsuario["fechaNacimiento"];
     fechaNacimiento = temporalParaFecha.toDate();
     observaciones = DatosUsuario["Descripcion"];
@@ -362,6 +375,11 @@ class Usuario with ChangeNotifier {
     preguntasPersonales = DatosUsuario["Preguntas personales"];
     cargarFiltrosPersonales();
     cargarPreguntasPersonales();
+    GeoPoint punto = posicion["geopoint"];
+    geohash = posicion["geohash"];
+
+    latitud = punto.latitude;
+    longitud = punto.longitude;
 
     ImageURL1 = DatosUsuario["IMAGENPERFIL1"];
     ImageURL2 = DatosUsuario["IMAGENPERFIL2"];
@@ -370,59 +388,60 @@ class Usuario with ChangeNotifier {
     ImageURL5 = DatosUsuario["IMAGENPERFIL5"];
     ImageURL6 = DatosUsuario["IMAGENPERFIL6"];
 
+    ///Obtenemos los ajustes de la cuenta de usuario
+    ///
+    Map<String, dynamic> ajustes = DatosUsuario["Ajustes"];
+    ControladorLocalizacion.instancia.setMostrarmeEnHotty =
+        ajustes["mostrarPerfil"];
+    ControladorLocalizacion.instancia.setDiistanciaMaxima =
+        ajustes["distanciaMaxima"].toDouble();
+    ControladorLocalizacion.instancia.setEdadFinal =
+        ajustes["edadFinal"].toDouble();
+    ControladorLocalizacion.instancia.setEdadInicial =
+        ajustes["edadInicial"].toDouble();
+    ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas =
+        ajustes["enMillas"];
+    ControladorLocalizacion.instancia.mostrarMujeres =
+        ajustes["mostrarMujeres"];
+    ControladorLocalizacion.activadorEdadesDeseadas =
+        new List<int>.from(ajustes["rangoEdades"]);
     Usuario.esteUsuario
         .descarGarImagenesUsuario(Usuario.listaDeImagenesUsuario)
         .then((value) {});
   }
 
-  void establecerHistorias() {
-    imagenesHistorias["Nombre usuario"] = esteUsuario.nombre;
-    imagenesHistorias["Id usuario"] = esteUsuario.idUsuario;
-    imagenesHistorias["Imagen Perfil"] =
-        VideoLlamada.obtenerImagenUsuarioLocal();
-    imagenesHistorias["Historia 1"] =
-        FotoHistoria.linksImagenesHistorias[0] != null
-            ? FotoHistoria.linksImagenesHistorias[0]
-            : esteUsuario.historia1;
-    imagenesHistorias["Historia 2"] =
-        FotoHistoria.linksImagenesHistorias[1] != null
-            ? FotoHistoria.linksImagenesHistorias[1]
-            : esteUsuario.historia2;
-    imagenesHistorias["Historia 3"] =
-        FotoHistoria.linksImagenesHistorias[2] != null
-            ? FotoHistoria.linksImagenesHistorias[2]
-            : esteUsuario.historia3;
-    imagenesHistorias["Historia 4"] =
-        FotoHistoria.linksImagenesHistorias[3] != null
-            ? FotoHistoria.linksImagenesHistorias[3]
-            : esteUsuario.historia4;
-    imagenesHistorias["Historia 5"] =
-        FotoHistoria.linksImagenesHistorias[4] != null
-            ? FotoHistoria.linksImagenesHistorias[4]
-            : esteUsuario.historia5;
-    imagenesHistorias["Historia 6"] =
-        FotoHistoria.linksImagenesHistorias[5] != null
-            ? FotoHistoria.linksImagenesHistorias[5]
-            : esteUsuario.historia6;
-    esteUsuario.historia1["Identificador"] = "Historia1";
-    esteUsuario.historia2["Identificador"] = "Historia2";
-    esteUsuario.historia3["Identificador"] = "Historia3";
-    esteUsuario.historia4["Identificador"] = "Historia4";
-    esteUsuario.historia5["Identificador"] = "Historia5";
-    esteUsuario.historia6["Identificador"] = "Historia6";
-  }
-
   static Map<String, dynamic> usuario = Map();
+  Map<String, dynamic> ajustesUSuario = new Map();
   Map<String, bool> gustosUsuario = Map();
   Map<String, dynamic> preguntasPersonales = Map();
   Map<String, dynamic> datosParaFiltrosUsuario = Map();
-  void establecerUsuario() {
+  Future<void> establecerUsuario() async {
+    establecerEdades();
+
+    var geoposicion =
+        await ControladorLocalizacion.obtenerLocalizacionPorPrimeraVez()
+            .catchError((onError) =>
+                print("Hubo un error con la localizacion: $onError"));
+
     ///
     ///
     ///Datos principales del usuario
     ///
     ///
-    ///
+    ajustesUSuario["mostrarPerfil"] =
+        ControladorLocalizacion.instancia.mostrarmeEnHotty;
+    ajustesUSuario["distanciaMaxima"] =
+        ControladorLocalizacion.instancia.distanciaMaxima;
+    ajustesUSuario["edadFinal"] =
+        ControladorLocalizacion.instancia.getEdadFinal;
+    ajustesUSuario["edadInicial"] =
+        ControladorLocalizacion.instancia.getEdadInicial;
+    ajustesUSuario["enMillas"] =
+        ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas;
+    ajustesUSuario["mostrarMujeres"] =
+        ControladorLocalizacion.instancia.mostrarMujeres;
+    ajustesUSuario["rangoEdades"] = [22, 23, 24];
+
     usuario["Id"] = esteUsuario.idUsuario;
     usuario["IMAGENPERFIL1"] = esteUsuario.ImageURL1;
     usuario["IMAGENPERFIL2"] = esteUsuario.ImageURL2;
@@ -432,11 +451,13 @@ class Usuario with ChangeNotifier {
     usuario["IMAGENPERFIL6"] = esteUsuario.ImageURL6;
     usuario["Nombre"] = esteUsuario.nombre;
     usuario["Alias"] = esteUsuario.alias;
-    usuario["creditos"]=creditosUsuario;
-
+    usuario["creditos"] = creditosUsuario;
+    usuario["posicion"] = geoposicion.data;
     usuario["Email"] = esteUsuario.email;
     usuario["Edad"] = esteUsuario.edad;
     usuario["Sexo"] = esteUsuario.sexo;
+    usuario["Edades"] = listaEdades;
+    usuario["Ajustes"] = ajustesUSuario;
 
     ///
     ///
@@ -460,18 +481,20 @@ class Usuario with ChangeNotifier {
     ///
     ///
 
-    esteUsuario.datosParaFiltrosUsuario["Altura"] = esteUsuario.altura;
-    esteUsuario.datosParaFiltrosUsuario["Complexion"] = esteUsuario.complexion;
-    esteUsuario.datosParaFiltrosUsuario["Tabaco"] = esteUsuario.tabaco;
-    esteUsuario.datosParaFiltrosUsuario["Alcohol"] = esteUsuario.alcohol;
+    esteUsuario.datosParaFiltrosUsuario["Altura"] = esteUsuario.altura ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Complexion"] =
+        esteUsuario.complexion ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Tabaco"] = esteUsuario.tabaco ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Alcohol"] = esteUsuario.alcohol ?? 0;
 
-    esteUsuario.datosParaFiltrosUsuario["Mascotas"] = esteUsuario.mascotas;
-    esteUsuario.datosParaFiltrosUsuario["Busco"] = esteUsuario.busco;
-    esteUsuario.datosParaFiltrosUsuario["Hijos"] = esteUsuario.hijos;
+    esteUsuario.datosParaFiltrosUsuario["Mascotas"] = esteUsuario.mascotas ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Busco"] = esteUsuario.busco ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Hijos"] = esteUsuario.hijos ?? 0;
     esteUsuario.datosParaFiltrosUsuario["Vegetariano"] =
-        esteUsuario.vegetarianoOvegano;
-    esteUsuario.datosParaFiltrosUsuario["Politca"] = esteUsuario.politica;
-    esteUsuario.datosParaFiltrosUsuario["Que viva con"] = esteUsuario.vivoCon;
+        esteUsuario.vegetarianoOvegano ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Politca"] = esteUsuario.politica ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Que viva con"] =
+        esteUsuario.vivoCon ?? 0;
 
     ///
     ///
@@ -479,10 +502,9 @@ class Usuario with ChangeNotifier {
     ///
     ///
     ///
-    
-   
+
     esteUsuario.preguntasPersonales["Que buscas en la gente"] =
-        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[17]??null;
+        Usuario.esteUsuario.listaRespuestasPreguntasPersonales[17] ?? null;
     esteUsuario.preguntasPersonales["Que odias de la gente"] =
         Usuario.esteUsuario.listaRespuestasPreguntasPersonales[18];
     esteUsuario.preguntasPersonales["Receta Felicidad"] =
@@ -526,8 +548,6 @@ class Usuario with ChangeNotifier {
     usuario["Filtros usuario"] = esteUsuario.datosParaFiltrosUsuario;
     usuario["Historias"] = esteUsuario.imagenesHistorias;
   }
-
- 
 
   Future<void> subirImagenPerfil(String IDUsuario) async {
     assert(imagenes != null);
@@ -609,20 +629,20 @@ class Usuario with ChangeNotifier {
       esteUsuario.ImageURL6["Imagen"] = URL;
       print(URL);
     }
-    establecerUsuario();
+    await establecerUsuario().then((value) async {
+      escrituraUsuario.set(referenciaUsuario, usuario);
+      escrituraUsuario
+          .set(referenciaEstadoLLamadas, {"Estado": "Desconectado"});
+      escrituraUsuario.set(referenciaValoracionesLocales, {
+        "mediaTotal": 0,
+        "Valoracion": 5,
+        "cantidadValoraciones": 0,
+        "puntuacionTotal": 0
+      });
 
-    escrituraUsuario.set(referenciaUsuario, usuario);
-    escrituraUsuario.set(referenciaEstadoLLamadas, {"Estado": "Desconectado"});
-    escrituraUsuario.set(referenciaValoracionesLocales, {
-      "mediaTotal": 0,
-      "Valoracion": 5,
-      "cantidadValoraciones": 0,
-      "puntuacionTotal": 0
-    });
-    escrituraUsuario.set(
-        referenciaHistoriasDirecto, Usuario.esteUsuario.imagenesHistorias);
-    await escrituraUsuario.commit().catchError((onError) {
-      print("Error al crear usuario");
+      await escrituraUsuario.commit().catchError((onError) {
+        print("Error al crear usuario: $onError");
+      });
     });
   }
 
@@ -695,7 +715,7 @@ class Usuario with ChangeNotifier {
       esteUsuario.ImageURL6["Imagen"] = URL;
       print(URL);
     }
-    establecerUsuario();
+    await establecerUsuario();
 
     escrituraUsuario.update(referenciaUsuario, usuario);
 
@@ -709,105 +729,14 @@ class Usuario with ChangeNotifier {
   ///
   ///
   ///
-  Future<void> subirHistorioasUsuario(String IDUsuario) async {
-    assert(imagenes != null);
-    FirebaseStorage storage = FirebaseStorage.instance;
-    StorageReference reference = storage.ref();
-    FirebaseFirestore referenciaBaseDatos = FirebaseFirestore.instance;
-    WriteBatch escrituraHistorias = referenciaBaseDatos.batch();
-    DocumentReference referenciaHistoriaLocal = referenciaBaseDatos
-        .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario);
-    DocumentReference referenciaHistoriasDirecto = referenciaBaseDatos
-        .collection("directo historias")
-        .doc(Usuario.esteUsuario.idUsuario);
-
-    if (esteUsuario.fotosHistorias[0] != null &&
-        FotoHistoria.linksImagenesHistorias[0] == null) {
-      String image1 = "${IDUsuario}/Perfil/Historias/Image1.jpg";
-      StorageReference referenciaImagenes = reference.child(image1);
-      StorageUploadTask uploadTask =
-          referenciaImagenes.putFile(esteUsuario.fotosHistorias[0]);
-
-      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
-      esteUsuario.historia1["Imagen"] = URL;
-    }
-    if (esteUsuario.fotosHistorias[1] != null &&
-        FotoHistoria.linksImagenesHistorias[1] == null) {
-      String Image2 = "${IDUsuario}/Perfil/Historias/Image2.jpg";
-      StorageReference referenciaImagenes = reference.child(Image2);
-      StorageUploadTask uploadTask =
-          referenciaImagenes.putFile(esteUsuario.fotosHistorias[1]);
-
-      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
-      esteUsuario.historia2["Imagen"] = URL;
-      print(URL);
-    }
-    if (esteUsuario.fotosHistorias[2] != null &&
-        FotoHistoria.linksImagenesHistorias[2] == null) {
-      String Image3 = "${IDUsuario}/Perfil/Historias/Image3.jpg";
-      StorageReference referenciaImagenes = reference.child(Image3);
-      StorageUploadTask uploadTask =
-          referenciaImagenes.putFile(esteUsuario.fotosHistorias[2]);
-
-      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
-      esteUsuario.historia3["Imagen"] = URL;
-      print(URL);
-    }
-    if (esteUsuario.fotosHistorias[3] != null &&
-        FotoHistoria.linksImagenesHistorias[3] == null) {
-      String Image4 = "${IDUsuario}/Perfil/Historias/Image4.jpg";
-      StorageReference referenciaImagenes = reference.child(Image4);
-      StorageUploadTask uploadTask =
-          referenciaImagenes.putFile(esteUsuario.fotosHistorias[3]);
-
-      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
-      esteUsuario.historia4["Imagen"] = URL;
-      print(URL);
-    }
-    if (esteUsuario.fotosHistorias[4] != null &&
-        FotoHistoria.linksImagenesHistorias[4] == null) {
-      String Image5 = "${IDUsuario}/Perfil/Historias/Image5.jpg";
-      StorageReference referenciaImagenes = reference.child(Image5);
-      StorageUploadTask uploadTask =
-          referenciaImagenes.putFile(esteUsuario.fotosHistorias[4]);
-
-      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
-      esteUsuario.historia5["Imagen"] = URL;
-      print(URL);
-    }
-    if (esteUsuario.fotosHistorias[5] != null &&
-        FotoHistoria.linksImagenesHistorias[5] == null) {
-      String Image6 = "${IDUsuario}/Perfil/Historias/Image6.jpg";
-      StorageReference referenciaImagenes = reference.child(Image6);
-      StorageUploadTask uploadTask =
-          referenciaImagenes.putFile(esteUsuario.fotosHistorias[5]);
-
-      var URL = await (await uploadTask.onComplete).ref.getDownloadURL();
-      esteUsuario.historia6["Imagen"] = URL;
-      print(URL);
-    }
-
-    Usuario.esteUsuario.establecerHistorias();
-    escrituraHistorias.update(
-        referenciaHistoriaLocal, {"Historias": esteUsuario.imagenesHistorias});
-    escrituraHistorias.update(
-        referenciaHistoriasDirecto, esteUsuario.imagenesHistorias);
-
-    escrituraHistorias.commit().catchError((onError) => (print(onError)));
-    print("subidas las historias");
-  }
 
   static submit(BuildContext context) async {
-   
     FirebaseStorage storage = FirebaseStorage.instance;
     FirebaseFirestore referenciaBaseDatos = FirebaseFirestore.instance;
 
     StorageReference reference = storage.ref();
     DocumentSnapshot val;
     FirebaseFirestore referencia = FirebaseFirestore.instance;
-
-
 
     print(esteUsuario.idUsuario);
 
@@ -820,7 +749,8 @@ class Usuario with ChangeNotifier {
           .get();
       esteUsuario.DatosUsuario = val.data();
       if (Usuario.esteUsuario.DatosUsuario != null) {
-       ControladorInicioSesion.instancia.iniciarSesion(esteUsuario.idUsuario,context);
+        ControladorInicioSesion.instancia
+            .iniciarSesion(esteUsuario.idUsuario, context);
       }
     });
     print("SiguientePantalla");
@@ -832,162 +762,20 @@ class Usuario with ChangeNotifier {
     notifyListeners();
   }
 
-  void escuchadorHistorias() async {
-    FirebaseFirestore dbRef = FirebaseFirestore.instance;
-    // ignore: await_only_futures
-    await dbRef
-        .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario)
-        .collection("historias")
-        .doc("Historias")
-        .snapshots()
-        .listen((value) {
-      //4   listaDeHistoriasRed = null;
-      tieneHistorias = false;
-      if (value != null) {
-        descargarHistorias();
-        /* for (int i = 0; i < value.documents.length; i++) {
-          if (value.documents[i].documentID == "Historia1") {
-            if (value.documents[i].data["Imagen"] != null) {
-              Map<String, String> historiasPaquete = new Map();
-              historiasPaquete["Identificador"] = value.documents[i].documentID;
-              historiasPaquete["Imagen"] = value.documents[i].data["Imagen"];
-              historiasPaquete["PieDeFoto"] = value.documents[i]["PieDeFoto"];
+  int validadorFecha() {
+    DateTime fechaTemporal;
 
-              listaDeHistoriasRed[0] = historiasPaquete;
-              tieneHistorias = true;
-            }
-          }
-          if (value.documents[i].documentID == "Historia2") {
-            if (value.documents[i].data != null) {
-              Map<String, String> historiasPaquete = new Map();
-              historiasPaquete["Identificador"] = value.documents[i].documentID;
-              historiasPaquete["Imagen"] = value.documents[i].data["Imagen"];
-              historiasPaquete["PieDeFoto"] = value.documents[i]["PieDeFoto"];
+    fechaTemporal = new DateTime(anio ?? 0, mes ?? 0, dia ?? 0, 10, 10);
 
-              listaDeHistoriasRed[1] = historiasPaquete;
-              tieneHistorias = true;
-            }
-          }
+    print("Construyendo fechas:::::::::.   $fechaTemporal");
 
-          if (value.documents[i].documentID == "Historia3") {
-            if (value.documents[i].data != null) {
-              Map<String, String> historiasPaquete = new Map();
-              historiasPaquete["Identificador"] = value.documents[i].documentID;
-              historiasPaquete["Imagen"] = value.documents[i].data["Imagen"];
-              historiasPaquete["PieDeFoto"] = value.documents[i]["PieDeFoto"];
+    int dur = DateTime.now().difference(fechaTemporal).inDays;
+    int data = dur ~/ 365;
+    edad = data;
+    Usuario.esteUsuario.fechaNacimiento = fechaTemporal;
+    print(data);
+    notifyListeners();
 
-              listaDeHistoriasRed[2] = historiasPaquete;
-              tieneHistorias = true;
-            }
-          }
-          if (value.documents[i].documentID == "Historia4") {
-            if (value.documents[i].data != null) {
-              Map<String, String> historiasPaquete = new Map();
-              historiasPaquete["Identificador"] = value.documents[i].documentID;
-              historiasPaquete["Imagen"] = value.documents[i].data["Imagen"];
-              historiasPaquete["PieDeFoto"] = value.documents[i]["PieDeFoto"];
-
-              listaDeHistoriasRed[3] = historiasPaquete;
-              tieneHistorias = true;
-            }
-          }
-          if (value.documents[i].documentID == "Historia5") {
-            if (value.documents[i].data != null) {
-              Map<String, String> historiasPaquete = new Map();
-              historiasPaquete["Identificador"] = value.documents[i].documentID;
-              historiasPaquete["Imagen"] = value.documents[i].data["Imagen"];
-              historiasPaquete["PieDeFoto"] = value.documents[i]["PieDeFoto"];
-
-              listaDeHistoriasRed[4] = historiasPaquete;
-              tieneHistorias = true;
-            }
-          }
-          if (value.documents[i].documentID == "Historia6") {
-            if (value.documents[i].data != null) {
-              Map<String, String> historiasPaquete = new Map();
-              historiasPaquete["Identificador"] = value.documents[i].documentID;
-              historiasPaquete["Imagen"] = value.documents[i].data["Imagen"];
-              historiasPaquete["PieDeFoto"] = value.documents[i]["PieDeFoto"];
-
-              listaDeHistoriasRed[5] = historiasPaquete;
-              tieneHistorias = true;
-            }
-          }
-        }*/
-      }
-    });
-  }
-
-  void descargarHistorias() {
-    FirebaseFirestore dbRef = FirebaseFirestore.instance;
-    dbRef
-        .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario)
-        .get()
-        .then((value) {
-      if (value != null) {
-        if (value.get("Historias")["Historia 1"] != null) {
-          if (value.get("Historias")["Historia 1"]["Imagen"] != null) {
-            Map<String, dynamic> historiasPaquete1 = new Map();
-
-            historiasPaquete1 = value.get("Historias")["Historia 1"];
-            listaDeHistoriasRed[0] = historiasPaquete1;
-            tieneHistorias = true;
-          }
-        }
-        if (value.get("Historias")["Historia 2"] != null) {
-          if (value.get("Historias")["Historia 2"]["Imagen"] != null) {
-            Map<String, dynamic> historiasPaquete2 = new Map();
-            historiasPaquete2 = value.get("Historias")["Historia 2"];
-
-            listaDeHistoriasRed[1] = historiasPaquete2;
-            tieneHistorias = true;
-          }
-        }
-
-        if (value.get("Historias")["Historia 3"] != null) {
-          if (value.get("Historias")["Historia 3"]["Imagen"] != null) {
-            Map<String, dynamic> historiasPaquete3 = new Map();
-            historiasPaquete3 = value.get("Historias")["Historia 3"];
-            listaDeHistoriasRed[2] = historiasPaquete3;
-            tieneHistorias = true;
-          }
-        }
-        if (value.get("Historias")["Historia 4"] != null) {
-          if (value.get("Historias")["Historia 4"]["Imagen"] != null) {
-            Map<String, dynamic> historiasPaquete4 = new Map();
-            historiasPaquete4 = value.get("Historias")["Historia 4"];
-
-            listaDeHistoriasRed[3] = historiasPaquete4;
-            tieneHistorias = true;
-          }
-        }
-        if (value.get("Historias")["Historia 5"] != null) {
-          if (value.get("Historias")["Historia 5"]["Imagen"] != null) {
-            Map<String, dynamic> historiasPaquete5 = new Map();
-            historiasPaquete5 = value.get("Historias")["Historia 5"];
-
-            listaDeHistoriasRed[4] = historiasPaquete5;
-            tieneHistorias = true;
-          }
-        }
-        if (value.get("Historias")["Historia 6"] != null) {
-          if (value.get("Historias")["Historia 6"]["Imagen"] != null) {
-            Map<String, dynamic> historiasPaquete6 = new Map();
-            historiasPaquete6 = value.get("Historias")["Historia 6"];
-
-            listaDeHistoriasRed[5] = historiasPaquete6;
-            tieneHistorias = true;
-          }
-        }
-      }
-    }).then((value) {
-      if (tieneHistorias) {
-        HistoriasUsuario.historias = new List();
-        HistoriasUsuario.cargarHistorias();
-        Usuario.esteUsuario.notifyListeners();
-      }
-    });
+    return 0;
   }
 }

@@ -1,10 +1,14 @@
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
+import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
 
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaPerfiles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_Actividades_elements.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -23,6 +27,7 @@ import 'dart:isolate';
 
 Future<DatosPerfiles> ActualizarPErfilDeterinado(
     Map<String, dynamic> lista) async {
+
   /// La variable [imagenesListas] vista en la seccion de carga de perfiles aqui siempre se inicia en "FALSE" ya que este es el metodo que crea los [carretes]
   /// y las imagenes aun no estan listas, la variable se hara "[true]" cuando [imagenesEnCola] y la variable [imagenesPerfilesListas] sean verdaderas
   /// mientras tanto para evitar excepciones decimos que las imagenes no estan listas
@@ -144,140 +149,6 @@ Future<DatosPerfiles> ActualizarPErfilDeterinado(
   return perfilCreado;
 }
 
-Future<List<DatosPerfiles>> actualizarPerfilesAmigos(
-    List<Map<String, dynamic>> lista) async {
-  /// La variable [imagenesListas] vista en la seccion de carga de perfiles aqui siempre se inicia en "FALSE" ya que este es el metodo que crea los [carretes]
-  /// y las imagenes aun no estan listas, la variable se hara "[true]" cuando [imagenesEnCola] y la variable [imagenesPerfilesListas] sean verdaderas
-  /// mientras tanto para evitar excepciones decimos que las imagenes no estan listas
-  List<DatosPerfiles> perfilCreado = new List();
-
-  ///
-  ///
-  ///
-  ///
-  ///  Al llamar a este metodo se le pasa una lista de [DocumentSnapshot] la cual contiene todos los datos (de un perfil en este caso) encapsulada
-  ///  entonces recorremos esa lista y cada objeto de tipo [DocumentSnapshot] es desglosado de la forma[DocumentSnapshot.data["Nombre del dato al que quiero acceder"]]
-  ///  y lo guardo en una variable correspondiente a su tipo
-  ///
-  ///
-  ///
-  ///
-
-  for (int i = 0; i < lista.length; i++) {
-    /// [ponerNombre], solo quiero poner en nombre del perfil en una imagen asi que la variable se hara falsa al poner el nombre en la primera imagen y asi se
-    /// lo paso a[creadorImagenPerfil] para que solo lo ponga una vez
-    bool ponerNombre = true;
-
-    ///
-    ///
-    ///
-    /// [sumarDescripcion], solo quiero la descripcion del usuario una vez, asique  sera verdadera hasta que ponga la descripcion en el [carrete]
-
-    bool sumarDescripcion = true;
-
-    ///
-    ///
-    ///
-    ///
-    /// [perfilTemp], como se puede observar esta variable es una lista de widgets[List<Widget>] que es justo lo que es un [carrete]
-    /// asique podemos decir que es un carrete temporal el cual creamos, mas abajo muestro su uso
-    List<Widget> perfilTemp = new List();
-
-    ///
-    ///
-    ///
-    ///
-    ///
-    String idUsuario = lista[i]["Id"];
-    String nombre = lista[i]["Nombre"];
-    String alias = lista[i]["Alias"];
-    String edad = (lista[i]["Edad"]).toString();
-    Map ImagenURL1 = lista[i]["IMAGENPERFIL1"];
-    Map ImagenURL2 = lista[i]["IMAGENPERFIL2"];
-    Map ImagenURL3 = lista[i]["IMAGENPERFIL3"];
-    Map ImagenURL4 = lista[i]["IMAGENPERFIL4"];
-    Map ImagenURL5 = lista[i]["IMAGENPERFIL5"];
-    Map ImagenURL6 = lista[i]["IMAGENPERFIL5"];
-    String descripcion = lista[i]["Descripcion"];
-    BloqueDescripcion1 descripcion1 = new BloqueDescripcion1(descripcion);
-
-    /// [imagenesPerfiles] aqui almacenammos todas las imagenes de un perfil para crear cada bloque de imagen del [carrete] del perfil
-    List<Map> imagenesPerfiles;
-    imagenesPerfiles = [
-      ImagenURL1,
-      ImagenURL2,
-      ImagenURL3,
-      ImagenURL4,
-      ImagenURL5,
-      ImagenURL6
-    ];
-
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    /// en este bucle recorremos la lista de imagenes [imagenesPerfiles] y cramos las imagenes y texto del [carrete] dependiendo de si [ponerNombre] y [sumarDescripcion]
-    /// son verdaderos "TRUE" o falsos "FALSE"
-    for (int a = 0; a < imagenesPerfiles.length; a++) {
-      if (imagenesPerfiles[a]["Imagen"] != null) {
-        /// Cada Imagen que no sea nula es puesta en cola sumando una imagen a [imagenEnCola]
-
-        ///
-        ///
-        ///
-        ///
-        ///
-        /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
-        perfilTemp.add(creadorImagenPerfilAmistad(
-          imagenesPerfiles[a]["Imagen"],
-          nombre: nombre,
-          alias: alias,
-          edad: edad,
-          pieFoto: imagenesPerfiles[a]["PieDeFoto"],
-          nombreEnFoto: ponerNombre,
-        ));
-        ponerNombre = false;
-        if (sumarDescripcion && descripcion != null) {
-          perfilTemp.add(descripcion1);
-          sumarDescripcion = false;
-        }
-      }
-    }
-
-    ///
-    ///
-    ///
-    ///
-    ///
-    ///
-    /// En [ListaPerfiles] añadimos ya el [carrete] creado [perfilTemp] y La etiqueta con sus metadatos
-
-    List<Map<String, dynamic>> links = new List();
-
-    if (lista[i]["historias"] != null) {
-      Map<String, dynamic> historias = lista[i]["historias"];
-
-      perfilCreado.add(DatosPerfiles.amistad(
-          linksHistorias: links,
-          carrete: perfilTemp,
-          nombreusuaio: nombre,
-          idUsuario: idUsuario));
-    } else {
-      perfilCreado.add(DatosPerfiles.amistad(
-          linksHistorias: links,
-          carrete: perfilTemp,
-          nombreusuaio: nombre,
-          idUsuario: idUsuario));
-    }
-
-    //print(perfilesCitas.listaPerfiles);
-
-    print(perfilCreado);
-    return perfilCreado;
-  }
-}
 
 Future<List<DatosPerfiles>> actualizarPerfilesCitas(
     List<Map<String, dynamic>> lista) async {
@@ -333,6 +204,9 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
     String nombre = lista[i]["Nombre"];
     String alias = lista[i]["Alias"];
     String edad = (lista[i]["Edad"]).toString();
+  
+  double distancia=lista[i]["distancia"];
+  
     Map imagenURL1 = lista[i]["IMAGENPERFIL1"];
     Map imagenURL2 = lista[i]["IMAGENPERFIL2"];
     Map imagenURL3 = lista[i]["IMAGENPERFIL3"];
@@ -342,6 +216,8 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
     String descripcion = lista[i]["Descripcion"];
     Map<String, dynamic> flitrosUsuario = lista[i]["Filtros usuario"];
     Map<String, dynamic> preguntasPersonales = lista[i]["Preguntas personales"];
+    
+
     if (flitrosUsuario != null) {
       flitrosUsuario.forEach((key, value) {
         Map<String, dynamic> filtroIndividual = new Map();
@@ -397,8 +273,13 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
 
         print(PerfilesGenteCitas.limitesParaCreador);
         perfilTemp.add(ImagenesCarrete(
-          imagenesPerfiles[a]["Imagen"],
+imagenesPerfiles[a]["Imagen"],
+
+
+          distancia:distancia,
+        
           nombre: nombre,
+          
           alias: alias,
           edad: edad,
           pieFoto: imagenesPerfiles[a]["PieDeFoto"],
@@ -456,8 +337,8 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
 }
 
 class Perfiles extends ChangeNotifier {
-  static void cargarPerfilesCitas() {
-    Perfiles.perfilesCitas.cargarIsolate();
+  static void cargarPerfilesCitas(List<Map<String, dynamic>> listaProvisional) {
+    Perfiles.perfilesCitas.cargarIsolate(listaProvisional);
   }
 
   static void cargarPerfilesAmistad() {}
@@ -470,12 +351,12 @@ class Perfiles extends ChangeNotifier {
   ///
   ///
 
-  Future cargarIsolate() async {
+  Future cargarIsolate(List<Map<String, dynamic>> listaDatoos) async {
     ///Aqui aun estando en el isolado principal le hacemos una peticion a firebase parque nos de los datos necesarios atraves del metodo [obtenerPerfilesCitas]
     ///
 
     List<Map<String, dynamic>> listaProvisional =
-        await obtenetPerfilesCitas(Usuario.esteUsuario.DatosUsuario);
+       listaDatoos;
     ReceivePort puertoRecepcion = ReceivePort();
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -651,11 +532,7 @@ class Perfiles extends ChangeNotifier {
 
   static Perfiles perfilesCitas = new Perfiles();
 
-  ///Aqui aparece el objeto estatico[perfilesAmistad] el cual dentro de su variable[_listaPerfiles]almacenara todos los perfiles
-  ///que hayan elegido "Amistad" o "Ambos" en la creacion de su perfil sin importar el sexo de los perfiles ya que el unico requisito
-  ///sera que haya elegido poder recibir solicitudes de amigos
-  static Perfiles perfilesAmistad = new Perfiles();
-
+ 
   ///************************************************************
   ///
   ///
@@ -785,7 +662,7 @@ class Perfiles extends ChangeNotifier {
     if (tendriaCitasCon == "Mujer") {
       Temp = await baseDatosRef
           .collection("usuarios")
-          .where("Citas con", isEqualTo: "Hombre")
+          .where("Citas con", isGreaterThanOrEqualTo: "Hombre")
           .get();
       for (DocumentSnapshot elemento in Temp.docs) {
         Map<String, dynamic> usuarios = new Map();
@@ -804,22 +681,7 @@ class Perfiles extends ChangeNotifier {
         perfilesTemp.add(usuarios);
       }
     }
-    for (int i = 0; i < perfilesTemp.length; i++) {
-      await baseDatosRef
-          .collection("usuarios")
-          .doc(perfilesTemp[i]["Id"])
-          .collection("historias")
-          .doc("Historias")
-          .get()
-          .then((value) {
-        if (value.data != null) {
-          //     print(value.data);
-          Map<String, dynamic> historias = value.data();
-
-          perfilesTemp[i].putIfAbsent("historias", () => historias);
-        }
-      });
-    }
+ 
 
     return perfilesTemp;
   }
@@ -852,600 +714,7 @@ class Perfiles extends ChangeNotifier {
 }
 
 // ignore: must_be_immutable
-class ImagenesCarrete extends StatefulWidget {
-  String urlImagen;
-  String nombre;
-  String alias;
-  String edad;
-  String pieFoto;
-  bool nombreEnFoto;
-  Image laimagen;
-  bool imagenCargada = false;
-  static BoxConstraints limitesCuadro = new BoxConstraints();
 
-  ImagenesCarrete(this.urlImagen,
-      {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
-    //cargarImagen();
-  }
-
-  @override
-  _ImagenesCarreteState createState() => _ImagenesCarreteState();
-}
-
-class _ImagenesCarreteState extends State<ImagenesCarrete> {
-  Uint8List bitsImagen;
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return GestureDetector(
-      onTap: () {
-        print("object");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return VisorImagenesPerfiles(imagen: widget.urlImagen);
-        }));
-      },
-      child: Padding(
-          padding: const EdgeInsets.only(top: 0, bottom: 0),
-          child: Container(
-            child: Column(
-              children: <Widget>[
-                ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    child: Stack(
-                      alignment: AlignmentDirectional.bottomStart,
-                      children: <Widget>[
-                        widget.nombreEnFoto
-                            ? Container(
-                                height: ImagenesCarrete
-                                    .limitesCuadro.biggest.height,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: NetworkImage(widget.urlImagen),
-                                        fit: BoxFit.cover)),
-                              )
-                            : CachedNetworkImage(
-                                imageUrl: widget.urlImagen,
-                              ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 0, bottom: 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.5)),
-                                color: Color.fromRGBO(0, 0, 0, 80)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  widget.nombreEnFoto
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(3.0),
-                                          child: Text(
-                                              "${widget.nombre}, ${widget.edad}",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize:
-                                                      ScreenUtil().setSp(40))),
-                                        )
-                                      : Container(),
-                                  widget.nombreEnFoto
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(2.5),
-                                          child: Text("A 8 Km de ti",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize:
-                                                      ScreenUtil().setSp(40))),
-                                        )
-                                      : Container(),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
-                Container(
-                  child:
-                      widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
-                )
-              ],
-            ),
-          )),
-    );
-  }
-}
-
-// ignore: must_be_immutable
-class VisorImagenesPerfiles extends StatelessWidget {
-  String imagen;
-  VisorImagenesPerfiles({@required this.imagen});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.white,
-        child: LayoutBuilder(builder: (
-          BuildContext context,
-          BoxConstraints limites,
-        ) {
-          return Container(
-            height: limites.biggest.height,
-            width: limites.biggest.width,
-            color: Colors.black,
-            child: Image.network(imagen),
-          );
-        }));
-  }
-}
-
-class creadorImagenPerfilAmistad extends StatefulWidget {
-  String urlImagen;
-  String nombre;
-  String alias;
-  String edad;
-  String pieFoto;
-  bool nombreEnFoto;
-  Image laimagen;
-  bool imagenCargada = false;
-
-  creadorImagenPerfilAmistad(this.urlImagen,
-      {this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
-    //cargarImagen();
-  }
-
-  @override
-  _creadorImagenPerfilAmistadState createState() =>
-      _creadorImagenPerfilAmistadState();
-}
-
-class _creadorImagenPerfilAmistadState
-    extends State<creadorImagenPerfilAmistad> {
-  Uint8List bitsImagen;
-  initState() {
-    super.initState();
-    widget.laimagen = Image.network(widget.urlImagen);
-  }
-
-  void didChangeDependencies() {
-    precacheImage(widget.laimagen.image, context)
-        .catchError((onError) => print(onError));
-    super.didChangeDependencies();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 8),
-        child: Container(
-          child: Column(
-            children: <Widget>[
-              ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  child: Stack(
-                    alignment: AlignmentDirectional.bottomStart,
-                    children: <Widget>[
-                      CachedNetworkImage(
-                        imageUrl: widget.urlImagen,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10, bottom: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            widget.nombreEnFoto
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(1.5)),
-                                        color: Color.fromRGBO(0, 0, 0, 100)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Text(widget.nombre,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  ScreenUtil().setSp(60))),
-                                    ),
-                                  )
-                                : Container(),
-                            widget.nombreEnFoto
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(1.5)),
-                                        color: Color.fromRGBO(0, 0, 0, 100)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.5),
-                                      child: Text("@${widget.alias}",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  ScreenUtil().setSp(60))),
-                                    ),
-                                  )
-                                : Container(),
-                            widget.nombreEnFoto
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(1.5)),
-                                        color: Color.fromRGBO(0, 0, 0, 100)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.5),
-                                      child: Text("A 8 Km de ti",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize:
-                                                  ScreenUtil().setSp(60))),
-                                    ),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )),
-              Container(
-                child: widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
-              )
-            ],
-          ),
-        ));
-  }
-}
-
-class BloqueDescripcion1 extends StatelessWidget {
-  String descripcionPerfil;
-
-  BloqueDescripcion1(this.descripcionPerfil) {
-    if (descripcionPerfil == null) {
-      descripcionPerfil = "";
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      height: ScreenUtil().setHeight(500),
-      decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.all(Radius.circular(3)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Sobre mi:",
-              style: TextStyle(color: Colors.black),
-            ),
-            Divider(
-              height: ScreenUtil().setHeight(100),
-              color: Colors.transparent,
-            ),
-            Text(
-              descripcionPerfil,
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class BloquePreguntasPersonales extends StatelessWidget {
-  Map<String, dynamic> preguntaRespuesta;
-
-  BloquePreguntasPersonales({@required this.preguntaRespuesta}) {}
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              this.preguntaRespuesta["Pregunta"].toString(),
-              style: TextStyle(color: Colors.black),
-            ),
-            Divider(
-              height: ScreenUtil().setHeight(100),
-              color: Colors.transparent,
-            ),
-            Text(
-              this.preguntaRespuesta["Respuesta"].toString(),
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: ScreenUtil().setSp(90),
-                  fontWeight: FontWeight.bold),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class BloqueFiltrosPersonales extends StatelessWidget {
-  List<Map<String, dynamic>> filtroValor;
-  List<Widget> filtrosCreados = new List();
-  bool altura = false;
-  bool busco = false;
-  bool complexion = false;
-  bool hijos = false;
-  bool mascotas = false;
-  bool politica = false;
-  bool queVivaCon = false;
-  String valorAltura;
-  String valorBusco;
-  String valorComplexion;
-  String valorHijos;
-  String valorMascotas;
-  String valorPolitica;
-  String valorQueVivaCon;
-
-  BloqueFiltrosPersonales({@required this.filtroValor}) {
-    for (Map filtros in filtroValor) {
-      Icon simbolo = Icon(Icons.home);
-      if (filtros["Filtro"] == "Altura") {
-        simbolo = Icon(
-          LineAwesomeIcons.ruler_vertical,
-          size: 50,
-        );
-        altura = true;
-        valorAltura = filtros["Valor"].toString();
-      }
-      if (filtros["Filtro"] == "Busco") {
-        simbolo = Icon(LineAwesomeIcons.ring);
-        valorBusco = filtros["Valor"];
-        busco = true;
-      }
-      if (filtros["Filtro"] == "Complexion") {
-        simbolo = Icon(LineAwesomeIcons.snowboarding);
-        valorComplexion = filtros["Valor"];
-        complexion = true;
-      }
-      if (filtros["Filtro"] == "Hijos") {
-        simbolo = Icon(LineAwesomeIcons.baby);
-        valorHijos = filtros["Valor"];
-        hijos = true;
-      }
-      if (filtros["Filtro"] == "Mascotas") {
-        simbolo = Icon(LineAwesomeIcons.dog);
-        valorMascotas = filtros["Valor"];
-        mascotas = true;
-      }
-      if (filtros["Filtro"] == "Politca") {
-        simbolo = Icon(LineAwesomeIcons.landmark);
-        valorPolitica = filtros["Valor"];
-        politica = true;
-      }
-      if (filtros["Filtro"] == "Que viva con") {
-        simbolo = Icon(LineAwesomeIcons.home);
-        valorQueVivaCon = filtros["Valor"];
-        queVivaCon = true;
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      height: ScreenUtil().setHeight(400),
-      width: ImagenesCarrete.limitesCuadro.biggest.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Center(
-          child: GridView.count(
-              physics: NeverScrollableScrollPhysics(),
-              crossAxisSpacing: ScreenUtil().setWidth(10),
-              mainAxisSpacing: ScreenUtil().setHeight(10),
-              childAspectRatio: 5 / 1.5,
-              crossAxisCount: 3,
-              children: [
-                altura
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                          color: Colors.purple,
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.ruler_vertical,
-                                size: ScreenUtil().setSp(40),
-                                color: Colors.white,
-                              ),
-                              Text(
-                                valorAltura,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-                busco
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.ring,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                valorBusco,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-                complexion
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.dumbbell,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                valorComplexion,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-                hijos
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.ring,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                valorHijos,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-                mascotas
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.dog,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                valorMascotas,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-                politica
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.landmark,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                valorPolitica,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-                queVivaCon
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.home,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                valorQueVivaCon,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(color: Colors.transparent),
-              ]),
-        ),
-      ),
-    );
-  }
-}
 
 class ManejoCache {
   String url;
@@ -1477,148 +746,3 @@ class ManejoCache {
   }
 }
 
-class DatosPerfiles {
-  static String nombreUsuarioLocal = Usuario.esteUsuario.nombre;
-  static String aliasUsuarioLocal = Usuario.esteUsuario.alias;
-  static String idUsuarioLocal = Usuario.esteUsuario.idUsuario;
-
-  String nombreusuaio;
-  String mensaje;
-  String idUsuario;
-  bool imagenAdquirida;
-  String imagen;
-  double valoracion;
-  List<Widget> carrete = new List();
-
-  List<Map<String, dynamic>> linksHistorias = new List();
-  FirebaseFirestore baseDatosRef;
-  Map<String, dynamic> datosValoracion = new Map();
-  String crearCodigo() {
-    List<String> letras = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z"
-    ];
-    List<String> numero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    var random = Random();
-    int primeraLetra = random.nextInt(26);
-    String codigo_final = letras[primeraLetra];
-
-    for (int i = 0; i <= 20; i++) {
-      int selector_aleatorio_num_letra = random.nextInt(20);
-      int aleatorio_letra = random.nextInt(27);
-      int aleatorio_numero = random.nextInt(9);
-      if (selector_aleatorio_num_letra <= 2) {
-        selector_aleatorio_num_letra = 2;
-      }
-      if (selector_aleatorio_num_letra % 2 == 0) {
-        codigo_final = "${codigo_final}${(numero[aleatorio_numero])}";
-      }
-      if (aleatorio_letra % 3 == 0) {
-        int mayuscula = random.nextInt(9);
-        if (selector_aleatorio_num_letra <= 2) {
-          int suerte = random.nextInt(2);
-          suerte == 0
-              ? selector_aleatorio_num_letra = 3
-              : selector_aleatorio_num_letra = 2;
-        }
-        if (mayuscula % 2 == 0) {
-          codigo_final =
-              "${codigo_final}${(letras[aleatorio_letra]).toUpperCase()}";
-        }
-        if (mayuscula % 3 == 0) {
-          codigo_final =
-              "${codigo_final}${(letras[aleatorio_letra]).toLowerCase()}";
-        }
-      }
-    }
-    return codigo_final;
-  }
-
-  void crearDatosValoracion() {
-    imagenAdquirida = false;
-    if (Usuario.esteUsuario.ImageURL1["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL1["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL2["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL2["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL3["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL3["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL4["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL4["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL5["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL5["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL6["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL6["Imagen"];
-      imagenAdquirida = true;
-    }
-    String idValor=crearCodigo();
-
-    datosValoracion["Imagen Usuario"] = imagen;
-    datosValoracion["Nombre emisor"] = nombreUsuarioLocal;
-    datosValoracion["Alias Emisor"] = aliasUsuarioLocal;
-    datosValoracion["Id emisor"] = idUsuarioLocal;
-    datosValoracion["Valoracion"] = valoracion;
-    datosValoracion["Mensaje"] = this.mensaje;
-    datosValoracion["Time"] = DateTime.now();
-    datosValoracion["idDestino"] = idUsuario;
-    datosValoracion["revelada"] = false;
-    datosValoracion["id valoracion"] = idValor;
-    _enviarValoracion(idValor);
-  }
-
-  DatosPerfiles();
-  DatosPerfiles.citas(
-      {@required this.carrete,
-      @required this.linksHistorias,
-      @required this.valoracion,
-      @required this.nombreusuaio,
-      @required this.idUsuario}) {}
-  DatosPerfiles.amistad(
-      {@required this.carrete,
-      @required this.nombreusuaio,
-      @required this.linksHistorias,
-      @required this.idUsuario});
-  void _enviarValoracion(String idvalor) async {
-    baseDatosRef = FirebaseFirestore.instance;
-    await baseDatosRef.collection("valoraciones").doc(idvalor).set(datosValoracion);
-  }
-}

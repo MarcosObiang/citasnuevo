@@ -1,4 +1,5 @@
 
+import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
-import 'package:citasnuevo/DatosAplicacion/Directo.dart';
+
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
@@ -19,6 +20,7 @@ FirebaseApp app;
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   ControladorNotificacion.controladorNotificacion.inicializarNotificaciones();
   
 
@@ -31,6 +33,7 @@ Future<void> main() async {
           apiKey: "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc",
           databaseURL: "https://citas-46a84.firebaseio.com/",
           messagingSenderId: "912262965304"));
+          
          
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -38,7 +41,8 @@ Future<void> main() async {
             home: MultiProvider(providers: [
               ChangeNotifierProvider(create: (_) => Usuario()),
               ChangeNotifierProvider(create: (_) => Perfiles()),
-              ChangeNotifierProvider(create: (_) => Valoraciones.instanciar),
+              ChangeNotifierProvider(create: (_) => ControladorLocalizacion.instancia),
+              ChangeNotifierProvider(create: (_) => Valoracion.instanciar),
               ChangeNotifierProvider(create: (_) => Conversacion.instancia(),
               ),
             ], child: PantallaDeInicio()),

@@ -1,4 +1,5 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart';
@@ -12,8 +13,8 @@ import 'Usuario.dart';
 import 'dart:math';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 
-class Valoraciones extends ChangeNotifier {
-  static Valoraciones instanciar = Valoraciones.instancia();
+class Valoracion extends ChangeNotifier {
+  static Valoracion instanciar = Valoracion();
   String imagenEmisor;
   String idEmisor;
   String aliasEmisor;
@@ -23,13 +24,14 @@ class Valoraciones extends ChangeNotifier {
   double valoracion;
   String idValoracion;
   bool valoracionRevelada;
+  FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
 
   static double mediaUsuario;
-  static List<Valoraciones> listaDeValoraciones = new List();
+  static List<Valoracion> listaDeValoraciones = new List();
   static int visitasTotales;
   static String idUsuarioDestino = Usuario.esteUsuario.idUsuario;
 
-  Valoraciones.crear({
+  Valoracion.crear({
     @required this.idValoracion,
     @required this.fechaValoracion,
     @required this.idEmisor,
@@ -40,10 +42,10 @@ class Valoraciones extends ChangeNotifier {
     @required this.valoracion,
     @required this.valoracionRevelada,
   });
-  Valoraciones();
-  Valoraciones.instancia();
+  Valoracion();
+  Valoracion.instancia();
 
-  static Valoraciones Puntuaciones = new Valoraciones();
+  static Valoracion Puntuaciones = new Valoracion();
   static List<ValoracionWidget> puntuaciones = new List();
 
   void obtenerValoraciones() {
@@ -151,43 +153,42 @@ class Valoraciones extends ChangeNotifier {
 
         for (int b = 0; b < dato.docs.length; b++) {
           coincidencias = false;
+            int indice=0;
           for (int i = 0; i < listaDeValoraciones.length; i++) {
+          
             if (dato.docs[b].id != "mediaPuntos") {
               if (dato.docs[b].id ==
                   listaDeValoraciones[i].idValoracion) {
-                  b++;
+                  
                    
                 coincidencias = true;
-                
+                indice=i;
+              
+                  }}}
 
-                if (dato.docs[b].get("Nombre emisor") !=
-                    listaDeValoraciones[i].nombreEmisor) {
-                  listaDeValoraciones[i].nombreEmisor =
+                if(coincidencias){
+                  if (dato.docs[b].get("Nombre emisor") !=
+                    listaDeValoraciones[indice].nombreEmisor) {
+                  listaDeValoraciones[indice].nombreEmisor =
                       dato.docs[b].get("Nombre emisor");
                 }
                 if (dato.docs[b].get("Imagen Usuario") !=
-                    listaDeValoraciones[i].imagenEmisor) {
-                  listaDeValoraciones[i].imagenEmisor =
+                    listaDeValoraciones[indice].imagenEmisor) {
+                  listaDeValoraciones[indice].imagenEmisor =
                       dato.docs[b].get("Imagen Usuario");
                 }
                 if (dato.docs[b].get("revelada") !=
-                    listaDeValoraciones[i].valoracionRevelada) {
-                  listaDeValoraciones[i].valoracionRevelada =
+                    listaDeValoraciones[indice].valoracionRevelada) {
+                  listaDeValoraciones[indice].valoracionRevelada =
                       dato.docs[b].get("revelada");
                 }
+                }
+
+                
 
                 instanciar.notifyListeners();
-                break;
-              } if (dato.docs[b].id !=
-                  listaDeValoraciones[i].idValoracion) {
-String id=dato.docs[b].id;
-String miId= listaDeValoraciones[i].idValoracion;
-
-print("id nuevo:$id,     idExistente:$miId ");
-
-                coincidencias = false;
-              }
-            }
+   
+            
           
           if (!coincidencias) {
             print("Creando");
@@ -204,7 +205,7 @@ print("id nuevo:$id,     idExistente:$miId ");
                   (dato.docs[b].get("id valoracion").toString()).toString(),
                   (dato.docs[b].get("revelada")));
             }
-          }}
+          }
         }
       }
       instanciar.notifyListeners();
@@ -222,7 +223,7 @@ print("id nuevo:$id,     idExistente:$miId ");
       String valoracionId,
       bool revelada) {
     print(puntuacion);
-    Valoraciones valoracion = new Valoraciones.crear(
+    Valoracion valoracion = new Valoracion.crear(
         idValoracion: valoracionId,
         idEmisor: idEmisor,
         nombreEmisor: nombreUsuario,
@@ -262,7 +263,7 @@ print("id nuevo:$id,     idExistente:$miId ");
       String valoracionId,
       bool revelar) {
     print(puntuacion);
-    Valoraciones valoracion = new Valoraciones.crear(
+    Valoracion valoracion = new Valoracion.crear(
         idValoracion: valoracionId,
         idEmisor: idEmisor,
         nombreEmisor: nombreUsuario,
@@ -273,17 +274,70 @@ print("id nuevo:$id,     idExistente:$miId ");
         valoracion: puntuacion,
         valoracionRevelada: revelar);
     int i = listaDeValoraciones.length > 0 ? listaDeValoraciones.length : 0;
-    listaDeValoraciones.insert(0, valoracion);
+   listaDeValoraciones.insert(0, valoracion);
     listaDeValoraciones
         .sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
-    list_live.llaveListaValoraciones.currentState.insertItem(0);
+        if( list_live.llaveListaValoraciones.currentState!=null){
+ list_live.llaveListaValoraciones.currentState.insertItem(0);
+        }
+   
 
     //listaDeValoraciones = List.from(listaDeValoraciones)..add(valoracion);
 
     //instanciar.notifyListeners();
   }
+
+void rechazarValoracion(
+    String id,
+  ) async {
+    QuerySnapshot documento = await baseDatosRef
+        .collection("valoraciones")
+        .where("id valoracion", isEqualTo: id)
+        .get();
+    for (DocumentSnapshot elemento in documento.docs) {
+      if (elemento.get("id valoracion") == id) {
+        String idVal = elemento.id;
+        await baseDatosRef
+            .collection("valoraciones")
+            .doc(idVal)
+            .delete()
+            .then((value) {
+          print("valoracion eliminada");
+        }).catchError((onError) {
+          print(onError);
+        });
+      }
+    }
+  }
+
+  void enviarSolicitudConversacion(String idRemitente, String nombreRemitente,
+      String imagenRemitente, double calificacion, String idValoracion) async {
+    String codigoSolicitud =  GeneradorCodigos.instancia.crearCodigo();
+    WriteBatch batchSolicitud = baseDatosRef.batch();
+    DocumentReference referenciaColeccionSolicitud = baseDatosRef
+        .collection("solicitudes conversaciones")
+        .doc(codigoSolicitud);
+    DocumentReference referenciaColeccionValoracion =
+        baseDatosRef.collection("valoraciones").doc(idValoracion);
+    batchSolicitud.set(referenciaColeccionSolicitud, {
+      "idDestino": idRemitente,
+      "solicitudRevelada": false,
+      "nombreEmisor": Usuario.esteUsuario.nombre,
+      "idEmisor": Usuario.esteUsuario.idUsuario,
+      "imagenEmisor": Usuario.esteUsuario.ImageURL1["Imagen"],
+      "calificacion": calificacion,
+      "idSolicitudConversacion": codigoSolicitud
+    });
+    batchSolicitud.delete(referenciaColeccionValoracion);
+    batchSolicitud.commit().catchError(
+        (onError) => print("No se pudo envial la solicitud::$onError"));
+  }
+
+
+
 }
 
+// ignore: must_be_immutable
 class ValoracionWidget extends StatelessWidget {
   String idValoracion;
   String idEmisorValoracion;

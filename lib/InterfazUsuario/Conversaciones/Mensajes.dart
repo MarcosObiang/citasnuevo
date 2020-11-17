@@ -7,38 +7,32 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
-import 'package:citasnuevo/DatosAplicacion/Directo.dart';
+
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
+
 import 'dart:typed_data';
 import 'package:citasnuevo/base_app.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import '../Actividades/TarjetaEvento.dart';
-import '../../main.dart';
+
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:flutter/scheduler.dart';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../Directo/live_screen_elements.dart';
+
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:intl/intl.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';

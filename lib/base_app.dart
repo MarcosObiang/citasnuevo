@@ -1,6 +1,6 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/people_screen.dart';
-import 'package:citasnuevo/InterfazUsuario/Descubrir/descubir.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,39 +75,45 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
   Widget build(BuildContext context) {
     // ignore: todo
     // TODO: implement build
-    return ChangeNotifierProvider.value(
-      value: Conversacion.conversaciones,
-          child: MaterialApp(
-        key: claveBase,
-        debugShowCheckedModeBanner: false,
-        theme: new ThemeData(
-            highlightColor: Colors.purple,
-            tabBarTheme: TabBarTheme(
-                unselectedLabelStyle: TextStyle(fontSize: ScreenUtil().setSp(50)),
-                labelColor: Colors.green,
-                unselectedLabelColor: Colors.black87,
-                labelStyle: TextStyle(fontSize: ScreenUtil().setSp(50))),
-            primaryColor: Colors.white,
-            accentColor: Colors.purple),
-        home: Container(
-          color: Colors.white,
-          height: ScreenUtil.screenHeight,
-          child: Column(
-            children: <Widget>[
-              
-              Container(
-                  height: MediaQuery.of(context).size.height -
-                      kBottomNavigationBarHeight,
-                  child: tabs[indicePagina]),
-              Consumer<Conversacion>(
-                builder: (context, myType, child) {
-                  print("construir");
-                  return  barraBajaPrincipalNavegacion();
-                },
-              )
-              
-             
-            ],
+    return WillPopScope(
+      onWillPop: (){
+        return ;
+
+      },
+          child: ChangeNotifierProvider.value(
+        value: Conversacion.conversaciones,
+            child: MaterialApp(
+          key: claveBase,
+          debugShowCheckedModeBanner: false,
+          theme: new ThemeData(
+              highlightColor: Colors.purple,
+              tabBarTheme: TabBarTheme(
+                  unselectedLabelStyle: TextStyle(fontSize: ScreenUtil().setSp(50)),
+                  labelColor: Colors.green,
+                  unselectedLabelColor: Colors.black87,
+                  labelStyle: TextStyle(fontSize: ScreenUtil().setSp(50))),
+              primaryColor: Colors.white,
+              accentColor: Colors.purple),
+          home: Container(
+            color: Colors.deepPurple[900],
+            height: ScreenUtil.screenHeight,
+            child: Column(
+              children: <Widget>[
+                
+                Container(
+                    height: MediaQuery.of(context).size.height -
+                        kBottomNavigationBarHeight,
+                    child: tabs[indicePagina]),
+                Consumer<Conversacion>(
+                  builder: (context, myType, child) {
+                    print("construir");
+                    return  barraBajaPrincipalNavegacion();
+                  },
+                )
+                
+               
+              ],
+            ),
           ),
         ),
       ),
