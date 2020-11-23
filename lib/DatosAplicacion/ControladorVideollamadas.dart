@@ -2,6 +2,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/ObtenerImagenPerfil.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantalaVidellamada.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,7 +14,7 @@ import '../base_app.dart';
 
 class VideoLlamada {
   static String usaurioId = Usuario.esteUsuario.idUsuario;
-  static String imagenUsuaerio = obtenerImagenUsuarioLocal();
+  static String imagenUsuaerio = ObtenerImagenPerfl.instancia.obtenerImagenUsuarioLocal();
   static const String idAplicacion = "89a6508f23d34bdeb3cb998a5642c770";
   String canalUsuario;
   static FirebaseFirestore basedatos = FirebaseFirestore.instance;
@@ -33,41 +34,7 @@ class VideoLlamada {
     AgoraRtcEngine.setVideoEncoderConfiguration(config);
   }
 
-  static String obtenerImagenUsuarioLocal() {
-    bool imagenAdquirida = false;
-    String imagen;
-    if (Usuario.esteUsuario.ImageURL1["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL1["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL2["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL2["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL3["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL3["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL4["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL4["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL5["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL5["Imagen"];
-      imagenAdquirida = true;
-    }
-    if (Usuario.esteUsuario.ImageURL6["Imagen"] != null &&
-        imagenAdquirida == false) {
-      imagen = Usuario.esteUsuario.ImageURL6["Imagen"];
-      imagenAdquirida = true;
-    }
-    return imagen;
-  }
+  
 
   static void establecerEstadoLLamada() async {
     Map<String, dynamic> datosLLamada = new Map();
@@ -199,8 +166,7 @@ class VideoLlamada {
   static void iniciarLLamadaVideo(String usuario, BuildContext context) async {
     Map<String, dynamic> datosLLamada = new Map();
     String idLLamadaVideo =  GeneradorCodigos.instancia.crearCodigo();
-    datosLLamada["ImagenLlamadaEntrante"] =
-        VideoLlamada.obtenerImagenUsuarioLocal();
+    datosLLamada["ImagenLlamadaEntrante"] = ObtenerImagenPerfl.instancia.obtenerImagenUsuarioLocal();
     datosLLamada["Nombre"] = Usuario.esteUsuario.nombre;
     datosLLamada["idCanalLLamada"] = Usuario.esteUsuario.idUsuario;
     datosLLamada["StatusLLamada"] = "Conectando";

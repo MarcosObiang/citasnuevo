@@ -2,11 +2,14 @@ import 'dart:io';
 
 import 'dart:ui';
 
+import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import "package:citasnuevo/Inte../../DatosAplicacion/ControladorConversacion.dart";
 import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaPerfiles.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/people_screen.dart';
+import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -29,9 +32,9 @@ import 'package:image_cropper/image_cropper.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:swipe_stack/swipe_stack.dart';
 
 import 'Pantalla_Actividades.dart';
-
 
 // ignore: must_be_immutable
 class PerfilesGenteCitas extends StatefulWidget {
@@ -72,6 +75,14 @@ class ControlarLista {
 class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
   static ItemScrollController mover = new ItemScrollController();
   static SwiperController controladorSwipe = new SwiperController();
+  
+
+  @override
+  void initState(){
+PerfilesGenteCitas.indicePerfil=0;
+    super.initState();
+
+  }
 
   Function soltarLikes;
   int devolverIndices = 0;
@@ -101,184 +112,307 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
     return Container(
       height: widget.limites.biggest.height,
       width: widget.limites.biggest.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-      ),
-      child: Column(
+      decoration: BoxDecoration(),
+      child: Stack(
         children: <Widget>[
-          Flexible(
-              flex: 15,
-              fit: FlexFit.tight,
-              child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints box) {
-                  PerfilesGenteCitas.limitesPrimeraFoto = box;
-                  PerfilesGenteCitas.limitesParaCreador = box;
-                  ImagenesCarrete.limitesCuadro=box;
-                  return Container(
-                    height: box.biggest.height,
-                    width: box.biggest.width,
-                    child: GestureDetector(
-                      onHorizontalDragStart: (valor) {},
-                      onHorizontalDragUpdate: (valor) {},
-                      onHorizontalDragCancel: () {},
-                      onHorizontalDragDown: (valor) {},
-                      onHorizontalDragEnd: (valor) {},
-                      onLongPress: () {},
-                      child: Swiper(
-                        loop: false,
-                        
-                        physics: NeverScrollableScrollPhysics(),
-                        layout: SwiperLayout.STACK,
-                        itemWidth: box.biggest.width,
-                        curve: Curves.easeInOut,
-                        onIndexChanged: (index) {
-                          PerfilesGenteCitas.indicePerfil = index;
-                          if (Perfiles.perfilesCitas.listaPerfiles.length >
-                              PerfilesGenteCitas.indicePerfil + 1) {
-                            PerfilesGenteCitas.valorPerfilPasado = Perfiles
-                                .perfilesCitas
-                                .listaPerfiles[PerfilesGenteCitas.indicePerfil]
-                                .valoracion;
-                            PerfilesGenteCitas.valorPerfilPresente = Perfiles
-                                .perfilesCitas
-                                .listaPerfiles[
-                                    PerfilesGenteCitas.indicePerfil + 1]
-                                .valoracion;
-                            Perfiles.perfilesCitas.notifyListeners();
-                          }
-                         
-                          widget.cambiarIndice = false;
-                        },
-                        controller: controladorSwipe,
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints box) {
+              PerfilesGenteCitas.limitesPrimeraFoto = box;
+              PerfilesGenteCitas.limitesParaCreador = box;
+              ImagenesCarrete.limitesCuadro = box;
+              return Container(
+                height: box.biggest.height,
+                width: box.biggest.width,
+                child: GestureDetector(
+                  onHorizontalDragStart: (valor) {},
+                  onHorizontalDragUpdate: (valor) {},
+                  onHorizontalDragCancel: () {},
+                  onHorizontalDragDown: (valor) {},
+                  onHorizontalDragEnd: (valor) {},
+                  onLongPress: () {},
+                  child: Swiper(
+                    loop: false,
+                    physics: NeverScrollableScrollPhysics(),
+                    layout: SwiperLayout.STACK,
+                    itemWidth: box.biggest.width,
+                    curve: Curves.easeInOut,
+                    
+                    onIndexChanged: (index) {
+                      PerfilesGenteCitas.indicePerfil = index;
+                      if (Perfiles.perfilesCitas.listaPerfiles.length >
+                          PerfilesGenteCitas.indicePerfil + 1) {
+                        PerfilesGenteCitas.valorPerfilPasado = Perfiles
+                            .perfilesCitas
+                            .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                            .valoracion;
+                        PerfilesGenteCitas.valorPerfilPresente = Perfiles
+                            .perfilesCitas
+                            .listaPerfiles[PerfilesGenteCitas.indicePerfil + 1]
+                            .valoracion;
+                        Perfiles.perfilesCitas.notifyListeners();
+                      
+                      }
+                        setState(() {
+                          
+                        });
 
-                        itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (BuildContext context, int indice) {
-                          return RepaintBoundary(
-                            child: Container(
-                              height: box.biggest.height,
-                              width: box.biggest.width,
-                              color: Colors.white,
-                              child: Stack(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:3.0,right: 3),
-                                    child: ListView(
-                                     
-                                      children: 
-                                      
-                                      
-                                      Perfiles.perfilesCitas
-                                          .listaPerfiles[indice].carrete,
-                                    ),
+                      widget.cambiarIndice = false;
+                    },
+                    controller: controladorSwipe,
+                    itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (BuildContext context, int indice) {
+                      return RepaintBoundary(
+                        child: Container(
+                          height: box.biggest.height,
+                          width: box.biggest.width,
+                          color: Colors.white,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              Stack(
+                                children: [
+                                  ListView(
+                                    children: Perfiles.perfilesCitas
+                                        .listaPerfiles[indice].carrete,
                                   ),
-                                  leGusta
-                                      ? pantallaGusta(box, indice)
-                                      : Container(),
                                 ],
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-              )),
-          Flexible(
-            flex: 2,
-            fit: FlexFit.tight,
+                              leGusta
+                                  ? pantallaGusta(box, indice)
+                                  : Container(),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+          
+          botonesLateralesCitas(context),
+          deslizadorCompuesto()
+        ],
+      ),
+    );
+  }
+
+  Align botonesLateralesCitas(BuildContext context) {
+    return Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: RepaintBoundary(
-                child: Row(
+              child: Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Flexible(
-                      fit: FlexFit.tight,
-                      flex: 2,
-                      child: Container(
-                        child: TweenAnimationBuilder(
-                            tween: Tween<double>(
-                              begin: Perfiles
-                                          .perfilesCitas
-                                          .listaPerfiles[
-                                              PerfilesGenteCitas.indicePerfil]
-                                          .valoracion <
-                                      5
-                                  ? ScreenUtil().setSp(90)
-                                  : ScreenUtil().setSp(170),
-                              end: Perfiles
-                                          .perfilesCitas
-                                          .listaPerfiles[
-                                              PerfilesGenteCitas.indicePerfil]
-                                          .valoracion <
-                                      5
-                                  ? ScreenUtil().setSp(170)
-                                  : ScreenUtil().setSp(90),
+                    Container(
+                      height: 200.h,
+                                width: 150.w,
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(36, 28, 41, 100),
+                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                   
+                              ),
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ListaDeValoraciones())),
+                        child: Column(
+                             mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(
+                              LineAwesomeIcons.heart_1,
+                              color: Colors.white,
+                              size: 80.sp,
                             ),
-                            duration: Duration(milliseconds: 200),
-                            builder: (BuildContext context, double valor,
-                                Widget child) {
-                              return Icon(
-                                Icons.cancel,
-                                size: valor,
-                                color: Colors.red,
-                              );
-                            }),
-                      ),
-                    ),
-                    Flexible(
-                      fit: FlexFit.tight,
-                      flex: 10,
-                      child: Container(
-                        child: deslizadorPuntuacion(
-                          soltarLikes,
-                          PerfilesGenteCitas.indicePerfil,
+                            Container(
+                                height: 80.w,
+                    
+                                decoration: BoxDecoration(
+                                     borderRadius: BorderRadius.all(Radius.circular(10)),
+                                   color: Color.fromRGBO(41, 2, 61, 100),),
+                                child: Center(
+                                    child: Text(
+                                  "${Valoracion.listaDeValoraciones.length}",
+                                  style: GoogleFonts.lato(
+                                      fontSize: 35.sp, color: Colors.white,fontWeight: FontWeight.bold),
+                                )),
+                              ),
+                          ],
                         ),
                       ),
                     ),
-                    Flexible(
-                      fit: FlexFit.tight,
-                      flex: 2,
-                      child: Container(
-                        child: TweenAnimationBuilder(
-                            tween: Tween<double>(
-                              begin: Perfiles
-                                          .perfilesCitas
-                                          .listaPerfiles[
-                                              PerfilesGenteCitas.indicePerfil]
-                                          .valoracion >
-                                      5
-                                  ? ScreenUtil().setSp(90)
-                                  : ScreenUtil().setSp(170),
-                              end: Perfiles
-                                          .perfilesCitas
-                                          .listaPerfiles[
-                                              PerfilesGenteCitas.indicePerfil]
-                                          .valoracion >
-                                      5
-                                  ? ScreenUtil().setSp(170)
-                                  : ScreenUtil().setSp(90),
+                    Container(
+                      height: 50.h,
+                    ),
+                Container(
+                      height: 200.h,
+                                width: 150.w,
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(36, 28, 41, 100),
+                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                   
+                              ),
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PantallaSolicitudesConversaciones())),
+                        child: Column(
+                             mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(
+                              LineAwesomeIcons.user_friends,
+                              color: Colors.white,
+                              size: 80.sp,
                             ),
-                            duration: Duration(milliseconds: 200),
-                            builder: (BuildContext context, double valor,
-                                Widget child) {
-                              return Icon(
-                                LineAwesomeIcons.heart_1,
-                                size: valor,
-                                color: Colors.green,
-                              );
-                            }),
+                            Container(
+                                height: 80.w,
+                    
+                                decoration: BoxDecoration(
+                                     borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    color: Color.fromRGBO(41, 2, 61, 100),),
+                                child: Center(
+                                    child: Text(
+                                  "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
+                                  style: GoogleFonts.lato(
+                                      fontSize: 35.sp, color: Colors.white,fontWeight: FontWeight.bold),
+                                )),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ]),
+            ),
+          ),
+        );
+  }
+
+  Widget deslizadorCompuesto() {
+    return Padding(
+      padding: const EdgeInsets.only(
+          bottom: kBottomNavigationBarHeight, left: 20, right: 20),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: Color.fromRGBO(36, 28, 41, 99)),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Text(
+                              "${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].nombreusuaio}, ${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].edad} ",
+                              style: GoogleFonts.lato(
+                                fontSize: 45.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              )),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              LineAwesomeIcons.alternate_map_marker,
+                              color: Colors.white,
+                              size: 50.sp,
+                            ),
+                            Text(
+                              "${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].distancia} Km",
+                              style: GoogleFonts.lato(
+                                  fontSize: 45.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            )
+                          ],
+                        )
+                      ]),
                 ),
               ),
             ),
-          )
-        ],
+            Container(
+              height: kBottomNavigationBarHeight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: RepaintBoundary(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        fit: FlexFit.tight,
+                        flex: 2,
+                        child: Container(
+                          width: 150.w,
+                          height: 150.w,
+                          decoration: BoxDecoration(boxShadow: [
+                            BoxShadow(
+                                color: Color.fromRGBO(36, 28, 41, 100),
+                                blurRadius: 2,
+                                spreadRadius: 2)
+                          ], shape: BoxShape.circle, color: Colors.white),
+                          child: Center(
+                            child: Icon(
+                              Icons.close,
+                              size: 90.sp,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        fit: FlexFit.tight,
+                        flex: 10,
+                        child: Container(
+                          child: deslizadorPuntuacion(
+                            soltarLikes,
+                            PerfilesGenteCitas.indicePerfil,
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        fit: FlexFit.tight,
+                        flex: 2,
+                        child: Container(
+                          width: 150.w,
+                          height: 150.w,
+                          decoration: BoxDecoration(boxShadow: [
+                            BoxShadow(
+                                color: Color.fromRGBO(36, 28, 41, 100),
+                                blurRadius: 2,
+                                spreadRadius: 2)
+                          ], shape: BoxShape.circle, color: Colors.white),
+                          child: Center(
+                            child: Icon(
+                              LineAwesomeIcons.heart_1,
+                              size: 90.sp,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -584,10 +718,15 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
         child: SliderTheme(
           data: SliderThemeData(
               trackHeight: ScreenUtil().setHeight(90),
-              activeTrackColor: Colors.blueAccent,
+              activeTrackColor: Colors.transparent,
               disabledActiveTrackColor: Colors.pink,
               disabledInactiveTrackColor: Colors.red,
-              disabledThumbColor: Colors.blue,
+              activeTickMarkColor: Colors.transparent,
+              inactiveTickMarkColor: Colors.transparent,
+              disabledActiveTickMarkColor: Colors.transparent,
+              disabledInactiveTickMarkColor: Colors.transparent,
+              inactiveTrackColor: Colors.transparent,
+              disabledThumbColor: Colors.transparent,
               valueIndicatorShape: SliderComponentShape.noOverlay,
               thumbColor: Colors.blueAccent,
               thumbShape: RoundSliderThumbShape(
@@ -645,7 +784,3 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
     );
   }
 }
-
-
-
-

@@ -1,5 +1,6 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/ObtenerImagenPerfil.dart';
 import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart';
@@ -12,9 +13,11 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'Usuario.dart';
 import 'dart:math';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
+import 'package:ntp/ntp.dart';
 
 class Valoracion extends ChangeNotifier {
   static Valoracion instanciar = Valoracion();
+  static DateTime tiempoReferencia;
   String imagenEmisor;
   String idEmisor;
   String aliasEmisor;
@@ -25,12 +28,13 @@ class Valoracion extends ChangeNotifier {
   String idValoracion;
   bool valoracionRevelada;
   FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
+  static DateTime fechaParaQuery;
 
   static double mediaUsuario;
   static List<Valoracion> listaDeValoraciones = new List();
   static int visitasTotales;
   static String idUsuarioDestino = Usuario.esteUsuario.idUsuario;
-
+  
   Valoracion.crear({
     @required this.idValoracion,
     @required this.fechaValoracion,
@@ -48,13 +52,18 @@ class Valoracion extends ChangeNotifier {
   static Valoracion Puntuaciones = new Valoracion();
   static List<ValoracionWidget> puntuaciones = new List();
 
-  void obtenerValoraciones() {
+  void obtenerValoraciones()async {
     FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
 
     print(Usuario.esteUsuario.idUsuario);
-    instanciaBaseDatos
+
+   await  NTP.now().then((value) {
+     tiempoReferencia=value;
+      fechaParaQuery=tiempoReferencia.subtract(Duration(days: 1));
+     
+       instanciaBaseDatos
         .collection("valoraciones")
-        .where("Valoracion", isGreaterThanOrEqualTo: 5)
+        .where("Time", isGreaterThanOrEqualTo:fechaParaQuery )
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .get()
         .then((dato) {
@@ -86,6 +95,9 @@ class Valoracion extends ChangeNotifier {
         instanciar.notifyListeners();
       }
     }).then((val) => escucharValoraciones());
+
+    });
+   
   }
 
   void obtenerMedia() async {
@@ -139,7 +151,7 @@ class Valoracion extends ChangeNotifier {
     print(Usuario.esteUsuario.idUsuario);
     instanciaBaseDatos
         .collection("valoraciones")
-        .where("Valoracion", isGreaterThanOrEqualTo: 5)
+        .where("Time", isGreaterThanOrEqualTo:fechaParaQuery )
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .snapshots()
         .listen((dato) {
@@ -277,8 +289,8 @@ class Valoracion extends ChangeNotifier {
    listaDeValoraciones.insert(0, valoracion);
     listaDeValoraciones
         .sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
-        if( list_live.llaveListaValoraciones.currentState!=null){
- list_live.llaveListaValoraciones.currentState.insertItem(0);
+        if( ListaDeValoraciones.llaveListaValoraciones.currentState!=null){
+ ListaDeValoraciones.llaveListaValoraciones.currentState.insertItem(0);
         }
    
 
@@ -321,10 +333,12 @@ void rechazarValoracion(
         baseDatosRef.collection("valoraciones").doc(idValoracion);
     batchSolicitud.set(referenciaColeccionSolicitud, {
       "idDestino": idRemitente,
+      "tiemmpo":DateTime.now(),
       "solicitudRevelada": false,
+     
       "nombreEmisor": Usuario.esteUsuario.nombre,
       "idEmisor": Usuario.esteUsuario.idUsuario,
-      "imagenEmisor": Usuario.esteUsuario.ImageURL1["Imagen"],
+      "imagenEmisor":  ObtenerImagenPerfl.instancia.obtenerImagenUsuarioLocal(),
       "calificacion": calificacion,
       "idSolicitudConversacion": codigoSolicitud
     });

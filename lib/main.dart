@@ -38,6 +38,7 @@ Future<void> main() async {
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) => runApp(MaterialApp(
+        debugShowCheckedModeBanner: false,
             home: MultiProvider(providers: [
               ChangeNotifierProvider(create: (_) => Usuario()),
               ChangeNotifierProvider(create: (_) => Perfiles()),

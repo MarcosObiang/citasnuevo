@@ -199,33 +199,28 @@ class Pantalla_Actividades extends State<PantallaPrincipal>
                   resizeToAvoidBottomInset: false,
                   resizeToAvoidBottomPadding: false,
                   backgroundColor: Colors.white,
-                  body: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 1, right: 1),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                    
-                          Expanded(
-                            child: LayoutBuilder(
-                              builder: (BuildContext contexto,
-                                  BoxConstraints limites) {
-                                return Container(
-                                  height: limites.biggest.height,
-                                  child: Perfiles.perfilesCitas.listaPerfiles==null?Center(
-                                    child: Container(
-                                      height: ScreenUtil().setHeight(150),
-                                      width: ScreenUtil().setWidth(150),
-                                      child: CircularProgressIndicator()),
-                                  ):getTabBarView(limites),
-                                );
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                  body: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                  
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (BuildContext contexto,
+                              BoxConstraints limites) {
+                            return Container(
+                              height: limites.biggest.height,
+                              child: Perfiles.perfilesCitas.listaPerfiles==null?Center(
+                                child: Container(
+                                  height: ScreenUtil().setHeight(150),
+                                  width: ScreenUtil().setWidth(150),
+                                  child: CircularProgressIndicator()),
+                              ):getTabBarView(limites),
+                            );
+                          },
+                        ),
+                      )
+                    ],
                   ),
                 );
               },
@@ -305,7 +300,7 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
         
           return Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20))),
+              ),
             height: ScreenUtil().setHeight(2000),
             child: Stack(alignment: AlignmentDirectional.center, children: <
                 Widget>[
@@ -352,15 +347,12 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
                   : Container(
                     height: widget.limites.biggest.height,
                     width: widget.limites.biggest.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: LayoutBuilder(
-                        builder: (BuildContext context,
-                            BoxConstraints espacioPerfiles) {
-                          return PerfilesGenteCitas(
-                              limites: espacioPerfiles);
-                        },
-                      ),
+                    child: LayoutBuilder(
+                      builder: (BuildContext context,
+                          BoxConstraints espacioPerfiles) {
+                        return PerfilesGenteCitas(
+                            limites: espacioPerfiles);
+                      },
                     ),
                   ),
             ]),

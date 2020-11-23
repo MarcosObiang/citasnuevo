@@ -5,6 +5,7 @@ import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 class ImagenesCarrete extends StatefulWidget {
@@ -34,137 +35,39 @@ class _ImagenesCarreteState extends State<ImagenesCarrete> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return GestureDetector(
-      onTap: () {
-        print("object");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) 
-          => VisorImagenesPerfiles(imagen: widget.urlImagen)
+    return Padding(
+        padding: const EdgeInsets.only(top: 0, bottom: 0),
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                  child: widget.nombreEnFoto
+                      ? Container(
+                          height: ImagenesCarrete
+                              .limitesCuadro.biggest.height,
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: NetworkImage(widget.urlImagen),
+                                  fit: BoxFit.cover)),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: widget.urlImagen,
+                        )),
+              Container(
+                child:
+                    widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
+              )
+            ],
+          ),
         ));
-      },
-      child: Padding(
-          padding: const EdgeInsets.only(top: 0, bottom: 0),
-          child: Container(
-            child: Column(
-              children: <Widget>[
-                ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    child: Stack(
-                      alignment: AlignmentDirectional.bottomStart,
-                      children: <Widget>[
-                        widget.nombreEnFoto
-                            ? Container(
-                                height: ImagenesCarrete
-                                    .limitesCuadro.biggest.height,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: NetworkImage(widget.urlImagen),
-                                        fit: BoxFit.cover)),
-                              )
-                            : CachedNetworkImage(
-                                imageUrl: widget.urlImagen,
-                              ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 0, bottom: 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1.5)),
-                                color: Color.fromRGBO(0, 0, 0, 80)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  widget.nombreEnFoto
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(3.0),
-                                          child: Text(
-                                              "${widget.nombre}, ${widget.edad}",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize:
-                                                      ScreenUtil().setSp(40))),
-                                        )
-                                      : Container(),
-                                  widget.nombreEnFoto
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(2.5),
-                                          child: Text("A ${widget.distancia.toInt()} Km de ti",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize:
-                                                      ScreenUtil().setSp(40))),
-                                        )
-                                      : Container(),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
-                Container(
-                  child:
-                      widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
-                )
-              ],
-            ),
-          )),
-    );
   }
 }
 
 // ignore: must_be_immutable
-class VisorImagenesPerfiles extends StatefulWidget {
-  String imagen;
-  VisorImagenesPerfiles({@required this.imagen});
-
-  @override
-  _VisorImagenesPerfilesState createState() => _VisorImagenesPerfilesState();
-}
-
-class _VisorImagenesPerfilesState extends State<VisorImagenesPerfiles> {
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.deepPurple[900],
-          child: SafeArea(
-                      child: Container(
-            color: Colors.deepPurple[900],
-            child: LayoutBuilder(builder: (
-              BuildContext context,
-              BoxConstraints limites,
-            ) {
-              return Container(
-                  height: limites.biggest.height,
-                  width: limites.biggest.width,
-                  color: Colors.deepPurple[900],
-                  child: Column(
-                      children: [
-                        Flexible(
-                   flex: 12,
-              fit:FlexFit.tight,
-              
-              child: Container(child: InteractiveViewer(child: Image.network(widget.imagen)))),
-                        Flexible(
-              flex: 1,
-              fit:FlexFit.tight,
-                child: Container(
-                
-                color: Colors.red,
-                child: FlatButton(onPressed: (){Navigator.pop(context);}, child: Text("Atras"))),
-                        )
-                      ],
-                    ),
-                );
-            })),
-          ),
-    );
-  }
-}
 
 
+// ignore: must_be_immutable
 class BloqueDescripcion1 extends StatelessWidget {
   String descripcionPerfil;
 
@@ -208,13 +111,15 @@ class BloqueDescripcion1 extends StatelessWidget {
   }
 }
 
-class BloquePreguntasPersonales extends StatelessWidget {
-  Map<String, dynamic> preguntaRespuesta;
 
-  BloquePreguntasPersonales({@required this.preguntaRespuesta}) {}
+class BloquePreguntasPersonales extends StatelessWidget {
+final  Map<String, dynamic> preguntaRespuesta;
+
+  BloquePreguntasPersonales({@required this.preguntaRespuesta});
 
   @override
   Widget build(BuildContext context) {
+    // ignore: todo
     // TODO: implement build
     return Container(
       decoration: BoxDecoration(
@@ -314,6 +219,7 @@ bool filtrosCargados=false;
 }
 
 class _BloqueFiltrosPersonalesState extends State<BloqueFiltrosPersonales> {
+
   List<Widget> filtrosCreados = new List();
 
 
@@ -755,6 +661,54 @@ void cincidenciaFiltros(){
               ]),
         ),
       ),
+    );
+  }
+}
+
+class BloqueFotosInstagram extends StatefulWidget {
+  @override
+  _BloqueFotosInstagramState createState() => _BloqueFotosInstagramState();
+}
+
+class _BloqueFotosInstagramState extends State<BloqueFotosInstagram> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+           height: ScreenUtil().setHeight(800),
+      width: ImagenesCarrete.limitesCuadro.biggest.width,
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Text("Instagram",style: GoogleFonts.lato(fontSize:60.sp),)),
+          Flexible(
+               flex: 7,
+            fit: FlexFit.tight,
+                      child: GridView.count(
+              childAspectRatio: 1/0.8,
+              crossAxisCount: 3,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              
+     children:   [
+             Container(color: Colors.red,),
+             Container(color: Colors.red,),
+             Container(color: Colors.red,),
+             Container(color: Colors.red,),
+             Container(color: Colors.red,),
+            Container(color: Colors.red,),
+     
+
+
+
+            ]),
+          ),
+        ],
+      ),
+      
     );
   }
 }

@@ -131,10 +131,10 @@ print("cerrando");
     Usuario.esteUsuario.idUsuario = idUsuario;
 
    await basedatos.collection("usuarios").doc(idUsuario).get().then((value) {
-      Usuario.esteUsuario.DatosUsuario = value.data();
+      Usuario.esteUsuario.datosUsuario = value.data();
 
-      if (Usuario.esteUsuario.DatosUsuario != null&&value.exists) {
-        Usuario.esteUsuario.DatosUsuario = value.data();
+      if (Usuario.esteUsuario.datosUsuario != null&&value.exists) {
+        Usuario.esteUsuario.datosUsuario = value.data();
         Usuario.esteUsuario.inicializarUsuario();
         
  ControladorLocalizacion.instancia.obtenerLocalizacion().then((value) =>
@@ -155,12 +155,12 @@ print("cerrando");
         _confirmarEstadoConexion();
 
         print("Estaba vacio");
-        CrontroladorCreditos.escucharCreditos();
+        ControladorCreditos.instancia.escucharCreditos();
        
         SolicitudConversacion.instancia.obtenerSolicitudes();
      
       }
-      if(Usuario.esteUsuario.DatosUsuario == null&&!value.exists){
+      if(Usuario.esteUsuario.datosUsuario == null&&!value.exists){
      //  FirebaseAuth.instance.currentUser.delete();
      // ignore: invalid_use_of_protected_member
      sinError=false;

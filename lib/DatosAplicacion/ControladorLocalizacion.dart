@@ -18,7 +18,7 @@ class ControladorLocalizacion with ChangeNotifier {
   static final firestore = FirebaseFirestore.instance;
   static GeoFirePoint miPosicion;
   double edadInicial = 19;
-  double distanciaMaxima = 10;
+  double distanciaMaxima = 60;
   double edadFinal = 25;
   bool visualizarDistanciaEnMillas = false;
   bool mostrarmeEnHotty = true;
@@ -110,6 +110,7 @@ class ControladorLocalizacion with ChangeNotifier {
   }
 
   static Future<GeoFirePoint> obtenerLocalizacionPorPrimeraVez() async {
+    ControladorLocalizacion.instancia.rangoEdad();
     posicion = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -118,7 +119,7 @@ class ControladorLocalizacion with ChangeNotifier {
     firestore
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
-        .update({"posicion": miPosicion.data});
+        .set({"posicion": miPosicion.data});
 
     print(posicion.toString());
     return miPosicion;
@@ -143,10 +144,14 @@ class ControladorLocalizacion with ChangeNotifier {
             strictMode: true)
         .listen((event) {
       for (DistanceDocSnapshot documento in event) {
-        Map<String, dynamic> mapaDatos = documento.documentSnapshot.data();
+        if(documento.documentSnapshot.id!=Usuario.esteUsuario.idUsuario){
+    Map<String, dynamic> mapaDatos = documento.documentSnapshot.data();
         mapaDatos["distancia"] = documento.distance;
 
         listaPerfilesNube.add(mapaDatos);
+        }
+      
+    
       }
       Perfiles.perfilesCitas.cargarIsolate(listaPerfilesNube);
       recibirPerfiles.cancel();

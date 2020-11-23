@@ -68,7 +68,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("Hotty",
+                  Text("App",
                       style: GoogleFonts.lemon(
                         fontSize: 200.sp,
                         color: Colors.white,

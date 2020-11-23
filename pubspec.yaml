@@ -28,7 +28,8 @@ dependencies:
   flutter_secure_storage: ^3.3.5
   drag_and_drop_gridview: ^1.0.8
   bloc_pattern: ^2.3.2
- 
+  ntp: ^1.0.7
+  timer_count_down: ^1.0.4+1
   geolocator: ^6.1.5
   image_picker: ^0.6.7+4
   percent_indicator: "^2.1.1"

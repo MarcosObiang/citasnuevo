@@ -204,6 +204,7 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
     String nombre = lista[i]["Nombre"];
     String alias = lista[i]["Alias"];
     String edad = (lista[i]["Edad"]).toString();
+    int edadPerfil=lista[i]["Edad"];
   
   double distancia=lista[i]["distancia"];
   
@@ -302,6 +303,7 @@ imagenesPerfiles[a]["Imagen"],
         listapreguntasPersonales.removeAt(0);
       }
     }
+    perfilTemp.add(BloqueFotosInstagram());
 
     ///
     ///
@@ -318,6 +320,8 @@ imagenesPerfiles[a]["Imagen"],
 
       perfilCreado.add(DatosPerfiles.citas(
           linksHistorias: links,
+          edad: edadPerfil ,
+          distancia: distancia.toInt(),
           carrete: perfilTemp,
           valoracion: 5.0,
           nombreusuaio: nombre,
@@ -326,6 +330,8 @@ imagenesPerfiles[a]["Imagen"],
       perfilCreado.add(DatosPerfiles.citas(
           linksHistorias: links,
           carrete: perfilTemp,
+              edad: edadPerfil ,
+          distancia: distancia.toInt(),
           valoracion: 5.0,
           nombreusuaio: nombre,
           idUsuario: idUsuario));
@@ -399,7 +405,7 @@ class Perfiles extends ChangeNotifier {
     ///
     ///
     puertos.send(
-        [user.DatosUsuario, puertoRespuestaIntermedio.sendPort, listaPerfiles]);
+        [user.datosUsuario, puertoRespuestaIntermedio.sendPort, listaPerfiles]);
 
     /// devolvemos la primera respuesta recibida por el[puertoRespuestaIntermedio] que va a ser la lista sde perfiles al [isolate] principal
     return puertoRespuestaIntermedio.first;
@@ -486,7 +492,7 @@ class Perfiles extends ChangeNotifier {
     ///
     ///
     puertos.send(
-        [user.DatosUsuario, puertoRespuestaIntermedio.sendPort, listaPerfiles]);
+        [user.datosUsuario, puertoRespuestaIntermedio.sendPort, listaPerfiles]);
 
     /// devolvemos la primera respuesta recibida por el[puertoRespuestaIntermedio] que va a ser la lista sde perfiles al [isolate] principal
     ///
@@ -612,79 +618,7 @@ class Perfiles extends ChangeNotifier {
   ///
   /// 1 PASO: Obtenemos los perfiles mediante los metodos [obtenerPerfilesCitas] el cual se encarga de buscar perfiles que puedan ser una potencial
   /// cita para el usuario.Y tambien el metodo [obtenerPerfilesAmistad] el cual se encarga de adquirir todos los perfiles para mostrar en la pestaña amistad
-  Future<List<Map<String, dynamic>>> obtenetPerfilesCitas(Map usuario) async {
-    print("dentro de isolado");
-    FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
-    print("dentro de isolado");
-    String tendriaCitasCon;
-    List<DocumentSnapshot> perfiles;
-    DatosPerfiles perfilTemporal;
-    String sexoUsuario;
 
-    List<Map<String, dynamic>> perfilesTemp = new List();
-    // List<DocumentSnapshot> perfiles = new List();
-    QuerySnapshot Temp;
-    tendriaCitasCon = usuario["Citas con"];
-    sexoUsuario = usuario["Sexo"];
-
-    if (tendriaCitasCon == "HombreGay" || tendriaCitasCon == "MujerGay") {
-      Temp = await baseDatosRef
-          .collection("usuarios")
-          .where("Citas con", isEqualTo: tendriaCitasCon)
-          .get();
-      for (DocumentSnapshot elemento in Temp.docs) {
-        Map<String, dynamic> usuarios = new Map();
-        usuarios = elemento.data();
-        perfilesTemp.add(usuarios);
-      }
-    }
-
-    ///***********************************************************************************//
-    /// Mujer que tendria citas con hombres busca usuarios que tendrian citas con mujeres///
-    ///**********************************************************************************//
-
-    if (tendriaCitasCon == "Hombre") {
-      print("Citas con mujer");
-      Temp = await baseDatosRef
-          .collection("usuarios")
-          .where("Citas con", isEqualTo: "Mujer")
-          .get();
-      for (DocumentSnapshot elemento in Temp.docs) {
-        Map<String, dynamic> usuarios = new Map();
-        usuarios = elemento.data();
-        perfilesTemp.add(usuarios);
-      }
-    }
-
-    ///***********************************************************************************//
-    /// Hombre que tendria citas con mujeres busca usuarios que tendrian citas con hombres///
-    ///**********************************************************************************//
-    if (tendriaCitasCon == "Mujer") {
-      Temp = await baseDatosRef
-          .collection("usuarios")
-          .where("Citas con", isGreaterThanOrEqualTo: "Hombre")
-          .get();
-      for (DocumentSnapshot elemento in Temp.docs) {
-        Map<String, dynamic> usuarios = new Map();
-        usuarios = elemento.data();
-        perfilesTemp.add(usuarios);
-      }
-    }
-    if (tendriaCitasCon == "Ambos") {
-      Temp = await baseDatosRef
-          .collection("usuarios")
-          .where("Citas con", isEqualTo: tendriaCitasCon)
-          .get();
-      for (DocumentSnapshot elemento in Temp.docs) {
-        Map<String, dynamic> usuarios = new Map();
-        usuarios = elemento.data();
-        perfilesTemp.add(usuarios);
-      }
-    }
- 
-
-    return perfilesTemp;
-  }
 
   static Future<Map<String, dynamic>> obtenerPerfilUsuarioDeterminado(
       String usuario) async {

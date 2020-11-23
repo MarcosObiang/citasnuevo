@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart' as xd;
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
@@ -13,6 +17,7 @@ import 'live_screen_elements.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:timer_count_down/timer_count_down.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../Actividades/TarjetaEvento.dart';
 import '../../main.dart';
@@ -59,6 +64,7 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
     return DefaultTabController(
         length: 2,
         child: MaterialApp(
+          color: Colors.white,
           debugShowCheckedModeBanner: false,
           theme: new ThemeData(
               highlightColor: Colors.deepPurple,
@@ -78,7 +84,7 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
                   return Expanded(
                     child: Column(
                       children: [
-                        Expanded(child: list_live()),
+                        Expanded(child: ListaDeValoraciones()),
                       ],
                     ),
                   );
@@ -105,7 +111,7 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
   TabBarView getTabBarView() {
     return TabBarView(
       children: <Widget>[
-        list_live(),
+        ListaDeValoraciones(),
         InvitacionesEventos(),
       ],
       controller: controller,
@@ -113,156 +119,158 @@ class live_screen extends State<start> with SingleTickerProviderStateMixin {
   }
 }
 
-class list_live extends StatefulWidget {
+class ListaDeValoraciones extends StatefulWidget {
   static final GlobalKey<AnimatedListState> llaveListaValoraciones =
       GlobalKey<AnimatedListState>();
 
   @override
-  _list_liveState createState() => _list_liveState();
+  _ListaDeValoracionesState createState() => _ListaDeValoracionesState();
 }
 
-class _list_liveState extends State<list_live> {
+class _ListaDeValoracionesState extends State<ListaDeValoraciones> {
   Widget barraExito() {
     return ChangeNotifierProvider.value(
         value: Valoracion.instanciar,
         child: Consumer<Valoracion>(
           builder: (context, myType, child) {
-            return Container(
-              decoration: BoxDecoration(),
-              height: ScreenUtil().setHeight(400),
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Container(
-                  child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                              flex: 5,
-                              fit: FlexFit.tight,
-                              child: Text(
-                                "Esta Semana",
-                                style: TextStyle(
-                                    fontSize: ScreenUtil().setSp(40),
-                                    fontWeight: FontWeight.bold),
-                              )),
-                          Flexible(
-                              fit: FlexFit.tight,
-                              flex: 9,
-                              child: LayoutBuilder(builder:
-                                  (BuildContext context,
-                                      BoxConstraints altura) {
-                                return LinearPercentIndicator(
-                                  lineHeight: ScreenUtil().setHeight(80),
-                                  backgroundColor: Colors.grey,
-                                  linearStrokeCap: LinearStrokeCap.roundAll,
-                                  animation: true,
-                                  animationDuration: 300,
-                                  animateFromLastPercent: true,
-                                  percent: Valoracion.mediaUsuario / 10,
-                                  progressColor: Colors.blue,
-                                  center: Text(
-                                    Valoracion.mediaUsuario.toStringAsFixed(2),
+                decoration: BoxDecoration(
+
+                  color: Colors.white
+                ),
+                height: ScreenUtil().setHeight(250),
+                child: Container(
+                    child: Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                                flex: 5,
+                                fit: FlexFit.tight,
+                                child: Text(
+                                  "Esta Semana",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(40),
+                                      fontWeight: FontWeight.bold),
+                                )),
+                            Flexible(
+                                fit: FlexFit.tight,
+                                flex: 9,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: LayoutBuilder(builder:
+                                      (BuildContext context,
+                                          BoxConstraints altura) {
+                                    return LinearPercentIndicator(
+                                      lineHeight: ScreenUtil().setHeight(80),
+                                      backgroundColor: Colors.grey,
+                                      linearStrokeCap: LinearStrokeCap.roundAll,
+                                      animation: true,
+                                      animationDuration: 300,
+                                      animateFromLastPercent: true,
+                                      percent: Valoracion.mediaUsuario / 10,
+                                      progressColor: Colors.deepPurple[900],
+                                      center: Text(
+                                        Valoracion.mediaUsuario.toStringAsFixed(2),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: ScreenUtil().setSp(40),
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    );
+                                  }),
+                                )),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              flex: 2,
+                              fit: FlexFit.loose,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Visitas   ",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Colors.black,
                                         fontSize: ScreenUtil().setSp(40),
                                         fontWeight: FontWeight.bold),
                                   ),
-                                );
-                              })),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 2,
-                            fit: FlexFit.loose,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Visitas   ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: ScreenUtil().setSp(40),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "${Valoracion.visitasTotales}",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: ScreenUtil().setSp(40),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Flexible(
-                            fit: FlexFit.loose,
-                            flex: 4,
-                            child: FlatButton(
-                              onPressed: () => {},
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Aumentar visitas"),
-                                  Icon(LineAwesomeIcons.rocket),
-                                ],
-                              ),
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 2,
-                            fit: FlexFit.loose,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Creditos   ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: ScreenUtil().setSp(40),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Flexible(
-                            fit: FlexFit.loose,
-                            flex: 4,
-                            child: FlatButton(
-                              onPressed: () => {},
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text("${Usuario.creditosUsuario}"),
-                                  Icon(
-                                    xd.LineAwesomeIcons.coins,
-                                    color: Colors.black,
+                                  Text(
+                                    "${Valoracion.visitasTotales}",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: ScreenUtil().setSp(40),
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
-                              color: Colors.transparent,
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            Flexible(
+                              fit: FlexFit.loose,
+                              flex: 4,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Flexible(
+                                    fit: FlexFit.loose,
+                                    flex: 4,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        
+                                         color: Colors.green,
+                                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Boost"),
+                                            Icon(LineAwesomeIcons.rocket),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    fit: FlexFit.loose,
+                                    flex: 2,
+                                    child: FlatButton(
+                                      onPressed: () => {},
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text("${Usuario.creditosUsuario}"),
+                                          Icon(
+                                            xd.LineAwesomeIcons.coins,
+                                            color: Colors.black,
+                                          ),
+                                        ],
+                                      ),
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              )),
+                )),
+              ),
             );
           },
         ));
@@ -275,23 +283,32 @@ class _list_liveState extends State<list_live> {
         value: Valoracion.instanciar,
         child: Consumer<Valoracion>(
           builder: (context, myType, child) {
-            return Column(
-              children: [
-                barraExito(),
-                Expanded(
-                  child: Container(
-                    child: AnimatedList(
-                      key: list_live.llaveListaValoraciones,
-                      initialItemCount: Valoracion.listaDeValoraciones.length,
-                      itemBuilder:
-                          (BuildContext context, int indice, animation) {
-                        return buildSlideTransition(context, animation, indice,
-                            Valoracion.listaDeValoraciones[indice]);
-                      },
+            return Material(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    AppBar(
+                      title: Text("Valoraciones"),
+                      elevation: 0,
                     ),
-                  ),
+                    barraExito(),
+                    Expanded(
+                      child: Container(
+                        child: AnimatedList(
+                          key: ListaDeValoraciones.llaveListaValoraciones,
+                          initialItemCount:
+                              Valoracion.listaDeValoraciones.length,
+                          itemBuilder:
+                              (BuildContext context, int indice, animation) {
+                            return buildSlideTransition(context, animation,
+                                indice, Valoracion.listaDeValoraciones[indice]);
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ));
@@ -319,56 +336,78 @@ class _list_liveState extends State<list_live> {
                     ],
                   ),
                   !valoracion.valoracionRevelada
-                      ? BackdropFilter(
-                          filter: ui.ImageFilter.blur(
-                            sigmaX: 10.0,
-                            sigmaY: 10.0,
-                          ),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
+                      ? Container(
+                          decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5))),
+                          height: 400.h,
+                          child: Center(
+                              child: GestureDetector(
+                            onTap: () async {
+                              print("guapo");
+                               await ControladorCreditos.instancia.restarCreditosValoracion(100,valoracion.idValoracion);
+                            },
+                            child: Container(
                               height: 400.h,
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple[900],
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5)),
+                              ),
                               child: Center(
-                                  child: GestureDetector(
-                                onTap: () {
-                                  print("guapo");
-                                  valoracion.revelarValoracion();
-                                },
-                                child: Container(
-                                  height: 200.h,
-                                  decoration: BoxDecoration(
-                                    color: Colors.purple,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Revelar",
-                                              style: TextStyle(fontSize: 60.sp),
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  "100",
-                                                  style: TextStyle(
-                                                      fontSize: 60.sp),
-                                                ),
-                                                Icon(xd.LineAwesomeIcons.coins),
-                                              ],
-                                            )
-                                          ]),
-                                    ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    children: [
+                                      Flexible(
+                                        fit: FlexFit.tight,
+                                        flex: 5,
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                "Revelar",
+                                                style:
+                                                    TextStyle(fontSize: 60.sp,color: Colors.white),
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "100",
+                                                    style: GoogleFonts.lato(
+                                                      color: Colors.white,
+                                                        fontSize: 60.sp),
+                                                  ),
+                                                  Icon(xd
+                                                      .LineAwesomeIcons.coins,color: Colors.white,),
+                                                ],
+                                              )
+                                            ]),
+                                      ),
+                                      Flexible(
+                                        fit: FlexFit.tight,
+                                        flex: 2,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              RepaintBoundary(child: CuentaAtrasValoracion(tiempo: valoracion.fechaValoracion)),
+                                              Icon(xd
+                                                  .LineAwesomeIcons.clock,color: Colors.white,),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ))))
+                              ),
+                            ),
+                          )))
                       : Container()
                 ],
               ),
@@ -524,11 +563,11 @@ class _list_liveState extends State<list_live> {
 
   Flexible fotoSolicitud(Valoracion valoracion) {
     return Flexible(
-      flex: 3,
+      flex: 4,
       fit: FlexFit.tight,
       child: Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+          
             image: DecorationImage(
                 image: NetworkImage(valoracion.imagenEmisor),
                 fit: BoxFit.cover)),
@@ -543,7 +582,8 @@ class _list_liveState extends State<list_live> {
       return buildSlideTransition(
           context, animation, indice, valoracionQuitada);
     };
-    list_live.llaveListaValoraciones.currentState.removeItem(indice, builder);
+    ListaDeValoraciones.llaveListaValoraciones.currentState
+        .removeItem(indice, builder);
 
     Valoracion.instanciar.rechazarValoracion(id);
   }
@@ -563,7 +603,8 @@ class _list_liveState extends State<list_live> {
       return buildSlideTransition(
           context, animation, indice, valoracionAceptada);
     };
-    list_live.llaveListaValoraciones.currentState.removeItem(indice, builder);
+    ListaDeValoraciones.llaveListaValoraciones.currentState
+        .removeItem(indice, builder);
 
     Valoracion.instanciar.enviarSolicitudConversacion(
         idEmisor, nombreEmisor, imagenEmisor, nota, idValoracion);
@@ -575,5 +616,60 @@ class InvitacionesEventos extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(body: Container());
+  }
+}
+
+
+// ignore: must_be_immutable
+class CuentaAtrasValoracion extends StatefulWidget {
+  final DateTime tiempo;
+   int duracionSegundos;
+  
+  
+  CuentaAtrasValoracion({@required this.tiempo});
+  @override
+  _CuentaAtrasValoracionState createState() => _CuentaAtrasValoracionState();
+}
+
+class _CuentaAtrasValoracionState extends State<CuentaAtrasValoracion> {
+  Timer cuentaAtras;
+  int segundos;
+  int minutos;
+  int horas;
+  String tiempoPasado="";
+   bool estaContanto=false;
+ 
+  var formatoTiempo=new DateFormat("HH:mm:ss");
+
+@override
+  void initState() {
+    // TODO: implement initState
+      widget.duracionSegundos=widget.tiempo.difference(Valoracion.tiempoReferencia).inSeconds;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+   
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+ 
+    return Container(
+
+      child: Countdown(
+     
+        seconds: widget.duracionSegundos,
+        build: (BuildContext context,double time){
+          int tiempo=time.toInt();
+          
+          return Text(formatoTiempo.format(DateTime(0,0,0,0,0,tiempo)), style:
+                                                    GoogleFonts.lato(fontSize: 60.sp,color: Colors.white));
+        },
+      )
+      
+    );
   }
 }
