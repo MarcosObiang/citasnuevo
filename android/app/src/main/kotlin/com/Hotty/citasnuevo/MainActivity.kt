@@ -1,4 +1,4 @@
-package com.example.citasnuevo
+package com.Hotty.citasnuevo
 
 import io.flutter.embedding.android.FlutterActivity
 

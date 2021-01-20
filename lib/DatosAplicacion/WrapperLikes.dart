@@ -18,6 +18,7 @@ class DatosPerfiles {
   bool imagenAdquirida;
   String imagen;
   double valoracion;
+  bool verificado;
   List<Widget> carrete = new List();
 
   List<Map<String, dynamic>> linksHistorias = new List();
@@ -65,6 +66,7 @@ class DatosPerfiles {
     datosValoracion["Valoracion"] = valoracion;
     datosValoracion["Mensaje"] = this.mensaje;
     datosValoracion["Time"] = DateTime.now();
+    datosValoracion["caducidad"]=DateTime.now().add(Duration(days: 1));
     datosValoracion["idDestino"] = idUsuario;
     datosValoracion["revelada"] = false;
     datosValoracion["id valoracion"] = idValor;
@@ -76,6 +78,7 @@ class DatosPerfiles {
       {@required this.carrete,
       @required this.edad,
       @required this.distancia,
+      @required this.verificado,
 
       @required this.linksHistorias,
       @required this.valoracion,

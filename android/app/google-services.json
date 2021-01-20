@@ -8,12 +8,49 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:912262965304:android:6a20f31e4ab32f9bf81ecd",
+        "android_client_info": {
+          "package_name": "com.Hotty.citasnuevo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:912262965304:android:d56900e27f33762bf81ecd",
         "android_client_info": {
           "package_name": "com.example.citasnuevo"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "912262965304-faoo5rl58en731cf43382cmniepo3smu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.citasnuevo",
+            "certificate_hash": "8c9f217794ef06fd5e2af0d4e6aa5e4fba72b2d8"
+          }
+        },
         {
           "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
           "client_type": 3

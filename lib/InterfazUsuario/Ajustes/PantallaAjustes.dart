@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import '../Actividades/TarjetaEvento.dart';
+
 import '../../main.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../Directo/live_screen_elements.dart';
-import 'social_screen_elements.dart';
+
+import 'EditarUsuario.dart';
 
 class AjustesAplicacion extends StatelessWidget {
   @override

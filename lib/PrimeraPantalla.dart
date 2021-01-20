@@ -1,4 +1,6 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
+import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/liberadorMemoria.dart';
 
 import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,6 +39,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
   void comprobarInicioSesion() async {
     if (FirebaseAuth.instance.currentUser != null) {
       PantallaDeInicio.iniciarSesion = true;
+ 
 
       ControladorInicioSesion.instancia
           .iniciarSesion(
@@ -68,7 +71,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("App",
+                  Text("Hotty",
                       style: GoogleFonts.lemon(
                         fontSize: 200.sp,
                         color: Colors.white,
@@ -83,6 +86,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
                                 child: FacebookSignInButton(
                                   text: "Entra con Facebook",
                                   onPressed: () {
+                                     Usuario.esteUsuario = new Usuario();
                                     ControladorInicioSesion.instancia
                                         .inicioSesionFacebook(context)
                                         .then((value) {
@@ -99,6 +103,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
 
                                       if (value != null &&
                                           !value.additionalUserInfo.isNewUser) {
+                                                   Usuario.esteUsuario = new Usuario();
                                         ControladorInicioSesion.instancia
                                             .iniciarSesion(
                                                 value.user.uid, context)
@@ -123,6 +128,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
                               GoogleSignInButton(
                                 text: "Entra con Google",
                                 onPressed: () {
+                                         Usuario.esteUsuario = new Usuario();
                                   ControladorInicioSesion.instancia
                                       .inicioSesionGoogle(context)
                                       .then((value) {
@@ -139,6 +145,7 @@ class PantallaDeInicioState extends State<PantallaDeInicio> {
 
                                     if (value != null &&
                                         !value.additionalUserInfo.isNewUser) {
+                                                 Usuario.esteUsuario = new Usuario();
                                       ControladorInicioSesion.instancia
                                           .iniciarSesion(
                                               value.user.uid, context)

@@ -1,6 +1,7 @@
 
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/liberadorMemoria.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,8 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  ControladorNotificacion.controladorNotificacion.inicializarNotificaciones();
+  
+  ControladorNotificacion.instancia.inicializarNotificaciones();
   
 
 
@@ -29,10 +31,11 @@ Future<void> main() async {
      
       options: FirebaseOptions(
        projectId: "citas-46a84",
-          appId: "1:912262965304:android:d56900e27f33762bf81ecd",
+          appId: "1:912262965304:android:6a20f31e4ab32f9bf81ecd",
           apiKey: "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc",
           databaseURL: "https://citas-46a84.firebaseio.com/",
           messagingSenderId: "912262965304"));
+        LimpiadorMemoria.iniciarMemoria();
           
          
 

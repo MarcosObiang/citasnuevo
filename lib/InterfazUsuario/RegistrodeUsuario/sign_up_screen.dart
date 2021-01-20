@@ -76,7 +76,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        return ControladorInicioSesion.cerrarSesion();
+        return ControladorInicioSesion.instancia.cerrarSesion();
       },
       child: ChangeNotifierProvider.value(
         value: Usuario.esteUsuario,
@@ -125,7 +125,7 @@ class PantallaRegistroState extends State<PantallaRegistro> {
                                   Icon(Icons.arrow_back),
                                 ]),
                                 onPressed: () {
-                                  ControladorInicioSesion.cerrarSesion()
+                                  ControladorInicioSesion.instancia.cerrarSesion()
                                       .then((value) => Navigator.pop(context));
                                 }),
                             FlatButton(

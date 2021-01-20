@@ -4,9 +4,13 @@ import 'dart:typed_data';
 import 'dart:io' as Io;
 
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorDenuncias.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorPermisos.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
+import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -14,10 +18,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:giphy_picker/giphy_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +38,12 @@ class PantallaConversacion extends StatefulWidget {
   Function enviarMensajeImagenGif;
   String estadoEscribiendoRemitente;
   Function estadoConexion;
-
+  static bool responderMensaje = false;
+  static String idEmisorMensajeResponder;
+  static String idMensajeResponder;
+  static String nombreEmisorMensajeResponder;
+  static String mensajeResponder;
+  static String tipoMensaje;
   String nombre;
   String imagenId;
   String mensajeId;
@@ -40,16 +51,17 @@ class PantallaConversacion extends StatefulWidget {
   Function mensajesEnviar;
   String idRemitente;
   int cantidadMensajes;
-
+  static final GlobalKey llavePantallaConversacion = new GlobalKey();
   bool esGrupo;
   bool estadoConexionRemitente = false;
   List<Mensajes> mensajesTemporales = new List();
+  static String nombreExponer;
+
 
   PantallaConversacion({
     @required this.estadoConexion,
     @required this.enviarMensajeImagenGif,
     @required this.idConversacion,
-    
     @required this.marcarMensajeLeidoRemitente,
     @required this.recibirEstadoConversacionActualizado,
     @required this.estadoEscribiendoRemitente,
@@ -87,23 +99,32 @@ class PantallaConversacionState extends State<PantallaConversacion>
   ImagePicker imagePicker = new ImagePicker();
   bool conversacionExiste;
   DatosPerfiles perfilRemitente;
+
   final FocusNode _focusNode = FocusNode();
+
   @override
   void initState() {
     // TODO: implement initState
-
+  for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
+    if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==widget.idConversacion){
+      PantallaConversacion.nombreExponer=Conversacion.conversaciones.listaDeConversaciones[i].nombreRemitente;
+      print(PantallaConversacion.nombreExponer);
+    }
+  }
     super.initState();
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
-    Conversacion.calcularCantidadMensajesSinLeer();
+    Conversacion.conversaciones.calcularCantidadMensajesSinLeer();
+    PantallaConversacion.responderMensaje = false;
     super.dispose();
   }
 
   void detectarConversacionExiste() {
     conversacionExiste = false;
+    
 
     for (int i = 0;
         i < Conversacion.conversaciones.listaDeConversaciones.length;
@@ -181,7 +202,6 @@ class PantallaConversacionState extends State<PantallaConversacion>
                           child: GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
-                               
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(
@@ -250,7 +270,8 @@ class PantallaConversacionState extends State<PantallaConversacion>
                               onTap: () {
                                 Navigator.pop(context);
 
-                                mostrarOpcionesEliminacionConversacion(context);
+                                mostrarOpcionesEliminacionConversacion(
+                                    context, false);
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(
@@ -270,7 +291,43 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                       children: [
                                         Text("Eliminar conversacion",
                                             style: TextStyle(
-                                                fontSize: 60.sp,
+                                                fontSize: 45.sp,
+                                                color: Colors.white)),
+                                        Icon(Icons.delete, color: Colors.white)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20),
+                          child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+
+                                mostrarOpcionesEliminacionConversacion(
+                                    context, true);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 20.0, right: 20),
+                                child: Container(
+                                  height: 100.h,
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(30))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 15.0, right: 15),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Eliminar y bloquear",
+                                            style: TextStyle(
+                                                fontSize: 45.sp,
                                                 color: Colors.white)),
                                         Icon(Icons.delete, color: Colors.white)
                                       ],
@@ -315,7 +372,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                       children: [
                                         Text("Ver perfil remitente",
                                             style: TextStyle(
-                                                fontSize: 60.sp,
+                                                fontSize: 45.sp,
                                                 color: Colors.white)),
                                         Icon(Icons.image, color: Colors.white)
                                       ],
@@ -327,7 +384,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                         Padding(
                           padding: const EdgeInsets.only(left: 20.0, right: 20),
                           child: GestureDetector(
-                              onTap: () {},
+                              onTap: () => mostrarOpcionesDenuncias(context),
                               child: Padding(
                                 padding: const EdgeInsets.only(
                                     left: 20.0, right: 20),
@@ -346,7 +403,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                       children: [
                                         Text("Denunciar usuario",
                                             style: TextStyle(
-                                                fontSize: 60.sp,
+                                                fontSize: 45.sp,
                                                 color: Colors.white)),
                                         Icon(Icons.report, color: Colors.white)
                                       ],
@@ -416,7 +473,8 @@ class PantallaConversacionState extends State<PantallaConversacion>
         });
   }
 
-  void mostrarOpcionesEliminacionConversacion(BuildContext context) {
+  void mostrarOpcionesEliminacionConversacion(
+      BuildContext context, bool bloquear) {
     showDialog(
         useSafeArea: true,
         context: context,
@@ -433,7 +491,9 @@ class PantallaConversacionState extends State<PantallaConversacion>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Eliminar conversacion",
+                          !bloquear
+                              ? "Eliminar conversacion"
+                              : "Eliminar y bloquear",
                           style: TextStyle(
                               fontSize: 90.sp,
                               fontWeight: FontWeight.bold,
@@ -448,7 +508,10 @@ class PantallaConversacionState extends State<PantallaConversacion>
                             child: Padding(
                               padding:
                                   const EdgeInsets.only(left: 15.0, right: 15),
-                              child: Text("¿Eliminar conversacion?",
+                              child: Text(
+                                  !bloquear
+                                      ? "¿Eliminar conversacion?"
+                                      : "¿Eliminar y bloquear?",
                                   style: TextStyle(
                                       fontSize: 60.sp, color: Colors.white)),
                             ),
@@ -461,20 +524,20 @@ class PantallaConversacionState extends State<PantallaConversacion>
                               padding: const EdgeInsets.all(8),
                               child: GestureDetector(
                                   onTap: () {
-                                  
                                     Conversacion.eliminarConversaciones(
-                                        widget.idConversacion,
-                                        widget.idRemitente,
-                                        widget.mensajeId).then((value) {
-                                          if(value==0){
-                                            Navigator.pop(context);
-                                            
-                                          }
-                                          if(value==1){
-                                              Navigator.pop(context);
-                                            print("error");
-                                          }
-                                        });
+                                            widget.idConversacion,
+                                            widget.idRemitente,
+                                            widget.mensajeId,
+                                            bloquear)
+                                        .then((value) {
+                                      if (value == 0) {
+                                        Navigator.pop(context);
+                                      }
+                                      if (value == 1) {
+                                        Navigator.pop(context);
+                                        print("error");
+                                      }
+                                    });
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(8),
@@ -623,7 +686,13 @@ class PantallaConversacionState extends State<PantallaConversacion>
                 ));
 
             imagen = imagenRecortada;
-            widget.mensajesImagen(imagen, widget.mensajeId);
+            widget.mensajesImagen(imagen, widget.mensajeId,
+                PantallaConversacion.responderMensaje, {
+              "mensaje": PantallaConversacion.mensajeResponder,
+              "tipoMensaje": PantallaConversacion.tipoMensaje,
+              "idMensaje": PantallaConversacion.idMensajeResponder,
+              "idEmisorMensaje": PantallaConversacion.idEmisorMensajeResponder
+            });
           }
         } else {
           Permission.storage.request();
@@ -651,7 +720,13 @@ class PantallaConversacionState extends State<PantallaConversacion>
             ));
 
         imagen = imagenRecortada;
-        widget.mensajesImagen(imagen, widget.mensajeId);
+        widget.mensajesImagen(
+            imagen, widget.mensajeId, PantallaConversacion.responderMensaje, {
+          "mensaje": PantallaConversacion.mensajeResponder,
+          "tipoMensaje": PantallaConversacion.tipoMensaje,
+          "idMensaje": PantallaConversacion.idMensajeResponder,
+          "idEmisorMensaje": PantallaConversacion.idEmisorMensajeResponder
+        });
       }
       if (status.isDenied) {
         Navigator.pop(context);
@@ -684,7 +759,13 @@ class PantallaConversacionState extends State<PantallaConversacion>
                 ));
 
             imagen = imagenRecortada;
-            widget.mensajesImagen(imagen, widget.mensajeId);
+            widget.mensajesImagen(imagen, widget.mensajeId,
+                PantallaConversacion.responderMensaje, {
+              "mensaje": PantallaConversacion.mensajeResponder,
+              "tipoMensaje": PantallaConversacion.tipoMensaje,
+              "idMensaje": PantallaConversacion.idMensajeResponder,
+              "idEmisorMensaje": PantallaConversacion.idEmisorMensajeResponder
+            });
           }
         } else {
           Permission.storage.request();
@@ -712,7 +793,13 @@ class PantallaConversacionState extends State<PantallaConversacion>
             ));
 
         imagen = imagenRecortada;
-        widget.mensajesImagen(imagen, widget.mensajeId);
+        widget.mensajesImagen(
+            imagen, widget.mensajeId, PantallaConversacion.responderMensaje, {
+          "mensaje": PantallaConversacion.mensajeResponder,
+          "tipoMensaje": PantallaConversacion.tipoMensaje,
+          "idMensaje": PantallaConversacion.idMensajeResponder,
+          "idEmisorMensaje": PantallaConversacion.idEmisorMensajeResponder
+        });
       }
       if (status.isDenied) {
         Navigator.pop(context);
@@ -741,7 +828,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
     if (controlador.positions.isNotEmpty) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         controlador.animateTo(controlador.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 900),
             curve: Curves.easeInOutCubic);
       });
     }
@@ -790,40 +877,38 @@ class PantallaConversacionState extends State<PantallaConversacion>
     }
   }
 
-  void iniciarGrabacionAudio() async {
-    bool permisoAudio = false;
-    await Permission.microphone.status.then((value) async {
-      if (!value.isGranted) {
-        await Permission.microphone.request().then((value) {
-          if (value.isGranted) {
-            permisoAudio = true;
-          }
-          if (!value.isGranted) {
-            permisoAudio = false;
-          }
-        });
-      }
-      if (value.isGranted) {
-        permisoAudio = true;
-      }
-    });
+  Future<bool> iniciarGrabacionAudio() async {
+    bool iniciarGrabacion = false;
 
-    if (permisoAudio) {
-      final directorio = await getApplicationDocumentsDirectory();
-      String referenciaCompleta =
-          "${directorio.path}'/'${DateTime.now().toUtc().toIso8601String()}";
-      print(directorio.path);
-      Io.Directory(referenciaCompleta)
-          .create(recursive: true)
-          .then((valor) async {
-        punteroGrabacion = new Io.File("${valor.path}.aac");
-        print(referenciaCompleta);
-        recorder = FlutterAudioRecorder("${valor.path}.aac",
-            audioFormat: AudioFormat.AAC);
-        await recorder.initialized;
-        await recorder.start();
-      });
+    if (ControladorPermisos.instancia.getPermisoMicrofono == false ||
+        ControladorPermisos.instancia.getPermisoMicrofono == null) {
+      EstadosPermisos permisos =
+          await ControladorPermisos.instancia.comprobarPermisoMicrofono();
+
+      if (permisos == EstadosPermisos.permisoConcedido) {
+        iniciarGrabacion = true;
+        final directorio = await getApplicationDocumentsDirectory();
+        String referenciaCompleta =
+            "${directorio.path}'/'${DateTime.now().toUtc().toIso8601String()}";
+        print(directorio.path);
+        Io.Directory(referenciaCompleta)
+            .create(recursive: true)
+            .then((valor) async {
+          punteroGrabacion = new Io.File("${valor.path}.aac");
+          print(referenciaCompleta);
+          recorder = FlutterAudioRecorder("${valor.path}.aac",
+              audioFormat: AudioFormat.AAC);
+          await recorder.initialized;
+          await recorder.start();
+        });
+      } else {
+        iniciarGrabacion = false;
+      }
     }
+    if (ControladorPermisos.instancia.getPermisoMicrofono == true) {
+      iniciarGrabacion = true;
+    }
+    return iniciarGrabacion;
   }
 
   void pararGrabacion(bool completada, int duracion) async {
@@ -832,7 +917,13 @@ class PantallaConversacionState extends State<PantallaConversacion>
 
       Uint8List audio = punteroGrabacion.readAsBytesSync();
       print(audio);
-      widget.mensajesAudio(audio, widget.mensajeId, duracion);
+      widget.mensajesAudio(audio, widget.mensajeId, duracion,
+          PantallaConversacion.responderMensaje, {
+        "mensaje": PantallaConversacion.mensajeResponder,
+        "tipoMensaje": PantallaConversacion.tipoMensaje,
+        "idMensaje": PantallaConversacion.idMensajeResponder,
+        "idEmisorMensaje": PantallaConversacion.idEmisorMensajeResponder
+      });
     }
     if (!completada) {
       await recorder.stop().then((value) async {
@@ -891,11 +982,11 @@ class PantallaConversacionState extends State<PantallaConversacion>
     return ChangeNotifierProvider.value(
       value: Conversacion.conversaciones,
       child: WillPopScope(
-        onWillPop: ()async{
-           widget.estadoConversacion(false);
-            return true;
+        onWillPop: () async {
+          widget.estadoConversacion(false);
+          return true;
         },
-              child: Container(
+        child: Container(
           color: Colors.white,
           child: SafeArea(
             child: Consumer<Conversacion>(
@@ -903,14 +994,14 @@ class PantallaConversacionState extends State<PantallaConversacion>
                 detectarConversacionExiste();
                 widget.marcarMensajeLeidoRemitente();
 
-               
                 widget.cantidadMensajes = widget.mensajesTemporales.length;
                 widget.mensajesTemporales = widget.mensajesTexto();
 
                 if (widget.mensajesTemporales.isEmpty) {
                   emprezarListaAbajo();
                 }
-                if (widget.mensajesTemporales.length > widget.cantidadMensajes) {
+                if (widget.mensajesTemporales.length >
+                    widget.cantidadMensajes) {
                   moverChatAbajo();
                 }
 
@@ -927,9 +1018,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                 widget.estadoConexionRemitente = widget.estadoConexion();
 
                 return Stack(
-                  
                   children: [
-                   
                     Scaffold(
                       appBar: AppBar(
                           elevation: 0,
@@ -939,16 +1028,19 @@ class PantallaConversacionState extends State<PantallaConversacion>
                           title: Center(
                             child: Container(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Flexible(
                                     flex: 5,
                                     fit: FlexFit.tight,
-                                                                      child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 10),
+                                          padding:
+                                              const EdgeInsets.only(left: 10),
                                           child: Column(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
@@ -959,7 +1051,8 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                                   children: [
                                                     Text(
                                                       widget.nombre,
-                                                      textAlign: TextAlign.start,
+                                                      textAlign:
+                                                          TextAlign.start,
                                                       style: TextStyle(
                                                           fontSize: ScreenUtil()
                                                               .setSp(40),
@@ -969,14 +1062,17 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                                     ),
                                                     Padding(
                                                       padding:
-                                                          const EdgeInsets.all(8.0),
+                                                          const EdgeInsets.all(
+                                                              8.0),
                                                       child: Container(
                                                         height: ScreenUtil()
                                                             .setWidth(35),
                                                         width: ScreenUtil()
                                                             .setWidth(35),
-                                                        decoration: BoxDecoration(
-                                                          shape: BoxShape.circle,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
                                                           border: Border.all(
                                                               color: widget
                                                                       .estadoConexionRemitente
@@ -984,12 +1080,15 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                                                       .transparent
                                                                   : Colors
                                                                       .transparent,
-                                                              width: ScreenUtil()
-                                                                  .setSp(5)),
+                                                              width:
+                                                                  ScreenUtil()
+                                                                      .setSp(
+                                                                          5)),
                                                           color: widget
                                                                   .estadoConexionRemitente
                                                               ? Colors.green
-                                                              : Colors.transparent,
+                                                              : Colors
+                                                                  .transparent,
                                                         ),
                                                       ),
                                                     ),
@@ -1003,8 +1102,8 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                                       : estado,
                                                   textAlign: TextAlign.start,
                                                   style: TextStyle(
-                                                      fontSize:
-                                                          ScreenUtil().setSp(30),
+                                                      fontSize: ScreenUtil()
+                                                          .setSp(30),
                                                       color: Colors.black),
                                                 )
                                               ]),
@@ -1013,9 +1112,9 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                     ),
                                   ),
                                   Flexible(
-                                    flex:2,
+                                    flex: 2,
                                     fit: FlexFit.tight,
-                                                                      child: Row(
+                                    child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         IconButton(
@@ -1053,60 +1152,63 @@ class PantallaConversacionState extends State<PantallaConversacion>
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                                  Container(
-                                    
-                                    
-                      height: limites.maxHeight,
-                      width: limites.maxWidth,
-                      decoration: BoxDecoration(
-                        
-                          image: DecorationImage(
-                              image: NetworkImage(
-                                widget.imagenId,
+                              Container(
+                                height: limites.maxHeight,
+                                width: limites.maxWidth,
+                                decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image: NetworkImage(
+                                          widget.imagenId,
+                                        ),
+                                        fit: BoxFit.cover)),
                               ),
-                              fit: BoxFit.cover)),
-                    ),
-                      
                               Container(
                                 height: limites.biggest.height,
                                 color: Color.fromRGBO(20, 20, 20, 60),
-                                child: Column(children: [
-                                  Container(
-                                    
-                                    height: limites.biggest.height -
-                                        ScreenUtil().setHeight(200),
-                                    child: Stack(children: [
-                                      NotificationListener<ScrollUpdateNotification>(
-                                        // ignore: missing_return
-                                        onNotification: (val) {
-                                          mostrarBotonAbajo();
-                                        },
-                                        child: ListView.builder(
-                                          controller: controlador,
-                                          itemCount: widget.mensajesTemporales.length,
-                                          itemBuilder:
-                                              (BuildContext context, indice) {
-                                            if (empezarListaAbajo) {
-                                              emprezarListaAbajo();
-                                              empezarListaAbajo = false;
-                                            }
-                                            mostrarBotonAbajo();
-                                            return widget.mensajesTemporales[indice];
-                                          },
-                                        ),
+                                child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        height: PantallaConversacion
+                                                .responderMensaje
+                                            ? limites.biggest.height -
+                                                ScreenUtil().setHeight(600)
+                                            : limites.biggest.height - 250.h,
+                                        child: Stack(children: [
+                                          NotificationListener<
+                                              ScrollUpdateNotification>(
+                                            // ignore: missing_return
+                                            onNotification: (val) {
+                                              mostrarBotonAbajo();
+                                            },
+                                            child: ListView.builder(
+                                              controller: controlador,
+                                              itemCount: widget
+                                                  .mensajesTemporales.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      indice) {
+                                                if (empezarListaAbajo) {
+                                                  emprezarListaAbajo();
+                                                  empezarListaAbajo = false;
+                                                }
+                                                mostrarBotonAbajo();
+                                                return widget
+                                                    .mensajesTemporales[indice];
+                                              },
+                                            ),
+                                          ),
+                                          mostrarBotonBajarRapido
+                                              ? botonBajarChatRapido()
+                                              : Container(),
+                                        ]),
                                       ),
-                                      mostrarBotonBajarRapido
-                                          ? botonBajarChatRapido()
-                                          : Container(),
+                                      Expanded(
+                                          child: Container(
+                                              child: entradaMensajes(context)))
                                     ]),
-                                  ),
-                                  Container(
-                                      color: Colors.transparent,
-                                      height: ScreenUtil().setHeight(200),
-                                      child: entradaMensajes(context))
-                                ]),
                               ),
-                                   
                             ],
                           ),
                         );
@@ -1123,7 +1225,8 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           "Esta conversacion ha sido eliminada",
@@ -1198,10 +1301,15 @@ class PantallaConversacionState extends State<PantallaConversacion>
         alignment: Alignment.bottomRight,
         child: Container(
           height: ScreenUtil().setHeight(200),
-          decoration:
-              BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+              boxShadow: [BoxShadow(color: Colors.white, blurRadius: 15.sp)],
+              color: Color.fromRGBO(20, 20, 20, 50),
+              shape: BoxShape.circle),
           child: IconButton(
-            icon: Icon(Icons.arrow_downward),
+            icon: Icon(
+              Icons.arrow_downward,
+              color: Colors.white,
+            ),
             onPressed: () => moverChatAbajoLento(),
           ),
         ),
@@ -1212,7 +1320,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
   Flexible visorMensajes(BuildContext context,
       List<Mensajes> mensajesTemporales, bool empezarListaAbajo) {
     return Flexible(
-      flex: 25,
+      flex: 30,
       fit: FlexFit.tight,
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -1257,165 +1365,419 @@ class PantallaConversacionState extends State<PantallaConversacion>
       padding: EdgeInsets.all(8),
       child: Container(
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.all(Radius.circular(30)),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
             color: Colors.transparent),
-        child: Padding(
-          padding: const EdgeInsets.all(1.0),
-          child: Container(
-            child: Row(
-              children: <Widget>[
-                Flexible(
-                  flex: 2,
-                  fit: FlexFit.tight,
-                  child: IconButton(
-                    iconSize: 90.sp,
-                    color: Colors.white,
-                    onPressed: () async {
-                      final gif = await GiphyPicker.pickGif(
-                          context: context,
-                          apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
-                      print(gif.images.original.url);
-                      widget.enviarMensajeImagenGif(
-                          gif.images.original.url, widget.mensajeId);
-                    },
-                    icon: Icon(LineAwesomeIcons.smile_o),
-                  ),
-                ),
-                Flexible(
-                  flex: 9,
-                  fit: FlexFit.tight,
-                  child: GestureDetector(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(30)),
-                        color: Colors.white,
-                      ),
-                      child: RawKeyboardListener(
-                        onKey: (tecla) {
-                          setState(() {
-                            print("cambio teclado");
-                          });
-                        },
-                        focusNode: _focusNode,
-                        autofocus: true,
-                        child: TextField(
-                          
-                          controller: controladorTexto,
-                       
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(3000)
-                          ],
-                          decoration: InputDecoration(),
-                          minLines: null,
-                          maxLines: null,
-                          onChanged: (valor) {
-                            if ((valor != null ||
-                                valor != " " ||
-                                valor.isNotEmpty ||
-                                valor.length > 0)) {
-                              mostrarBotontexto();
-
-                              if (mostrarBotonEnvio && !continuaEscribiendo) {
-                                widget.estadoConversacion(true);
-                                continuaEscribiendo = true;
-                              }
-                            }
-                            if (valor == null ||
-                                valor == " " ||
-                                valor.isEmpty) {
-                              ocultarBotonEnvio();
-                              if (!mostrarBotonEnvio) {
-                                widget.estadoConversacion(false);
-                                continuaEscribiendo = false;
-
-                                mostrarBotonEnvio = false;
-                              }
-                            }
-                            mensajeTemp = valor;
-                          },
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (valor) {
-                            widget.estadoConversacion(false);
-
-                            ocultarBotonEnvio();
-                            mensajeTemp = valor;
-                            widget.mensajesEnviar(
-                                mensajeTemp, widget.mensajeId);
-                            controladorTexto.clear();
-                            mensajeTemp = "";
-                            moverChatAbajo();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                mostrarBotonEnvio
-                    ? Flexible(
+        child: Column(
+          children: [
+            PantallaConversacion.responderMensaje
+                ? cuadroRespuesta()
+                : Container(),
+            Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    children: <Widget>[
+                      Flexible(
                         flex: 2,
                         fit: FlexFit.tight,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.green,
-                          ),
-                          child: FlatButton(
-                            onPressed: () {
-                              FocusScope.of(context).unfocus();
+                        child: IconButton(
+                          iconSize: 70.sp,
+                          color: Colors.white,
+                          onPressed: () async {
+                            final gif = await GiphyPicker.pickGif(
+                                fullScreenDialog: false,
+                                context: context,
+                                apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
 
-                              widget.mensajesEnviar(
-                                  mensajeTemp, widget.mensajeId);
-                              controladorTexto.clear();
-                              print("enviando");
+                            widget.enviarMensajeImagenGif(
+                                gif.images.original.url,
+                                widget.mensajeId,
+                                PantallaConversacion.responderMensaje, {
+                              "mensaje": PantallaConversacion.mensajeResponder,
+                              "tipoMensaje": PantallaConversacion.tipoMensaje,
+                              "idMensaje":
+                                  PantallaConversacion.idMensajeResponder,
+                              "idEmisorMensaje":
+                                  PantallaConversacion.idEmisorMensajeResponder,
+                                  
+                                  
+                            });
+                                 PantallaConversacion.responderMensaje = false;
+                                 Focus.of(context).unfocus();
 
-                              widget.estadoConversacion(false);
-                            },
-                            child: Icon(
-                              LineAwesomeIcons.send,
-                              color: Colors.white,
+                          },
+                          icon: Icon(LineAwesomeIcons.smile_o),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 9,
+                        fit: FlexFit.tight,
+                        child: GestureDetector(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(30)),
                             ),
+                            child: TextField(
+                              controller: controladorTexto,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(3000)
+                              ],
+                              decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: EdgeInsets.all(10),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20)))),
+                              minLines: null,
+                              maxLines: null,
+                              onChanged: (valor) {
+                                if ((valor != null ||
+                                    valor != " " ||
+                                    valor.isNotEmpty ||
+                                    valor.length > 0)) {
+                                  mostrarBotontexto();
+
+                                  if (mostrarBotonEnvio &&
+                                      !continuaEscribiendo) {
+                                    widget.estadoConversacion(true);
+                                    continuaEscribiendo = true;
+                                  }
+                                }
+                                if (valor == null ||
+                                    valor == " " ||
+                                    valor.isEmpty) {
+                                  ocultarBotonEnvio();
+                                  if (!mostrarBotonEnvio) {
+                                    widget.estadoConversacion(false);
+                                    continuaEscribiendo = false;
+
+                                    mostrarBotonEnvio = false;
+                                  }
+                                }
+                                mensajeTemp = valor;
+                              },
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (valor) {
+                                widget.estadoConversacion(false);
+
+                                ocultarBotonEnvio();
+                                mensajeTemp = valor;
+
+                                if (mensajeTemp.isNotEmpty) {
+                                  widget.mensajesEnviar(
+                                      mensajeTemp,
+                                      widget.mensajeId,
+                                      PantallaConversacion.responderMensaje, {
+                                    "mensaje":
+                                        PantallaConversacion.mensajeResponder,
+                                    "tipoMensaje":
+                                        PantallaConversacion.tipoMensaje,
+                                    "idMensaje":
+                                        PantallaConversacion.idMensajeResponder,
+                                    "idEmisorMensaje": PantallaConversacion
+                                        .idEmisorMensajeResponder
+                                  });
+                                  controladorTexto.clear();
+                                  mensajeTemp = "";
+                                  moverChatAbajo();
+                                  PantallaConversacion.tipoMensaje = "";
+                                  PantallaConversacion.idMensajeResponder = "";
+                                  PantallaConversacion
+                                      .idEmisorMensajeResponder = "";
+                                  PantallaConversacion.responderMensaje = false;
+                                  PantallaConversacion
+                                      .nombreEmisorMensajeResponder = "";
+                                  PantallaConversacion.mensajeResponder = "";
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      mostrarBotonEnvio
+                          ? Flexible(
+                              flex: 2,
+                              fit: FlexFit.tight,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.green,
+                                ),
+                                child: FlatButton(
+                                  onPressed: () {
+                                    //   FocusScope.of(context).unfocus();
+
+                                    widget.estadoConversacion(false);
+
+                                    ocultarBotonEnvio();
+                                    mensajeTemp = controladorTexto.text;
+
+                                    if (mensajeTemp.isNotEmpty) {
+                                      widget.mensajesEnviar(
+                                          mensajeTemp,
+                                          widget.mensajeId,
+                                          PantallaConversacion.responderMensaje,
+                                          {
+                                            "mensaje": PantallaConversacion
+                                                .mensajeResponder,
+                                            "tipoMensaje": PantallaConversacion
+                                                .tipoMensaje,
+                                            "idMensaje": PantallaConversacion
+                                                .idMensajeResponder,
+                                            "idEmisorMensaje":
+                                                PantallaConversacion
+                                                    .idEmisorMensajeResponder
+                                          });
+                                      controladorTexto.clear();
+                                      mensajeTemp = "";
+                                      moverChatAbajo();
+                                      PantallaConversacion.tipoMensaje = "";
+                                      PantallaConversacion.idMensajeResponder =
+                                          "";
+                                      PantallaConversacion
+                                          .idEmisorMensajeResponder = "";
+                                      PantallaConversacion.responderMensaje =
+                                          false;
+                                      PantallaConversacion
+                                          .nombreEmisorMensajeResponder = "";
+                                      PantallaConversacion.mensajeResponder =
+                                          "";
+                                    }
+                                  },
+                                  child: Icon(
+                                    LineAwesomeIcons.send,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Flexible(
+                              flex: 4,
+                              fit: FlexFit.tight,
+                              child: Center(
+                                child: Row(
+                                  children: <Widget>[
+                                    Flexible(
+                                      flex: 2,
+                                      fit: FlexFit.tight,
+                                      child: IconButton(
+                                        iconSize: 70.sp,
+                                        color: Colors.white,
+                                        onPressed: () {
+                                          iniciarGrabacionAudio().then((value) {
+                                            if (value) {
+                                              dialogoIniciarGrabacion(context);
+                                            }
+                                          });
+                                        },
+                                        icon: Icon(LineAwesomeIcons.microphone),
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 2,
+                                      fit: FlexFit.tight,
+                                      child: IconButton(
+                                        color: Colors.white,
+                                        icon: Icon(Icons.add_photo_alternate),
+                                        iconSize: 70.sp,
+                                        onPressed: () {
+                                          opcionesImagenPerfil();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container cuadroRespuesta() {
+    Mensajes mensajeAudio;
+    if(PantallaConversacion.tipoMensaje=="Audio"){
+      for(int i=0;i<widget.mensajesTemporales.length;i++){
+        if(PantallaConversacion.idMensajeResponder==widget.mensajesTemporales[i].identificadorUnicoMensaje){
+          mensajeAudio=widget.mensajesTemporales[i];
+        }
+      }
+    }
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          color: Colors.red),
+      height: 350.h,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints limites) {
+          return Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      PantallaConversacion.idEmisorMensajeResponder ==
+                              Usuario.esteUsuario.idUsuario
+                          ? Text("Tu")
+                          : Text(PantallaConversacion
+                              .nombreEmisorMensajeResponder),
+                      GestureDetector(
+                        onTap: () {
+                          PantallaConversacion.responderMensaje = false;
+                          setState(() {});
+                        },
+                        child: Container(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Cancelar"),
                           ),
                         ),
                       )
-                    : Flexible(
-                        flex: 4,
+                    ],
+                  ),
+                  Expanded(
+                      child: Container(
+                          width: limites.biggest.width,
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              border: Border.all(color: Colors.white)),
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: PantallaConversacion.tipoMensaje == "Texto"
+                                  ? Text(PantallaConversacion.mensajeResponder)
+                                  : PantallaConversacion.tipoMensaje == "Imagen"
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text("Imagen"),
+                                            Image.network(PantallaConversacion
+                                                .mensajeResponder)
+                                          ],
+                                        )
+                                      : PantallaConversacion.tipoMensaje ==
+                                              "Gif"
+                                          ? Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text("Giphy"),
+                                                Image.network(
+                                                    PantallaConversacion
+                                                        .mensajeResponder,
+                                                    headers: {
+                                                      'accept': 'image/*'
+                                                    }),
+                                              ],
+                                            )
+                                          :             Row(
+                                            children: [
+                                              Flexible(
+                                                flex: 2,
+                                                fit:FlexFit.tight,
+                                                child: Text("Audio"),
+                                              
+                                              ),
+
+                                              Flexible(
+                                                flex: 5,
+                                                fit:FlexFit.tight,
+
+                                                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(3),
+                          topRight: Radius.circular(3),
+                          bottomLeft: Radius.circular(3))),
+                  child: Row(
+                    children: <Widget>[
+                      Flexible(
                         fit: FlexFit.tight,
-                        child: Row(
-                          children: <Widget>[
-                            Flexible(
-                              flex: 2,
-                              fit: FlexFit.tight,
-                              child: IconButton(
-                                iconSize: 90.sp,
-                                color: Colors.white,
-                                onPressed: () {
-                                  iniciarGrabacionAudio();
-                                  dialogoIniciarGrabacion(context);
-                                },
-                                icon: Icon(LineAwesomeIcons.microphone),
-                              ),
+                        flex: 3,
+                        child: Container(
+                          child: Center(
+                            child: FlatButton(
+                              onPressed: () {
+                                mensajeAudio.reproducirAudio();
+                              },
+                              child: Center(
+                                  child: Icon(
+                                Icons.play_arrow,
+                                size: ScreenUtil().setSp(100),
+                              )),
                             ),
-                            Flexible(
-                              flex: 2,
-                              fit: FlexFit.tight,
-                              child: IconButton(
-                                color: Colors.white,
-                                icon:Icon(Icons.add_photo_alternate) ,
-                                iconSize: 90.sp,
-                                onPressed: () {
-                                  opcionesImagenPerfil();
-                                },
-                               
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-              ],
+                      Flexible(
+                        fit: FlexFit.tight,
+                        flex: 11,
+                        child: Container(
+                          child: Stack(alignment: Alignment.center, children: <
+                              Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 15.0, right: 15),
+                              child: LinearPercentIndicator(
+                                lineHeight: ScreenUtil().setHeight(70),
+                                percent: mensajeAudio.posicion,
+                              ),
+                            ),
+                            SliderTheme(
+                              data: SliderThemeData(
+                                thumbColor: Colors.transparent,
+                                activeTickMarkColor: Colors.transparent,
+                                activeTrackColor: Colors.transparent,
+                                disabledActiveTickMarkColor: Colors.transparent,
+                                disabledActiveTrackColor: Colors.transparent,
+                                disabledInactiveTickMarkColor:
+                                    Colors.transparent,
+                                disabledInactiveTrackColor: Colors.transparent,
+                                disabledThumbColor: Colors.transparent,
+                                inactiveTickMarkColor: Colors.transparent,
+                                inactiveTrackColor: Colors.transparent,
+                                overlappingShapeStrokeColor: Colors.transparent,
+                                overlayColor: Colors.transparent,
+                                valueIndicatorColor: Colors.transparent,
+                              ),
+                              child: Slider(
+                                value: mensajeAudio.posicion,
+                                max: mensajeAudio.duracionMensaje.toDouble(),
+                                min: 0,
+                                onChanged: (val) {
+                                  mensajeAudio.posicionAudio(val);
+                                },
+                              ),
+                            ),
+                          ]),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                                              ),
+                                            ],
+                                          ),))),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -1428,6 +1790,320 @@ class PantallaConversacionState extends State<PantallaConversacion>
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondanimation) {
           return DialogoGrabacion(pararGrabacion: pararGrabacion);
+        });
+  }
+
+  void mostrarOpcionesDenuncias(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: Container(
+              height: 1200.h,
+              width: ScreenUtil.screenWidth,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(40)),
+              ),
+              child: Material(
+                color: Color.fromRGBO(20, 20, 20, 50),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Denunciar",
+                        style: TextStyle(
+                            fontSize: 90.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white70),
+                      ),
+                      Divider(height: 100.h),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20),
+                        child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          PantallaDenunciaVisorPerfiles(
+                                              idDenunciado: Perfiles
+                                                  .perfilesCitas
+                                                  .listaPerfiles[
+                                                      PerfilesGenteCitas
+                                                          .indicePerfil]
+                                                  .idUsuario,
+                                              tipoDenuncia:
+                                                  TipoDenuncia.perfilFalso)));
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, right: 20),
+                              child: Container(
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15.0, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Perfil falso/SPAM",
+                                          style: TextStyle(
+                                              fontSize: 40.sp,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20),
+                        child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          PantallaDenunciaVisorPerfiles(
+                                              idDenunciado: Perfiles
+                                                  .perfilesCitas
+                                                  .listaPerfiles[
+                                                      PerfilesGenteCitas
+                                                          .indicePerfil]
+                                                  .idUsuario,
+                                              tipoDenuncia:
+                                                  TipoDenuncia.menorEdad)));
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, right: 20),
+                              child: Container(
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15.0, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Menor de edad",
+                                          style: TextStyle(
+                                              fontSize: 40.sp,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20),
+                        child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          PantallaDenunciaVisorPerfiles(
+                                              idDenunciado: Perfiles
+                                                  .perfilesCitas
+                                                  .listaPerfiles[
+                                                      PerfilesGenteCitas
+                                                          .indicePerfil]
+                                                  .idUsuario,
+                                              tipoDenuncia: TipoDenuncia
+                                                  .fotosBiografiaInapropiada)));
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, right: 20),
+                              child: Container(
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15.0, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Contenido inapropiado",
+                                          style: TextStyle(
+                                              fontSize: 40.sp,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20),
+                        child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          PantallaDenunciaVisorPerfiles(
+                                              idDenunciado: Perfiles
+                                                  .perfilesCitas
+                                                  .listaPerfiles[
+                                                      PerfilesGenteCitas
+                                                          .indicePerfil]
+                                                  .idUsuario,
+                                              tipoDenuncia: TipoDenuncia
+                                                  .hacePublicidad)));
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, right: 20),
+                              child: Container(
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15.0, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Hace Publicidad",
+                                          style: TextStyle(
+                                              fontSize: 40.sp,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20),
+                        child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          PantallaDenunciaVisorPerfiles(
+                                              idDenunciado: Perfiles
+                                                  .perfilesCitas
+                                                  .listaPerfiles[
+                                                      PerfilesGenteCitas
+                                                          .indicePerfil]
+                                                  .idUsuario,
+                                              tipoDenuncia:
+                                                  TipoDenuncia.otroTipo)));
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, right: 20),
+                              child: Container(
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15.0, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Mensajes Inapropiados",
+                                          style: TextStyle(
+                                              fontSize: 40.sp,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20),
+                        child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          PantallaDenunciaVisorPerfiles(
+                                              idDenunciado: Perfiles
+                                                  .perfilesCitas
+                                                  .listaPerfiles[
+                                                      PerfilesGenteCitas
+                                                          .indicePerfil]
+                                                  .idUsuario,
+                                              tipoDenuncia:
+                                                  TipoDenuncia.otroTipo)));
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, right: 20),
+                              child: Container(
+                                height: 100.h,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15.0, right: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Otros",
+                                          style: TextStyle(
+                                              fontSize: 40.sp,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: IconButton(
+                          color: Colors.red,
+                          icon: Icon(Icons.cancel),
+                          iconSize: 160.sp,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      )
+                    ]),
+              ),
+            ),
+          );
         });
   }
 }

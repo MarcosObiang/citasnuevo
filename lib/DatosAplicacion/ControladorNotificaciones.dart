@@ -6,19 +6,13 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_launcher_icons/android.dart';
-import 'package:flutter_launcher_icons/constants.dart';
-import 'package:flutter_launcher_icons/custom_exceptions.dart';
-import 'package:flutter_launcher_icons/ios.dart';
-import 'package:flutter_launcher_icons/main.dart';
-import 'package:flutter_launcher_icons/utils.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
+
 
 class ControladorNotificacion {
-  static List<String> listaDeNombresEmisoresMensajesSinLeer = new List();
-  static List<String> listaDeMensajesSinLeer = new List();
-  static List<String> listaDeMensajesNotificar = new List();
-  static ControladorNotificacion controladorNotificacion =
+   List<String> listaDeNombresEmisoresMensajesSinLeer = new List();
+   List<String> listaDeMensajesSinLeer = new List();
+   List<String> listaDeMensajesNotificar = new List();
+  static ControladorNotificacion instancia =
       ControladorNotificacion();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -51,9 +45,9 @@ class ControladorNotificacion {
 
     InboxStyleInformation inboxStyleInformation = InboxStyleInformation(
         listaDeMensajesNotificar,
-        contentTitle: '${Conversacion.cantidadMensajesNoLeidos} Mensajes',
+        contentTitle: '${Conversacion.conversaciones.cantidadMensajesNoLeidos} Mensajes',
         summaryText:
-            '${Conversacion.cantidadMensajesNoLeidos} mensajes nuevos');
+            '${Conversacion.conversaciones.cantidadMensajesNoLeidos} mensajes nuevos');
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
           
@@ -68,7 +62,7 @@ class ControladorNotificacion {
     await flutterLocalNotificationsPlugin.show(
         3,
         'Tienes mensajes nuevos',
-        '${Conversacion.cantidadMensajesNoLeidos} mensajes sin leer',
+        '${Conversacion.conversaciones.cantidadMensajesNoLeidos} mensajes sin leer',
         platformChannelSpecifics);
   }
 
@@ -95,44 +89,44 @@ class ControladorNotificacion {
   void sumarMensajeNuevoEnNotificacion(DocumentSnapshot mensaje) {
     if (mensaje.get("Tipo Mensaje") == "Texto" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
-      ControladorNotificacion.listaDeMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
-      ControladorNotificacion.listaDeNombresEmisoresMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeNombresEmisoresMensajesSinLeer
           .add("${mensaje.get("Nombre emisor")}");
-      ControladorNotificacion.listaDeMensajesNotificar
+      ControladorNotificacion.instancia.listaDeMensajesNotificar
           .add("${mensaje.get("Nombre emisor")}  ${mensaje.get("Mensaje")}");
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
     if (mensaje.get("Tipo Mensaje") == "Imagen" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
-      ControladorNotificacion.listaDeMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
-      ControladorNotificacion.listaDeNombresEmisoresMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeNombresEmisoresMensajesSinLeer
           .add("${mensaje.get("Nombre emisor")}");
-      ControladorNotificacion.listaDeMensajesNotificar
+      ControladorNotificacion.instancia.listaDeMensajesNotificar
           .add("${mensaje.get("Nombre emisor")}  te ha enviado una imagen");
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
     if (mensaje.get("Tipo Mensaje") == "Gif" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
-      ControladorNotificacion.listaDeMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
-      ControladorNotificacion.listaDeNombresEmisoresMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeNombresEmisoresMensajesSinLeer
           .add("${mensaje.get("Nombre emisor")}");
-      ControladorNotificacion.listaDeMensajesNotificar
+      ControladorNotificacion.instancia.listaDeMensajesNotificar
           .add("${mensaje.get("Nombre emisor")}  te ha enviado un Gif");
 
       controladorMensajesLeidoNotificaciones(mensaje);
     }
     if (mensaje.get("Tipo Mensaje") == "Audio" &&
         mensaje.get("idEmisor") != Usuario.esteUsuario.idUsuario) {
-      ControladorNotificacion.listaDeMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeMensajesSinLeer
           .add("${mensaje.get("Mensaje")}");
-      ControladorNotificacion.listaDeNombresEmisoresMensajesSinLeer
+      ControladorNotificacion.instancia.listaDeNombresEmisoresMensajesSinLeer
           .add("${mensaje.get("Nombre emisor")}");
-      ControladorNotificacion.listaDeMensajesNotificar
+      ControladorNotificacion.instancia.listaDeMensajesNotificar
           .add("${mensaje.get("Nombre emisor")}  te ha enviado mensaje de voz");
 
       controladorMensajesLeidoNotificaciones(mensaje);
@@ -141,7 +135,7 @@ class ControladorNotificacion {
 
   void controladorMensajesLeidoNotificaciones(DocumentSnapshot documetno) {
     for (int i = 0;
-        i < ControladorNotificacion.listaDeMensajesSinLeer.length;
+        i < ControladorNotificacion.instancia.listaDeMensajesSinLeer.length;
         i++) {
       for (int a = 0;
           a < Conversacion.conversaciones.listaDeConversaciones.length;
@@ -153,25 +147,25 @@ class ControladorNotificacion {
               c < conversacionTemp.ventanaChat.listadeMensajes.length;
               c++) {
             if (conversacionTemp.ventanaChat.listadeMensajes[c].mensaje ==
-                    ControladorNotificacion.listaDeMensajesSinLeer[i] &&
+                    ControladorNotificacion.instancia.listaDeMensajesSinLeer[i] &&
                 conversacionTemp
                     .ventanaChat.listadeMensajes[c].mensajeLeidoRemitente &&
                 conversacionTemp.ventanaChat.listadeMensajes[c].idEmisor !=
                     Usuario.esteUsuario.idUsuario) {
-              ControladorNotificacion.listaDeMensajesSinLeer.removeAt(i);
-              ControladorNotificacion.listaDeNombresEmisoresMensajesSinLeer
+              ControladorNotificacion.instancia.listaDeMensajesSinLeer.removeAt(i);
+              ControladorNotificacion.instancia.listaDeNombresEmisoresMensajesSinLeer
                   .removeAt(i);
-              ControladorNotificacion.listaDeMensajesNotificar.removeAt(i);
+              ControladorNotificacion.instancia.listaDeMensajesNotificar.removeAt(i);
             }
           }
         }
       }
     }
-    Conversacion.cantidadMensajesNoLeidos =
-        ControladorNotificacion.listaDeMensajesNotificar.length;
+    Conversacion.conversaciones.cantidadMensajesNoLeidos =
+        ControladorNotificacion.instancia.listaDeMensajesNotificar.length;
     if (BaseAplicacion.notificadorEstadoAplicacion != null) {
       if (BaseAplicacion.notificadorEstadoAplicacion.index == 2) {
-        ControladorNotificacion.controladorNotificacion
+        ControladorNotificacion.instancia
             .notificacionesMensajesGrupales();
       } else {
         ControladorNotificacion.mostrarNotificacionMensajeAplicaionAbierta(
@@ -190,23 +184,52 @@ class ControladorNotificacion {
     }
   }
 
+
+
+
+
+  void mostrarNotificacionVerificacion() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+            'your channel id', 'your channel name', 'your channel description',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, "Tu perfil ha sido verifiicado", "Has ganado 2500 creditos", platformChannelSpecifics,
+       ).then((val){
+
+         Usuario.esteUsuario.databaseReference.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).update({"verificado.verificacionNotificada":true});
+       });
+  }
+
+
+
+
+    void controladorNotificacionVerificacion() {
+  
+  
+  }
+
   static void mostrarNotificacionMensajeAplicaionAbierta(
       BuildContext context, String emisorMensaje, String mensaje) {
-    Flushbar(
+   /* Flushbar(
       message: mensaje,
-      duration: Duration(seconds: 3),
+      duration: Duration(seconds: 2),
       flushbarPosition: FlushbarPosition.TOP,
-      backgroundColor: Colors.purple[100],
-      forwardAnimationCurve: Curves.ease,
+      backgroundColor: Colors.purple[900],
+      forwardAnimationCurve: Curves.linear,
       title: emisorMensaje,
       icon: Icon(
         Icons.chat,
       ),
-      reverseAnimationCurve: Curves.ease,
+      reverseAnimationCurve: Curves.linear,
       dismissDirection: FlushbarDismissDirection.HORIZONTAL,
       borderRadius: 10,
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.all(10),
-    )..show(context);
+    )..show(context);*/
   }
 }

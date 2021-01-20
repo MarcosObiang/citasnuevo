@@ -1,39 +1,90 @@
-import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
+
+import 'dart:async';
+
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/ObtenerImagenPerfil.dart';
-import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
+
+import 'package:citasnuevo/InterfazUsuario/Valoraciones/ListaValoraciones.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart';
-import 'package:line_awesome_icons/line_awesome_icons.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
+
+import 'package:intl/intl.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
+
 import 'Usuario.dart';
-import 'dart:math';
-import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
+
 import 'package:ntp/ntp.dart';
 
 class Valoracion extends ChangeNotifier {
   static Valoracion instanciar = Valoracion();
-  static DateTime tiempoReferencia;
+ static  DateTime tiempoReferencia;
   String imagenEmisor;
   String idEmisor;
   String aliasEmisor;
   String nombreEmisor;
   DateTime fechaValoracion;
+  DateTime fechaCaducidad;
+  int segundosRestantes;
   String mensaje;
   double valoracion;
   String idValoracion;
-  bool valoracionRevelada;
-  FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
-  static DateTime fechaParaQuery;
+  bool valoracionRevelada=false;
+   static StreamSubscription<QuerySnapshot> escuchadorValoraciones;
+   static StreamSubscription<QuerySnapshot> escuchadorMedia;
+ bool get getValoracionRevelada => valoracionRevelada;
 
-  static double mediaUsuario;
-  static List<Valoracion> listaDeValoraciones = new List();
-  static int visitasTotales;
+ set setValoracionRevelada(bool valoracionRevelada) {
+   
+   
+   this.valoracionRevelada = valoracionRevelada;
+  
+   if(this.valoracionRevelada&&ListaDeValoraciones.llaveListaValoraciones.currentContext!=null){
+  
+     ListaDeValoracionesState.notifiacionValoracionRevelada(ListaDeValoraciones.llaveListaValoraciones.currentContext);
+     
+   
+
+     
+   }
+   }
+  StreamController<int> notificadorFinTiempo= StreamController.broadcast();
+
+  FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
+   DateTime fechaParaQuery;
+  static var formatoTiempo=new DateFormat("HH:mm:ss");
+   double mediaUsuario;
+   List<Valoracion> listaDeValoraciones = new List();
+   int visitasTotales;
   static String idUsuarioDestino = Usuario.esteUsuario.idUsuario;
+
+ void limpiarValoraciones(){
+     for (int i=0;i<Valoracion.instanciar.listaDeValoraciones.length;i++){
+     Valoracion.instanciar.listaDeValoraciones[i].notificadorFinTiempo.close();
+   }
+if(escuchadorMedia!=null){
+   escuchadorMedia.cancel();
+   escuchadorMedia=null;
+}
+
+if(escuchadorValoraciones!=null){
+ escuchadorValoraciones.cancel().catchError((error){
+    print(error);
+  });
+  escuchadorValoraciones=null;
+}
+ 
+ 
+
+  
+
+  
+}
+
+
+
+
+
   
   Valoracion.crear({
     @required this.idValoracion,
@@ -45,12 +96,58 @@ class Valoracion extends ChangeNotifier {
     @required this.mensaje,
     @required this.valoracion,
     @required this.valoracionRevelada,
-  });
+    @required this.fechaCaducidad,
+  }){
+
+    
+      segundosRestantes=fechaCaducidad.difference(tiempoReferencia).inSeconds;
+      if(segundosRestantes>86400){
+        segundosRestantes=86400;
+      }
+contadorTiempoSolicitudes();
+  }
   Valoracion();
   Valoracion.instancia();
 
-  static Valoracion Puntuaciones = new Valoracion();
-  static List<ValoracionWidget> puntuaciones = new List();
+
+  void contadorTiempoSolicitudes()async{
+    Timer flutterTimer;
+    
+    flutterTimer=new Timer.periodic(Duration(seconds:1), (valor){
+      
+
+if(segundosRestantes>0&&this.valoracionRevelada==false&&this.notificadorFinTiempo.isClosed==false){
+  segundosRestantes=segundosRestantes-1;
+
+          notificadorFinTiempo.add(segundosRestantes);
+
+    }
+
+    if(notificadorFinTiempo.isClosed){
+       flutterTimer.cancel();
+    }
+    if(segundosRestantes==0&&this.valoracionRevelada==false&&this.notificadorFinTiempo.isClosed==false){
+      flutterTimer.cancel();
+      if(ListaDeValoraciones.llaveListaValoraciones.currentState==null){
+        listaDeValoraciones.removeWhere((element) => element.idValoracion==this.idValoracion);
+        rechazarValoracion(this.idValoracion);
+
+      }
+   
+    }
+    });
+
+
+    
+
+      
+       
+    
+
+  }
+
+
+
 
   void obtenerValoraciones()async {
     FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
@@ -83,6 +180,7 @@ class Valoracion extends ChangeNotifier {
                 double.parse(
                     (dato.docs[i].get("Valoracion").toString()).toString()),
                 (dato.docs[i].get("Time")).toDate(),
+                (dato.docs[i].get("caducidad")).toDate(),
                 (dato.docs[i].get("id valoracion").toString()).toString(),
                 dato.docs[i].get("revelada"));
           }
@@ -94,6 +192,41 @@ class Valoracion extends ChangeNotifier {
 
         instanciar.notifyListeners();
       }
+    }).then((value) {
+      instanciaBaseDatos.collection("valoraciones").where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario).where("revelada",isEqualTo:true).where("Time", isLessThan:fechaParaQuery )
+        .get().then((dato) {
+      if (dato.docs.length > 0) {
+        print("escuchado a ${dato.docs.length} valoraciones");
+
+        print(dato.docs.length);
+        for (int i = 0; i < dato.docs.length; i++) {
+          print("Creando");
+          if (dato.docs[i].id != "mediaPuntos") {
+            crearValoracion(
+                (dato.docs[i].get("Id emisor").toString()),
+                (dato.docs[i].get("Nombre emisor").toString()).toString(),
+                (dato.docs[i].get("Alias Emisor").toString()).toString(),
+                (dato.docs[i].get("Imagen Usuario").toString()).toString(),
+                (dato.docs[i].get("Mensaje").toString()).toString(),
+                double.parse(
+                    (dato.docs[i].get("Valoracion").toString()).toString()),
+                (dato.docs[i].get("Time")).toDate(),
+                (dato.docs[i].get("caducidad")).toDate(),
+                (dato.docs[i].get("id valoracion").toString()).toString(),
+                dato.docs[i].get("revelada"));
+          }
+          if (dato.docs[i].id == "mediaPuntos") {
+            mediaUsuario = dato.docs[i].get("mediaTotal");
+            visitasTotales = dato.docs[i].get("cantidadValoraciones");
+          }
+        }
+
+        instanciar.notifyListeners();
+      }
+        });
+      
+      
+
     }).then((val) => escucharValoraciones());
 
     });
@@ -125,7 +258,7 @@ class Valoracion extends ChangeNotifier {
     bool coincidencias;
 
     print(Usuario.esteUsuario.idUsuario);
-    instanciaBaseDatos
+  escuchadorMedia=  instanciaBaseDatos
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("valoraciones")
@@ -149,7 +282,7 @@ class Valoracion extends ChangeNotifier {
     bool coincidencias;
 
     print(Usuario.esteUsuario.idUsuario);
-    instanciaBaseDatos
+ escuchadorValoraciones=   instanciaBaseDatos
         .collection("valoraciones")
         .where("Time", isGreaterThanOrEqualTo:fechaParaQuery )
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
@@ -191,7 +324,7 @@ class Valoracion extends ChangeNotifier {
                 }
                 if (dato.docs[b].get("revelada") !=
                     listaDeValoraciones[indice].valoracionRevelada) {
-                  listaDeValoraciones[indice].valoracionRevelada =
+                  listaDeValoraciones[indice].setValoracionRevelada =
                       dato.docs[b].get("revelada");
                 }
                 }
@@ -205,6 +338,7 @@ class Valoracion extends ChangeNotifier {
           if (!coincidencias) {
             print("Creando");
             if (dato.docs[b].id != "mediaPuntos") {
+
               sumarValoracion(
                   (dato.docs[b].get("Id emisor").toString()),
                   (dato.docs[b].get("Nombre emisor").toString()).toString(),
@@ -214,6 +348,7 @@ class Valoracion extends ChangeNotifier {
                   double.parse(
                       (dato.docs[b].get("Valoracion").toString()).toString()),
                   (dato.docs[b].get("Time")).toDate(),
+                  (dato.docs[b].get("caducidad")).toDate(),
                   (dato.docs[b].get("id valoracion").toString()).toString(),
                   (dato.docs[b].get("revelada")));
             }
@@ -221,7 +356,7 @@ class Valoracion extends ChangeNotifier {
         }
       }
       instanciar.notifyListeners();
-    }).onError((e) => print(e));
+    });
   }
 
   void crearValoracion(
@@ -232,10 +367,12 @@ class Valoracion extends ChangeNotifier {
       String mensajeUsuario,
       double puntuacion,
       DateTime fechaValoraciones,
+      DateTime caducidad,
       String valoracionId,
       bool revelada) {
     print(puntuacion);
     Valoracion valoracion = new Valoracion.crear(
+      fechaCaducidad:caducidad ,
         idValoracion: valoracionId,
         idEmisor: idEmisor,
         nombreEmisor: nombreUsuario,
@@ -272,10 +409,12 @@ class Valoracion extends ChangeNotifier {
       String mensajeUsuario,
       double puntuacion,
       DateTime fechaValoraciones,
+      DateTime caducidad,
       String valoracionId,
       bool revelar) {
     print(puntuacion);
     Valoracion valoracion = new Valoracion.crear(
+      fechaCaducidad: caducidad,
         idValoracion: valoracionId,
         idEmisor: idEmisor,
         nombreEmisor: nombreUsuario,
@@ -285,12 +424,11 @@ class Valoracion extends ChangeNotifier {
         mensaje: mensajeUsuario,
         valoracion: puntuacion,
         valoracionRevelada: revelar);
-    int i = listaDeValoraciones.length > 0 ? listaDeValoraciones.length : 0;
-   listaDeValoraciones.insert(0, valoracion);
-    listaDeValoraciones
-        .sort((a, b) => b.fechaValoracion.compareTo(a.fechaValoracion));
-        if( ListaDeValoraciones.llaveListaValoraciones.currentState!=null){
- ListaDeValoraciones.llaveListaValoraciones.currentState.insertItem(0);
+    int i = listaDeValoraciones.length >= 0 ? listaDeValoraciones.length : 0;
+   listaDeValoraciones.insert(i, valoracion);
+
+       if( ListaDeValoraciones.llaveListaValoraciones.currentState!=null){
+ ListaDeValoraciones.llaveListaValoraciones.currentState.insertItem(i);
         }
    
 
@@ -302,24 +440,16 @@ class Valoracion extends ChangeNotifier {
 void rechazarValoracion(
     String id,
   ) async {
-    QuerySnapshot documento = await baseDatosRef
+    baseDatosRef
         .collection("valoraciones")
-        .where("id valoracion", isEqualTo: id)
-        .get();
-    for (DocumentSnapshot elemento in documento.docs) {
-      if (elemento.get("id valoracion") == id) {
-        String idVal = elemento.id;
-        await baseDatosRef
-            .collection("valoraciones")
-            .doc(idVal)
-            .delete()
-            .then((value) {
+        .doc(id).delete().then((value) {
           print("valoracion eliminada");
         }).catchError((onError) {
           print(onError);
         });
-      }
-    }
+   
+    
+    
   }
 
   void enviarSolicitudConversacion(String idRemitente, String nombreRemitente,
@@ -335,7 +465,7 @@ void rechazarValoracion(
       "idDestino": idRemitente,
       "tiemmpo":DateTime.now(),
       "solicitudRevelada": false,
-     
+      "caducidad":DateTime.now().add(Duration(days: 1)),
       "nombreEmisor": Usuario.esteUsuario.nombre,
       "idEmisor": Usuario.esteUsuario.idUsuario,
       "imagenEmisor":  ObtenerImagenPerfl.instancia.obtenerImagenUsuarioLocal(),
@@ -351,29 +481,3 @@ void rechazarValoracion(
 
 }
 
-// ignore: must_be_immutable
-class ValoracionWidget extends StatelessWidget {
-  String idValoracion;
-  String idEmisorValoracion;
-  String nombreEmisor;
-  String aliasEmisor;
-  String imagenUsuario;
-  String mensajeUsuario;
-  double puntuacionUsuario;
-  double porciento;
-  Key clave;
-  DateTime fechaValoracion;
-  Animation animation;
-
-  ValoracionWidget(
-      {@required this.idValoracion,
-      @required this.fechaValoracion,
-      @required this.idEmisorValoracion,
-      @required this.nombreEmisor,
-      @required this.aliasEmisor,
-      @required this.imagenUsuario,
-      @required this.mensajeUsuario,
-      @required this.puntuacionUsuario});
-
-  Widget build(BuildContext context) {}
-}

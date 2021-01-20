@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/TituloChat.dart';
 import 'package:citasnuevo/base_app.dart';
@@ -7,6 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import "package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart";
+import 'package:flutter_screenutil/screenutil.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'Usuario.dart';
 
 
@@ -18,7 +22,7 @@ import 'Usuario.dart';
 class Conversacion extends ChangeNotifier {
   static FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
   static Conversacion conversaciones = new Conversacion.instancia();
-  static int cantidadMensajesNoLeidos = 0;
+   int cantidadMensajesNoLeidos = 0;
   String idConversacion;
   String nombreRemitente;
   bool estadoConexionConversacion = false;
@@ -38,9 +42,13 @@ class Conversacion extends ChangeNotifier {
     "Grabando Audio"
   ];
 
+   StreamSubscription<QuerySnapshot> escuchadorMensajes;
+   StreamSubscription<QuerySnapshot> escuchadorEstadoConversacion;
+   StreamSubscription<QuerySnapshot> escuchadorConversacion;
 
 
-static void calcularCantidadMensajesSinLeer(){
+
+ void calcularCantidadMensajesSinLeer(){
   int mensajesSInLeerTemporal=0;
   for(Conversacion conversacion in conversaciones.listaDeConversaciones ){
 
@@ -53,8 +61,9 @@ static void calcularCantidadMensajesSinLeer(){
   
 
   void escucharMensajes() {
+  
     Mensajes nuevo;
-    baseDatosRef
+ escuchadorMensajes=   baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("mensajes")
@@ -75,6 +84,8 @@ static void calcularCantidadMensajesSinLeer(){
                   dato.docChanges[a].doc.get("Tipo Mensaje") == "Imagen" ||
                   dato.docChanges[a].doc.get("Tipo Mensaje") == "Gif") {
                 nuevo = new Mensajes(
+                  respuesta:dato.docs[a].get("respuesta") ,
+                   respuestaMensaje: dato.docs[a].get("mensajeRespuesta"),
                   mensajeLeidoRemitente:
                       dato.docChanges[a].doc.get("mensajeLeidoRemitente"),
                   nombreEmisor: dato.docChanges[a].doc.get("Nombre emisor"),
@@ -93,7 +104,9 @@ static void calcularCantidadMensajesSinLeer(){
                 
               }
               if (dato.docChanges[a].doc.get("Tipo Mensaje") == "Audio") {
-                nuevo = new Mensajes.Audio(
+                nuevo = new Mensajes.audio(
+                  respuesta:dato.docs[a].get("respuesta") ,
+                  respuestaMensaje: dato.docs[a].get("mensajeRespuesta"),
                   mensajeLeidoRemitente:
                       dato.docChanges[a].doc.get("mensajeLeidoRemitente"),
                   duracionMensaje: dato.docChanges[a].doc.get("duracion"),
@@ -116,20 +129,367 @@ static void calcularCantidadMensajesSinLeer(){
               if (conversaciones
                       .listaDeConversaciones[i].ventanaChat.listadeMensajes ==
                   null) {
+                    
                 conversaciones.listaDeConversaciones[i].ventanaChat
                     .listadeMensajes = new List();
+
+                       
+      if(nuevo.tipoMensaje!="SeparadorHora"){
+ if(nuevo.respuesta){
+        if(nuevo.respuestaMensaje["tipoMensaje"]=="Texto"){
+
+          nuevo.widgetRespuesta=Container(
+            color:nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               mainAxisAlignment: MainAxisAlignment.start,
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+            nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+              
+              Text(nuevo.respuestaMensaje["mensaje"])
+
+            ],),
+          );
+        }
+         if(nuevo.respuestaMensaje["tipoMensaje"]=="Imagen"){
+
+        nuevo.widgetRespuesta=Container(
+            color:nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+            nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+              
+              Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(nuevo.respuestaMensaje["mensaje"],
+                    scale: 1,
+               )),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: ScreenUtil().setHeight(500),width: ScreenUtil().setWidth(500),)
+
+            ],),
+          );
+        }
+          if(nuevo.respuestaMensaje["tipoMensaje"]=="Gif"){
+
+         nuevo.widgetRespuesta=Container(
+            color: nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+              
+              Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(nuevo.respuestaMensaje["mensaje"],
+                    scale: 1,
+                      headers: {'accept': 'image/*'})
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: ScreenUtil().setHeight(700),width: ScreenUtil().setWidth(700),) 
+
+            ],),
+          );
+        }
+                  if(nuevo.respuestaMensaje["tipoMensaje"]=="Audio"){
+                     Mensajes mensajeRespuestaAudio;
+                         for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++ ){
+        if(Conversacion.conversaciones.listaDeConversaciones[z].idMensajes==nuevo.idMensaje){
+          for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes.length;i++){
+            if(nuevo.respuestaMensaje["idMensaje"]==Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i].identificadorUnicoMensaje){
+              mensajeRespuestaAudio=Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
+
+            }
+          }
+        }
+      }
+
+        nuevo.widgetRespuesta=Container(
+            color: nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+             nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+         
+              Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                            bottomLeft: Radius.circular(3))),
+                    child: Row(
+                      children: <Widget>[
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 3,
+                          child: Container(
+                            child: Center(
+                              child: FlatButton(
+                                onPressed: () {
+                                  mensajeRespuestaAudio.reproducirAudio();
+                                },
+                                child: Center(
+                                    child: Icon(
+                                  Icons.play_arrow,
+                                  size: ScreenUtil().setSp(100),
+                                )),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 11,
+                          child: Container(
+                            child: Stack(alignment: Alignment.center, children: <
+                                Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15.0, right: 15),
+                                child: LinearPercentIndicator(
+                                  lineHeight: ScreenUtil().setHeight(70),
+                                  percent: mensajeRespuestaAudio.posicion,
+                                ),
+                              ),
+                              SliderTheme(
+                                data: SliderThemeData(
+                                  thumbColor: Colors.transparent,
+                                  activeTickMarkColor: Colors.transparent,
+                                  activeTrackColor: Colors.transparent,
+                                  disabledActiveTickMarkColor: Colors.transparent,
+                                  disabledActiveTrackColor: Colors.transparent,
+                                  disabledInactiveTickMarkColor:
+                                      Colors.transparent,
+                                  disabledInactiveTrackColor: Colors.transparent,
+                                  disabledThumbColor: Colors.transparent,
+                                  inactiveTickMarkColor: Colors.transparent,
+                                  inactiveTrackColor: Colors.transparent,
+                                  overlappingShapeStrokeColor: Colors.transparent,
+                                  overlayColor: Colors.transparent,
+                                  valueIndicatorColor: Colors.transparent,
+                                ),
+                                child: Slider(
+                                  value: mensajeRespuestaAudio.posicion,
+                                  max: mensajeRespuestaAudio.duracionMensaje.toDouble(),
+                                  min: 0,
+                                  onChanged: (val) {
+                                    mensajeRespuestaAudio.posicionAudio(val);
+                                  },
+                                ),
+                              ),
+                            ]),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+            ],),
+          );
+        }
+        
+        
+      }
+      }
+     
+
+    
 
                 conversaciones
                     .listaDeConversaciones[i].ventanaChat.listadeMensajes
                     .add(nuevo);
               } else {
+
+                    if(nuevo.tipoMensaje!="SeparadorHora"){
+ if(nuevo.respuesta){
+        if(nuevo.respuestaMensaje["tipoMensaje"]=="Texto"){
+
+          nuevo.widgetRespuesta=Container(
+            color:nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               mainAxisAlignment: MainAxisAlignment.start,
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+            nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+              
+              Text(nuevo.respuestaMensaje["mensaje"])
+
+            ],),
+          );
+        }
+         if(nuevo.respuestaMensaje["tipoMensaje"]=="Imagen"){
+
+        nuevo.widgetRespuesta=Container(
+            color:nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+            nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+           
+              Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(nuevo.respuestaMensaje["mensaje"],
+                    scale: 1,
+               )),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: ScreenUtil().setHeight(500),width: ScreenUtil().setWidth(500),)
+
+            ],),
+          );
+        }
+          if(nuevo.respuestaMensaje["tipoMensaje"]=="Gif"){
+
+         nuevo.widgetRespuesta=Container(
+            color: nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+            
+              Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(nuevo.respuestaMensaje["mensaje"],
+                    scale: 1,
+                      headers: {'accept': 'image/*'})
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: ScreenUtil().setHeight(700),width: ScreenUtil().setWidth(700),) 
+
+            ],),
+          );
+        }
+                  if(nuevo.respuestaMensaje["tipoMensaje"]=="Audio"){
+                     Mensajes mensajeRespuestaAudio;
+                         for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++ ){
+        if(Conversacion.conversaciones.listaDeConversaciones[z].idMensajes==nuevo.idMensaje){
+          for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes.length;i++){
+            if(nuevo.respuestaMensaje["idMensaje"]==Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i].identificadorUnicoMensaje){
+              mensajeRespuestaAudio=Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
+
+            }
+          }
+        }
+      }
+
+        nuevo.widgetRespuesta=Container(
+            color: nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+             nuevo.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(conversaciones.listaDeConversaciones[i].ventanaChat.nombre),
+              
+              Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                            bottomLeft: Radius.circular(3))),
+                    child: Row(
+                      children: <Widget>[
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 3,
+                          child: Container(
+                            child: Center(
+                              child: FlatButton(
+                                onPressed: () {
+                                  mensajeRespuestaAudio.reproducirAudio();
+                                },
+                                child: Center(
+                                    child: Icon(
+                                  Icons.play_arrow,
+                                  size: ScreenUtil().setSp(100),
+                                )),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 11,
+                          child: Container(
+                            child: Stack(alignment: Alignment.center, children: <
+                                Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15.0, right: 15),
+                                child: LinearPercentIndicator(
+                                  lineHeight: ScreenUtil().setHeight(70),
+                                  percent: mensajeRespuestaAudio.posicion,
+                                ),
+                              ),
+                              SliderTheme(
+                                data: SliderThemeData(
+                                  thumbColor: Colors.transparent,
+                                  activeTickMarkColor: Colors.transparent,
+                                  activeTrackColor: Colors.transparent,
+                                  disabledActiveTickMarkColor: Colors.transparent,
+                                  disabledActiveTrackColor: Colors.transparent,
+                                  disabledInactiveTickMarkColor:
+                                      Colors.transparent,
+                                  disabledInactiveTrackColor: Colors.transparent,
+                                  disabledThumbColor: Colors.transparent,
+                                  inactiveTickMarkColor: Colors.transparent,
+                                  inactiveTrackColor: Colors.transparent,
+                                  overlappingShapeStrokeColor: Colors.transparent,
+                                  overlayColor: Colors.transparent,
+                                  valueIndicatorColor: Colors.transparent,
+                                ),
+                                child: Slider(
+                                  value: mensajeRespuestaAudio.posicion,
+                                  max: mensajeRespuestaAudio.duracionMensaje.toDouble(),
+                                  min: 0,
+                                  onChanged: (val) {
+                                    mensajeRespuestaAudio.posicionAudio(val);
+                                  },
+                                ),
+                              ),
+                            ]),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+            ],),
+          );
+        }
+        
+        
+      }
+      }
                 conversaciones
                         .listaDeConversaciones[i].ventanaChat.listadeMensajes =
                     List.from(conversaciones
                         .listaDeConversaciones[i].ventanaChat.listadeMensajes)
                       ..add(nuevo);
               }
-              ControladorNotificacion.controladorNotificacion.sumarMensajeNuevoEnNotificacion(dato.docChanges[a].doc);
+              ControladorNotificacion.instancia.sumarMensajeNuevoEnNotificacion(dato.docChanges[a].doc);
 
               notifyListeners();
               calcularCantidadMensajesSinLeer();
@@ -212,7 +572,7 @@ static void calcularCantidadMensajesSinLeer(){
         }
       }
     }).then((value) {
-      baseDatosRef
+   escuchadorEstadoConversacion=   baseDatosRef
           .collection("usuarios")
           .doc(Usuario.esteUsuario.idUsuario)
           .collection("estados conversacion")
@@ -308,7 +668,7 @@ static void calcularCantidadMensajesSinLeer(){
   void escucharConversaciones() {
   
    
-    baseDatosRef
+   escuchadorConversacion= baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("conversaciones")
@@ -443,10 +803,10 @@ for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++){
   }
 
   static Future<int> eliminarConversaciones(
-      String idConversacion, String idRemitente, String idMensaje) async{
+      String idConversacion, String idRemitente, String idMensaje,bool bloquear) async{
         int estadoOperacion;
-    print(idConversacion);
-    print(idRemitente);
+
+        if(!bloquear){
     WriteBatch opceracionEliminacion = baseDatosRef.batch();
     DocumentReference referenciaConversacionEnLocal = baseDatosRef
         .collection("usuarios")
@@ -488,6 +848,55 @@ if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==idConver
       estadoOperacion=1;
     });
     Conversacion.conversaciones.notifyListeners();
+        }
+              if(bloquear){
+    WriteBatch opceracionEliminacion = baseDatosRef.batch();
+    DocumentReference referenciaUsuarioBloquear=baseDatosRef.collection("usuarios").doc(idRemitente);
+    DocumentReference referenciaUsuarioLocal=baseDatosRef.collection("usuarios").doc(Usuario.esteUsuario.idUsuario);
+    DocumentReference referenciaConversacionEnLocal = baseDatosRef
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("conversaciones")
+        .doc(idConversacion);
+    DocumentReference referenciaConversacionEnRemitente = baseDatosRef
+        .collection("usuarios")
+        .doc(idRemitente)
+        .collection("conversaciones")
+        .doc(idConversacion);
+    DocumentReference referenciaEstadoConversacionEnLocal = baseDatosRef
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("estados conversacion")
+        .doc(idConversacion);
+    DocumentReference referenciaEstadoConversacionEnRemitente = baseDatosRef
+        .collection("usuarios")
+        .doc(idRemitente)
+        .collection("estados conversacion")
+        .doc(idConversacion);
+
+    opceracionEliminacion.update(referenciaUsuarioBloquear, {"bloqueados":FieldValue.arrayUnion([Usuario.esteUsuario.idUsuario])});
+    opceracionEliminacion.update(referenciaUsuarioLocal, {"bloqueados":FieldValue.arrayUnion([idRemitente])});
+    opceracionEliminacion.delete(referenciaConversacionEnLocal);
+    opceracionEliminacion.delete(referenciaEstadoConversacionEnLocal);
+    opceracionEliminacion.delete(referenciaConversacionEnRemitente);
+    opceracionEliminacion.delete(referenciaEstadoConversacionEnRemitente);
+  await  opceracionEliminacion.commit().then((value){
+      estadoOperacion=0;
+      for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
+if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==idConversacion){
+  Conversacion.conversaciones.listaDeConversaciones.removeAt(i);
+  Conversacion.conversaciones.notifyListeners();
+}
+
+      }
+    }).catchError((onError){
+      print(onError);
+      estadoOperacion=1;
+    });
+    Conversacion.conversaciones.notifyListeners();
+        }
+ 
+
     return estadoOperacion;
 
     
@@ -508,4 +917,31 @@ if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==idConver
       @required this.ventanaChat});
 
   Conversacion.instancia();
+
+
+
+
+
+
+
+ void cerrarConexionesConversacion(){
+  
+  if(escuchadorConversacion!=null){
+escuchadorConversacion.cancel();
+  }
+  if(escuchadorMensajes!=null){
+  escuchadorMensajes.cancel();
+  }
+
+  if(escuchadorEstadoConversacion!=null){
+ escuchadorEstadoConversacion.cancel();
+  }
+  
+
+ 
+  escuchadorEstadoConversacion=null;
+  escuchadorMensajes=null;
+  escuchadorConversacion=null;
+}
+
 }

@@ -1,7 +1,8 @@
 import 'dart:core';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
-import 'package:citasnuevo/InterfazUsuario/Social/social_screen_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Ajustes/EditarUsuario.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drag_and_drop_gridview/devdrag.dart';
 import 'package:flutter/gestures.dart';
@@ -243,6 +244,7 @@ class BotonNacimientoState extends State<BotonNacimiento> {
                     hintStyle: TextStyle(color: Colors.grey)),
                 onChanged: (valor) {
                   if (valor.length >= 2) {
+                    
                     Usuario.esteUsuario.dia = int.parse(valor);
                     nodoDia.unfocus();
                     nodoMes.requestFocus();
@@ -902,13 +904,13 @@ class FotosPerfilStateNuevas extends State<FotosPerfilNuevas> {
         maxHeight: 1280,
         maxWidth: 720,
         aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
-        compressQuality: 90,
+        compressQuality: 70,
         androidUiSettings: AndroidUiSettings(
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.ratio16x9,
-            lockAspectRatio: false),
+       
+            lockAspectRatio: true),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));
@@ -931,15 +933,15 @@ class FotosPerfilStateNuevas extends State<FotosPerfilNuevas> {
         sourcePath: archivoImagen.path,
 
         // aspectRatio: CropAspectRatio(ratioX: 9,ratioY: 16),
-        maxHeight: 1000,
+        maxHeight: 1280,
         maxWidth: 720,
-        compressQuality: 90,
+        compressQuality: 70,
         androidUiSettings: AndroidUiSettings(
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
+         
+            lockAspectRatio: true),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
         ));

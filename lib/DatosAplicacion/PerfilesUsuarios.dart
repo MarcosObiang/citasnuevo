@@ -1,20 +1,16 @@
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
-import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
 
-import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:blurhash_dart/blurhash_dart.dart';
+import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
+import 'dart:ui' as ui;
+
 import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaPerfiles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_Actividades_elements.dart';
-import 'package:geolocator/geolocator.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:story_view/story_view.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'dart:math';
+
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +20,7 @@ import 'dart:io' as Io;
 import 'package:path_provider/path_provider.dart';
 import 'Usuario.dart';
 import 'dart:isolate';
+import 'package:bitmap/bitmap.dart';
 
 Future<DatosPerfiles> ActualizarPErfilDeterinado(
     Map<String, dynamic> lista) async {
@@ -205,6 +202,7 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
     String alias = lista[i]["Alias"];
     String edad = (lista[i]["Edad"]).toString();
     int edadPerfil=lista[i]["Edad"];
+    Map<String,dynamic> verificado=lista[i]["verificado"];
   
   double distancia=lista[i]["distancia"];
   
@@ -263,9 +261,8 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
     for (int a = 0; a < imagenesPerfiles.length; a++) {
       if (imagenesPerfiles[a]["Imagen"] != null) {
         /// Cada Imagen que no sea nula es puesta en cola sumando una imagen a [imagenEnCola]
-        Perfiles.perfilesCitas.imagenesEnCola += 1;
-
-        ///
+         String hash= imagenesPerfiles[a]["hash"];
+       
         ///
         ///
         ///
@@ -273,11 +270,14 @@ Future<List<DatosPerfiles>> actualizarPerfilesCitas(
         /// A la lista temporal [perfilTemp]  que es un [carrete]  le añadimos los widgets necesarios
 
         print(PerfilesGenteCitas.limitesParaCreador);
+ 
         perfilTemp.add(ImagenesCarrete(
 imagenesPerfiles[a]["Imagen"],
-
-
+hash:hash,
+verificado: verificado["estadoVerificacion"]!="verificado"?false:true,
           distancia:distancia,
+          ancho: imagenesPerfiles[a]["ancho"],
+          altura: imagenesPerfiles[a]["altura"],
         
           nombre: nombre,
           
@@ -320,6 +320,7 @@ imagenesPerfiles[a]["Imagen"],
 
       perfilCreado.add(DatosPerfiles.citas(
           linksHistorias: links,
+          verificado: verificado!="verificado"?false:true,
           edad: edadPerfil ,
           distancia: distancia.toInt(),
           carrete: perfilTemp,
@@ -329,6 +330,7 @@ imagenesPerfiles[a]["Imagen"],
     } else {
       perfilCreado.add(DatosPerfiles.citas(
           linksHistorias: links,
+          verificado: verificado!="verificado"?false:true,
           carrete: perfilTemp,
               edad: edadPerfil ,
           distancia: distancia.toInt(),

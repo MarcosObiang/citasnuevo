@@ -298,64 +298,66 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
       child: Consumer<Perfiles>(
         builder: (BuildContext context, perfiles, Widget child) {
         
-          return Container(
-            decoration: BoxDecoration(
-              ),
-            height: ScreenUtil().setHeight(2000),
-            child: Stack(alignment: AlignmentDirectional.center, children: <
-                Widget>[
-                 ! Citas.estaConectado? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Stack(
-                            alignment: Alignment.bottomCenter,
-                         
-                            children: [
-                              Icon(LineAwesomeIcons.broadcast_tower,size: ScreenUtil().setSp(500),),
-                              Positioned(
-                                right: ScreenUtil().setWidth(300),
-                                
-                                child: Icon(Icons.cancel,size: ScreenUtil().setSp(200),color: Colors.red,))
-                            ],
-                          ),
-                          Divider(height: ScreenUtil().setHeight(100)),
-                          Text(
-                            "No tiene conexion",
-                            style: TextStyle(color: Colors.black,fontSize: ScreenUtil().setSp(60)),
-                          )
-                        ],
+          return SafeArea(
+                      child: Container(
+              decoration: BoxDecoration(
+                ),
+              height: ScreenUtil().setHeight(2000),
+              child: Stack(alignment: AlignmentDirectional.center, children: <
+                  Widget>[
+                   ! Citas.estaConectado? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Stack(
+                              alignment: Alignment.bottomCenter,
+                           
+                              children: [
+                                Icon(LineAwesomeIcons.broadcast_tower,size: ScreenUtil().setSp(500),),
+                                Positioned(
+                                  right: ScreenUtil().setWidth(300),
+                                  
+                                  child: Icon(Icons.cancel,size: ScreenUtil().setSp(200),color: Colors.red,))
+                              ],
+                            ),
+                            Divider(height: ScreenUtil().setHeight(100)),
+                            Text(
+                              "No tiene conexion",
+                              style: TextStyle(color: Colors.black,fontSize: ScreenUtil().setSp(60)),
+                            )
+                          ],
+                        ),
+                      ):
+                
+                
+                
+                
+                perfiles.listaPerfiles == null
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Container(child: CircularProgressIndicator()),
+                            Text(
+                              "Cargando",
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+                      )
+                    : Container(
+                      height: widget.limites.biggest.height,
+                      width: widget.limites.biggest.width,
+                      child: LayoutBuilder(
+                        builder: (BuildContext context,
+                            BoxConstraints espacioPerfiles) {
+                          return PerfilesGenteCitas(
+                              limites: espacioPerfiles);
+                        },
                       ),
-                    ):
-              
-              
-              
-              
-              perfiles.listaPerfiles == null
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          CircularProgressIndicator(),
-                          Text(
-                            "Cargando",
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ],
-                      ),
-                    )
-                  : Container(
-                    height: widget.limites.biggest.height,
-                    width: widget.limites.biggest.width,
-                    child: LayoutBuilder(
-                      builder: (BuildContext context,
-                          BoxConstraints espacioPerfiles) {
-                        return PerfilesGenteCitas(
-                            limites: espacioPerfiles);
-                      },
                     ),
-                  ),
-            ]),
+              ]),
+            ),
           );
         },
       ),

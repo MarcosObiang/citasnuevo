@@ -11,6 +11,7 @@ import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -49,6 +50,10 @@ class TituloChat extends StatefulWidget {
   Future<List<Mensajes>> obtenerMensajes(
       String identificadorMensajes, String rutaRemitente) async {
     List<Mensajes> temp = new List();
+  
+    
+
+
 
     if (!this.conversacion.grupo) {
       await baseDatosRef
@@ -60,16 +65,22 @@ class TituloChat extends StatefulWidget {
           .get()
           .then((dato) async {
             if(dato!=null){
+
         if (dato.docs.length > 0) {
           print("${dato.docs.length} mensajes para el en firebase");
           print(rutaRemitente);
           print(identificadorMensajes);
+    
           for (int a = 0; a < dato.docs.length; a++) {
+ 
             print(dato.docs[a].get("Tipo Mensaje"));
             if (dato.docs[a].get("Tipo Mensaje") == "Texto" ||
                 dato.docs[a].get("Tipo Mensaje") == "Imagen" ||
                 dato.docs[a].get("Tipo Mensaje") == "Gif") {
               Mensajes mensaje = new Mensajes(
+               
+                respuestaMensaje: dato.docs[a].get("mensajeRespuesta"),
+                respuesta:dato.docs[a].get("respuesta") ,
                 mensajeLeido: dato.docs[a].get("mensajeLeido"),
                 nombreEmisor: dato.docs[a].get("Nombre emisor"),
                 identificadorUnicoMensaje:
@@ -86,9 +97,11 @@ class TituloChat extends StatefulWidget {
               temp = List.from(temp)..add(mensaje);
             }
             if (dato.docs[a].get("Tipo Mensaje") == "Audio") {
-              Mensajes mensaje = new Mensajes.Audio(
+              Mensajes mensaje = new Mensajes.audio(
+             respuesta:dato.docs[a].get("respuesta") ,
                 duracionMensaje: dato.docs[a].get("duracion"),
                 mensajeLeido: dato.docs[a].get("mensajeLeido"),
+                respuestaMensaje: dato.docs[a].get("mensajeRespuesta"),
                 idConversacion: dato.docs[a].get("idConversacion"),
                 nombreEmisor: dato.docs[a].get("Nombre emisor"),
                 idEmisor: dato.docs[a].get("idEmisor"),
@@ -111,6 +124,180 @@ class TituloChat extends StatefulWidget {
 
     if (temp.length > 0) {
       temp = insertarHoras(temp);
+    }
+
+    for(int v=0;v<temp.length;v++){
+      if(temp[v].tipoMensaje!="SeparadorHora"){
+ if(temp[v].respuesta){
+        if(temp[v].respuestaMensaje["tipoMensaje"]=="Texto"){
+
+          temp[v].widgetRespuesta=Container(
+            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,children: [
+              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
+             
+              Text(temp[v].respuestaMensaje["mensaje"])
+
+            ],),
+          );
+        }
+         if(temp[v].respuestaMensaje["tipoMensaje"]=="Imagen"){
+
+          temp[v].widgetRespuesta=Container(
+            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,children: [
+              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
+            
+              Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(temp[v].respuestaMensaje["mensaje"],
+                    scale: 1,
+               )),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: 500.w,width: 500.w,)
+
+            ],),
+          );
+        }
+          if(temp[v].respuestaMensaje["tipoMensaje"]=="Gif"){
+
+          temp[v].widgetRespuesta=Container(
+            
+            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
+    
+              Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(temp[v].respuestaMensaje["mensaje"],
+                    scale: 1,
+                      headers: {'accept': 'image/*'})
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: 700.w,width: 700.w,) 
+
+            ],),
+          );
+        }
+                  if(temp[v].respuestaMensaje["tipoMensaje"]=="Audio"){
+                     Mensajes mensajeRespuestaAudio;
+                         for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++ ){
+        if(Conversacion.conversaciones.listaDeConversaciones[z].idMensajes==temp[v].idMensaje){
+          for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes.length;i++){
+            if(temp[v].respuestaMensaje["idMensaje"]==Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i].identificadorUnicoMensaje){
+              mensajeRespuestaAudio=Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
+
+            }
+          }
+        }
+      }
+
+          temp[v].widgetRespuesta=Container(
+            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
+            child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
+           
+              Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                            bottomLeft: Radius.circular(3))),
+                    child: Row(
+                      children: <Widget>[
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 3,
+                          child: Container(
+                            child: Center(
+                              child: FlatButton(
+                                onPressed: () {
+                                  mensajeRespuestaAudio.reproducirAudio();
+                                },
+                                child: Center(
+                                    child: Icon(
+                                  Icons.play_arrow,
+                                  size: ScreenUtil().setSp(100),
+                                )),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 11,
+                          child: Container(
+                            child: Stack(alignment: Alignment.center, children: <
+                                Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15.0, right: 15),
+                                child: LinearPercentIndicator(
+                                  lineHeight: ScreenUtil().setHeight(70),
+                                  percent: mensajeRespuestaAudio.posicion,
+                                ),
+                              ),
+                              SliderTheme(
+                                data: SliderThemeData(
+                                  thumbColor: Colors.transparent,
+                                  activeTickMarkColor: Colors.transparent,
+                                  activeTrackColor: Colors.transparent,
+                                  disabledActiveTickMarkColor: Colors.transparent,
+                                  disabledActiveTrackColor: Colors.transparent,
+                                  disabledInactiveTickMarkColor:
+                                      Colors.transparent,
+                                  disabledInactiveTrackColor: Colors.transparent,
+                                  disabledThumbColor: Colors.transparent,
+                                  inactiveTickMarkColor: Colors.transparent,
+                                  inactiveTrackColor: Colors.transparent,
+                                  overlappingShapeStrokeColor: Colors.transparent,
+                                  overlayColor: Colors.transparent,
+                                  valueIndicatorColor: Colors.transparent,
+                                ),
+                                child: Slider(
+                                  value: mensajeRespuestaAudio.posicion,
+                                  max: mensajeRespuestaAudio.duracionMensaje.toDouble(),
+                                  min: 0,
+                                  onChanged: (val) {
+                                    mensajeRespuestaAudio.posicionAudio(val);
+                                  },
+                                ),
+                              ),
+                            ]),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+            ],),
+          );
+        }
+        
+        
+      }
+      }
+     
+
     }
 
     return temp;
@@ -221,6 +408,8 @@ class TituloChat extends StatefulWidget {
   void enviarMensaje(
     String mensajeTexto,
     String idMensaje,
+    bool respuesta,
+    Map<String,String>respuestaEnMensaje
   ) async {
     WriteBatch escrituraMensajes = baseDatosRef.batch();
     String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
@@ -259,6 +448,8 @@ class TituloChat extends StatefulWidget {
         mensaje["identificadorUnicoMensaje"] = idMensajeUnico;
         mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
         mensaje["Tipo Mensaje"] = "Texto";
+        mensaje["mensajeRespuesta"]=respuestaEnMensaje;
+        mensaje["respuesta"]=respuesta;
 
         escrituraMensajes.update(referenciaConversacionRemitente, {
           "cantidadMensajesSinLeer": FieldValue.increment(1),
@@ -280,32 +471,12 @@ class TituloChat extends StatefulWidget {
         await escrituraMensajes.commit();
       }
     }
-    if (this.conversacion.grupo) {
-      if (mensajeTexto != null) {
-        Map<String, dynamic> mensaje = Map();
-        DateTime horaMensaje = DateTime.now();
-        mensaje["Hora mensaje"] = horaMensaje;
-        mensaje["Mensaje"] = mensajeTexto;
-        mensaje["Nombre emisor"] = Usuario.esteUsuario.nombre;
-        mensaje["mensajeLeido"] = false;
-        mensaje["idMensaje"] = idMensaje;
-        mensaje["mensajeLeidoRemitente"] = false;
-        mensaje["identificadorUnicoMensaje"] = idMensajeUnico;
-        mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
-        mensaje["Tipo Mensaje"] = "Texto";
-        print(idRemitente);
-        baseDatosRef
-            .collection("grupos directo")
-            .doc(idConversacion)
-            .collection("mensajes")
-            .doc()
-            .set(mensaje);
-      }
-    }
+
   }
 
   void enviarMensajeAudio(
-      Uint8List audio, String idMensaje, int duracion) async {
+      Uint8List audio, String idMensaje, int duracion,bool respuesta,
+    Map<String,String>respuestaEnMensaje) async {
     FirebaseStorage storage = FirebaseStorage.instance;
     StorageReference reference = storage.ref();
     String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
@@ -350,6 +521,8 @@ class TituloChat extends StatefulWidget {
       mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
       mensaje["duracion"] = duracion;
       mensaje["Tipo Mensaje"] = "Audio";
+      mensaje["mensajeRespuesta"]=respuestaEnMensaje;
+      mensaje["respuesta"]=respuesta;
       print(idRemitente);
       if (this.conversacion.grupo) {
         await baseDatosRef
@@ -382,7 +555,8 @@ class TituloChat extends StatefulWidget {
     }
   }
 
-  void enviarMensajeImagen(File imagen, String idMensaje) async {
+  void enviarMensajeImagen(File imagen, String idMensaje,bool respuesta,
+    Map<String,String>respuestaEnMensaje) async {
     if (imagen != null) {
       FirebaseStorage storage = FirebaseStorage.instance;
       String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
@@ -427,6 +601,10 @@ class TituloChat extends StatefulWidget {
         mensaje["Nombre emisor"] = Usuario.esteUsuario.nombre;
         mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
         mensaje["Tipo Mensaje"] = "Imagen";
+          mensaje["mensajeRespuesta"]=respuestaEnMensaje;
+      mensaje["respuesta"]=respuesta;
+      
+        
         print(idRemitente);
         if (conversacion.grupo) {
           await baseDatosRef
@@ -464,14 +642,15 @@ class TituloChat extends StatefulWidget {
     }
   }
 
-  void enviarMensajeImagenGif(String urlImagen, String idMensaje) async {
+  void enviarMensajeImagenGif(String urlImagen, String idMensaje,bool respuesta,
+    Map<String,String>respuestaEnMensaje) async {
     http.get(urlImagen).then((value) async {
       if (urlImagen != null) {
         FirebaseStorage storage = FirebaseStorage.instance;
         String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
         StorageReference reference = storage.ref();
         String ruta =
-            "${idRemitente}/Perfil/ImagenesConversaciones/${crearCodigo()}.gif";
+            "$idRemitente/Perfil/ImagenesConversaciones/${crearCodigo()}.gif";
         StorageReference referenciaArchivo = reference.child(ruta);
         WriteBatch escrituraMensajes = baseDatosRef.batch();
         DocumentReference direccionMensajes = baseDatosRef
@@ -508,6 +687,8 @@ class TituloChat extends StatefulWidget {
           mensaje["Nombre emisor"] = Usuario.esteUsuario.nombre;
           mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
           mensaje["Tipo Mensaje"] = "Gif";
+           mensaje["mensajeRespuesta"]=respuestaEnMensaje;
+      mensaje["respuesta"]=respuesta;
           print(idRemitente);
           if (conversacion.grupo) {
             await baseDatosRef
@@ -805,7 +986,7 @@ class TituloChatState extends State<TituloChat> {
                                                                   "null"
                                                           ? ""
                                                           : widget.ultimoMensaje[
-                                                              "mensaje"])
+                                                              "mensaje"],overflow: TextOverflow.ellipsis,)
                                                       : widget.ultimoMensaje[
                                                                   "tipoMensaje"] ==
                                                               "audio"

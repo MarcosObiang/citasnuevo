@@ -1,17 +1,27 @@
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'dart:ui';
 
+import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorDenuncias.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorVerificacion.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import "package:citasnuevo/Inte../../DatosAplicacion/ControladorConversacion.dart";
 import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaPerfiles.dart';
-import 'package:citasnuevo/InterfazUsuario/Conversaciones/people_screen.dart';
-import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
+import "package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart";
+import 'package:citasnuevo/InterfazUsuario/Valoraciones/ListaValoraciones.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+import 'package:ntp/ntp.dart';
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 
@@ -32,6 +42,7 @@ import 'package:image_cropper/image_cropper.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:swipe_stack/swipe_stack.dart';
 
 import 'Pantalla_Actividades.dart';
@@ -75,13 +86,11 @@ class ControlarLista {
 class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
   static ItemScrollController mover = new ItemScrollController();
   static SwiperController controladorSwipe = new SwiperController();
-  
 
   @override
-  void initState(){
-PerfilesGenteCitas.indicePerfil=0;
+  void initState() {
+    PerfilesGenteCitas.indicePerfil = 0;
     super.initState();
-
   }
 
   Function soltarLikes;
@@ -108,7 +117,6 @@ PerfilesGenteCitas.indicePerfil=0;
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Container(
       height: widget.limites.biggest.height,
       width: widget.limites.biggest.width,
@@ -121,6 +129,7 @@ PerfilesGenteCitas.indicePerfil=0;
               PerfilesGenteCitas.limitesParaCreador = box;
               ImagenesCarrete.limitesCuadro = box;
               return Container(
+                color: Colors.white,
                 height: box.biggest.height,
                 width: box.biggest.width,
                 child: GestureDetector(
@@ -136,7 +145,6 @@ PerfilesGenteCitas.indicePerfil=0;
                     layout: SwiperLayout.STACK,
                     itemWidth: box.biggest.width,
                     curve: Curves.easeInOut,
-                    
                     onIndexChanged: (index) {
                       PerfilesGenteCitas.indicePerfil = index;
                       if (Perfiles.perfilesCitas.listaPerfiles.length >
@@ -150,11 +158,8 @@ PerfilesGenteCitas.indicePerfil=0;
                             .listaPerfiles[PerfilesGenteCitas.indicePerfil + 1]
                             .valoracion;
                         Perfiles.perfilesCitas.notifyListeners();
-                      
                       }
-                        setState(() {
-                          
-                        });
+                      setState(() {});
 
                       widget.cambiarIndice = false;
                     },
@@ -172,10 +177,33 @@ PerfilesGenteCitas.indicePerfil=0;
                             children: <Widget>[
                               Stack(
                                 children: [
+                                 
                                   ListView(
+                                    padding: EdgeInsets.all(0),
                                     children: Perfiles.perfilesCitas
                                         .listaPerfiles[indice].carrete,
                                   ),
+                                   Align(
+                                     alignment: Alignment.bottomCenter,
+                                     child: Container(
+                                       height: kBottomNavigationBarHeight,
+                                       
+                                         decoration: BoxDecoration(
+        gradient: LinearGradient(
+         begin: Alignment.bottomCenter,
+         end: Alignment.topCenter,
+         
+         colors:[
+           Colors.black,
+           Colors.transparent
+         ]
+
+        ),
+      ),
+                                       
+                                       
+                                       ),
+                                   ),
                                 ],
                               ),
                               leGusta
@@ -191,7 +219,8 @@ PerfilesGenteCitas.indicePerfil=0;
               );
             },
           ),
-          
+          botonRecompensa(context),
+          botonDenuncia(context),
           botonesLateralesCitas(context),
           deslizadorCompuesto()
         ],
@@ -199,101 +228,902 @@ PerfilesGenteCitas.indicePerfil=0;
     );
   }
 
+  Align botonDenuncia(BuildContext context) {
+    return Align(
+      alignment: Alignment.topRight,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          height: 120.w,
+          width: 120.w,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color.fromRGBO(36, 28, 41, 100),
+          ),
+          child: Center(child: panelDenunciasPerfiles(context)),
+        ),
+      ),
+    );
+  }
+
+  Align botonRecompensa(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            height: 120.w,
+            width: 120.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color.fromRGBO(36, 28, 41, 100),
+            ),
+            child: panelRecompensas(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  GestureDetector panelRecompensas(BuildContext context) {
+    return GestureDetector(
+      onTap: () => showDialog(
+          context: context,
+          builder: (context) {
+            return Center(
+              child: Container(
+                height: ScreenUtil.screenHeight,
+                width: ScreenUtil.screenWidth,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(40)),
+                ),
+                child: Material(
+                  color: Color.fromRGBO(20, 20, 20, 50),
+                  child: Column(children: [
+                    Flexible(
+                      fit: FlexFit.tight,
+                      flex: 2,
+                      child: Container(
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text("Recompensas",
+                                  style: GoogleFonts.lato(
+                                      color: Colors.white70,
+                                      fontSize: ScreenUtil().setSp(75),
+                                      fontWeight: FontWeight.bold)),
+                              Icon(LineAwesomeIcons.coins,
+                                  color: Colors.white70, size: 120.sp)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      fit: FlexFit.tight,
+                      flex: 12,
+                      child: Container(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: LayoutBuilder(
+                          builder:
+                              (BuildContext context, BoxConstraints limites) {
+                            return Container(
+                              width: limites.biggest.width,
+                              height: limites.biggest.height,
+                              child: ListView(children: [
+                    Usuario.esteUsuario.tiempoEstimadoRecompensa!=0?            Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: recompensaDiaria(limites, context),
+                                ):Container(height: 0,width:0,),
+                               Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child:
+                                      recompensaPorReferencia(limites, context),
+                                ),
+                            Usuario.esteUsuario.verificado=="verificado"|| Usuario.esteUsuario.verificado=="enProceso"?Container(height: 0,width: 0,): Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: recompensaPorVerificacion(
+                                      limites, context),
+                                )
+                              ]),
+                            );
+                          },
+                        ),
+                      )),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      fit: FlexFit.loose,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.all(Radius.circular(1))),
+                        width: ScreenUtil.screenWidth,
+                        child: FlatButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Icon(Icons.arrow_back),
+                                  Text(
+                                    "Atras",
+                                    textAlign: TextAlign.start,
+                                    style: GoogleFonts.lato(fontSize: 50.sp),
+                                  ),
+                                ],
+                              )),
+                        ),
+                      ),
+                    )
+                  ]),
+                ),
+              ),
+            );
+          }),
+      child: Icon(
+        LineAwesomeIcons.star_1,
+        color: Colors.white,
+        size: 80.sp,
+      ),
+    );
+  }
+
+  Container recompensaPorReferencia(
+      BoxConstraints limites, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  "Invita y gana",
+                  textAlign: TextAlign.start,
+                  style:
+                      GoogleFonts.lato(color: Colors.white60, fontSize: 75.sp),
+                ),
+                Icon(
+                  LineAwesomeIcons.share,
+                  color: Colors.white60,
+                  size: 120.sp,
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Gana 1500 creditos por cada amigo que instale, se registre en Hotty y cumpla el proceso de verificación. Ademas te regalamos 1000 creditos por la primera compra que haga",
+                textAlign: TextAlign.start,
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 40.sp),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                ),
+                width: limites.biggest.width,
+                child: FlatButton(
+                  disabledColor: Colors.green,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PantallaCompartir()));
+                  },
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "Invitar amigos",
+                            textAlign: TextAlign.start,
+                            style: GoogleFonts.lato(fontSize: 40.sp),
+                          ),
+                          Icon(LineAwesomeIcons.user_friends),
+                        ],
+                      )),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container recompensaPorVerificacion(
+      BoxConstraints limites, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  "Verifica tu perfil y gana",
+                  textAlign: TextAlign.start,
+                  style:
+                      GoogleFonts.lato(color: Colors.white60, fontSize: 75.sp),
+                ),
+                Icon(
+                  LineAwesomeIcons.check_circle,
+                  color: Colors.white60,
+                  size: 120.sp,
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Gana 2000 creditos por verificar tu perfil y ayudarnos a mantener Hotty seguro",
+                textAlign: TextAlign.start,
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 40.sp),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                ),
+                width: limites.biggest.width,
+                child: FlatButton(
+                  disabledColor: Colors.green,
+                  onPressed: () {
+                    Navigator.pop(context);
+               showDialog(
+          context: context,
+          builder: (context) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    height: 1200.h,
+                    width: ScreenUtil.screenWidth,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Verifica que éres tu y gana 2500 creditos",
+                            style: GoogleFonts.lato(
+                                fontSize: 90.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white70),
+                          ),
+                          Divider(height: 20.h),
+                               Text(
+                            "Hazte una foto imitando la pose del chico de la imagen que te mostraremos a continuación, y así comprobamos que éres tú y te llevas tu recompensa",
+                            style: GoogleFonts.lato(
+                                fontSize: 50.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                         
+         Divider(
+                height: 100.h,
+              ),
+
+             
+  
+                         LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints limites) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      final aleatorio = new Random();
+                      int numeroFoto = aleatorio.nextInt(6) + 1;
+                      while (numeroFoto == 0) {
+                        numeroFoto = aleatorio.nextInt(6) + 1;
+                      }
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PantallaPrimeraFotoVerificacion(
+                                    fotoVerificacion: "verificacion$numeroFoto",
+                                  )));
+                    },
+                    child: Container(
+                      height: 100.h,
+                      width: limites.biggest.width,
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple[900],
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: Center(
+                          child: Text(
+                        "Empezar",
+                        style: GoogleFonts.lato(
+                            color: Colors.white, fontSize: 40.sp),
+                      )),
+                    ),
+                  );
+                },
+              )
+                        ]),
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            );
+          });
+                  },
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "Verificar perfil",
+                            textAlign: TextAlign.start,
+                            style: GoogleFonts.lato(fontSize: 40.sp),
+                          ),
+                          Icon(LineAwesomeIcons.user_friends),
+                        ],
+                      )),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container recompensaDiaria(BoxConstraints limites, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.white),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  "500 Creditos gratis",
+                  textAlign: TextAlign.start,
+                  style:
+                      GoogleFonts.lato(fontSize: 70.sp, color: Colors.white60),
+                ),
+                Icon(
+                  LineAwesomeIcons.money_bill,
+                  size: 120.sp,
+                  color: Colors.white60,
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Si tienes menos de 175 creditos, entonces puedes reponer 500 creditos gratuitos para gastar en la aplicación cada día.",
+                textAlign: TextAlign.start,
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 40.sp),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Usuario.esteUsuario.segundosRestantesRecompensa >= 0
+                      ? Colors.grey
+                      : Colors.green,
+                ),
+                width: limites.biggest.width,
+                child: FlatButton(
+                    disabledColor: Colors.green,
+                    onPressed: () {
+                      ControladorCreditos.instancia.recompensaDiaria();
+                    },
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Usuario.esteUsuario.segundosRestantesRecompensa >=
+                              0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "Tiempo Restante",
+                                  textAlign: TextAlign.start,
+                                  style: GoogleFonts.lato(fontSize: 40.sp),
+                                ),
+                                StreamBuilder<int>(
+                                  stream: Usuario
+                                      .esteUsuario.tiempoHastaRecompensa.stream,
+                                  initialData: Usuario
+                                      .esteUsuario.segundosRestantesRecompensa,
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<int> dato) {
+                                    if (Usuario.esteUsuario
+                                            .segundosRestantesRecompensa ==
+                                        0) {}
+
+                                    return Container(
+                                        child: Text(
+                                            Valoracion.formatoTiempo.format(
+                                                DateTime(
+                                                    0, 0, 0, 0, 0, dato.data)),
+                                            style: GoogleFonts.lato(
+                                                fontSize: 40.sp,
+                                                color: Colors.black)));
+                                  },
+                                ),
+                                Icon(
+                                  LineAwesomeIcons.clock,
+                                  color: Colors.black,
+                                  size: 60.sp,
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "Reclamar recompensa",
+                                  style: GoogleFonts.lato(fontSize: 40.sp),
+                                ),
+                                Icon(
+                                  LineAwesomeIcons.money_bill,
+                                  size: 80.sp,
+                                )
+                              ],
+                            ),
+                    )),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconButton panelDenunciasPerfiles(BuildContext context) {
+    return IconButton(
+      onPressed: () => showDialog(
+          context: context,
+          builder: (context) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    height: 1200.h,
+                    width: ScreenUtil.screenWidth,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Denunciar",
+                            style: TextStyle(
+                                fontSize: 90.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white70),
+                          ),
+                          Divider(height: 100.h),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20.0, right: 20),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PantallaDenunciaVisorPerfiles(
+                                                  idDenunciado: Perfiles
+                                                      .perfilesCitas
+                                                      .listaPerfiles[
+                                                          PerfilesGenteCitas
+                                                              .indicePerfil]
+                                                      .idUsuario,
+                                                  tipoDenuncia: TipoDenuncia
+                                                      .perfilFalso)));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20),
+                                  child: Container(
+                                    height: 100.h,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15.0, right: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Perfil falso/SPAM",
+                                              style: TextStyle(
+                                                  fontSize: 40.sp,
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20.0, right: 20),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PantallaDenunciaVisorPerfiles(
+                                                  idDenunciado: Perfiles
+                                                      .perfilesCitas
+                                                      .listaPerfiles[
+                                                          PerfilesGenteCitas
+                                                              .indicePerfil]
+                                                      .idUsuario,
+                                                  tipoDenuncia:
+                                                      TipoDenuncia.menorEdad)));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20),
+                                  child: Container(
+                                    height: 100.h,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15.0, right: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Menor de edad",
+                                              style: TextStyle(
+                                                  fontSize: 40.sp,
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20.0, right: 20),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PantallaDenunciaVisorPerfiles(
+                                                  idDenunciado: Perfiles
+                                                      .perfilesCitas
+                                                      .listaPerfiles[
+                                                          PerfilesGenteCitas
+                                                              .indicePerfil]
+                                                      .idUsuario,
+                                                  tipoDenuncia: TipoDenuncia
+                                                      .fotosBiografiaInapropiada)));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20),
+                                  child: Container(
+                                    height: 100.h,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15.0, right: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Contenido inapropiado",
+                                              style: TextStyle(
+                                                  fontSize: 40.sp,
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20.0, right: 20),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PantallaDenunciaVisorPerfiles(
+                                                  idDenunciado: Perfiles
+                                                      .perfilesCitas
+                                                      .listaPerfiles[
+                                                          PerfilesGenteCitas
+                                                              .indicePerfil]
+                                                      .idUsuario,
+                                                  tipoDenuncia: TipoDenuncia
+                                                      .hacePublicidad)));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20),
+                                  child: Container(
+                                    height: 100.h,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15.0, right: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Hace Publicidad",
+                                              style: TextStyle(
+                                                  fontSize: 40.sp,
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20.0, right: 20),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PantallaDenunciaVisorPerfiles(
+                                                  idDenunciado: Perfiles
+                                                      .perfilesCitas
+                                                      .listaPerfiles[
+                                                          PerfilesGenteCitas
+                                                              .indicePerfil]
+                                                      .idUsuario,
+                                                  tipoDenuncia:
+                                                      TipoDenuncia.otroTipo)));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20),
+                                  child: Container(
+                                    height: 100.h,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15.0, right: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Otros",
+                                              style: TextStyle(
+                                                  fontSize: 40.sp,
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                              color: Colors.red,
+                              icon: Icon(Icons.cancel),
+                              iconSize: 160.sp,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          )
+                        ]),
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            );
+          }),
+      icon: Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+    );
+  }
+
   Align botonesLateralesCitas(BuildContext context) {
     return Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      height: 200.h,
-                                width: 150.w,
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(36, 28, 41, 100),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
-                                   
-                              ),
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ListaDeValoraciones())),
-                        child: Column(
-                             mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Icon(
-                              LineAwesomeIcons.heart_1,
-                              color: Colors.white,
-                              size: 80.sp,
-                            ),
-                            Container(
-                                height: 80.w,
-                    
-                                decoration: BoxDecoration(
-                                     borderRadius: BorderRadius.all(Radius.circular(10)),
-                                   color: Color.fromRGBO(41, 2, 61, 100),),
-                                child: Center(
-                                    child: Text(
-                                  "${Valoracion.listaDeValoraciones.length}",
-                                  style: GoogleFonts.lato(
-                                      fontSize: 35.sp, color: Colors.white,fontWeight: FontWeight.bold),
-                                )),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 50.h,
-                    ),
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
                 Container(
-                      height: 200.h,
-                                width: 150.w,
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(36, 28, 41, 100),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
-                                   
+                  height: 150.h,
+                  width: 150.w,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(36, 28, 41, 100),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ListaDeValoraciones())),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          fit: FlexFit.tight,
+                          child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(10),
+                                    topLeft: Radius.circular(10)),
                               ),
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PantallaSolicitudesConversaciones())),
-                        child: Column(
-                             mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Icon(
-                              LineAwesomeIcons.user_friends,
-                              color: Colors.white,
-                              size: 80.sp,
-                            ),
-                            Container(
-                                height: 80.w,
-                    
-                                decoration: BoxDecoration(
-                                     borderRadius: BorderRadius.all(Radius.circular(10)),
-                                    color: Color.fromRGBO(41, 2, 61, 100),),
-                                child: Center(
-                                    child: Text(
-                                  "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
+                              child: Center(
+                                child: Text(
+                                  "${Valoracion.instanciar.mediaUsuario.toStringAsFixed(2)}",
                                   style: GoogleFonts.lato(
-                                      fontSize: 35.sp, color: Colors.white,fontWeight: FontWeight.bold),
-                                )),
-                              ),
-                          ],
+                                      fontSize: 45.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              )),
                         ),
-                      ),
+                        Flexible(
+                          flex: 2,
+                          fit: FlexFit.tight,
+                          child: Container(
+                            height: 80.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(10),
+                                  bottomRight: Radius.circular(10)),
+                              color: Color.fromRGBO(41, 2, 61, 100),
+                            ),
+                            child: Center(
+                                child: Text(
+                              "${Valoracion.instanciar.listaDeValoraciones.length}",
+                              style: GoogleFonts.lato(
+                                  fontSize: 35.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                          ),
+                        ),
+                      ],
                     ),
-                  ]),
-            ),
-          ),
-        );
+                  ),
+                ),
+                Container(
+                  height: 100.h,
+                ),
+                Container(
+                  height: 150.h,
+                  width: 150.w,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(36, 28, 41, 100),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                PantallaSolicitudesConversaciones())),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          fit: FlexFit.tight,
+                          child: Container(
+                            child: Center(
+                              child: Icon(
+                                LineAwesomeIcons.heart_1,
+                                color: Colors.white,
+                                size: 80.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 2,
+                          child: Container(
+                            height: 80.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(10),
+                                  bottomRight: Radius.circular(10)),
+                              color: Color.fromRGBO(41, 2, 61, 100),
+                            ),
+                            child: Center(
+                                child: Text(
+                              "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
+                              style: GoogleFonts.lato(
+                                  fontSize: 35.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 50.h,
+                ),
+              ]),
+        ),
+      ),
+    );
   }
 
   Widget deslizadorCompuesto() {
@@ -316,14 +1146,24 @@ PerfilesGenteCitas.indicePerfil=0;
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          child: Text(
-                              "${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].nombreusuaio}, ${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].edad} ",
-                              style: GoogleFonts.lato(
-                                fontSize: 45.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              )),
+                        Row(
+                          children: [
+                            Container(
+                              child: Text(
+                                  "${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].nombreusuaio}, ${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].edad} ",
+                                  style: GoogleFonts.lato(
+                                    fontSize: 40.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  )),
+                                  
+                            ),
+                            Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].verificado?   Icon(
+                              LineAwesomeIcons.check_circle,
+                              color: Colors.white,
+                              size: 50.sp,
+                            ):Container(height: 0,width: 0,)
+                          ],
                         ),
                         Row(
                           children: [
@@ -573,6 +1413,19 @@ PerfilesGenteCitas.indicePerfil=0;
         });
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
   TweenAnimationBuilder<double> pantallaGusta(
       BoxConstraints limitesPantallaLeGusta, int indice) {
     return TweenAnimationBuilder(
@@ -587,7 +1440,8 @@ PerfilesGenteCitas.indicePerfil=0;
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5)),
                 color:
-                    Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 5
+                    Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >=
+                            5.0
                         ? Color.fromRGBO(27, 196, 35, 100)
                         : Color.fromRGBO(255, 0, 42, 100)),
             height: valor,
@@ -605,44 +1459,41 @@ PerfilesGenteCitas.indicePerfil=0;
   Column mensajePantallaCalificacion(
       BoxConstraints limitesPantallaLeGusta, int indice) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 5 &&
                 Perfiles.perfilesCitas.listaPerfiles[indice].valoracion < 6.5
             ? Text(
                 "No esta mal",
-                style: TextStyle(
-                    fontSize: ScreenUtil().setSp(70),
+                style: GoogleFonts.lato(
+                    fontSize: ScreenUtil().setSp(100),
                     fontWeight: FontWeight.bold),
               )
             : Perfiles.perfilesCitas.listaPerfiles[indice].valoracion > 6.5 &&
                     Perfiles.perfilesCitas.listaPerfiles[indice].valoracion < 9
                 ? Text(
                     "Me gustas",
-                    style: TextStyle(
-                        fontSize: ScreenUtil().setSp(70),
+                    style: GoogleFonts.lato(
+                        fontSize: ScreenUtil().setSp(100),
                         fontWeight: FontWeight.bold),
                   )
                 : Perfiles.perfilesCitas.listaPerfiles[indice].valoracion > 9
                     ? Text(
                         "Smash",
-                        style: TextStyle(
-                            fontSize: ScreenUtil().setSp(70),
+                        style: GoogleFonts.lato(
+                            fontSize: ScreenUtil().setSp(100),
                             fontWeight: FontWeight.bold),
                       )
                     : Center(
                         child: Text(
                           "Pass",
-                          style: TextStyle(
+                          style: GoogleFonts.lato(
                               fontSize: ScreenUtil().setSp(150),
                               fontWeight: FontWeight.bold),
                         ),
                       ),
         Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 0
             ? anilloPuntuacion(limitesPantallaLeGusta, indice)
-            : Container(),
-        Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 5
-            ? botonEscribirMensaje()
             : Container(),
       ],
     );
@@ -651,14 +1502,29 @@ PerfilesGenteCitas.indicePerfil=0;
   TweenAnimationBuilder<double> anilloPuntuacion(
       BoxConstraints limitesPantallaLeGusta, int indice) {
     return TweenAnimationBuilder(
-        tween: Tween<double>(begin: 10, end: ScreenUtil().setSp(400)),
+        tween: Tween<double>(begin: 10, end: ScreenUtil().setSp(600)),
         curve: Curves.linearToEaseOut,
         duration: Duration(milliseconds: 300),
         builder: (BuildContext context, double valor, Widget child) {
           return Padding(
             padding: const EdgeInsets.all(30.0),
             child: Container(
-              child: CircularPercentIndicator(
+                height: 600.w,
+                width: 600.w,
+                child: SleekCircularSlider(
+                  appearance: CircularSliderAppearance(
+                      animationEnabled: false,
+                      infoProperties: InfoProperties(
+                        mainLabelStyle: GoogleFonts.lato(
+                            fontSize: 150.sp, fontWeight: FontWeight.bold),
+                        modifier: (valor) => "${valor.toStringAsFixed(1)}",
+                      )),
+                  initialValue:
+                      Perfiles.perfilesCitas.listaPerfiles[indice].valoracion,
+                  max: 10.0,
+                )
+
+                /*CircularPercentIndicator(
                 radius: valor,
                 percent:
                     Perfiles.perfilesCitas.listaPerfiles[indice].valoracion /
@@ -675,8 +1541,8 @@ PerfilesGenteCitas.indicePerfil=0;
                           ScreenUtil().setSp(90, allowFontScalingSelf: false),
                       color: Colors.white),
                 ),
-              ),
-            ),
+              ),*/
+                ),
           );
         });
   }
@@ -779,6 +1645,757 @@ PerfilesGenteCitas.indicePerfil=0;
             min: 0,
             max: 10,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class PantallaDenunciaVisorPerfiles extends StatefulWidget {
+  final String idDenunciado;
+  TipoDenuncia tipoDenuncia;
+  ControladorDenuncias denunciaUsuario;
+  ZonaDenuncia zonaDenuncia;
+  bool denunciaEnviada = false;
+  PantallaDenunciaVisorPerfiles(
+      {@required this.idDenunciado, @required this.tipoDenuncia}) {
+    denunciaUsuario = new ControladorDenuncias.visorPerfiles(
+        idDenunciado: idDenunciado,
+        zonaDenuncia: ZonaDenuncia.visorPerfiles,
+        fechaDenuncia: DateTime.now(),
+        tipologiaDenuncia: this.tipoDenuncia,
+        detallesDenuncia: "");
+  }
+
+  @override
+  _PantallaDenunciaVisorPerfilesState createState() =>
+      _PantallaDenunciaVisorPerfilesState();
+}
+
+class _PantallaDenunciaVisorPerfilesState
+    extends State<PantallaDenunciaVisorPerfiles> {
+  TextEditingController controladorTextoDenuncias = new TextEditingController();
+
+  FocusNode nodoTexto = new FocusNode();
+  Future<bool> salirDenuncia(BuildContext context) async {
+    bool salirPantalla = await showDialog(
+        context: context,
+        useSafeArea: true,
+        barrierDismissible: false,
+        builder: (BuildContext context) => new AlertDialog(
+              title: Text("¿Salir?"),
+              content: Container(
+                height: 300.h,
+                width: 500.w,
+                decoration: BoxDecoration(color: Colors.white),
+                child: Text(
+                  "Tu denuncia no se ha enviado y si sales de esta pantalla se borrará la denuncia.\n\n¿Quieres salir?",
+                  textAlign: TextAlign.start,
+                  style: GoogleFonts.lato(fontSize: 45.sp),
+                ),
+              ),
+              actions: [
+                FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(" Si, Salir")),
+                FlatButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("No"))
+              ],
+            ));
+    return salirPantalla;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        nodoTexto.unfocus();
+
+        if (controladorTextoDenuncias.text.isEmpty) {
+          //  salirPantalla=true;
+          return true;
+        } else {
+          return salirDenuncia(context);
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.deepPurple[900],
+          appBar: AppBar(
+            elevation: 0,
+            title: Text("Denunciar"),
+            backgroundColor: Colors.deepPurple[900],
+          ),
+          body: Container(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: !widget.denunciaEnviada
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(children: [
+                          Container(
+                              height: 250.h,
+                              decoration: BoxDecoration(
+                                  color: Colors.deepPurple[900],
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Icon(
+                                      LineAwesomeIcons.user_shield,
+                                      size: 120.sp,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                        "Explicanos que infracción crees que ha cometido el usuario, tu denuncia será revisada por un moderador lo antes posible",
+                                        maxLines: 3,
+                                        textAlign: TextAlign.start,
+                                        style: GoogleFonts.lato(
+                                            color: Colors.white,
+                                            fontSize: ScreenUtil().setSp(45),
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              )),
+                          Divider(
+                            height: 100.h,
+                          ),
+                          Text("Porfavor, danos mas detalles",
+                              style: GoogleFonts.lato(
+                                  color: Colors.white,
+                                  fontSize: ScreenUtil().setSp(60),
+                                  fontWeight: FontWeight.bold)),
+                          Divider(
+                            height: 100.sp,
+                          ),
+                          TextField(
+                            textInputAction: TextInputAction.done,
+                            focusNode: nodoTexto,
+                            controller: controladorTextoDenuncias,
+                            onChanged: (value) {
+                              widget.denunciaUsuario.detallesDenuncia = value;
+                            },
+                            style: GoogleFonts.lato(fontSize: 45.sp),
+                            decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                    borderSide: BorderSide(color: Colors.white),
+                                    gapPadding: 10)),
+                            maxLines: 6,
+                            maxLength: 300,
+                          )
+                        ]),
+                        GestureDetector(
+                          onTap: () {
+                            ControladorDenuncias.enviarDenuncia(
+                                    widget.denunciaUsuario)
+                                .then((value) {
+                              widget.denunciaEnviada = value;
+                              setState(() {});
+                            });
+                          },
+                          child: Container(
+                            height: 100.h,
+                            width: ScreenUtil.screenWidth,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                color: Colors.greenAccent[400]),
+                            child: Center(
+                                child: Text("Denunciar",
+                                    style: GoogleFonts.lato(fontSize: 45.sp))),
+                          ),
+                        )
+                      ],
+                    )
+                  : Center(
+                      child: Container(
+                          height: 500.h,
+                          decoration: BoxDecoration(
+                              color: Colors.deepPurple[900],
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: Column(
+                            children: [
+                              Text("Denuncia Enviada",
+                                  maxLines: 3,
+                                  textAlign: TextAlign.start,
+                                  style: GoogleFonts.lato(
+                                      color: Colors.white,
+                                      fontSize: ScreenUtil().setSp(45),
+                                      fontWeight: FontWeight.bold)),
+                              Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: Icon(
+                                  LineAwesomeIcons.check_circle,
+                                  size: 120.sp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  height: 100.h,
+                                  width: ScreenUtil.screenWidth / 2,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(20)),
+                                      color: Colors.greenAccent[400]),
+                                  child: Center(
+                                      child: Text("Hecho",
+                                          style: GoogleFonts.lato(
+                                              fontSize: 45.sp))),
+                                ),
+                              )
+                            ],
+                          )),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PantallaDeVerificacion extends StatefulWidget {
+  @override
+  _PantallaDeVerificacionState createState() => _PantallaDeVerificacionState();
+}
+
+class _PantallaDeVerificacionState extends State<PantallaDeVerificacion> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Material(
+        color: Colors.deepPurple,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              child: Center(
+                  child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Verifica que eres tú y gana 2500 creditos",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 60.sp),
+              ),
+              Divider(height: 50.h),
+              Text(
+                "Imita las posturas que te mostramos a continuación, asi aseguramos  que las fotos son recientes, compararemos estas fotos con las de tu perfil y listo\n\n",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+                textAlign: TextAlign.start,
+              ),
+              Text(
+                "**Las fotos se eliminan una vez acabamos**",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 40.sp),
+              ),
+              Divider(
+                height: 100.h,
+              ),
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints limites) {
+                  return GestureDetector(
+                    onTap: () {
+                      final aleatorio = new Random();
+                      int numeroFoto = aleatorio.nextInt(6) + 1;
+                      while (numeroFoto == 0) {
+                        numeroFoto = aleatorio.nextInt(6) + 1;
+                      }
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PantallaPrimeraFotoVerificacion(
+                                    fotoVerificacion: "verificacion$numeroFoto",
+                                  )));
+                    },
+                    child: Container(
+                      height: 100.h,
+                      width: limites.biggest.width,
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple[900],
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: Center(
+                          child: Text(
+                        "Empezar",
+                        style: GoogleFonts.lato(
+                            color: Colors.white, fontSize: 40.sp),
+                      )),
+                    ),
+                  );
+                },
+              )
+            ],
+          ))),
+        ),
+      ),
+    );
+  }
+}
+
+class PantallaCompartir extends StatefulWidget {
+  @override
+  _PantallaCompartirState createState() => _PantallaCompartirState();
+}
+
+class _PantallaCompartirState extends State<PantallaCompartir> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Material(
+        color: Colors.deepPurple,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              child: Center(
+                  child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Invita y gana 2500 creditos",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 60.sp),
+              ),
+              Divider(height: 50.h),
+              Text(
+                "Invita a través del link a tus amigos y gana 2500 creditos cuando se instalen y se verifiquen en la aplicación, y gana 1000 creditos por su primera compra\n\n",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+                textAlign: TextAlign.start,
+              ),
+              Text(
+                "**Deben verificarse para que obtengas la recompensa**",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 40.sp),
+              ),
+              Divider(
+                height: 100.h,
+              ),
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints limites) {
+                  return GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                PantallaPrimeraFotoVerificacion())),
+                    child: Container(
+                      height: 100.h,
+                      width: limites.biggest.width,
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple[900],
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: Center(
+                          child: Text(
+                        "Empezar",
+                        style: GoogleFonts.lato(
+                            color: Colors.white, fontSize: 40.sp),
+                      )),
+                    ),
+                  );
+                },
+              )
+            ],
+          ))),
+        ),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class PantallaPrimeraFotoVerificacion extends StatefulWidget {
+  final String fotoVerificacion;
+  final ImagePicker imagePicker = new ImagePicker();
+  static Uint8List imagenVerificacion;
+
+  PantallaPrimeraFotoVerificacion({@required this.fotoVerificacion});
+  @override
+  _PantallaPrimeraFotoVerificacionState createState() =>
+      _PantallaPrimeraFotoVerificacionState();
+}
+
+class _PantallaPrimeraFotoVerificacionState
+    extends State<PantallaPrimeraFotoVerificacion> {
+  @override
+  void initState() {
+    PantallaPrimeraFotoVerificacion.imagenVerificacion = null;
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    PantallaPrimeraFotoVerificacion.imagenVerificacion = null;
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.deepPurple,
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints limites) {
+            return Column(
+              children: [
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.tight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        child: PantallaPrimeraFotoVerificacion
+                                    .imagenVerificacion ==
+                                null
+                            ? Text(
+                                "Imita la pose de la foto",
+                                style: GoogleFonts.lato(
+                                    color: Colors.white, fontSize: 60.sp),
+                              )
+                            : Text(
+                                "¿ Son semeajntes ?",
+                                style: GoogleFonts.lato(
+                                    color: Colors.white, fontSize: 60.sp),
+                              )),
+                  ),
+                ),
+                Flexible(
+                  flex: 4,
+                  fit: FlexFit.tight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          image: DecorationImage(
+                              image: AssetImage(
+                                  "assets/${widget.fotoVerificacion}.jpg"),
+                              fit: BoxFit.contain)),
+                    ),
+                  ),
+                ),
+                Flexible(
+                    flex: 10,
+                    fit: FlexFit.tight,
+                    child: Container(
+                        color: Colors.deepPurple,
+                        child: LayoutBuilder(builder:
+                            (BuildContext context, BoxConstraints limitesB) {
+                          return Container(
+                            height: limitesB.biggest.height,
+                            width: limitesB.biggest.width,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Flexible(
+                                    flex: 10,
+                                    fit: FlexFit.tight,
+                                    child: Container(
+                                        child: PantallaPrimeraFotoVerificacion
+                                                    .imagenVerificacion ==
+                                                null
+                                            ? Text(
+                                                "Pulsa el boton empezar para hacerte una foto con la camara frontal imitando la pose de la imagen, solo necesitamos verte de hombros hasta la cabeza",
+                                                style: GoogleFonts.lato(
+                                                    color: Colors.white,
+                                                    fontSize: 40.sp),
+                                              )
+                                            : LayoutBuilder(builder:
+                                                (BuildContext context,
+                                                    BoxConstraints limitesz) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    height:
+                                                        limitesz.biggest.height,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                        image: DecorationImage(
+                                                            image: MemoryImage(
+                                                                PantallaPrimeraFotoVerificacion
+                                                                    .imagenVerificacion),
+                                                            fit: BoxFit
+                                                                .contain)),
+                                                  ),
+                                                );
+                                              })),
+                                  ),
+                                  PantallaPrimeraFotoVerificacion
+                                              .imagenVerificacion ==
+                                          null
+                                      ? Flexible(
+                                          flex: 1,
+                                          fit: FlexFit.tight,
+                                          child: LayoutBuilder(
+                                            builder: (BuildContext context,
+                                                BoxConstraints limites) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  widget.imagePicker
+                                                      .getImage(
+                                                          source: ImageSource
+                                                              .camera)
+                                                      .then((valor) async{
+    File imagenRecortada = await ImageCropper.cropImage(
+                sourcePath: valor.path,
+                maxHeight: 1280,
+                maxWidth: 720,
+                aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
+                compressQuality: 70,
+                androidUiSettings: AndroidUiSettings(
+                    toolbarTitle: 'Cropper',
+                    toolbarColor: Colors.deepOrange,
+                    toolbarWidgetColor: Colors.white,
+                    initAspectRatio: CropAspectRatioPreset.ratio16x9,
+                    lockAspectRatio: false),
+                iosUiSettings: IOSUiSettings(
+                  minimumAspectRatio: 1.0,
+                ));
+
+                                                    imagenRecortada
+                                                        .readAsBytes()
+                                                        .then((valor) {
+                                                      setState(() {
+                                                        PantallaPrimeraFotoVerificacion
+                                                                .imagenVerificacion =
+                                                            valor;
+                                                      });
+                                                    });
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 100.h,
+                                                  width: limites.biggest.width,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors
+                                                          .deepPurple[900],
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  10))),
+                                                  child: Center(
+                                                      child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        Text(
+                                                          "Hacer foto",
+                                                          style:
+                                                              GoogleFonts.lato(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      40.sp),
+                                                        ),
+                                                        Icon(
+                                                          LineAwesomeIcons
+                                                              .camera,
+                                                          color: Colors.white,
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : Flexible(
+                                          flex: 1,
+                                          fit: FlexFit.tight,
+                                          child: LayoutBuilder(
+                                            builder: (BuildContext context,
+                                                BoxConstraints limites) {
+                                              return Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                  widget.imagePicker
+                                                      .getImage(
+                                                          source: ImageSource
+                                                              .camera)
+                                                      .then((valor) async{
+    File imagenRecortada = await ImageCropper.cropImage(
+                sourcePath: valor.path,
+                maxHeight: 1280,
+                maxWidth: 720,
+                aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
+                compressQuality: 70,
+                androidUiSettings: AndroidUiSettings(
+                    toolbarTitle: 'Cropper',
+                    toolbarColor: Colors.deepOrange,
+                    toolbarWidgetColor: Colors.white,
+                    initAspectRatio: CropAspectRatioPreset.ratio16x9,
+                    lockAspectRatio: false),
+                iosUiSettings: IOSUiSettings(
+                  minimumAspectRatio: 1.0,
+                ));
+
+                                                    imagenRecortada
+                                                        .readAsBytes()
+                                                        .then((valor) {
+                                                      setState(() {
+                                                        PantallaPrimeraFotoVerificacion
+                                                                .imagenVerificacion =
+                                                            valor;
+                                                      });
+                                                    });
+                                                  });
+                                                },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          color: Colors
+                                                              .deepPurple[900],
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      child: Center(
+                                                          child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          children: [
+                                                            Text(
+                                                              "Repetir foto",
+                                                              style: GoogleFonts
+                                                                  .lato(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          40.sp),
+                                                            ),
+                                                            Icon(
+                                                              LineAwesomeIcons
+                                                                  .camera,
+                                                              color:
+                                                                  Colors.white,
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      ControladorVerificacion
+                                                          verificacion =
+                                                          new ControladorVerificacion
+                                                                  .crear(
+                                                              fechaSolicitudVerificacion:
+                                                                  DateTime
+                                                                      .now(),
+                                                              idSolicitudVerificacion:
+                                                                  GeneradorCodigos
+                                                                      .instancia
+                                                                      .crearCodigo(),
+                                                              imagen1Bytes:
+                                                                  PantallaPrimeraFotoVerificacion
+                                                                      .imagenVerificacion,
+                                                              codigoImagenObjetivo1:
+                                                                  widget
+                                                                      .fotoVerificacion);
+                                                      verificacion
+                                                          .cargarEnAlmacenamiento()
+                                                          .then((value) {
+                                                        verificacion
+                                                            .enviarSolicitudVerificacion();
+                                                            Navigator.pop(context);
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          color: Colors
+                                                              .deepPurple[900],
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      child: Center(
+                                                          child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          children: [
+                                                            Text(
+                                                              "Enviar",
+                                                              style: GoogleFonts
+                                                                  .lato(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          40.sp),
+                                                            ),
+                                                            Icon(
+                                                              LineAwesomeIcons
+                                                                  .check,
+                                                              color:
+                                                                  Colors.white,
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                ],
+                              ),
+                            ),
+                          );
+                        })))
+              ],
+            );
+          },
         ),
       ),
     );

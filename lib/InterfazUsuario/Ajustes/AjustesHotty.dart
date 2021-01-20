@@ -116,15 +116,21 @@ class _AjustesState extends State<Ajustes> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: GestureDetector(
-                                 onTap: (){},
+                                 onTap: (){
+
+                             
+                                    if(!ControladorLocalizacion.instancia.getMostrarMujeres){
+                                    ControladorLocalizacion.instancia.setMostrarMujeres=true;
+                                  }
+                                 },
                                                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: !ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.deepPurple:Colors.white,
+                                  color: ControladorLocalizacion.instancia.getMostrarMujeres?Colors.deepPurple:Colors.white,
                                     borderRadius: BorderRadius.only(
                                       
                                         topLeft: Radius.circular(30),
                                         bottomLeft: Radius.circular(30))),
-                                      child:Center(child: Text("Mujeres",style:GoogleFonts.lato(fontSize:50.sp,color: !ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.white:Colors.black,)))
+                                      child:Center(child: Text("Mujeres",style:GoogleFonts.lato(fontSize:40.sp,color: ControladorLocalizacion.instancia.getMostrarMujeres?Colors.white:Colors.black,)))
                           
                               ),
                             ),
@@ -133,14 +139,20 @@ class _AjustesState extends State<Ajustes> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: GestureDetector(
-                              onTap: (){},
+                              onTap: (){
+
+                                  if(ControladorLocalizacion.instancia.getMostrarMujeres){
+                                    ControladorLocalizacion.instancia.setMostrarMujeres=false;
+                                  }
+                                   
+                                 },
                                                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.deepPurple:Colors.white,
+                                  color: !ControladorLocalizacion.instancia.getMostrarMujeres?Colors.deepPurple:Colors.white,
                                     borderRadius: BorderRadius.only(
                                         topRight: Radius.circular(30),
                                         bottomRight: Radius.circular(30))),
-                                             child:Center(child: Text("Hombres",style:GoogleFonts.lato(fontSize:50.sp,color: ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.white:Colors.black,)))
+                                             child:Center(child: Text("Hombres",style:GoogleFonts.lato(fontSize:40.sp,color: !ControladorLocalizacion.instancia.getMostrarMujeres?Colors.white:Colors.black,)))
                               ),
                             ),
                           )
@@ -181,7 +193,7 @@ class _AjustesState extends State<Ajustes> {
                                   Text(
                                     "Perfil visible",
                                     style:
-                                        GoogleFonts.lato(fontSize: 50.sp),
+                                        GoogleFonts.lato(fontSize: 40.sp),
                                   ),
                                   Switch(value: ControladorLocalizacion.instancia.getMostrarmeEnHotty, onChanged: (value){
                                     ControladorLocalizacion.instancia.setMostrarmeEnHotty=value;
@@ -211,7 +223,7 @@ class _AjustesState extends State<Ajustes> {
                           borderRadius:
                               BorderRadius.all(Radius.circular(20))),
         child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.cerrarSesion()
+                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
                               .then((value) {
                             if (value) {
                               Navigator.pop(
@@ -227,6 +239,8 @@ class _AjustesState extends State<Ajustes> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Cerrar Sesion",
+
+
                                     style: GoogleFonts.lato(
                                         fontSize: 50.sp,
                                         fontWeight: FontWeight.bold)),
@@ -254,7 +268,7 @@ class _AjustesState extends State<Ajustes> {
                           borderRadius:
                               BorderRadius.all(Radius.circular(20))),
         child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.cerrarSesion()
+                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
                               .then((value) {
                             if (value) {
                               Navigator.pop(
@@ -293,7 +307,7 @@ class _AjustesState extends State<Ajustes> {
                           borderRadius:
                               BorderRadius.all(Radius.circular(20))),
         child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.cerrarSesion()
+                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
                               .then((value) {
                             if (value) {
                               Navigator.pop(
@@ -333,7 +347,7 @@ class _AjustesState extends State<Ajustes> {
                           borderRadius:
                               BorderRadius.all(Radius.circular(20))),
         child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.cerrarSesion()
+                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
                               .then((value) {
                             if (value) {
                               Navigator.pop(
@@ -372,13 +386,14 @@ class _AjustesState extends State<Ajustes> {
                           borderRadius:
                               BorderRadius.all(Radius.circular(20))),
         child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.cerrarSesion()
-                              .then((value) {
-                            if (value) {
-                              Navigator.pop(
-                                  BaseAplicacion.claveBase.currentContext);
-                            }
-                          }),
+                          onTap: () {
+                            showAboutDialog(context: context,
+                            applicationLegalese: "En este apartado veras con detalles todas las licencias que usa la aplicacion para mas informacion dirigete a Hotty.com",
+                            applicationName: "Hotty",
+                            applicationVersion: "0.0.1"
+                            );
+                          }
+                     ,
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Row(
@@ -411,7 +426,7 @@ class _AjustesState extends State<Ajustes> {
                           borderRadius:
                               BorderRadius.all(Radius.circular(20))),
         child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.cerrarSesion()
+                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
                               .then((value) {
                             if (value) {
                               Navigator.pop(

@@ -1,6 +1,6 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/InterfazUsuario/Directo/live_screen.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,7 +9,7 @@ import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
-import '../Actividades/TarjetaEvento.dart';
+
 import '../../main.dart';
 
 import 'package:flutter/widgets.dart';
@@ -159,7 +159,7 @@ class _PantallaSolicitudesConversacionesState
                         GoogleFonts.lato(fontSize: 60.sp, color: Colors.white)),
                         Row(
                           children: [
-                            Text("${Usuario.creditosUsuario}",
+                            Text("${Usuario.esteUsuario.creditosUsuario}",
                     style:
                         GoogleFonts.lato(fontSize: 60.sp, color: Colors.white)),
                             Icon(LineAwesomeIcons.money,color: Colors.white,),

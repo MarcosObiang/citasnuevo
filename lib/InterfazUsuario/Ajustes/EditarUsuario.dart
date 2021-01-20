@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
+
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart';
-import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen_elements.dart';
-import 'package:citasnuevo/InterfazUsuario/Social/AjustesHotty.dart';
+import 'package:citasnuevo/InterfazUsuario/Ajustes/AjustesHotty.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -16,14 +15,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../Actividades/TarjetaEvento.dart';
-import '../../main.dart';
+
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:drag_and_drop_gridview/devdrag.dart';
-import 'package:drag_and_drop_gridview/drag.dart';
-import 'package:drag_and_drop_gridview/gridorbiter.dart';
-import 'package:http/http.dart';
-import 'package:path_provider/path_provider.dart';
+
 
 class BotonEditarPerfil extends StatefulWidget {
   @override
@@ -74,9 +70,13 @@ class _BotonEditarPerfilState extends State<BotonEditarPerfil> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            child: Text(
-                              "${Usuario.esteUsuario.nombre}, ${Usuario.esteUsuario.edad}",
-                              style: TextStyle(fontSize: 50.sp),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "${Usuario.esteUsuario.nombre}, ${Usuario.esteUsuario.edad}",
+                                  style: TextStyle(fontSize: 40.sp),
+                                ),Usuario.esteUsuario.verificado!="verificado"?Container(height: 0,width:0,):Icon(LineAwesomeIcons.check)
+                              ],
                             ),
                           ),
                           Container(
@@ -186,11 +186,13 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
           flex: 5,
           child: Container(
               width: ScreenUtil.screenWidth,
-              child: ListView(
+              child: GridView.count(
+                crossAxisCount: 2,
                 children: [
-                  botonComprasCreditos(1.99, 500),
-                  botonComprasCreditos(2.99, 1000),
-                  botonComprasCreditos(3.99, 2000),
+                  botonComprasCreditos(0.99, 1000,1),
+                  botonComprasCreditos(1.99, 2000,2),
+                  botonComprasCreditos(2.99, 3500,3),
+                  botonComprasCreditos(3.99, 5000,4),
            
                 ],
               )),
@@ -200,10 +202,11 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
   }
 
   Padding botonComprasCreditos(
-      double precioPaqueteCreditos, int cantidadCreditos) {
+      double precioPaqueteCreditos, int cantidadCreditos,int orden) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
+        height: 100.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           color: Colors.green[200],
@@ -211,21 +214,41 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
         child: FlatButton(
           onPressed: () {},
           child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Row(
+            padding: const EdgeInsets.all(5.0),
+            child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
                     fit: FlexFit.tight,
-                    flex: 2,
-                    child: Icon(LineAwesomeIcons.coins, size: 90.sp),
+                    flex: 7,
+                    child: orden==1?Align(
+                      alignment: Alignment.centerLeft,
+                      child: Icon(LineAwesomeIcons.coins, size: 70.sp)):orden==2?Row( mainAxisAlignment: MainAxisAlignment.start, children: [Icon(LineAwesomeIcons.coins, size: 70.sp),Icon(LineAwesomeIcons.coins, size: 70.sp)],):orden==3?
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(LineAwesomeIcons.coins, size: 70.sp),
+                        Row(children: [Icon(LineAwesomeIcons.coins, size: 70.sp),Icon(LineAwesomeIcons.coins, size: 70.sp),],),
+                      ],
+                    ):  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(LineAwesomeIcons.coins, size: 70.sp),
+                             Icon(LineAwesomeIcons.coins, size: 70.sp),
+                          ],
+                        ),
+                        Row(children: [Icon(LineAwesomeIcons.coins, size: 70.sp),Icon(LineAwesomeIcons.coins, size: 70.sp),],),
+                      ],
+                    ),
                   ),
                   Flexible(
                     fit: FlexFit.loose,
-                    flex: 9,
+                    flex: 5,
                     child: Text(
                       "$cantidadCreditos Creditos",
-                      style: GoogleFonts.lato(fontSize: 50.sp,fontWeight: FontWeight.bold)
+                      style: GoogleFonts.lato(fontSize: 45.sp,fontWeight: FontWeight.bold)
                     ),
                   ),
                   Flexible(
@@ -237,7 +260,7 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
                           "$precioPaqueteCreditos",
                           style: GoogleFonts.lato(fontSize: 50.sp,fontWeight: FontWeight.bold),
                         ),
-                        Icon(Icons.euro)
+                        Icon(Icons.euro,size: 40.sp),
                       ],
                     ),
                   )
@@ -481,6 +504,7 @@ class _ListaDeCaracteristicasUsuarioEditarState
   }
 }
 
+// ignore: must_be_immutable
 class MostradorEdad extends StatefulWidget {
   int dato;
   @override
@@ -522,6 +546,7 @@ class MostradorEdadState extends State<MostradorEdad> {
   }
 }
 
+// ignore: must_be_immutable
 class BotonNacimiento extends StatefulWidget {
   DateTime dato;
 

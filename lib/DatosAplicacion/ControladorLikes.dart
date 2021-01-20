@@ -14,28 +14,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
+import 'package:ntp/ntp.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:timer_count_down/timer_controller.dart';
-import 'package:timer_count_down/timer_count_down.dart';
+
 
 import 'Usuario.dart';
 
 class Solicitudes with ChangeNotifier {
   static Solicitudes instancia = Solicitudes();
   List<SolicitudConversacion> listaSolicitudesConversacion = new List();
-  
 
   FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
 
   Solicitudes();
-
-  
-
-
 }
 
 class SolicitudConversacion with ChangeNotifier {
+  static SolicitudConversacion instancia = SolicitudConversacion();
   String nombreEmisor;
   String idEmisor;
   String idDestino;
@@ -43,51 +39,121 @@ class SolicitudConversacion with ChangeNotifier {
   double calificacion;
   String idSolicitudConversacion;
   DateTime fechaSolicitud;
+  DateTime fechaCaducidadSolicitud;
+  int segundosRestantes;
+   var formatoTiempo = new DateFormat("HH:mm:ss");
+  StreamController<int> notificadorFinTiempo= StreamController.broadcast();
+   StreamSubscription<QuerySnapshot> escuchadorSolicitudes;
+
+ 
+
+   DateTime fechaReferenciaSolicitudes;
   FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
-  bool solicitudRevelada = true;
+  bool solicitudRevelada;
+ bool get getSolicitudRevelada => solicitudRevelada;
+
+ set setSolicitudRevelada(bool solicitudRevelada) => this.solicitudRevelada = solicitudRevelada;
   WidgetSolicitudConversacion widgetSolicitud;
-  static SolicitudConversacion instancia = SolicitudConversacion();
+  
   SolicitudConversacion();
   SolicitudConversacion.crear(
       {@required this.nombreEmisor,
+      @required this.fechaCaducidadSolicitud,
       @required this.fechaSolicitud,
       @required this.idDestino,
       @required this.imagenEmisor,
       @required this.solicitudRevelada,
       @required this.calificacion,
       @required this.idSolicitudConversacion,
-      @required this.idEmisor});
+      @required this.idEmisor}) {
+    segundosRestantes = fechaCaducidadSolicitud.difference(fechaReferenciaSolicitudes).inSeconds;
+     
+      if(segundosRestantes>86400){
+        segundosRestantes=86400;
+
+      }
+     
+    print("construido");
+    contadorTiempoSolicitudes();
+  }
+
+  void contadorTiempoSolicitudes()async{
+    Timer flutterTimer;
+    
+    flutterTimer=new Timer.periodic(Duration(seconds:1), (valor){
+      
+
+if(segundosRestantes>0&&this.solicitudRevelada==false&&!!this.notificadorFinTiempo.isClosed){
+  segundosRestantes=segundosRestantes-1;
+  Solicitudes.instancia.notifyListeners();
+          notificadorFinTiempo.add(segundosRestantes);
+
+    }
+
+    if(!!this.notificadorFinTiempo.isClosed){
+
+    }
+    if(segundosRestantes==0&&this.solicitudRevelada==false&&!!this.notificadorFinTiempo.isClosed){
+      flutterTimer.cancel();
+      
+  
+      if(WidgetSolicitudConversacion.llaveListaSolicitudes.currentState==null){
+        Solicitudes.instancia.listaSolicitudesConversacion.removeWhere((element) => element.idSolicitudConversacion==this.idSolicitudConversacion);
+        eliminarSolicitudConversacion(this.idSolicitudConversacion);
+
+      }
+   
+    }
+    });
+
+
+    
+
+      
+       
+    
+
+  }
 
   void obtenerSolicitudes() async {
     int indice = 0;
-    baseDatosRef
-        .collection("solicitudes conversaciones")
-        .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
-        .get()
-        .then((value) {
-      if (value != null) {
-        for (QueryDocumentSnapshot documento in value.docs) {
-          SolicitudConversacion solicitud = new SolicitudConversacion.crear(
-            fechaSolicitud: documento.get("tiemmpo").toDate(),
-              idEmisor: documento.get("idEmisor"),
-              nombreEmisor: documento.get("nombreEmisor"),
-              idDestino: documento.get("idDestino"),
-              imagenEmisor: documento.get("imagenEmisor"),
-              solicitudRevelada: documento.get("solicitudRevelada"),
-              calificacion: documento.get("calificacion"),
-              idSolicitudConversacion:
-                  documento.get("idSolicitudConversacion"));
-          // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
-          Solicitudes.instancia.listaSolicitudesConversacion
-              .insert(indice, solicitud);
+
+    await NTP.now().then((value) {
+      fechaReferenciaSolicitudes = value;
+      DateTime fechaQuery = value.subtract(Duration(days: 1));
+      baseDatosRef
+          .collection("solicitudes conversaciones")
+          .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
+          .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
+          .get()
+          .then((value) {
+        if (value != null) {
+          for (QueryDocumentSnapshot documento in value.docs) {
+            SolicitudConversacion solicitud = new SolicitudConversacion.crear(
+                fechaSolicitud: documento.get("tiemmpo").toDate(),
+                idEmisor: documento.get("idEmisor"),
+                nombreEmisor: documento.get("nombreEmisor"),
+                fechaCaducidadSolicitud: documento.get("caducidad").toDate(),
+                idDestino: documento.get("idDestino"),
+                imagenEmisor: documento.get("imagenEmisor"),
+                solicitudRevelada: documento.get("solicitudRevelada"),
+                calificacion: documento.get("calificacion"),
+                idSolicitudConversacion:
+                    documento.get("idSolicitudConversacion"));
+            // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
+            Solicitudes.instancia.listaSolicitudesConversacion
+                .insert(indice, solicitud);
+          }
         }
-      }
-    }).then((value) => escucharSolicitudesConversacion());
+      }).then((value) => escucharSolicitudesConversacion());
+    });
   }
 
   void escucharSolicitudesConversacion() async {
-    baseDatosRef
+    DateTime fechaQuery=fechaReferenciaSolicitudes.subtract(Duration(days: 1));
+  escuchadorSolicitudes=  baseDatosRef
         .collection("solicitudes conversaciones")
+             .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .snapshots()
         .listen((event) {
@@ -132,10 +198,11 @@ class SolicitudConversacion with ChangeNotifier {
 
           if (!coincidencias) {
             SolicitudConversacion solicitud = new SolicitudConversacion.crear(
-              fechaSolicitud: event.docs[a].get("tiemmpo").toDate(),
+                fechaSolicitud: event.docs[a].get("tiemmpo").toDate(),
                 idEmisor: event.docs[a].get("idEmisor"),
                 nombreEmisor: event.docs[a].get("nombreEmisor"),
                 idDestino: event.docs[a].get("idDestino"),
+                 fechaCaducidadSolicitud: event.docs[a].get("caducidad").toDate(),
                 imagenEmisor: event.docs[a].get("imagenEmisor"),
                 solicitudRevelada: event.docs[a].get("solicitudRevelada"),
                 calificacion: event.docs[a].get("calificacion"),
@@ -173,8 +240,7 @@ class SolicitudConversacion with ChangeNotifier {
         .delete();
   }
 
-
-void rechazarSolicitudConversacion(
+  void rechazarSolicitudConversacion(
     String id,
   ) async {
     await baseDatosRef
@@ -183,11 +249,22 @@ void rechazarSolicitudConversacion(
         .delete();
   }
 
+
+
+ void cerrarEscuchadorSolicitudes(){
+   for (int i=0;i<Solicitudes.instancia.listaSolicitudesConversacion.length;i++){
+     Solicitudes.instancia.listaSolicitudesConversacion[i].notificadorFinTiempo.close();
+   }
+  escuchadorSolicitudes.cancel();
+  escuchadorSolicitudes=null;
+  SolicitudConversacion.instancia.fechaReferenciaSolicitudes=null;
+  Solicitudes.instancia.listaSolicitudesConversacion.clear();
+}
+
+
+
   void aceptarSolicitud(String nombreRemitente, String imagenRemitente,
       String idRemitente, String idVal) async {
-
-
-
     String idMensaje = GeneradorCodigos.instancia.crearCodigo();
     String idConversacion = GeneradorCodigos.instancia.crearCodigo();
     Map<String, dynamic> mensajeInicial = Map();
@@ -198,7 +275,6 @@ void rechazarSolicitudConversacion(
     mensajeInicial["idEmisor"] = idRemitente;
     mensajeInicial["Nombre emisor"] = Usuario.esteUsuario.idUsuario;
     mensajeInicial["Tipo Mensaje"] = "Texto";
-
 
     Map<String, dynamic> estadoConexionUsuario = Map();
     estadoConexionUsuario["Escribiendo"] = false;
@@ -231,7 +307,8 @@ void rechazarSolicitudConversacion(
     solicitudLocal["nombreRemitente"] = Usuario.esteUsuario.nombre;
     solicitudLocal["cantidadMensajesSinLeer"] = 0;
     solicitudLocal["cantidadMensajesSinLeerPropios"] = 0;
-    solicitudLocal["imagenRemitente"] = Usuario.esteUsuario.imagenUrl1["Imagen"];
+    solicitudLocal["imagenRemitente"] =
+        Usuario.esteUsuario.imagenUrl1["Imagen"];
     solicitudLocal["ultimoMensaje"] = {
       "mensaje": "null",
       "tipoMensaje": "texto",
@@ -287,9 +364,21 @@ class WidgetSolicitudConversacion extends StatefulWidget {
 }
 
 class _WidgetSolicitudConversacionState
-    extends State<WidgetSolicitudConversacion> {
+    extends State<WidgetSolicitudConversacion>
+    with SingleTickerProviderStateMixin {
   @override
-  Widget       build(BuildContext context) {
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+ 
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // TODO: implement build
     return ChangeNotifierProvider.value(
         value: Solicitudes.instancia,
@@ -323,7 +412,7 @@ class _WidgetSolicitudConversacionState
         child: Container(
             height: ScreenUtil().setHeight(400),
             decoration: BoxDecoration(
-                boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 10)],
+               
                 borderRadius: BorderRadius.all(Radius.circular(5)),
                 color: Colors.white),
             child: Container(
@@ -338,59 +427,49 @@ class _WidgetSolicitudConversacionState
                   !solicitud.solicitudRevelada
                       ? Container(
                           decoration: BoxDecoration(
-                              color: Colors.transparent,
+                              color: solicitud.segundosRestantes<=3600?Colors.red:Colors.black,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  BorderRadius.all(Radius.circular(5))),
                           height: 400.h,
                           child: Center(
                               child: GestureDetector(
                             onTap: () {
-                              ControladorCreditos.instancia.restarCreditosSolicitud(
-                                100, solicitud.idSolicitudConversacion);
+                              ControladorCreditos.instancia
+                                  .restarCreditosSolicitud(
+                                      200, solicitud.idSolicitudConversacion);
                             },
-                            child: Container(
-                              height: 400.h,
-                              decoration: BoxDecoration(
-                                color: Colors.deepPurple[900],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(1)),
-                              ),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
+                            child: RepaintBoundary(
+                              child: Container(
+                                height: 400.h,
+                                decoration: BoxDecoration(
+                                  color: solicitud.segundosRestantes<=3600?Colors.red:Colors.black,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(1)),
+                                ),
+                                child: Center(
                                   child: Column(
                                     children: [
                                       Flexible(
-                                        flex:4,
-                                        fit:FlexFit.tight,
-                                                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                          flex: 4,
+                                          fit: FlexFit.tight,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                                             children: [
-                                              Text(
-                                                "Revelar",
-                                                style: GoogleFonts.lato(fontSize: 60.sp,color: Colors.white),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    "100",
-                                                    style:GoogleFonts.lato(fontSize: 60.sp,color: Colors.white),
-                                                  ),
-                                                  Icon(xd.LineAwesomeIcons.coins,color: Colors.white,),
-                                                ],
+                                              cuentaAtras(solicitud, indice),
+                                              Icon(
+                                                LineAwesomeIcons.clock_o,
+                                                color: Colors.white,
+                                                size: 120.sp,
                                               )
-                                            ]),
-                                      ),
+                                            ],
+                                          )),
                                       Flexible(
-                                        flex:2,
+                                        flex: 2,
                                         fit: FlexFit.tight,
-                                        child: Row(children: [
-
-                                          CuentaAtrasSolicitud(tiempo: solicitud.fechaSolicitud),
-                                          Icon(LineAwesomeIcons.clock_o,color: Colors.white,)
-                                        ],)
-                                      )
+                                        child: Container(
+                                          color: Colors.greenAccent[400],
+                                          child: precioRevelar()),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -404,6 +483,51 @@ class _WidgetSolicitudConversacionState
       ),
     );
   }
+
+  Row precioRevelar() {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+      Text(
+        "Ver",
+        style: GoogleFonts.lato(fontSize: 60.sp, color: Colors.black),
+      ),
+      Row(
+        children: [
+          Text(
+            "${ControladorCreditos.precioSolicitud}",
+            style: GoogleFonts.lato(fontSize: 60.sp, color: Colors.black),
+          ),
+          Icon(
+            xd.LineAwesomeIcons.coins,
+            color: Colors.black,
+          ),
+        ],
+      )
+    ]);
+  }
+
+  Widget cuentaAtras(SolicitudConversacion solicitud, int indice) {
+    return RepaintBoundary(
+          child: StreamBuilder(
+            stream: solicitud.notificadorFinTiempo.stream,
+            initialData: solicitud.segundosRestantes,
+             
+
+            builder: (BuildContext context,valor){
+              if(valor.data==0){
+                solicitud.notificadorFinTiempo.close().then((value) =>     eliimnarSolicitud(indice, solicitud.idSolicitudConversacion, solicitud));
+            
+              }
+
+              return      Container(
+            child: Text(SolicitudConversacion.instancia.formatoTiempo.format(DateTime(0, 0, 0, 0, 0,  valor.data)),
+                style: GoogleFonts.lato(fontSize: 90.sp, color: Colors.white)));
+            },
+               
+          ),
+    );
+      }
+    
+  
 
   Flexible cuadroOpcionesSolicitud(
       SolicitudConversacion valoracion, int indice) {
@@ -462,7 +586,8 @@ class _WidgetSolicitudConversacionState
                                 Solicitudes
                                     .instancia
                                     .listaSolicitudesConversacion[indice]
-                                    .idSolicitudConversacion,valoracion);
+                                    .idSolicitudConversacion,
+                                valoracion);
                           },
                           child: Icon(
                             Icons.close,
@@ -543,7 +668,6 @@ class _WidgetSolicitudConversacionState
       fit: FlexFit.tight,
       child: Container(
         decoration: BoxDecoration(
-        
             image: DecorationImage(
                 image: NetworkImage(valoracion.imagenEmisor),
                 fit: BoxFit.cover)),
@@ -551,7 +675,8 @@ class _WidgetSolicitudConversacionState
     );
   }
 
-  void eliimnarSolicitud(int indice, String id,SolicitudConversacion solicitud) {
+  void eliimnarSolicitud(
+      int indice, String id, SolicitudConversacion solicitud) {
     SolicitudConversacion valoracionQuitada =
         Solicitudes.instancia.listaSolicitudesConversacion.removeAt(indice);
     AnimatedListRemovedItemBuilder builder = (context, animation) {
@@ -563,6 +688,7 @@ class _WidgetSolicitudConversacionState
 
     solicitud.rechazarSolicitudConversacion(id);
   }
+
 
   void aceptarSolicitud(int indice, SolicitudConversacion solicitud) {
     SolicitudConversacion valoracionAceptada =
@@ -584,60 +710,3 @@ class _WidgetSolicitudConversacionState
 }
 
 // ignore: must_be_immutable
-class CuentaAtrasSolicitud extends StatefulWidget {
-  final DateTime tiempo;
-   int duracionSegundos;
-  
-  
-  CuentaAtrasSolicitud({@required this.tiempo});
-  @override
-  _CuentaAtrasSolicitudState createState() => _CuentaAtrasSolicitudState();
-}
-
-class _CuentaAtrasSolicitudState extends State<CuentaAtrasSolicitud> {
-  Timer cuentaAtras;
-  int segundos;
-  int minutos;
-  int horas;
-  String tiempoPasado="";
-   bool estaContanto=false;
-   CountdownController controladorCuentaAtras=new CountdownController();
- 
-  var formatoTiempo=new DateFormat("HH:mm:ss");
-
-@override
-  void initState() {
-    // TODO: implement initState
-    
-   
-      widget.duracionSegundos=widget.tiempo.difference(Valoracion.tiempoReferencia).inSeconds;
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-   
-    super.dispose();
-  }
-  @override
-  Widget build(BuildContext context) {
- 
-    return Container(
-
-      child: Countdown(
-     interval: Duration(seconds: 1),
-        seconds: widget.duracionSegundos,
-     
-        build: (BuildContext context,double time){
-          int tiempo=time.toInt();
-          DateTime horas=DateTime(0,0,0,0,0,tiempo);
-          
-          return Text(formatoTiempo.format(horas), style:
-                                                    GoogleFonts.lato(fontSize: 60.sp,color: Colors.white));
-        },
-      )
-      
-    );
-  }
-}

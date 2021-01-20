@@ -45,6 +45,7 @@ dependencies:
   intl: ^0.16.1
   line_awesome_icons: ^1.0.4+2
   line_awesome_flutter: ^1.0.1
+  sleek_circular_slider: ^1.2.0+web
   google_fonts: ^0.3.7
   location: ^2.3.5
   flutter_datetime_picker: ^1.3.4
@@ -55,7 +56,7 @@ dependencies:
   path_provider: ^1.6.5
   network_image_to_byte: ^0.0.1
   image_cropper: ^1.2.1
-  flutter_local_notifications: ^2.0.0+1
+  flutter_local_notifications: ^2.0.0+1em
   audioplayers: ^0.13.2
   flutter_image_compress: ^0.6.0
   cached_network_image: 2.2.0
@@ -74,8 +75,10 @@ dependencies:
   liquid_progress_indicator: ^0.3.2
   cloud_functions: ^0.6.0
   flutter_launcher_icons: ^0.8.1
-  blurred: ^1.0.0+2
-
+  bitmap: ^0.0.6
+  blurhash_dart: ^0.2.3
+  flutter_blurhash: ^0.5.0
+  octo_image: ^0.3.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 cupertino_icons: ^0.1.3
@@ -86,8 +89,8 @@ cupertino_icons: ^0.1.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  google_sign_in: ^4.1.1
-  firebase_storage: ^4.0.0
+ 
+  firebase_storage: 4.0.0
  
 
 flutter_icons:
@@ -112,6 +115,13 @@ flutter:
     # To add assets to your application, add an assets section, like this:
   assets:
     - assets/presente.png
+    - assets/verificacion1.jpg
+    - assets/verificacion2.jpg
+    - assets/verificacion3.jpg
+    - assets/verificacion4.jpg
+    - assets/verificacion5.jpg
+    - assets/verificacion6.jpg
+
     
 
   # An image asset can refer to one or more resolution-specific "variants", see

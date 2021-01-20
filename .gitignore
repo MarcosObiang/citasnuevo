@@ -48,3 +48,5 @@ FuncionesNubeFirebase/functions/tsconfig.json
 FuncionesNubeFirebase/functions/package.json
 FuncionesNubeFirebase/functions/package-lock.json
 FuncionesNubeFirebase/functions/src/index.ts
+android/key.properties
+android/key.properties

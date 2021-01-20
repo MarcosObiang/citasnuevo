@@ -1,8 +1,14 @@
+import 'dart:async';
+
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
+import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../main.dart';
 
@@ -12,7 +18,7 @@ class CallPage extends StatefulWidget {
   final Map<String, dynamic> datosLLamada;
   final String usuario;
   static bool seMuestra;
-  
+
 
   /// non-modifiable channel name of the page
   final String channelName;
@@ -35,7 +41,10 @@ class CallPage extends StatefulWidget {
 class CallPageState extends State<CallPage> with RouteAware{
   static final _users = <int>[];
   final _infoStrings = <String>[];
+  int segundosVideo=Usuario.esteUsuario.minutosRestantesVideoChat*60;
   bool muted = false;
+  var formatoTiempo=new DateFormat("HH:mm:ss");
+  Timer cronometroVideoPantalla;
 
   @override
   void dispose() {
@@ -45,6 +54,9 @@ class CallPageState extends State<CallPage> with RouteAware{
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
     routeObserver.unsubscribe(this);
+    if(cronometroVideoPantalla.isActive){
+      cronometroVideoPantalla.cancel();
+    }
     super.dispose();
   }
 
@@ -74,6 +86,27 @@ class CallPageState extends State<CallPage> with RouteAware{
     // Covering route was popped off the navigator.
   }
 
+
+
+
+  void iniciarCuentaAtrasVideo(){
+    int contadorSegundos=0;
+
+
+     cronometroVideoPantalla=new Timer.periodic(Duration(seconds:1), (timer) {
+      setState(() {
+
+      });
+      contadorSegundos+=1;
+      segundosVideo-=1;
+      if(contadorSegundos==60){
+        contadorSegundos=0;
+        Usuario.esteUsuario.minutosRestantesVideoChat-=1;
+       // FirebaseFirestore.instance.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).update({"minutosVideo":FieldValue.increment(-1)});
+      }
+
+    });
+  }
 
 
 
@@ -138,6 +171,7 @@ class CallPageState extends State<CallPage> with RouteAware{
     };
 
     AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
+      iniciarCuentaAtrasVideo();
       setState(() {
         final info = 'userJoined: $uid';
         print("Usuario en el canal^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
@@ -368,7 +402,9 @@ class CallPageState extends State<CallPage> with RouteAware{
         body: Center(
           child: Stack(
             children: <Widget>[
+
               _viewRows(),
+            //  Text(formatoTiempo.format(DateTime(0,0,0,0,0,segundosVideo)),style: GoogleFonts.lato(fontSize:90.sp,color: Colors.red),),
               _panel(),
               Container(
                 color: Colors.transparent,

@@ -1,5 +1,7 @@
 import 'dart:typed_data';
-
+import 'dart:ui' as ui;
+import 'package:bitmap/bitmap.dart';
+import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:octo_image/octo_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 class ImagenesCarrete extends StatefulWidget {
   String urlImagen;
@@ -15,21 +21,63 @@ class ImagenesCarrete extends StatefulWidget {
   String edad;
   String pieFoto;
   bool nombreEnFoto;
-  Image laimagen;
+  ImageProvider laimagen;
   bool imagenCargada = false;
   double distancia;
+  int altura;
+  int ancho;
+  String hash;
+  ui.Image imagen;
+  bool verificado;
   static BoxConstraints limitesCuadro = new BoxConstraints();
 
   ImagenesCarrete(this.urlImagen,
-      {@required this.distancia, this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
-    //cargarImagen();
+      {
+        @required this.hash,
+        @required this.altura,@required this.ancho,
+        @required this.verificado,
+        
+        @required this.distancia, this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
+ // cargarHash();
   }
+    void cargarHash()async{
+ 
+     Uint8List pixeles=decodeBlurHash(hash,ancho,altura);
+        Bitmap bitmap=Bitmap.fromHeadless(ancho,altura,pixeles);
+        imagen=await bitmap.buildImage().catchError((error){
+          print(error);
+        });
+  }
+  
 
   @override
   _ImagenesCarreteState createState() => _ImagenesCarreteState();
 }
 
 class _ImagenesCarreteState extends State<ImagenesCarrete> {
+
+@override
+void initState() {
+    // TODO: implement initState
+   
+   widget.laimagen=NetworkImage(widget.urlImagen);
+    super.initState();
+    
+  }
+
+
+
+
+
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+precacheImage(widget.laimagen, context);
+
+  }
+
+
+
   Uint8List bitsImagen;
 
   @override
@@ -38,29 +86,20 @@ class _ImagenesCarreteState extends State<ImagenesCarrete> {
     return Padding(
         padding: const EdgeInsets.only(top: 0, bottom: 0),
         child: Container(
-          child: Column(
-            children: <Widget>[
-              ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  child: widget.nombreEnFoto
-                      ? Container(
-                          height: ImagenesCarrete
-                              .limitesCuadro.biggest.height,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: NetworkImage(widget.urlImagen),
-                                  fit: BoxFit.cover)),
-                        )
-                      : CachedNetworkImage(
-                          imageUrl: widget.urlImagen,
-                        )),
-              Container(
-                child:
-                    widget.pieFoto == null ? Text("") : Text(widget.pieFoto),
-              )
-            ],
-          ),
-        ));
+          color: Colors.black,
+          child: Container(
+              height: ImagenesCarrete
+                  .limitesCuadro.biggest.height,
+                  child:OctoImage(
+                    fit:BoxFit.cover,
+                 
+                    image: CachedNetworkImageProvider(
+                    widget.urlImagen
+                  ),
+                  placeholderBuilder: OctoPlaceholder.blurHash(widget.hash,fit:BoxFit.cover),
+                  )
+        
+        )));
   }
 }
 
@@ -83,7 +122,7 @@ class BloqueDescripcion1 extends StatelessWidget {
     return Container(
       height: ScreenUtil().setHeight(500),
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: Colors.black,
         borderRadius: BorderRadius.all(Radius.circular(3)),
       ),
       child: Padding(
@@ -93,7 +132,7 @@ class BloqueDescripcion1 extends StatelessWidget {
           children: [
             Text(
               "Sobre mi:",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: Colors.white),
             ),
             Divider(
               height: ScreenUtil().setHeight(100),

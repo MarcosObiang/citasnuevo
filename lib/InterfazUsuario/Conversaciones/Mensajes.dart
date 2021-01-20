@@ -5,6 +5,8 @@ import 'dart:io' as Io;
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantallaConversacion.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -60,8 +62,12 @@ class Mensajes extends StatefulWidget {
   bool mensajeLeidoRemitente = false;
   String identificadorUnicoMensaje;
   String idConversacion;
-
+  bool mostrarOpcionesMensaje=false;
   String directoriofinal;
+  bool respuesta;
+  Map<String,dynamic> respuestaMensaje=new Map();
+  String nombreRemitente;
+  Widget widgetRespuesta;
 
   final f = new DateFormat('HH:mm');
   final dia = new DateFormat("yMMMMEEEEd");
@@ -91,6 +97,7 @@ class Mensajes extends StatefulWidget {
 
   reproducirAudio() async {
     player.state = estado;
+    print("Reprodiciendo esteAudio");
 
     await player.setUrl(mensaje);
     if (mensajesEnReproduccion.length != 0 && mensajesEnReproduccion != null) {
@@ -110,16 +117,34 @@ class Mensajes extends StatefulWidget {
 
     player.onAudioPositionChanged.listen((Duration p) {
       posicion = ((p.inMilliseconds / duracionMensaje) * 0.1 * 10);
-      print("${p.inMilliseconds} de ${duracionMensaje}    esto es lo que dura");
+      
       Conversacion.conversaciones.notifyListeners();
       print(posicion);
     });
 
     player.onPlayerCompletion.listen((event) {
-      posicion = 0;
+  /*   if(1-posicion>0){
+Timer flutterTimer;
+
+flutterTimer=new Timer.periodic(Duration(milliseconds: 1),(valor){
+posicion+=0.1;
+
+if(posicion>=0.99){
+  flutterTimer.cancel();
+   
+  
+}
+});
+
+
+
+
+
+      }*/
+     posicion = 0;
     });
     player.onPlayerStateChanged.listen((AudioPlayerState s) {
-      print('Current player state: $s');
+     
     });
   }
 
@@ -143,7 +168,10 @@ class Mensajes extends StatefulWidget {
 
   Mensajes(
       {@required this.idMensaje,
+      @required this.respuesta,
+     
       @required this.identificadorUnicoMensaje,
+      @required this.respuestaMensaje,
       @required this.mensajeLeido,
       @required this.nombreEmisor,
       @required this.idEmisor,
@@ -152,11 +180,13 @@ class Mensajes extends StatefulWidget {
       @required this.mensaje,
       @required this.horaMensaje,
       @required this.tipoMensaje});
-  Mensajes.Audio(
+  Mensajes.audio(
       {@required this.idMensaje,
       @required this.mensajeLeido,
       @required this.identificadorUnicoMensaje,
       @required this.duracionMensaje,
+    @required this.respuesta,
+     @required this.respuestaMensaje,
       @required this.mensajeLeidoRemitente,
       @required this.idConversacion,
       @required this.nombreEmisor,
@@ -233,36 +263,64 @@ class _MensajesState extends State<Mensajes> {
   Align mensajeGifRemitente(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
-        child: GestureDetector(
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      VisorImagenesPerfiles(imagen: widget.mensaje))),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.transparent,
+      child: GestureDetector(
+        onLongPress: (){
+          if(widget.respuesta==false){
+            widget.mostrarOpcionesMensaje=true;
+            setState((){});
+          }
+        },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        VisorImagenesPerfiles(imagen: widget.mensaje))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                widget.mostrarOpcionesMensaje?  opcionesMensaje():Container(width: 0,height:0,),
+          Container(
+                 decoration: BoxDecoration(
+                            
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.green,
+                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                         widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        Container(
+                          height: 700.w,
+                          width: 700.w,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(widget.mensaje,
+                            scale: 1,
+                              headers: {'accept': 'image/*'})),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.transparent,
+                          ),
+            
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                height: ScreenUtil().setHeight(600),
-                width: ScreenUtil().setWidth(600),
-                child: Image.network(widget.mensaje,
-                    headers: {'accept': 'image/*'}),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  child: Text(widget.f.format(widget.horaMensaje),
-                      style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                ),
-              )
-            ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Text(widget.f.format(widget.horaMensaje),
+                        style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -272,201 +330,47 @@ class _MensajesState extends State<Mensajes> {
   Align mensajeImagenRemitente(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
-        child: GestureDetector(
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      VisorImagenesPerfiles(imagen: widget.mensaje))),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.transparent,
-                ),
-                height: ScreenUtil().setHeight(600),
-                width: ScreenUtil().setWidth(600),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.mensaje,
-                      progressIndicatorBuilder:
-                          (context, url, downloadProgress) => Center(
-                        child: Container(
-                          height: ScreenUtil().setHeight(300),
-                          width: ScreenUtil().setWidth(300),
-                          child: CircularProgressIndicator(
-                              value: downloadProgress.progress),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    )),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  child: Text(widget.f.format(widget.horaMensaje),
-                      style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+      child: GestureDetector(
+        onLongPress: (){
+          if(!widget.respuesta){
+            widget.mostrarOpcionesMensaje=true;
+            setState((){
 
-  Container separadorHoraRemitente() {
-    return Container(
-      child: Text(widget.horaMensaje.day == DateTime.now().day
-          ? "Hoy"
-          : widget.dia.format(widget.horaMensaje)),
-    );
-  }
-
-  Align mensajeTextoRemitente() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-                decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15),
-                        bottomRight: Radius.circular(15))),
-                padding: EdgeInsets.all(5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15),
-                                  topRight: Radius.circular(15),
-                                  bottomRight: Radius.circular(15))),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10, right: 10, top: 3, bottom: 3),
-                            child: Text(widget.nombreEmisor),
-                          )),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        widget.mensaje,
-                        style: TextStyle(fontSize: ScreenUtil().setSp(40)),
-                      ),
-                    ),
-                  ],
-                )),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                  child: Text(widget.f.format(widget.horaMensaje),
-                      style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Align mensajeAudioRemitente() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
-        child: Container(
-          height: ScreenUtil().setHeight(300),
-          width: ScreenUtil().setWidth(600),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            });
+          }
+        },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        VisorImagenesPerfiles(imagen: widget.mensaje))),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
                 Container(
-                  color: Colors.green,
-                  child: Row(
-                    children: <Widget>[
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 3,
-                        child: Container(
-                          child: Center(
-                            child: FlatButton(
-                              onPressed: () {
-                                widget.reproducirAudio();
-                              },
-                              child: Center(
-                                  child: Icon(
-                                Icons.play_arrow,
-                                size: ScreenUtil().setSp(100),
-                              )),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 11,
-                        child: Container(
-                          child: Stack(alignment: Alignment.center, children: <
-                              Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 15.0, right: 15),
-                              child: LinearPercentIndicator(
-                                lineHeight: ScreenUtil().setHeight(70),
-                                percent: widget.posicion,
-                              ),
-                            ),
-                            SliderTheme(
-                              data: SliderThemeData(
-                                thumbColor: Colors.transparent,
-                                activeTickMarkColor: Colors.transparent,
-                                activeTrackColor: Colors.transparent,
-                                disabledActiveTickMarkColor: Colors.transparent,
-                                disabledActiveTrackColor: Colors.transparent,
-                                disabledInactiveTickMarkColor:
-                                    Colors.transparent,
-                                disabledInactiveTrackColor: Colors.transparent,
-                                disabledThumbColor: Colors.transparent,
-                                inactiveTickMarkColor: Colors.transparent,
-                                inactiveTrackColor: Colors.transparent,
-                                overlappingShapeStrokeColor: Colors.transparent,
-                                overlayColor: Colors.transparent,
-                                valueIndicatorColor: Colors.transparent,
-                              ),
-                              child: Slider(
-                                value: widget.posicion,
-                                max: widget.duracionMensaje.toDouble() ?? 0,
-                                min: 0,
-                                onChanged: (val) {
-                                  widget.posicionAudio(val);
-                                },
-                              ),
-                            ),
-                          ]),
-                        ),
-                      )
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.green,
+                  ),
+           
+                  child: Column(
+                    children: [
+                        widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                 Container(
+                   height: 500.w,
+                   width: 500.w,
+                   decoration: BoxDecoration(
+                   borderRadius:BorderRadius.all(Radius.circular(10)),
+                   image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(widget.mensaje,
+                    scale: 1,
+               )),),),
                     ],
                   ),
                 ),
@@ -485,48 +389,267 @@ class _MensajesState extends State<Mensajes> {
     );
   }
 
-  Align mensajeGifUsuario(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
-        child: GestureDetector(
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      VisorImagenesPerfiles(imagen: widget.mensaje))),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.transparent,
-                ),
-                height: ScreenUtil().setHeight(600),
-                width: ScreenUtil().setWidth(600),
-                child: Image.network(widget.mensaje,
-                    headers: {'accept': 'image/*'}),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+  Container separadorHoraRemitente() {
+    return Container(
+      child: Text(widget.horaMensaje.day == DateTime.now().day
+          ? "Hoy"
+          : widget.dia.format(widget.horaMensaje),style: GoogleFonts.lato(color:Colors.white),),
+    );
+  }
+
+  Container mensajeTextoRemitente() {
+    return Container(
+      
+      child: Stack(
+
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onLongPress: (){
+                if(!widget.respuesta){
+             widget.mostrarOpcionesMensaje=true;
+                                      setState((){
+
+                                      });
+                }
+ 
+
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                     widget.mostrarOpcionesMensaje?opcionesMensaje():Container(height: 0,width:0,),
+                     
+                     
+                     
                     Container(
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(15),
+                                topRight: Radius.circular(15),
+                                bottomRight: Radius.circular(15))),
+                        padding: EdgeInsets.all(5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                             widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                widget.mensaje,
+                                style: TextStyle(fontSize: ScreenUtil().setSp(40)),
+                              ),
+                            ),
+                          ],
+                        )),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          child: Text(widget.f.format(widget.horaMensaje),
+                              style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Align mensajeAudioRemitente() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress:(){
+          if(widget.respuesta==false)
+{
+  widget.mostrarOpcionesMensaje=true;
+}        },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
+          child: Container(
+            height: ScreenUtil().setHeight(600),
+            width: ScreenUtil().setWidth(800),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                
+                children: <Widget>[
+                   widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
+                  Container(
+                    color: Colors.green,
+                    child: Column(
+                      
+                      children: [
+                         widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        Row(
+                          children: <Widget>[
+                            Flexible(
+                              fit: FlexFit.tight,
+                              flex: 3,
+                              child: Container(
+                                child: Center(
+                                  child: FlatButton(
+                                    onPressed: () {
+                                      widget.reproducirAudio();
+                                    },
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.play_arrow,
+                                      size: ScreenUtil().setSp(100),
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              flex: 11,
+                              child: Container(
+                                child: Stack(alignment: Alignment.center, children: <
+                                    Widget>[
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 15.0, right: 15),
+                                    child: LinearPercentIndicator(
+                                      lineHeight: ScreenUtil().setHeight(70),
+                                      percent: widget.posicion,
+                                    ),
+                                  ),
+                                  SliderTheme(
+                                    data: SliderThemeData(
+                                      thumbColor: Colors.transparent,
+                                      activeTickMarkColor: Colors.transparent,
+                                      activeTrackColor: Colors.transparent,
+                                      disabledActiveTickMarkColor: Colors.transparent,
+                                      disabledActiveTrackColor: Colors.transparent,
+                                      disabledInactiveTickMarkColor:
+                                          Colors.transparent,
+                                      disabledInactiveTrackColor: Colors.transparent,
+                                      disabledThumbColor: Colors.transparent,
+                                      inactiveTickMarkColor: Colors.transparent,
+                                      inactiveTrackColor: Colors.transparent,
+                                      overlappingShapeStrokeColor: Colors.transparent,
+                                      overlayColor: Colors.transparent,
+                                      valueIndicatorColor: Colors.transparent,
+                                    ),
+                                    child: Slider(
+                                      value: widget.posicion,
+                                      max: widget.duracionMensaje.toDouble() ?? 0,
+                                      min: 0,
+                                      onChanged: (val) {
+                                        widget.posicionAudio(val);
+                                      },
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
                       child: Text(widget.f.format(widget.horaMensaje),
                           style: TextStyle(fontSize: ScreenUtil().setSp(35))),
                     ),
-                    widget.mensajeLeidoRemitente
-                        ? Icon(Icons.check_circle,
-                            color: Colors.white, size: 50.sp)
-                        : Container()
-                  ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Align mensajeGifUsuario(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: GestureDetector(
+      onLongPress: (){
+        if(widget.respuesta==false){
+          widget.mostrarOpcionesMensaje=true;
+          setState((){});
+        }
+      },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        VisorImagenesPerfiles(imagen: widget.mensaje))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                           widget.mostrarOpcionesMensaje?  opcionesMensaje():Container(width: 0,height:0,),
+
+
+                Container(
+                 decoration: BoxDecoration(
+                            
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.blue,
+                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                         widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        Container(
+                          height: 700.w,
+                          width: 700.w,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(widget.mensaje,
+                            scale: 1,
+                              headers: {'accept': 'image/*'})),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.transparent,
+                          ),
+            
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              )
-            ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        child: Text(widget.f.format(widget.horaMensaje),
+                            style: GoogleFonts.lato(color:Colors.white,fontSize: ScreenUtil().setSp(35))),
+                      ),
+                      widget.mensajeLeidoRemitente
+                     ? Text(" Visto",style: GoogleFonts.lato(color: Colors.white,fontSize:35.sp),)
+                          : Container()
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -536,225 +659,56 @@ class _MensajesState extends State<Mensajes> {
   Align mensajeImagenUsuario(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
-        child: GestureDetector(
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      VisorImagenesPerfiles(imagen: widget.mensaje))),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: Colors.transparent,
-                ),
-                height: ScreenUtil().setHeight(600),
-                width: ScreenUtil().setWidth(600),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.mensaje,
-                      progressIndicatorBuilder:
-                          (context, url, downloadProgress) => Center(
-                        child: Container(
-                          height: ScreenUtil().setHeight(300),
-                          width: ScreenUtil().setWidth(300),
-                          child: CircularProgressIndicator(
-                              value: downloadProgress.progress),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    )),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      child: Text(widget.f.format(widget.horaMensaje),
-                          style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                    ),
-                    widget.mensajeLeidoRemitente
-                        ? Icon(Icons.check_circle,
-                            color: Colors.white, size: 50.sp)
-                        : Container()
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container separadorHoraUsuario() {
-    return Container(
-      child: Text(widget.horaMensaje.day == DateTime.now().day
-          ? "Hoy"
-          : widget.dia.format(widget.horaMensaje)),
-    );
-  }
-
-  Align mensajeTextoUsuario() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                      color: Colors.blue),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 10, right: 10, top: 3, bottom: 3),
-                    child: Text("Yo"),
-                  )),
-            ),
-            Container(
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15),
-                        bottomLeft: Radius.circular(15))),
-                padding: EdgeInsets.all(5),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        child: Text(
-                          widget.mensaje,
-                          style: TextStyle(fontSize: ScreenUtil().setSp(40)),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    child: Text(widget.f.format(widget.horaMensaje),
-                        style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                  ),
-                  widget.mensajeLeidoRemitente
-                      ? Icon(Icons.check_circle,
-                          color: Colors.white, size: 50.sp)
-                      : Container()
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Align mensajeAudioUsuario() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Padding(
-        padding:
-            const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
-        child: Container(
-          height: ScreenUtil().setHeight(300),
-          width: ScreenUtil().setWidth(600),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onLongPress:(){
+          if(widget.respuesta==false){
+            widget.mostrarOpcionesMensaje=true;
+            setState(() {
+                          
+                        });
+          }
+        },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        VisorImagenesPerfiles(imagen: widget.mensaje))),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
+                 widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
                 Container(
+                  
                   decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(3),
-                          topRight: Radius.circular(3),
-                          bottomLeft: Radius.circular(3))),
-                  child: Row(
-                    children: <Widget>[
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 3,
-                        child: Container(
-                          child: Center(
-                            child: FlatButton(
-                              onPressed: () {
-                                widget.reproducirAudio();
-                              },
-                              child: Center(
-                                  child: Icon(
-                                Icons.play_arrow,
-                                size: ScreenUtil().setSp(100),
-                              )),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 11,
-                        child: Container(
-                          child: Stack(alignment: Alignment.center, children: <
-                              Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 15.0, right: 15),
-                              child: LinearPercentIndicator(
-                                lineHeight: ScreenUtil().setHeight(70),
-                                percent: widget.posicion,
-                              ),
-                            ),
-                            SliderTheme(
-                              data: SliderThemeData(
-                                thumbColor: Colors.transparent,
-                                activeTickMarkColor: Colors.transparent,
-                                activeTrackColor: Colors.transparent,
-                                disabledActiveTickMarkColor: Colors.transparent,
-                                disabledActiveTrackColor: Colors.transparent,
-                                disabledInactiveTickMarkColor:
-                                    Colors.transparent,
-                                disabledInactiveTrackColor: Colors.transparent,
-                                disabledThumbColor: Colors.transparent,
-                                inactiveTickMarkColor: Colors.transparent,
-                                inactiveTrackColor: Colors.transparent,
-                                overlappingShapeStrokeColor: Colors.transparent,
-                                overlayColor: Colors.transparent,
-                                valueIndicatorColor: Colors.transparent,
-                              ),
-                              child: Slider(
-                                value: widget.posicion,
-                                max: widget.duracionMensaje.toDouble(),
-                                min: 0,
-                                onChanged: (val) {
-                                  widget.posicionAudio(val);
-                                },
-                              ),
-                            ),
-                          ]),
-                        ),
-                      )
-                    ],
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.blue,
+                  ),
+                  
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                          widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                            Container(
+                  height: 700.w,
+                  width: 700.w,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(widget.mensaje,
+                    scale: 1,
+               )),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+            
+                ),
+                      ],
+                    ),
                   ),
                 ),
                 Align(
@@ -767,8 +721,7 @@ class _MensajesState extends State<Mensajes> {
                             style: TextStyle(fontSize: ScreenUtil().setSp(35))),
                       ),
                       widget.mensajeLeidoRemitente
-                          ? Icon(Icons.check_circle,
-                              color: Colors.white, size: 50.sp)
+                       ? Text("Leido",style: GoogleFonts.lato(color: Colors.white),)
                           : Container()
                     ],
                   ),
@@ -780,10 +733,402 @@ class _MensajesState extends State<Mensajes> {
       ),
     );
   }
+
+  Padding opcionesMensaje() {
+    return Padding(
+                             padding: const EdgeInsets.all(8.0),
+                             child: Container(
+                               width: 600.w,
+                               height: 150.h,
+                              decoration: BoxDecoration(
+                                  color: Colors.redAccent,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
+                                      bottomLeft: Radius.circular(15),
+                                      bottomRight: Radius.circular(15))),
+                              padding: EdgeInsets.all(5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                              
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                    IconButton(
+                                      onPressed: (){
+                             
+                                      
+           widget.mostrarOpcionesMensaje=false;
+                                        PantallaConversacion.responderMensaje=true;
+                                        PantallaConversacion.tipoMensaje=widget.tipoMensaje;
+                                        PantallaConversacion.idEmisorMensajeResponder=widget.idEmisor;
+                                        PantallaConversacion.idMensajeResponder=widget.identificadorUnicoMensaje;
+                                        PantallaConversacion.mensajeResponder=widget.mensaje;
+                                        PantallaConversacion.nombreEmisorMensajeResponder=widget.nombreEmisor;
+                                        Conversacion.conversaciones.notifyListeners();
+                                       
+
+                                      },
+                                      icon: Icon(Icons.reply,color: Colors.white,),),
+                                        
+
+                                      GestureDetector(onTap:(){
+                                           widget.mostrarOpcionesMensaje=false;
+                                        setState((){
+
+                                        });
+                                      },
+                                      child: Container(child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("Cancelar"),
+                                      ),),
+                                      )
+                                  ],),
+                                ],
+                              )),
+                           );
+  }
+
+  Container separadorHoraUsuario() {
+    return Container(
+      child: Text(widget.horaMensaje.day == DateTime.now().day
+          ? "Hoy"
+          : widget.dia.format(widget.horaMensaje),style: GoogleFonts.lato(color:Colors.white)),
+    );
+  }
+
+  Align mensajeTextoUsuario() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: GestureDetector(
+        onLongPress: (){
+          if(widget.respuesta==false){
+ widget.mostrarOpcionesMensaje=true;
+          }
+         
+          setState((){
+
+          });
+        },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+       
+                      widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
+              Container(
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                          bottomLeft: Radius.circular(15))),
+                  padding: EdgeInsets.all(5),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        Container(
+                          child: Text(
+                            widget.mensaje,
+                            style: TextStyle(fontSize: ScreenUtil().setSp(40)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      child: Text(widget.f.format(widget.horaMensaje),
+                          style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                    ),
+                    widget.mensajeLeidoRemitente
+                        ? Text("Leido",style: GoogleFonts.lato(color: Colors.white),)
+                        : Container()
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding cajaRespuestaMensajes() {
+
+ Mensajes mensajeRespuestaAudio;
+    if(widget.respuesta&&widget.respuestaMensaje["tipoMensaje"]=="Audio"){
+     
+      for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++ ){
+        if(Conversacion.conversaciones.listaDeConversaciones[z].idMensajes==widget.idMensaje){
+          for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes.length;i++){
+            if(widget.respuestaMensaje["idMensaje"]==Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i].identificadorUnicoMensaje){
+              mensajeRespuestaAudio=Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
+
+            }
+          }
+        }
+      }
+    }
+    return Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Container(
+                                 decoration: BoxDecoration(
+                    color:widget.idEmisor==Usuario.esteUsuario.idUsuario? Colors.green:Colors.blue,
+                    borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                          bottomLeft: Radius.circular(15))),
+                          child:Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                 widget.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(PantallaConversacion.nombreExponer),
+                         
+                               widget.respuestaMensaje["tipoMensaje"]=="Texto"? Text(widget.respuestaMensaje["mensaje"]):  widget.respuestaMensaje["tipoMensaje"]=="Imagen"? Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(widget.respuestaMensaje["mensaje"],
+                    scale: 1,
+               )),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: 500.w,width: 500.w,) : widget.respuestaMensaje["tipoMensaje"]=="Gif"?
+                                 Container(
+                                      decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(widget.respuestaMensaje["mensaje"],
+                    scale: 1,
+                      headers: {'accept': 'image/*'})
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.transparent,
+                  ),
+                                 height: 700.w,width: 700.w,) : Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                            bottomLeft: Radius.circular(3))),
+                    child: Row(
+                      children: <Widget>[
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 3,
+                          child: Container(
+                            child: Center(
+                              child: FlatButton(
+                                onPressed: () {
+                                  mensajeRespuestaAudio.reproducirAudio();
+                                },
+                                child: Center(
+                                    child: Icon(
+                                  Icons.play_arrow,
+                                  size: ScreenUtil().setSp(100),
+                                )),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 11,
+                          child: Container(
+                            child: Stack(alignment: Alignment.center, children: <
+                                Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15.0, right: 15),
+                                child: LinearPercentIndicator(
+                                  lineHeight: ScreenUtil().setHeight(70),
+                                  percent: mensajeRespuestaAudio.posicion,
+                                ),
+                              ),
+                              SliderTheme(
+                                data: SliderThemeData(
+                                  thumbColor: Colors.transparent,
+                                  activeTickMarkColor: Colors.transparent,
+                                  activeTrackColor: Colors.transparent,
+                                  disabledActiveTickMarkColor: Colors.transparent,
+                                  disabledActiveTrackColor: Colors.transparent,
+                                  disabledInactiveTickMarkColor:
+                                      Colors.transparent,
+                                  disabledInactiveTrackColor: Colors.transparent,
+                                  disabledThumbColor: Colors.transparent,
+                                  inactiveTickMarkColor: Colors.transparent,
+                                  inactiveTrackColor: Colors.transparent,
+                                  overlappingShapeStrokeColor: Colors.transparent,
+                                  overlayColor: Colors.transparent,
+                                  valueIndicatorColor: Colors.transparent,
+                                ),
+                                child: Slider(
+                                  value: mensajeRespuestaAudio.posicion,
+                                  max: mensajeRespuestaAudio.duracionMensaje.toDouble(),
+                                  min: 0,
+                                  onChanged: (val) {
+                                    mensajeRespuestaAudio.posicionAudio(val);
+                                  },
+                                ),
+                              ),
+                            ]),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+      
+                              ],
+                            ),
+                          )),
+                      );
+  }
+
+  Align mensajeAudioUsuario() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: GestureDetector(
+        onLongPress: (){
+          if(widget.respuesta==false){
+            widget.mostrarOpcionesMensaje=true;
+            setState((){});
+          }
+        },
+        child: Padding(
+          padding:
+              const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
+          child: Container(
+            height: ScreenUtil().setHeight(500),
+            width: ScreenUtil().setWidth(900),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+               
+                children: <Widget>[
+                   widget.mostrarOpcionesMensaje==true?opcionesMensaje():Container(height:0,width:0),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                            bottomLeft: Radius.circular(3))),
+                    child: Column(
+
+                      children: [
+                          widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        Row(
+                          children: <Widget>[
+                            Flexible(
+                              fit: FlexFit.tight,
+                              flex: 3,
+                              child: Container(
+                                child: Center(
+                                  child: FlatButton(
+                                    onPressed: () {
+                                      widget.reproducirAudio();
+                                    },
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.play_arrow,
+                                      size: ScreenUtil().setSp(100),
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              flex: 11,
+                              child: Container(
+                                child: Stack(alignment: Alignment.center, children: <
+                                    Widget>[
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 15.0, right: 15),
+                                    child: LinearPercentIndicator(
+                                      lineHeight: ScreenUtil().setHeight(70),
+                                      percent: widget.posicion,
+                                    ),
+                                  ),
+                                  SliderTheme(
+                                    data: SliderThemeData(
+                                      thumbColor: Colors.transparent,
+                                      activeTickMarkColor: Colors.transparent,
+                                      activeTrackColor: Colors.transparent,
+                                      disabledActiveTickMarkColor: Colors.transparent,
+                                      disabledActiveTrackColor: Colors.transparent,
+                                      disabledInactiveTickMarkColor:
+                                          Colors.transparent,
+                                      disabledInactiveTrackColor: Colors.transparent,
+                                      disabledThumbColor: Colors.transparent,
+                                      inactiveTickMarkColor: Colors.transparent,
+                                      inactiveTrackColor: Colors.transparent,
+                                      overlappingShapeStrokeColor: Colors.transparent,
+                                      overlayColor: Colors.transparent,
+                                      valueIndicatorColor: Colors.transparent,
+                                    ),
+                                    child: Slider(
+                                      value: widget.posicion,
+                                      max: widget.duracionMensaje.toDouble(),
+                                      min: 0,
+                                      onChanged: (val) {
+                                        widget.posicionAudio(val);
+                                      },
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          child: Text(widget.f.format(widget.horaMensaje),
+                              style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                        ),
+                        widget.mensajeLeidoRemitente
+                            ? Icon(Icons.check_circle,
+                                color: Colors.white, size: 50.sp)
+                            : Container()
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class DialogoGrabacion extends StatefulWidget {
-  Function pararGrabacion;
+ final Function pararGrabacion;
   DialogoGrabacion({@required this.pararGrabacion});
   @override
   _DialogoGrabacionState createState() => _DialogoGrabacionState();
@@ -824,7 +1169,7 @@ class _DialogoGrabacionState extends State<DialogoGrabacion>
       iniciarContador();
     }
 
-    print("solamente tu");
+   
     mostradorCronometro =
         cronometro.elapsed.inMinutes.toString().padLeft(2, "0") +
             ":" +

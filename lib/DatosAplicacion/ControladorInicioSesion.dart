@@ -2,26 +2,26 @@ import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorSanciones.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
-import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
+
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/liberadorMemoria.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
-import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart';
-import 'package:citasnuevo/PrimeraPantalla.dart';
-import 'package:citasnuevo/PrimeraPantalla.dart';
-import 'package:citasnuevo/ServidorFirebase/firebase_sign_up.dart';
+
 import 'package:citasnuevo/base_app.dart';
 import 'package:citasnuevo/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as f;
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 class ControladorInicioSesion {
   static ControladorInicioSesion instancia = ControladorInicioSesion();
@@ -30,10 +30,10 @@ class ControladorInicioSesion {
       app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
   FirebaseDatabase referenciaStatus = FirebaseDatabase(
       app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
- static f.FirebaseAuth _auth = f.FirebaseAuth.instance;
-  static bool primeraConexion = false;
-  static GoogleSignIn googleSignIn = GoogleSignIn();
-  static var facebookLogin = FacebookLogin();
+  f.FirebaseAuth _auth = f.FirebaseAuth.instance;
+   bool primeraConexion = false;
+   GoogleSignIn googleSignIn = GoogleSignIn();
+   var facebookLogin = FacebookLogin();
 
   ///
   ///
@@ -99,58 +99,85 @@ class ControladorInicioSesion {
     return usuarioFacebook;
   }
 
-  static Future<bool> cerrarSesion() async {
+   Future<bool> cerrarSesion() async {
     bool seCerroSesion;
     await _auth.signOut().
     then((value)async {seCerroSesion=true;
-    await googleSignIn.isSignedIn().then((value) {if(value){
+    
+    await googleSignIn.isSignedIn().then((valor) {if(valor){
 seCerroSesion=true;
       googleSignIn.disconnect();
+       LimpiadorMemoria.liberarMemoria();
+ 
+ 
     }});
 
-  await  facebookLogin.isLoggedIn.then((value) {
-      if(value){
+  await  facebookLogin.isLoggedIn.then((valorFacebook) {
+      if(valorFacebook){
         seCerroSesion=true;
         facebookLogin.logOut();
+            LimpiadorMemoria.liberarMemoria();
+     
+   
     
       }
     });
-     PantallaDeInicio.iniciarSesion=false;
+     
     }).
     catchError((onError) => seCerroSesion = false);
+
 print("cerrando");
 
     return seCerroSesion;
   }
 
-  Future<bool> iniciarSesion(String idUsuario, BuildContext context,) async {
+  Future<bool> iniciarSesion(String idUsuarioCredencial, BuildContext context,) async {
     bool sinError=true;
     FirebaseFirestore basedatos = FirebaseFirestore.instance;
     print("Usuario");
+      
 
-    Usuario.esteUsuario.idUsuario = idUsuario;
+    Usuario.esteUsuario.idUsuario = idUsuarioCredencial;
 
-   await basedatos.collection("usuarios").doc(idUsuario).get().then((value) {
+   await basedatos.collection("usuarios").doc(idUsuarioCredencial).get().then((value)async {
       Usuario.esteUsuario.datosUsuario = value.data();
 
       if (Usuario.esteUsuario.datosUsuario != null&&value.exists) {
+    
+        ControladorCreditos.instancia.obtenerPrecioSolicitud();
+        ControladorCreditos.instancia.obtenerPrecioValoracion();
         Usuario.esteUsuario.datosUsuario = value.data();
         Usuario.esteUsuario.inicializarUsuario();
-        
- ControladorLocalizacion.instancia.obtenerLocalizacion().then((value) =>
+        await SancionesUsuario.instancia.obtenerSanciones().then((valor){
+
+      
+
+if(Usuario.esteUsuario.usuarioBloqueado==true){
+   Navigator.push(
+            context, MaterialPageRoute(builder: (context) => PantallaSancion(desdePantalla: false,)));
+}
+if(Usuario.esteUsuario.usuarioBloqueado==false){
+   ControladorLocalizacion.instancia.obtenerLocalizacion().then((value)async =>
  
-   ControladorLocalizacion.instancia.cargarPerfiles());
-       
+   ControladorLocalizacion.instancia.cargaPerfiles());
+    Conversacion.conversaciones.obtenerConversaciones();
+        Valoracion.instanciar.obtenerValoraciones();
 
-        Conversacion.conversaciones.obtenerConversaciones();
-        Valoracion.Puntuaciones.obtenerValoraciones();
-
-        Valoracion.Puntuaciones.obtenerMedia();
+        Valoracion.instanciar.obtenerMedia();
         VideoLlamada.escucharLLamadasEntrantes();
 
         Conversacion.conversaciones.escucharMensajes();
-        Navigator.push(
+ Navigator.push(
             context, MaterialPageRoute(builder: (context) => start()));
+}
+          
+        });
+        
+
+       
+
+     
+           
 
         _confirmarEstadoConexion();
 
