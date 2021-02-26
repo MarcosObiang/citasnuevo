@@ -14,11 +14,18 @@ import 'package:ntp/ntp.dart';
 import 'ControladorSanciones.dart';
 import 'Usuario.dart';
 
+
+enum EstadoSolicitudCreditosGratuitos{
+  noSolicitados,solicitando,entregados,error
+}
+
+
 class ControladorCreditos {
   static ControladorCreditos instancia = new ControladorCreditos();
+  EstadoSolicitudCreditosGratuitos estadoSolicitudCreditos=EstadoSolicitudCreditosGratuitos.noSolicitados;
   static int precioSolicitud;
   static int precioValoracion;
-   StreamSubscription<DocumentSnapshot> escuchadorUsuario;
+   StreamSubscription<QuerySnapshot> escuchadorUsuario;
   final HttpsCallable llamarDarCreditos = CloudFunctions.instance
       .getHttpsCallable(functionName: "darCreditosUsuario");
   final HttpsCallable llamarSolicitarCreditosDiarios = CloudFunctions.instance
@@ -94,34 +101,72 @@ class ControladorCreditos {
   }
 
   void recompensaDiaria() async {
+    estadoSolicitudCreditos=EstadoSolicitudCreditosGratuitos.solicitando;
     await llamarSolicitarCreditosDiarios.call(<String, dynamic>{
       "idUsuario": Usuario.esteUsuario.idUsuario,
-    }).then((value) => print(value.data));
+    }).then((value) {
+      if(value.data!="hecho"){
+        this.estadoSolicitudCreditos=EstadoSolicitudCreditosGratuitos.error;
+      }
+      else{
+ this.estadoSolicitudCreditos=EstadoSolicitudCreditosGratuitos.entregados;
+      }
+     
+      
+      }).catchError((error){
+      this.estadoSolicitudCreditos=EstadoSolicitudCreditosGratuitos.error;
+
+    });
   }
 
   void escucharCreditos() {
     FirebaseFirestore referenciaCreditos = FirebaseFirestore.instance;
     escuchadorUsuario = referenciaCreditos
         .collection("usuarios")
-        .doc(Usuario.esteUsuario.idUsuario)
+        .where("Id",isEqualTo:Usuario.esteUsuario.idUsuario)
         .snapshots()
+
         .listen((event) async {
       if (event != null) {
-        int creditosEnNube = (event.data()["creditos"]);
+        
+        if(event.docChanges.first.type!=DocumentChangeType.removed){
+
+               Map<String, dynamic> ajustes = event.docs.first["Ajustes"];
+    ControladorLocalizacion.instancia.setMostrarmeEnHotty =
+        ajustes["mostrarPerfil"];
+    ControladorLocalizacion.instancia.setDiistanciaMaxima =
+        ajustes["distanciaMaxima"].toDouble();
+    ControladorLocalizacion.instancia.setEdadFinal =
+        ajustes["edadFinal"].toDouble();
+    ControladorLocalizacion.instancia.setEdadInicial =
+        ajustes["edadInicial"].toDouble();
+    ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas =
+        ajustes["enMillas"];
+    ControladorLocalizacion.instancia.mostrarMujeres =
+        ajustes["mostrarMujeres"];
+    ControladorLocalizacion.instancia.activadorEdadesDeseadas =
+        new List<int>.from(ajustes["rangoEdades"]);
+
+
+
+
+
+
+   int creditosEnNube = (event.docs.first.data()["creditos"]);
         Usuario.esteUsuario.creditosUsuario = creditosEnNube;
         Usuario.esteUsuario.verificado =
-            event.data()["verificado"]["estadoVerificacion"];
+           event.docs.first.data()["verificado"]["estadoVerificacion"];
               bool notificado=
-            event.data()["verificado"]["verificacionNotificada"];
+         event.docs.first.data()["verificado"]["verificacionNotificada"];
             if(Usuario.esteUsuario.verificado=="Verificado"&&notificado==false){
               ControladorNotificacion.instancia.mostrarNotificacionVerificacion();
             }
 
-        Usuario.esteUsuario.mapaSanciones = event.data()["sancionado"];
+        Usuario.esteUsuario.mapaSanciones =  event.docs.first.data()["sancionado"];
       
 
         if (Usuario.esteUsuario.usuarioBloqueado !=
-            event.data()["sancionado"]["usuarioSancionado"]) {
+           event.docs.first.data()["sancionado"]["usuarioSancionado"]) {
           await SancionesUsuario.instancia.obtenerSanciones().then((valor) {
             if (Usuario.esteUsuario.usuarioBloqueado == true) {
               SancionesUsuario.instancia.finSancion = false;
@@ -135,14 +180,30 @@ class ControladorCreditos {
         }
 
         if (Usuario.esteUsuario.tiempoEstimadoRecompensa !=
-            event.data()["siguienteRecompensa"]) {
+          event.docs.first.data()["siguienteRecompensa"]) {
+
+            
           Usuario.esteUsuario.tiempoEstimadoRecompensa =
-              event.data()["siguienteRecompensa"];
+              event.docs.first.data()["siguienteRecompensa"];
+
+              if(Usuario.esteUsuario.tiempoEstimadoRecompensa==0){
+                ControladorNotificacion.mostrarNotificacionRespuestaRecompensaObtenida(BaseAplicacion.claveBase.currentContext);
+                ControladorCreditos.instancia.estadoSolicitudCreditos=EstadoSolicitudCreditosGratuitos.entregados;
+                
+              }
           Usuario.esteUsuario.contadorHastaRecompensa();
+
         }
+        
+        
 
         // ignore: invalid_use_of_protected_member
         Solicitudes.instancia.notifyListeners();
+        Usuario.esteUsuario.notifyListeners();
+        Valoracion.instanciar.notifyListeners();
+        }
+        
+     
       }
     });
   }

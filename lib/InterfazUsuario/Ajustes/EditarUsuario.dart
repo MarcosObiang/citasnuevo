@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:ui';
 
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_methods.dart';
@@ -17,9 +17,11 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 
+
+
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:drag_and_drop_gridview/devdrag.dart';
-
 
 class BotonEditarPerfil extends StatefulWidget {
   @override
@@ -27,6 +29,7 @@ class BotonEditarPerfil extends StatefulWidget {
 }
 
 class _BotonEditarPerfilState extends State<BotonEditarPerfil> {
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,7 +44,6 @@ class _BotonEditarPerfilState extends State<BotonEditarPerfil> {
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                   color: Colors.white70,
-                
                   borderRadius: BorderRadius.all(Radius.circular(20))),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +77,13 @@ class _BotonEditarPerfilState extends State<BotonEditarPerfil> {
                                 Text(
                                   "${Usuario.esteUsuario.nombre}, ${Usuario.esteUsuario.edad}",
                                   style: TextStyle(fontSize: 40.sp),
-                                ),Usuario.esteUsuario.verificado!="verificado"?Container(height: 0,width:0,):Icon(LineAwesomeIcons.check)
+                                ),
+                                Usuario.esteUsuario.verificado != "verificado"
+                                    ? Container(
+                                        height: 0,
+                                        width: 0,
+                                      )
+                                    : Icon(LineAwesomeIcons.check)
                               ],
                             ),
                           ),
@@ -141,7 +149,22 @@ class BotonesTiendaAplicacion extends StatefulWidget {
       _BotonesTiendaAplicacionState();
 }
 
-class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
+class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion>
+    with SingleTickerProviderStateMixin {
+  TabController controladorTabuladorPrecions;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    
+
+    controladorTabuladorPrecions =
+        new TabController(initialIndex: 0, length: 2, vsync: this);
+
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -149,60 +172,136 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
         Flexible(
           flex: 1,
           fit: FlexFit.tight,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: Colors.deepPurple[900],
-              ),
-              height: 100.h,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    "Hotty Premium",
-                    style:
-                        GoogleFonts.lemon(fontSize: 60.sp, color: Colors.white),
-                  ),
-                  Row(
-                    children: [
-                      Text("${9.99}",
-                          style: GoogleFonts.lemon(
-                              fontSize: 40.sp, color: Colors.white)),
-                      Icon(
-                        Icons.euro,
-                        color: Colors.white,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
+          child: TabBar(
+            labelColor: Colors.red,
+            controller: controladorTabuladorPrecions,
+            tabs: [Text("Tarjeta"), Text("Google Pay")],
           ),
         ),
         Flexible(
+          flex: 15,
           fit: FlexFit.tight,
-          flex: 5,
-          child: Container(
-              width: ScreenUtil.screenWidth,
-              child: GridView.count(
-                crossAxisCount: 2,
-                children: [
-                  botonComprasCreditos(0.99, 1000,1),
-                  botonComprasCreditos(1.99, 2000,2),
-                  botonComprasCreditos(2.99, 3500,3),
-                  botonComprasCreditos(3.99, 5000,4),
-           
-                ],
-              )),
-        )
+          child:
+              TabBarView(controller: controladorTabuladorPrecions, children: [
+            Column(
+              children: [
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.tight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Colors.deepPurple[900],
+                      ),
+                      height: 100.h,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "Hotty Premium",
+                            style: GoogleFonts.lemon(
+                                fontSize: 60.sp, color: Colors.white),
+                          ),
+                          Row(
+                            children: [
+                              Text("${8.99}",
+                                  style: GoogleFonts.lemon(
+                                      fontSize: 40.sp, color: Colors.white)),
+                              Icon(
+                                Icons.euro,
+                                color: Colors.white,
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  fit: FlexFit.tight,
+                  flex: 5,
+                  child: Container(
+                      width: ScreenUtil.screenWidth,
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.5 / 1,
+                        children: [
+                          botonComprasCreditos(0.99, 1000, 1),
+                          botonComprasCreditos(1.99, 2000, 1),
+                          botonComprasCreditos(1.99, 3500, 1),
+                          botonComprasCreditos(2.99, 5000, 1),
+                        ],
+                      )),
+                )
+              ],
+            ),
+            Column(
+              children: [
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.tight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Colors.deepPurple[900],
+                      ),
+                      height: 100.h,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "Hotty Premium",
+                            style: GoogleFonts.lemon(
+                                fontSize: 60.sp, color: Colors.white),
+                          ),
+                          Row(
+                            children: [
+                              Text("${9.99}",
+                                  style: GoogleFonts.lemon(
+                                      fontSize: 40.sp, color: Colors.white)),
+                              Icon(
+                                Icons.euro,
+                                color: Colors.white,
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  fit: FlexFit.tight,
+                  flex: 5,
+                  child: Container(
+                      width: ScreenUtil.screenWidth,
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.5 / 1,
+                        children: [
+                          botonComprasCreditos(0.99, 1000, 1),
+                          botonComprasCreditos(1.99, 2000, 1),
+                          botonComprasCreditos(2.99, 3500, 1),
+                          botonComprasCreditos(3.99, 5000, 1),
+                        ],
+                      )),
+                )
+              ],
+            ),
+          ]),
+        ),
       ],
     );
   }
 
+ 
   Padding botonComprasCreditos(
-      double precioPaqueteCreditos, int cantidadCreditos,int orden) {
+      double precioPaqueteCreditos, int cantidadCreditos, int orden) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -221,35 +320,63 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
                   Flexible(
                     fit: FlexFit.tight,
                     flex: 7,
-                    child: orden==1?Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(LineAwesomeIcons.coins, size: 70.sp)):orden==2?Row( mainAxisAlignment: MainAxisAlignment.start, children: [Icon(LineAwesomeIcons.coins, size: 70.sp),Icon(LineAwesomeIcons.coins, size: 70.sp)],):orden==3?
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(LineAwesomeIcons.coins, size: 70.sp),
-                        Row(children: [Icon(LineAwesomeIcons.coins, size: 70.sp),Icon(LineAwesomeIcons.coins, size: 70.sp),],),
-                      ],
-                    ):  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(LineAwesomeIcons.coins, size: 70.sp),
-                             Icon(LineAwesomeIcons.coins, size: 70.sp),
-                          ],
-                        ),
-                        Row(children: [Icon(LineAwesomeIcons.coins, size: 70.sp),Icon(LineAwesomeIcons.coins, size: 70.sp),],),
-                      ],
-                    ),
+                    child: orden == 1
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(LineAwesomeIcons.coins, size: 70.sp))
+                        : orden == 2
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(LineAwesomeIcons.coins, size: 70.sp),
+                                  Icon(LineAwesomeIcons.coins, size: 70.sp)
+                                ],
+                              )
+                            : orden == 3
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(LineAwesomeIcons.coins, size: 70.sp),
+                                      Row(
+                                        children: [
+                                          Icon(LineAwesomeIcons.coins,
+                                              size: 70.sp),
+                                          Icon(LineAwesomeIcons.coins,
+                                              size: 70.sp),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(LineAwesomeIcons.coins,
+                                              size: 70.sp),
+                                          Icon(LineAwesomeIcons.coins,
+                                              size: 70.sp),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(LineAwesomeIcons.coins,
+                                              size: 70.sp),
+                                          Icon(LineAwesomeIcons.coins,
+                                              size: 70.sp),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                   ),
                   Flexible(
                     fit: FlexFit.loose,
                     flex: 5,
-                    child: Text(
-                      "$cantidadCreditos Creditos",
-                      style: GoogleFonts.lato(fontSize: 45.sp,fontWeight: FontWeight.bold)
-                    ),
+                    child: Text("$cantidadCreditos Creditos",
+                        style: GoogleFonts.lato(
+                            fontSize: 45.sp, fontWeight: FontWeight.bold)),
                   ),
                   Flexible(
                     fit: FlexFit.tight,
@@ -258,9 +385,10 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion> {
                       children: [
                         Text(
                           "$precioPaqueteCreditos",
-                          style: GoogleFonts.lato(fontSize: 50.sp,fontWeight: FontWeight.bold),
+                          style: GoogleFonts.lato(
+                              fontSize: 50.sp, fontWeight: FontWeight.bold),
                         ),
-                        Icon(Icons.euro,size: 40.sp),
+                        Icon(Icons.euro, size: 40.sp),
                       ],
                     ),
                   )
@@ -331,7 +459,7 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Usuario.esteUsuario.editarPerfilUsuario(Usuario.esteUsuario.idUsuario);
+       // Usuario.esteUsuario.editarPerfilUsuario(Usuario.esteUsuario.idUsuario);
         print("saliendo");
         return true;
       },
@@ -359,7 +487,7 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
                               children: [
                                 Container(
                                   color: Colors.transparent,
-                                  height: 1200.h,
+                                  height: 1000.h,
                                   child: DragAndDropGridView(
                                     dragStartBehavior: DragStartBehavior.start,
                                     isCustomChildWhenDragging: false,
@@ -428,27 +556,13 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
                                 Divider(height: 80.h),
                                 Text(
                                     "*Presiona y arrastra para cambiar el orden de las imagenes*"),
-                                EditorNombre(),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Edad"),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        BotonNacimiento(Usuario
-                                            .esteUsuario.fechaNacimiento),
-                                        MostradorEdad(Usuario.esteUsuario.edad),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                             
+                       
                                 EditorDescripcion(),
-                            
                                 Container(
-                                  height: 1000.h,
-                                  child: ListaDeCaracteristicasUsuarioEditar()),
+                                    height: 1000.h,
+                                    child:
+                                        ListaDeCaracteristicasUsuarioEditar()),
                               ],
                             ),
                           ]),
@@ -464,7 +578,6 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
   }
 }
 
-
 class ListaDeCaracteristicasUsuarioEditar extends StatefulWidget {
   @override
   _ListaDeCaracteristicasUsuarioEditarState createState() =>
@@ -473,31 +586,39 @@ class ListaDeCaracteristicasUsuarioEditar extends StatefulWidget {
 
 class _ListaDeCaracteristicasUsuarioEditarState
     extends State<ListaDeCaracteristicasUsuarioEditar> {
+      ScrollController controladorScroll= new ScrollController(keepScrollOffset: true);
+      
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView(
-         
-          children: <Widget>[
-            /*Text("Trabajo y Formacion"),
-            ModificadorFormacion(),
-            ModificadorTrabajo(),*/
-           
-            
-            EditorOrientacionSexual(),
-              EditorAltura(),
-            EditorComplexion(),
-            EditorAlcohol(),
-            EditorTabaco(),
-            EditorMascotas(),
-            EditorObjetivoRelaciones(),
-            EditorHijos(),
-            EditorPolitica(),
-            EditorVivirCon(),
-          
-          ],
+        child: Scrollbar(
+        
+          isAlwaysShown: true,
+controller: controladorScroll,
+          thickness: 20.w,
+          child: Padding(
+            padding: const EdgeInsets.only(left:8.0,right:15),
+            child: ListView(
+              children: <Widget>[
+                /*Text("Trabajo y Formacion"),
+                ModificadorFormacion(),
+                ModificadorTrabajo(),*/
+
+                EditorOrientacionSexual(),
+                EditorAltura(),
+                EditorComplexion(),
+                EditorAlcohol(),
+                EditorTabaco(),
+                EditorMascotas(),
+                EditorObjetivoRelaciones(),
+                EditorHijos(),
+                EditorPolitica(),
+                EditorVivirCon(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -742,7 +863,9 @@ class FotosPerfilState extends State<FotosPerfil> {
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
-        ));
+        )).catchError((error){
+          print(error);
+        });
     if (imagenRecortada != null) {}
 
     this.setState(() {
@@ -773,7 +896,7 @@ class FotosPerfilState extends State<FotosPerfil> {
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
-        ));
+        )).catchError((error){print(error);});
     if (imagenRecortada != null) {}
 
     this.setState(() {
@@ -879,7 +1002,9 @@ class _EditorDescripcionState extends State<EditorDescripcion> {
       child: TextField(
         maxLines: 5,
         controller: controladorEditorDescripcion,
+        textInputAction: TextInputAction.done,
         decoration: InputDecoration(
+
             labelText: "Descripcion",
             floatingLabelBehavior: FloatingLabelBehavior.always),
         onChanged: (val) {
@@ -889,7 +1014,6 @@ class _EditorDescripcionState extends State<EditorDescripcion> {
     );
   }
 }
-
 
 class EditorAltura extends StatefulWidget {
   @override
@@ -1054,154 +1178,133 @@ class _EditorAlturaState extends State<EditorAltura> {
   }
 }
 
-
 class EditorOrientacionSexual extends StatefulWidget {
   @override
-  _EditorOrientacionSexualState createState() => _EditorOrientacionSexualState();
+  _EditorOrientacionSexualState createState() =>
+      _EditorOrientacionSexualState();
 }
 
 class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
-  bool hetero=false;
-  bool gay=false;
-  bool lesbiana=false;
-  bool bisexual=false;
-  bool asexual=false;
-  bool demisexual=false;
-  bool queer=false;
-  bool pansexual=false;
-  bool pregunatme=false;
+  bool hetero = false;
+  bool gay = false;
+  bool lesbiana = false;
+  bool bisexual = false;
+  bool asexual = false;
+  bool demisexual = false;
+  bool queer = false;
+  bool pansexual = false;
+  bool pregunatme = false;
 
-
-  void mostrarValor(){
-    if(Usuario.esteUsuario.getOrientacionSexual==0){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+  void mostrarValor() {
+    if (Usuario.esteUsuario.getOrientacionSexual == 0) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==1){
-
-      hetero=true;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 1) {
+      hetero = true;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==2){
-
-      hetero=false;
-      gay=true;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 2) {
+      hetero = false;
+      gay = true;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==3){
-
-      hetero=false;
-      gay=false;
-      lesbiana=true;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 3) {
+      hetero = false;
+      gay = false;
+      lesbiana = true;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==4){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=true;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 4) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = true;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==5){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=true;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 5) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = true;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==6){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=true;
-      queer=false;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 6) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = true;
+      queer = false;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==7){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=true;
-      pansexual=false;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 7) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = true;
+      pansexual = false;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==8){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=true;
-      pregunatme=false;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 8) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = true;
+      pregunatme = false;
     }
-    if(Usuario.esteUsuario.getOrientacionSexual==9){
-
-      hetero=false;
-      gay=false;
-      lesbiana=false;
-      bisexual=false;
-      asexual=false;
-      demisexual=false;
-      queer=false;
-      pansexual=false;
-      pregunatme=true;
-
+    if (Usuario.esteUsuario.getOrientacionSexual == 9) {
+      hetero = false;
+      gay = false;
+      lesbiana = false;
+      bisexual = false;
+      asexual = false;
+      demisexual = false;
+      queer = false;
+      pansexual = false;
+      pregunatme = true;
     }
   }
 
@@ -1212,7 +1315,7 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
       padding: EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.getOrientacionSexual== 0
+              color: Usuario.esteUsuario.getOrientacionSexual == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -1225,7 +1328,10 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
                     flex: 2,
                     fit: FlexFit.tight,
                     child: Icon(LineAwesomeIcons.venus_mars)),
-                Flexible(flex: 10, fit: FlexFit.tight, child: Text("Orientacion sexual")),
+                Flexible(
+                    flex: 10,
+                    fit: FlexFit.tight,
+                    child: Text("Orientacion sexual")),
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
@@ -1241,7 +1347,6 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
   }
 
   void modificarAtributo(BuildContext context) {
-   
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1253,16 +1358,12 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
               value: Usuario.esteUsuario,
               child: Material(
                 child: Container(
-                  height: ScreenUtil.screenHeight,
-                  child: 
-                  Consumer<Usuario>(
-                    builder: (context, myType, child) {
-                      return  botonesOrientacionSexual(context) ;
-                    },
-                  )
-                  
-                 
-                ),
+                    height: ScreenUtil.screenHeight,
+                    child: Consumer<Usuario>(
+                      builder: (context, myType, child) {
+                        return botonesOrientacionSexual(context);
+                      },
+                    )),
               ),
             );
           },
@@ -1273,108 +1374,126 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
 
   Column botonesOrientacionSexual(BuildContext context) {
     return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 50.0, right: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Container(
-                              child: Row(
-                            children: <Widget>[
-                              Icon(LineAwesomeIcons.venus_mars),
-                              Text(
-                                "Orientacion Sexual",
-                                style: TextStyle(
-                                    fontSize: ScreenUtil().setSp(60)),
-                              ),
-                            ],
-                          )),
-                          FlatButton(
-                              onPressed: () {
-                                Usuario.esteUsuario.setPreferenciaSexual = 0;
-                               
-                                Navigator.pop(context);
-                              },
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.cancel,
-                                    color: Colors.red,
-                                  ),
-                                  Text("Eliminar",
-                                      style: TextStyle(color: Colors.red))
-                                ],
-                              )),
-                        ],
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 50.0, right: 30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                  child: Row(
+                children: <Widget>[
+                  Icon(LineAwesomeIcons.venus_mars),
+                  Text(
+                    "Orientacion Sexual",
+                    style: TextStyle(fontSize: ScreenUtil().setSp(60)),
+                  ),
+                ],
+              )),
+              FlatButton(
+                  onPressed: () {
+                    Usuario.esteUsuario.setPreferenciaSexual = 0;
+
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.cancel,
+                        color: Colors.red,
                       ),
-                    ),
-                    CheckboxListTile(
-                      
-                      title: Text("Heterosexual"),
-                      value: hetero, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=1;
-                      
-                    }),
-                    CheckboxListTile( title: Text("Gay"),value: gay, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=2;
-                    }),
-                    CheckboxListTile( title: Text("Lesbiana"),value: lesbiana, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=3;
-                    }),
-                    CheckboxListTile( title: Text("Bisexual"),value: bisexual, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=4;
-                    }),
-                    CheckboxListTile( title: Text("Asexual"),value: asexual, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=5;
-                    }),
-                    CheckboxListTile( title: Text("Demisexual"),value: demisexual, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=6;
-                    }),
-                    CheckboxListTile( title: Text("Queer"),value: queer, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=7;
-                    }),
-                    CheckboxListTile( title: Text("Pansexual"),value: pansexual, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=8;
-                    }),
-                    CheckboxListTile( title: Text("Preguntame"),value: pregunatme, onChanged: (valor){
-                      Usuario.esteUsuario.setOrientacionSexual=9;
-                    }),
-              
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Container(
-                          child: FlatButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                "Cancelar",
-                                style: TextStyle(color: Colors.red),
-                              )),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(3)),
-                          ),
-                          child: FlatButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              
-                              },
-                              child: Text(
-                                "Aceptar",
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        )
-                      ],
-                    )
-                  ],
-                );
+                      Text("Eliminar", style: TextStyle(color: Colors.red))
+                    ],
+                  )),
+            ],
+          ),
+        ),
+        CheckboxListTile(
+            title: Text("Heterosexual"),
+            value: hetero,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 1;
+            }),
+        CheckboxListTile(
+            title: Text("Gay"),
+            value: gay,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 2;
+            }),
+        CheckboxListTile(
+            title: Text("Lesbiana"),
+            value: lesbiana,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 3;
+            }),
+        CheckboxListTile(
+            title: Text("Bisexual"),
+            value: bisexual,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 4;
+            }),
+        CheckboxListTile(
+            title: Text("Asexual"),
+            value: asexual,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 5;
+            }),
+        CheckboxListTile(
+            title: Text("Demisexual"),
+            value: demisexual,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 6;
+            }),
+        CheckboxListTile(
+            title: Text("Queer"),
+            value: queer,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 7;
+            }),
+        CheckboxListTile(
+            title: Text("Pansexual"),
+            value: pansexual,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 8;
+            }),
+        CheckboxListTile(
+            title: Text("Preguntame"),
+            value: pregunatme,
+            onChanged: (valor) {
+              Usuario.esteUsuario.setOrientacionSexual = 9;
+            }),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Container(
+              child: FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Cancelar",
+                    style: TextStyle(color: Colors.red),
+                  )),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.all(Radius.circular(3)),
+              ),
+              child: FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Aceptar",
+                    style: TextStyle(color: Colors.white),
+                  )),
+            )
+          ],
+        )
+      ],
+    );
   }
 }
 

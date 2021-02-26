@@ -1,15 +1,17 @@
 import 'dart:async';
-import 'dart:math';
-import 'dart:ui' as ui;
+
 import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
-import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
+
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
-import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:flash/flash.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart' as xd;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,8 +20,9 @@ import 'package:ntp/ntp.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-
 import 'Usuario.dart';
+
+enum RevelarSolicitudEstado { noRevelada, revelando, revelada }
 
 class Solicitudes with ChangeNotifier {
   static Solicitudes instancia = Solicitudes();
@@ -41,20 +44,65 @@ class SolicitudConversacion with ChangeNotifier {
   DateTime fechaSolicitud;
   DateTime fechaCaducidadSolicitud;
   int segundosRestantes;
-   var formatoTiempo = new DateFormat("HH:mm:ss");
-  StreamController<int> notificadorFinTiempo= StreamController.broadcast();
-   StreamSubscription<QuerySnapshot> escuchadorSolicitudes;
+  bool solicitudVisible = true;
+  RevelarSolicitudEstado estadoRevelacion = RevelarSolicitudEstado.noRevelada;
+  ValueNotifier<bool> notificarEliminacion;
+  var formatoTiempo = new DateFormat("HH:mm:ss");
+  StreamController<int> notificadorFinTiempo = StreamController.broadcast();
+  StreamSubscription<QuerySnapshot> escuchadorSolicitudes;
 
- 
-
-   DateTime fechaReferenciaSolicitudes;
+  DateTime fechaReferenciaSolicitudes;
   FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
   bool solicitudRevelada;
- bool get getSolicitudRevelada => solicitudRevelada;
+  bool get getSolicitudRevelada => solicitudRevelada;
 
- set setSolicitudRevelada(bool solicitudRevelada) => this.solicitudRevelada = solicitudRevelada;
+  set setSolicitudRevelada(bool solicitudRevelada) {
+    this.solicitudRevelada = solicitudRevelada;
+    if (this.solicitudRevelada &&
+        WidgetSolicitudConversacion.llaveListaSolicitudes.currentContext !=
+            null) {
+      notificacionSolicitudRevelada(
+          WidgetSolicitudConversacion.llaveListaSolicitudes.currentContext);
+    }
+  }
+
+  static void notificacionSolicitudRevelada(BuildContext context) {
+    showFlash(
+        duration: Duration(seconds: 3),
+        context: context,
+        builder: (context, controller) {
+          return Flash.dialog(
+            controller: controller,
+            alignment: Alignment.topCenter,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderColor: Colors.white,
+            backgroundColor: Colors.deepPurple,
+            margin: EdgeInsets.only(bottom: 150.h),
+            child: Container(
+              width: ScreenUtil().setWidth(900),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      "Solicitud revelada",
+                      style: GoogleFonts.lato(
+                          fontSize: 55.sp, color: Colors.white),
+                    ),
+                    Icon(Icons.check_circle, color: Colors.green)
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
   WidgetSolicitudConversacion widgetSolicitud;
-  
+
   SolicitudConversacion();
   SolicitudConversacion.crear(
       {@required this.nombreEmisor,
@@ -66,158 +114,218 @@ class SolicitudConversacion with ChangeNotifier {
       @required this.calificacion,
       @required this.idSolicitudConversacion,
       @required this.idEmisor}) {
-    segundosRestantes = fechaCaducidadSolicitud.difference(fechaReferenciaSolicitudes).inSeconds;
-     
-      if(segundosRestantes>86400){
-        segundosRestantes=86400;
+    notificarEliminacion = new ValueNotifier(this.solicitudVisible);
+    segundosRestantes = fechaCaducidadSolicitud
+        .difference(instancia.fechaReferenciaSolicitudes)
+        .inSeconds;
 
-      }
-     
+    if (segundosRestantes > 86400) {
+      segundosRestantes = 86400;
+    }
+
     print("construido");
     contadorTiempoSolicitudes();
   }
 
-  void contadorTiempoSolicitudes()async{
+  void contadorTiempoSolicitudes() async {
     Timer flutterTimer;
-    
-    flutterTimer=new Timer.periodic(Duration(seconds:1), (valor){
-      
 
-if(segundosRestantes>0&&this.solicitudRevelada==false&&!!this.notificadorFinTiempo.isClosed){
-  segundosRestantes=segundosRestantes-1;
-  Solicitudes.instancia.notifyListeners();
-          notificadorFinTiempo.add(segundosRestantes);
-
-    }
-
-    if(!!this.notificadorFinTiempo.isClosed){
-
-    }
-    if(segundosRestantes==0&&this.solicitudRevelada==false&&!!this.notificadorFinTiempo.isClosed){
-      flutterTimer.cancel();
-      
-  
-      if(WidgetSolicitudConversacion.llaveListaSolicitudes.currentState==null){
-        Solicitudes.instancia.listaSolicitudesConversacion.removeWhere((element) => element.idSolicitudConversacion==this.idSolicitudConversacion);
-        eliminarSolicitudConversacion(this.idSolicitudConversacion);
-
+    flutterTimer = new Timer.periodic(Duration(seconds: 1), (valor) {
+      if (segundosRestantes > 0 &&
+          this.solicitudRevelada == false &&
+          this.notificadorFinTiempo.isClosed == false) {
+        segundosRestantes = segundosRestantes - 1;
+        Solicitudes.instancia.notifyListeners();
+        notificadorFinTiempo.add(segundosRestantes);
       }
-   
-    }
+
+      if (this.notificadorFinTiempo.isClosed) {
+        flutterTimer.cancel();
+      }
+      if (segundosRestantes == 0 &&
+          this.solicitudRevelada == false &&
+          this.notificadorFinTiempo.isClosed == false) {
+        flutterTimer.cancel();
+
+        if (WidgetSolicitudConversacion.llaveListaSolicitudes.currentState ==
+            null) {
+          Solicitudes.instancia.listaSolicitudesConversacion.removeWhere(
+              (element) =>
+                  element.idSolicitudConversacion ==
+                  this.idSolicitudConversacion);
+          eliminarSolicitudConversacion(this.idSolicitudConversacion);
+        }
+      }
     });
-
-
-    
-
-      
-       
-    
-
   }
 
   void obtenerSolicitudes() async {
     int indice = 0;
 
-    await NTP.now().then((value) {
-      fechaReferenciaSolicitudes = value;
-      DateTime fechaQuery = value.subtract(Duration(days: 1));
-      baseDatosRef
-          .collection("solicitudes conversaciones")
-          .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
-          .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
-          .get()
-          .then((value) {
-        if (value != null) {
-          for (QueryDocumentSnapshot documento in value.docs) {
-            SolicitudConversacion solicitud = new SolicitudConversacion.crear(
-                fechaSolicitud: documento.get("tiemmpo").toDate(),
-                idEmisor: documento.get("idEmisor"),
-                nombreEmisor: documento.get("nombreEmisor"),
-                fechaCaducidadSolicitud: documento.get("caducidad").toDate(),
-                idDestino: documento.get("idDestino"),
-                imagenEmisor: documento.get("imagenEmisor"),
-                solicitudRevelada: documento.get("solicitudRevelada"),
-                calificacion: documento.get("calificacion"),
-                idSolicitudConversacion:
-                    documento.get("idSolicitudConversacion"));
-            // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
-            Solicitudes.instancia.listaSolicitudesConversacion
-                .insert(indice, solicitud);
-          }
+    DateTime fechaQueryInternet;
+    await NTP
+        .now()
+        .then((value) => fechaQueryInternet = value)
+        .catchError((onError) => fechaQueryInternet = DateTime.now());
+
+    this.fechaReferenciaSolicitudes = fechaQueryInternet;
+    DateTime fechaQuery = fechaQueryInternet.subtract(Duration(days: 1));
+    baseDatosRef
+        .collection("solicitudes conversaciones")
+        .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
+        .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
+        .get()
+        .then((value) {
+      if (value != null) {
+        for (QueryDocumentSnapshot documento in value.docs) {
+          if (documento.get("tiemmpo") != null &&
+              documento.get("idEmisor") != null &&
+              documento.get("nombreEmisor") != null &&
+              documento.get("caducidad") != null &&
+              documento.get("idDestino") != null &&
+              documento.get("imagenEmisor") != null &&
+              documento.get("solicitudRevelada") != null &&
+              documento.get("calificacion") != null &&
+              documento.get("idSolicitudConversacion") != null) {
+                SolicitudConversacion solicitud = new SolicitudConversacion.crear(
+              fechaSolicitud: documento.get("tiemmpo").toDate(),
+              idEmisor: documento.get("idEmisor"),
+              nombreEmisor: documento.get("nombreEmisor"),
+              fechaCaducidadSolicitud: documento.get("caducidad").toDate(),
+              idDestino: documento.get("idDestino"),
+              imagenEmisor: documento.get("imagenEmisor"),
+              solicitudRevelada: documento.get("solicitudRevelada"),
+              calificacion: documento.get("calificacion"),
+              idSolicitudConversacion:
+                  documento.get("idSolicitudConversacion"));
+          // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
+          Solicitudes.instancia.listaSolicitudesConversacion
+              .insert(indice, solicitud);
+              }
+          
         }
-      }).then((value) => escucharSolicitudesConversacion());
-    });
+      }
+    }).then((value) => escucharSolicitudesConversacion());
   }
 
   void escucharSolicitudesConversacion() async {
-    DateTime fechaQuery=fechaReferenciaSolicitudes.subtract(Duration(days: 1));
-  escuchadorSolicitudes=  baseDatosRef
+    DateTime fechaQuery =
+        fechaReferenciaSolicitudes.subtract(Duration(days: 1));
+    escuchadorSolicitudes = baseDatosRef
         .collection("solicitudes conversaciones")
-             .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
+        .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .snapshots()
         .listen((event) {
       bool coincidencias;
-      if (event.docs.length > 0) {
-        for (int a = 0; a < event.docs.length; a++) {
-          coincidencias = false;
-          int indice = 0;
+      if (event.docChanges.length > 0) {
+        for (int a = 0; a < event.docChanges.length; a++) {
+          if (event.docChanges[a].type != DocumentChangeType.removed) {
+            coincidencias = false;
+            int indice = 0;
 
-          for (int b = 0;
-              b < Solicitudes.instancia.listaSolicitudesConversacion.length;
-              b++) {
-            if (event.docs[a].id ==
-                Solicitudes.instancia.listaSolicitudesConversacion[b]
-                    .idSolicitudConversacion) {
-              coincidencias = true;
-              indice = b;
+            for (int b = 0;
+                b < Solicitudes.instancia.listaSolicitudesConversacion.length;
+                b++) {
+              if (event.docChanges[a].doc.id ==
+                  Solicitudes.instancia.listaSolicitudesConversacion[b]
+                      .idSolicitudConversacion) {
+                coincidencias = true;
+                indice = b;
+              }
+            }
+
+            if (coincidencias) {
+              if(event.docChanges[a].doc.get("nombreEmisor")!=null&&event.docChanges[a].doc.get("imagenEmisor")!=null&&event.docChanges[a].doc.get("solicitudRevelada")!=null){
+if (event.docChanges[a].doc.get("nombreEmisor") !=
+                  Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                      .nombreEmisor) {
+                Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                    .nombreEmisor = event.docChanges[a].doc.get("nombreEmisor");
+              }
+              if (event.docs[a].get("imagenEmisor") !=
+                  Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                      .imagenEmisor) {
+                Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                    .imagenEmisor = event.docChanges[a].doc.get("imagenEmisor");
+              }
+              if (event.docChanges[a].doc.get("solicitudRevelada") !=
+                  Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                      .solicitudRevelada) {
+                Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                        .setSolicitudRevelada =
+                    event.docChanges[a].doc.get("solicitudRevelada");
+              }
+              Solicitudes.instancia.notifyListeners();
+              }
+              
+            }
+
+            if (!coincidencias) {
+               if(event.docChanges[a].doc.get("nombreEmisor")!=null&&event.docChanges[a].doc.get("imagenEmisor")!=null&&event.docChanges[a].doc.get("solicitudRevelada")!=null){
+    SolicitudConversacion solicitud = new SolicitudConversacion.crear(
+                  fechaSolicitud:
+                      event.docChanges[a].doc.get("tiemmpo").toDate(),
+                  idEmisor: event.docChanges[a].doc.get("idEmisor"),
+                  nombreEmisor: event.docChanges[a].doc.get("nombreEmisor"),
+                  idDestino: event.docChanges[a].doc.get("idDestino"),
+                  fechaCaducidadSolicitud:
+                      event.docChanges[a].doc.get("caducidad").toDate(),
+                  imagenEmisor: event.docChanges[a].doc.get("imagenEmisor"),
+                  solicitudRevelada:
+                      event.docChanges[a].doc.get("solicitudRevelada"),
+                  calificacion: event.docChanges[a].doc.get("calificacion"),
+                  idSolicitudConversacion:
+                      event.docChanges[a].doc.get("idSolicitudConversacion"));
+              // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
+              Solicitudes.instancia.listaSolicitudesConversacion
+                  .insert(0, solicitud);
+              if (WidgetSolicitudConversacion
+                      .llaveListaSolicitudes.currentState !=
+                  null) {
+                WidgetSolicitudConversacion.llaveListaSolicitudes.currentState
+                    .insertItem(0);
+              }
+              Solicitudes.instancia.notifyListeners();
+               }
+          
             }
           }
-
-          if (coincidencias) {
-            if (event.docs[a].get("nombreEmisor") !=
-                Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                    .nombreEmisor) {
-              Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                  .nombreEmisor = event.docs[a].get("nombreEmisor");
+          if (event.docChanges[a].type == DocumentChangeType.removed) {
+            String idSolicitudEliminar =
+                event.docChanges[a].doc.get("idSolicitudConversacion");
+                if(idSolicitudEliminar!=null){
+for (int z = 0;
+                z < Solicitudes.instancia.listaSolicitudesConversacion.length;
+                z++) {
+              if (Solicitudes.instancia.listaSolicitudesConversacion[z]
+                      .idSolicitudConversacion ==
+                  idSolicitudEliminar) {
+                if (WidgetSolicitudConversacion
+                        .llaveListaSolicitudes.currentState !=
+                    null) {
+                  Solicitudes.instancia.listaSolicitudesConversacion[z]
+                      .solicitudVisible = false;
+                  Solicitudes.instancia.listaSolicitudesConversacion[z]
+                      .notificarEliminacion
+                      .notifyListeners();
+                }
+                if (WidgetSolicitudConversacion
+                        .llaveListaSolicitudes.currentState ==
+                    null) {
+                  int indiceSolicitudEliminar = Solicitudes
+                      .instancia.listaSolicitudesConversacion
+                      .indexWhere((valor) =>
+                          valor.idSolicitudConversacion == idSolicitudEliminar);
+                  if (indiceSolicitudEliminar >= 0) {
+                    Solicitudes.instancia.listaSolicitudesConversacion
+                        .removeAt(indiceSolicitudEliminar);
+                  }
+                }
+              }
             }
-            if (event.docs[a].get("imagenEmisor") !=
-                Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                    .imagenEmisor) {
-              Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                  .imagenEmisor = event.docs[a].get("imagenEmisor");
-            }
-            if (event.docs[a].get("solicitudRevelada") !=
-                Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                    .solicitudRevelada) {
-              Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                  .solicitudRevelada = event.docs[a].get("solicitudRevelada");
-            }
-            Solicitudes.instancia.notifyListeners();
-          }
-
-          if (!coincidencias) {
-            SolicitudConversacion solicitud = new SolicitudConversacion.crear(
-                fechaSolicitud: event.docs[a].get("tiemmpo").toDate(),
-                idEmisor: event.docs[a].get("idEmisor"),
-                nombreEmisor: event.docs[a].get("nombreEmisor"),
-                idDestino: event.docs[a].get("idDestino"),
-                 fechaCaducidadSolicitud: event.docs[a].get("caducidad").toDate(),
-                imagenEmisor: event.docs[a].get("imagenEmisor"),
-                solicitudRevelada: event.docs[a].get("solicitudRevelada"),
-                calificacion: event.docs[a].get("calificacion"),
-                idSolicitudConversacion:
-                    event.docs[a].get("idSolicitudConversacion"));
-            // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
-            Solicitudes.instancia.listaSolicitudesConversacion
-                .insert(0, solicitud);
-            if (WidgetSolicitudConversacion
-                    .llaveListaSolicitudes.currentState !=
-                null) {
-              WidgetSolicitudConversacion.llaveListaSolicitudes.currentState
-                  .insertItem(0);
-            }
-            Solicitudes.instancia.notifyListeners();
+                }
+            
           }
         }
       }
@@ -249,19 +357,24 @@ if(segundosRestantes>0&&this.solicitudRevelada==false&&!!this.notificadorFinTiem
         .delete();
   }
 
+  void cerrarEscuchadorSolicitudes() {
+    for (int i = 0;
+        i < Solicitudes.instancia.listaSolicitudesConversacion.length;
+        i++) {
+      Solicitudes.instancia.listaSolicitudesConversacion[i].notificadorFinTiempo
+          .close();
+    }
+    if (escuchadorSolicitudes != null) {
+      escuchadorSolicitudes.cancel();
+      escuchadorSolicitudes = null;
+    }
 
+    SolicitudConversacion.instancia.fechaReferenciaSolicitudes = null;
 
- void cerrarEscuchadorSolicitudes(){
-   for (int i=0;i<Solicitudes.instancia.listaSolicitudesConversacion.length;i++){
-     Solicitudes.instancia.listaSolicitudesConversacion[i].notificadorFinTiempo.close();
-   }
-  escuchadorSolicitudes.cancel();
-  escuchadorSolicitudes=null;
-  SolicitudConversacion.instancia.fechaReferenciaSolicitudes=null;
-  Solicitudes.instancia.listaSolicitudesConversacion.clear();
-}
-
-
+    if (Solicitudes.instancia.listaSolicitudesConversacion != null) {
+      Solicitudes.instancia.listaSolicitudesConversacion.clear();
+    }
+  }
 
   void aceptarSolicitud(String nombreRemitente, String imagenRemitente,
       String idRemitente, String idVal) async {
@@ -373,7 +486,6 @@ class _WidgetSolicitudConversacionState
 
   @override
   void dispose() {
- 
     super.dispose();
   }
 
@@ -403,84 +515,163 @@ class _WidgetSolicitudConversacionState
         ));
   }
 
-  SizeTransition buildSlideTransition(BuildContext context, Animation animation,
+  Widget buildSlideTransition(BuildContext context, Animation animation,
       int indice, SolicitudConversacion solicitud) {
-    return SizeTransition(
-      sizeFactor: animation,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-            height: ScreenUtil().setHeight(400),
-            decoration: BoxDecoration(
-               
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                color: Colors.white),
+    return ValueListenableBuilder(
+      valueListenable: solicitud.notificarEliminacion,
+      builder: (BuildContext context, bool valor, child) {
+        if (solicitud.solicitudVisible == false) {
+          solicitud.notificadorFinTiempo.close();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            solicitud.solicitudVisible = true;
+            eliimnarSolicitud(
+                indice, solicitud.idSolicitudConversacion, solicitud);
+          });
+        }
+
+        return SizeTransition(
+          sizeFactor: animation,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Container(
-              child: Stack(
-                children: [
-                  Row(
+                height: ScreenUtil().setHeight(400),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: Colors.white),
+                child: Container(
+                  child: Stack(
                     children: [
-                      fotoSolicitud(solicitud),
-                      cuadroOpcionesSolicitud(solicitud, indice),
+                      Row(
+                        children: [
+                          fotoSolicitud(solicitud),
+                          cuadroOpcionesSolicitud(solicitud, indice),
+                        ],
+                      ),
+                      !solicitud.solicitudRevelada
+                          ? Container(
+                              decoration: BoxDecoration(
+                                  color: solicitud.segundosRestantes <= 3600
+                                      ? Colors.red
+                                      : Colors.black,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              height: 400.h,
+                              child: Center(
+                                  child: GestureDetector(
+                                onTap: () async {
+                                  if (Citas.estaConectado == true) {
+                                    if (Usuario.esteUsuario.creditosUsuario >=
+                                        200) {
+                                      solicitud.estadoRevelacion =
+                                          RevelarSolicitudEstado.revelando;
+                                      ControladorCreditos.instancia
+                                          .restarCreditosSolicitud(
+                                              200,
+                                              solicitud
+                                                  .idSolicitudConversacion);
+                                    } else {
+                                      solicitud.estadoRevelacion =
+                                          RevelarSolicitudEstado.noRevelada;
+                                      ManejadorErroresAplicacion
+                                          .erroresInstancia
+                                          .mostrarErrorCreditosInsuficientes(
+                                              context);
+                                    }
+                                  } else {
+                                    ManejadorErroresAplicacion.erroresInstancia
+                                        .mostrarErrorValoracion(context);
+                                    solicitud.estadoRevelacion =
+                                        RevelarSolicitudEstado.noRevelada;
+                                    Solicitudes.instancia.notifyListeners();
+                                  }
+                                },
+                                child: RepaintBoundary(
+                                  child: solicitud.estadoRevelacion ==
+                                          RevelarSolicitudEstado.revelando
+                                      ? Container(
+                                          height: 400.h,
+                                          decoration: BoxDecoration(
+                                            color: Colors.deepPurple,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5)),
+                                          ),
+                                          child: Center(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Text(
+                                                  "Revelando...",
+                                                  style: GoogleFonts.lato(
+                                                      color: Colors.white,
+                                                      fontSize: 80.sp),
+                                                ),
+                                                Container(
+                                                  height: 120.h,
+                                                  width: 120.h,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          height: 400.h,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                solicitud.segundosRestantes <=
+                                                        3600
+                                                    ? Colors.red
+                                                    : Colors.black,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(1)),
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              children: [
+                                                Flexible(
+                                                    flex: 4,
+                                                    fit: FlexFit.tight,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceAround,
+                                                      children: [
+                                                        cuentaAtras(
+                                                            solicitud, indice),
+                                                        Icon(
+                                                          LineAwesomeIcons
+                                                              .clock_o,
+                                                          color: Colors.white,
+                                                          size: 120.sp,
+                                                        )
+                                                      ],
+                                                    )),
+                                                Flexible(
+                                                  flex: 2,
+                                                  fit: FlexFit.tight,
+                                                  child: Container(
+                                                      color: Colors
+                                                          .greenAccent[400],
+                                                      child: precioRevelar()),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              )))
+                          : Container()
                     ],
                   ),
-                  !solicitud.solicitudRevelada
-                      ? Container(
-                          decoration: BoxDecoration(
-                              color: solicitud.segundosRestantes<=3600?Colors.red:Colors.black,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
-                          height: 400.h,
-                          child: Center(
-                              child: GestureDetector(
-                            onTap: () {
-                              ControladorCreditos.instancia
-                                  .restarCreditosSolicitud(
-                                      200, solicitud.idSolicitudConversacion);
-                            },
-                            child: RepaintBoundary(
-                              child: Container(
-                                height: 400.h,
-                                decoration: BoxDecoration(
-                                  color: solicitud.segundosRestantes<=3600?Colors.red:Colors.black,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1)),
-                                ),
-                                child: Center(
-                                  child: Column(
-                                    children: [
-                                      Flexible(
-                                          flex: 4,
-                                          fit: FlexFit.tight,
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                            children: [
-                                              cuentaAtras(solicitud, indice),
-                                              Icon(
-                                                LineAwesomeIcons.clock_o,
-                                                color: Colors.white,
-                                                size: 120.sp,
-                                              )
-                                            ],
-                                          )),
-                                      Flexible(
-                                        flex: 2,
-                                        fit: FlexFit.tight,
-                                        child: Container(
-                                          color: Colors.greenAccent[400],
-                                          child: precioRevelar()),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )))
-                      : Container()
-                ],
-              ),
-            )),
-      ),
+                )),
+          ),
+        );
+      },
     );
   }
 
@@ -507,27 +698,26 @@ class _WidgetSolicitudConversacionState
 
   Widget cuentaAtras(SolicitudConversacion solicitud, int indice) {
     return RepaintBoundary(
-          child: StreamBuilder(
-            stream: solicitud.notificadorFinTiempo.stream,
-            initialData: solicitud.segundosRestantes,
-             
+      child: StreamBuilder(
+        stream: solicitud.notificadorFinTiempo.stream,
+        initialData: solicitud.segundosRestantes,
+        builder: (BuildContext context, valor) {
+          if (valor.data == 0) {
+            solicitud.notificadorFinTiempo.close().then((value) =>
+                eliimnarSolicitud(
+                    indice, solicitud.idSolicitudConversacion, solicitud));
+          }
 
-            builder: (BuildContext context,valor){
-              if(valor.data==0){
-                solicitud.notificadorFinTiempo.close().then((value) =>     eliimnarSolicitud(indice, solicitud.idSolicitudConversacion, solicitud));
-            
-              }
-
-              return      Container(
-            child: Text(SolicitudConversacion.instancia.formatoTiempo.format(DateTime(0, 0, 0, 0, 0,  valor.data)),
-                style: GoogleFonts.lato(fontSize: 90.sp, color: Colors.white)));
-            },
-               
-          ),
+          return Container(
+              child: Text(
+                  SolicitudConversacion.instancia.formatoTiempo
+                      .format(DateTime(0, 0, 0, 0, 0, valor.data)),
+                  style:
+                      GoogleFonts.lato(fontSize: 90.sp, color: Colors.white)));
+        },
+      ),
     );
-      }
-    
-  
+  }
 
   Flexible cuadroOpcionesSolicitud(
       SolicitudConversacion valoracion, int indice) {
@@ -621,39 +811,14 @@ class _WidgetSolicitudConversacionState
                       child: valoracion.nombreEmisor != null
                           ? Text(
                               "${valoracion.nombreEmisor}",
-                              style: TextStyle(
+                              style: GoogleFonts.lato(
                                   fontSize: ScreenUtil().setSp(40),
                                   fontWeight: FontWeight.bold),
                             )
                           : Text(" ")),
                 ),
-                Flexible(
-                  fit: FlexFit.tight,
-                  flex: 5,
-                  child: Container(child: Text("Le calificaste con")),
-                ),
-                Container(
-                  height: ScreenUtil().setHeight(50),
-                  child: Center(
-                    child: LinearPercentIndicator(
-                      linearStrokeCap: LinearStrokeCap.butt,
-                      //  progressColor: Colors.deepPurple,
-                      percent: valoracion.calificacion / 10,
-                      animationDuration: 300,
-                      lineHeight: ScreenUtil().setHeight(60),
-                      linearGradient: LinearGradient(
-                          colors: [Colors.pink, Colors.pinkAccent[100]]),
-                      center: Text(
-                        "${(valoracion.calificacion).toStringAsFixed(1)}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ScreenUtil()
-                                .setSp(40, allowFontScalingSelf: true),
-                            color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
+                Container(child: Text("¿Aceptar solicitud de chat?")),
+            
               ],
             ),
           ),
@@ -688,7 +853,6 @@ class _WidgetSolicitudConversacionState
 
     solicitud.rechazarSolicitudConversacion(id);
   }
-
 
   void aceptarSolicitud(int indice, SolicitudConversacion solicitud) {
     SolicitudConversacion valoracionAceptada =

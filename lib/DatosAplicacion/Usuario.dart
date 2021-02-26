@@ -1,14 +1,21 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:isolate';
 
 import 'dart:typed_data';
 
 import 'dart:io' as Io;
+import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorSanciones.dart';
 
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/liberadorMemoria.dart';
+import 'package:citasnuevo/InterfazUsuario/RegistrodeUsuario/sign_up_screen.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/PrimeraPantalla.dart';
 import 'package:citasnuevo/base_app.dart';
 import 'package:ntp/ntp.dart';
 import 'package:blurhash_dart/blurhash_dart.dart';
@@ -23,14 +30,44 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
-
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 
 
+ Future<List<String>> trabajadorHahs(List<Map<String, dynamic>> archivo) async{
+    String blurHash;
+   List<String> listaBlurHash = new List();
+    for (int i = 0; i < archivo.length; i++) {
+        Uint8List bytesHash = archivo[i]["Bytes"];
+        int altura = archivo[i]["alto"];
+        int achura = archivo[i]["ancho"];
+        blurHash = encodeBlurHash(bytesHash, achura, altura);
+        listaBlurHash.add(blurHash);
+      }
+
+      return listaBlurHash;
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+enum EstadoCreacionCuenta { noCreada, creando, creada, errorCrearCuenta }
+
 class Usuario with ChangeNotifier {
   static Usuario esteUsuario;
-  
-   int creditosUsuario = 0;
+  EstadoCreacionCuenta estadoProcesoCreacionCuenta =
+      EstadoCreacionCuenta.noCreada;
+  int creditosUsuario = 0;
   bool tieneHistorias = false;
   Map<String, Object> datosUsuario = new Map();
   List<File> _fotosPerfil = new List(6);
@@ -54,9 +91,9 @@ class Usuario with ChangeNotifier {
   String nombre;
   String alias;
   String clave;
-  int orientacionSexual=0;
-  List<dynamic>perfilesBloqueados=new List();
- 
+  int orientacionSexual = 0;
+  List<dynamic> perfilesBloqueados = new List();
+
   String email;
   DateTime nacimiento;
   int edad = 0;
@@ -72,7 +109,7 @@ class Usuario with ChangeNotifier {
   Map<String, dynamic> imagenUrl6 = new Map();
   Map<String, String> formacion = new Map();
   Map<String, String> trabajo = new Map();
-  double altura;
+  double altura = 1.50;
   int complexion = 0;
   int alcohol = 0;
   int tabaco = 0;
@@ -85,8 +122,8 @@ class Usuario with ChangeNotifier {
   int politica = 0;
   int religion = 0;
   int vivoCon = 0;
-  int tiempoEstimadoRecompensa=0;
-   Map<String, dynamic> usuario = Map();
+  int tiempoEstimadoRecompensa = 0;
+  Map<String, dynamic> usuario = Map();
   Map<String, dynamic> ajustesUSuario = new Map();
   Map<String, bool> gustosUsuario = Map();
   Map<String, dynamic> preguntasPersonales = Map();
@@ -94,49 +131,45 @@ class Usuario with ChangeNotifier {
   StreamController<int> tiempoHastaRecompensa;
   int segundosRestantesRecompensa;
   int minutosRestantesVideoChat;
-  String verificado="noVerificado";
+  String verificado = "noVerificado";
   bool usuarioBloqueado;
   DateTime bloqueadoHasta;
-  Map<String,dynamic> mapaSanciones;
+  Map<String, dynamic> mapaSanciones;
+  bool notificacionVerificada;
 
-    void contadorHastaRecompensa()async{
-      tiempoHastaRecompensa= StreamController.broadcast();
+  void contadorHastaRecompensa() async {
+    tiempoHastaRecompensa = StreamController.broadcast();
     Timer flutterTimer;
-    DateTime cacheTiempoAhora=await NTP.now();
-    
- 
-    segundosRestantesRecompensa=tiempoEstimadoRecompensa-(cacheTiempoAhora.millisecondsSinceEpoch~/1000);
-    flutterTimer=new Timer.periodic(Duration(seconds:1), (valor){
-      
+    DateTime cacheTiempoAhora = await NTP.now();
 
-if(segundosRestantesRecompensa>0){
-  segundosRestantesRecompensa-=1;
-tiempoHastaRecompensa.add(segundosRestantesRecompensa);
-
-        
-
-    }
-    if(segundosRestantesRecompensa<=0){
-      flutterTimer.cancel();
-     tiempoHastaRecompensa.close();
-   
-    }
+    segundosRestantesRecompensa = tiempoEstimadoRecompensa -
+        (cacheTiempoAhora.millisecondsSinceEpoch ~/ 1000);
+    flutterTimer = new Timer.periodic(Duration(seconds: 1), (valor) {
+      if (segundosRestantesRecompensa > 0) {
+        segundosRestantesRecompensa -= 1;
+        tiempoHastaRecompensa.add(segundosRestantesRecompensa);
+      }
+      if (segundosRestantesRecompensa <= 0) {
+        segundosRestantesRecompensa = 0;
+        flutterTimer.cancel();
+        tiempoHastaRecompensa.close();
+      }
     });
-
-
-    
-
-      
-       
-    
-
   }
 
-   List<String> listaDeImagenesUsuario = [];
+  List<String> listaDeImagenesUsuario = [];
 
-  List<String>orientacionesSexuales=[
+  List<String> orientacionesSexuales = [
     "",
-"Heterosexual","Gay","Lesbiana","Bisexual","Asexual","Demisexual","Queer","Pansexual","Preguntame"
+    "Heterosexual",
+    "Gay",
+    "Lesbiana",
+    "Bisexual",
+    "Asexual",
+    "Demisexual",
+    "Queer",
+    "Pansexual",
+    "Preguntame"
   ];
 
   int get getPreferenciaSexual => preferenciaSexual;
@@ -161,12 +194,14 @@ tiempoHastaRecompensa.add(segundosRestantesRecompensa);
     _fotosPerfil = value;
     notifyListeners();
   }
+
   int get getOrientacionSexual => orientacionSexual;
 
- set setOrientacionSexual(int orientacionSexual) { this.orientacionSexual = orientacionSexual;
- 
- notifyListeners();
- }
+  set setOrientacionSexual(int orientacionSexual) {
+    this.orientacionSexual = orientacionSexual;
+
+    notifyListeners();
+  }
 
   Future<void> descarGarImagenesUsuario(List<String> listaDeImagenes) async {
     Directory directorio = await getApplicationDocumentsDirectory();
@@ -184,7 +219,7 @@ tiempoHastaRecompensa.add(segundosRestantesRecompensa);
         Usuario.esteUsuario.fotosUsuarioActualizar.add(imagenGuardada);
       } else {
         File archivoVacio;
-        Usuario.esteUsuario.fotosUsuarioActualizar.add(archivoVacio);
+        Usuario.esteUsuario.fotosUsuarioActualizar.add(null);
       }
     }
   }
@@ -198,8 +233,6 @@ tiempoHastaRecompensa.add(segundosRestantesRecompensa);
     imagenUrl6["Imagen"] = "";
   }
 
-
-
   void cargarFiltrosPersonales() {
     esteUsuario.altura =
         esteUsuario.datosParaFiltrosUsuario["Altura"].toDouble();
@@ -211,44 +244,38 @@ tiempoHastaRecompensa.add(segundosRestantesRecompensa);
     esteUsuario.hijos = esteUsuario.datosParaFiltrosUsuario["Hijos"];
     esteUsuario.politica = esteUsuario.datosParaFiltrosUsuario["Politca"];
     esteUsuario.vivoCon = esteUsuario.datosParaFiltrosUsuario["Que viva con"];
-    esteUsuario.setOrientacionSexual = esteUsuario.datosParaFiltrosUsuario["orientacionSexual"];
+    esteUsuario.setOrientacionSexual =
+        esteUsuario.datosParaFiltrosUsuario["orientacionSexual"];
   }
 
   final databaseReference = FirebaseFirestore.instance;
   static final dbRef = FirebaseFirestore.instance;
 
-   Map<String, dynamic> imagenes = Map();
+  Map<String, dynamic> imagenes = Map();
   Map<String, dynamic> imagenesHistorias = Map();
-  void inicializarUsuario()async {
-  
-    mapaSanciones=datosUsuario["sancionado"];
-  
+  void inicializarUsuario() async {
+    mapaSanciones = datosUsuario["sancionado"];
+
     Timestamp temporalParaFecha;
-    minutosRestantesVideoChat=datosUsuario["minutosVideo"];
+    minutosRestantesVideoChat = datosUsuario["minutosVideo"];
     nombre = datosUsuario["Nombre"];
-    tiempoEstimadoRecompensa=datosUsuario["siguienteRecompensa"];
+    tiempoEstimadoRecompensa = datosUsuario["siguienteRecompensa"];
     setPreferenciaSexual = datosUsuario["Citas con"];
-     perfilesBloqueados=datosUsuario["bloqueados"];
+    perfilesBloqueados = datosUsuario["bloqueados"];
     posicion = datosUsuario["posicion"];
     edad = datosUsuario["Edad"];
     setSexoMujer = datosUsuario["Sexo"];
-    Map<String,dynamic> mapaVerificacion=datosUsuario["verificado"];
-    
- 
+    Map<String, dynamic> mapaVerificacion = datosUsuario["verificado"];
 
-
-
-
-    verificado=mapaVerificacion["estadoVerificacion"];
-    
-
+    verificado = mapaVerificacion["estadoVerificacion"];
+    notificacionVerificada = mapaVerificacion["verificacionNotificada"];
 
     creditosUsuario = datosUsuario["creditos"];
     temporalParaFecha = datosUsuario["fechaNacimiento"];
     fechaNacimiento = temporalParaFecha.toDate();
     observaciones = datosUsuario["Descripcion"];
     datosParaFiltrosUsuario = datosUsuario["Filtros usuario"];
-    
+
     cargarFiltrosPersonales();
     contadorHastaRecompensa();
 
@@ -265,14 +292,14 @@ tiempoHastaRecompensa.add(segundosRestantesRecompensa);
     imagenUrl5 = datosUsuario["IMAGENPERFIL5"];
     imagenUrl6 = datosUsuario["IMAGENPERFIL6"];
 
-      listaDeImagenesUsuario = [
-    imagenUrl1["Imagen"],
-    imagenUrl2["Imagen"],
-    imagenUrl3["Imagen"],
-    imagenUrl4["Imagen"],
-    imagenUrl5["Imagen"],
-    imagenUrl6["Imagen"],
-  ];
+    listaDeImagenesUsuario = [
+      imagenUrl1["Imagen"],
+      imagenUrl2["Imagen"],
+      imagenUrl3["Imagen"],
+      imagenUrl4["Imagen"],
+      imagenUrl5["Imagen"],
+      imagenUrl6["Imagen"],
+    ];
     Usuario.esteUsuario
         .descarGarImagenesUsuario(Usuario.esteUsuario.listaDeImagenesUsuario)
         .then((value) {});
@@ -296,52 +323,100 @@ tiempoHastaRecompensa.add(segundosRestantesRecompensa);
         new List<int>.from(ajustes["rangoEdades"]);
   }
 
-  Uint8List rgbRaw(File archivo){
-   
-          Uint8List bytesImagen=  esteUsuario.fotosPerfil[0].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
+  static isolateHash(SendPort puertoEnvio) {}
+
+  static Future<List<String>> listaHash(List<Uint8List> archivo) async {
+    List<String> listaHashHecha = new List();
+    List<Map<String, dynamic>> listaBytesYDatos = new List();
+    ReceivePort puertoRecepcion = ReceivePort();
+    WidgetsFlutterBinding.ensureInitialized();
+    Isolate proceso = await Isolate.spawn(
+        transformarBlurHash, puertoRecepcion.sendPort,
+        debugName: "IsolateHash");
+    for (int i = 0; i < archivo.length; i++) {
+      Image memoria = Image.memory(archivo[i]);
       Uint8List rgbaList;
       Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
+      ImageStream stream = memoria.image.resolve(ImageConfiguration.empty);
+      ImageStreamListener listener;
+      listener = ImageStreamListener((frame, sync) {
+        ui.Image imageni = frame.image;
         completer.complete(imageni);
         stream.removeListener(listener);
-
-
-
-
       });
 
-stream.addListener(listener);
+      stream.addListener(listener);
 
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl1["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-     
-});
-});
+      await completer.future.then((imagen) async {
+        await imagen
+            .toByteData(format: ui.ImageByteFormat.rawRgba)
+            .then((valor) {
+          rgbaList = valor.buffer.asUint8List();
 
-return rgbaList;
+          listaBytesYDatos.add({
+            "Bytes": rgbaList,
+            "ancho": imagen.width,
+            "alto": imagen.height
+          });
+        });
+      });
+    }
+    SendPort puertoEnvio = await puertoRecepcion.first;
+    listaHashHecha = await enviarRecibirHash(puertoEnvio, listaBytesYDatos).catchError((error){
+      print("Error::::::::..$error");
+      proceso.kill();
+    });
+    proceso.kill();
+    return listaHashHecha;
   }
+
+  static Future<List<String>> enviarRecibirHash(
+      SendPort puertos, List<Map<String, dynamic>> archivo) async {
+    ReceivePort puertoRespuestaIntermedio = ReceivePort();
+    puertos.send([puertoRespuestaIntermedio.sendPort, archivo]);
+    return puertoRespuestaIntermedio.first;
+  }
+
+
+
+
+  static void transformarBlurHash(SendPort puertoEnvio) async {
+  
+   
+    ReceivePort puertoRespuesta = ReceivePort();
+
+    puertoEnvio.send(puertoRespuesta.sendPort);
+
+    await for (var msj in puertoRespuesta) {
+      List<Map<String, dynamic>> archivo = msj[1];
+      SendPort puertoFinal = msj[0];
+     
+   List<String> listaBlurHash=await trabajadorHahs(archivo);
+      puertoFinal.send(listaBlurHash);
+    }
+  }
+
+
+ 
 
   Future<void> establecerUsuario() async {
     establecerEdades();
 
-    var geoposicion =
-        await ControladorLocalizacion.instancia.obtenerLocalizacionPorPrimeraVez()
-            .catchError((onError) =>
-                print("Hubo un error con la localizacion: $onError"));
+    var geoposicion = await ControladorLocalizacion.instancia
+        .obtenerLocalizacionPorPrimeraVez()
+        .catchError(
+            (onError) => print("Hubo un error con la localizacion: $onError"));
 
     ///
     ///
     ///Datos principales del usuario
     ///
     ///
-   usuario["verificado"]={"estadoVerificacion":"noProcesado","verificacionNotificada":false};
-   
+    usuario["verificado"] = {
+      "estadoVerificacion": "noProcesado",
+      "verificacionNotificada": false
+    };
+
     ajustesUSuario["mostrarPerfil"] =
         ControladorLocalizacion.instancia.mostrarmeEnHotty;
     ajustesUSuario["distanciaMaxima"] =
@@ -358,8 +433,8 @@ return rgbaList;
         ControladorLocalizacion.instancia.activadorEdadesDeseadas;
 
     usuario["Id"] = esteUsuario.idUsuario;
-   await NTP.now().then((value){
- usuario["siguienteRecompensa"]=value.millisecondsSinceEpoch~/1000;
+    await NTP.now().then((value) {
+      usuario["siguienteRecompensa"] = value.millisecondsSinceEpoch ~/ 1000;
     });
     usuario["IMAGENPERFIL1"] = esteUsuario.imagenUrl1;
     usuario["IMAGENPERFIL2"] = esteUsuario.imagenUrl2;
@@ -368,8 +443,111 @@ return rgbaList;
     usuario["IMAGENPERFIL5"] = esteUsuario.imagenUrl5;
     usuario["IMAGENPERFIL6"] = esteUsuario.imagenUrl6;
     usuario["Nombre"] = esteUsuario.nombre;
-    usuario["sancionado"]={"usuarioSancionado":false,"tiempoDeSancion":0,"finSancion":0,"causasSancion":[]};
-   
+    usuario["sancionado"] = {
+      "usuarioSancionado": false,
+      "tiempoDeSancion": 0,
+      "finSancion": 0,
+      "causasSancion": []
+    };
+
+    usuario["creditos"] = creditosUsuario;
+    usuario["posicion"] = geoposicion.data;
+    usuario["Email"] = esteUsuario.email;
+    usuario["Edad"] = esteUsuario.edad;
+    usuario["Sexo"] = esteUsuario.getSexoMujer;
+    usuario["Edades"] = listaEdades;
+    usuario["Ajustes"] = ajustesUSuario;
+
+    ///
+    ///
+    /// Datos sobre el uso de la aplicacion
+    ///
+    ///
+    ///
+    usuario["Citas con"] = esteUsuario.getPreferenciaSexual;
+
+    usuario["Descripcion"] = esteUsuario.observaciones;
+    usuario["fechaNacimiento"] = esteUsuario.fechaNacimiento;
+
+    ///
+    ///
+    ///
+    /// Datos necesarios y mas especificos para coonocer mas al usuario
+    ///
+    ///
+    ///
+    ///
+
+    esteUsuario.datosParaFiltrosUsuario["Altura"] = esteUsuario.altura ?? 1.50;
+    esteUsuario.datosParaFiltrosUsuario["Complexion"] =
+        esteUsuario.complexion ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Tabaco"] = esteUsuario.tabaco ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Alcohol"] = esteUsuario.alcohol ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["orientacionSexual"] =
+        esteUsuario.orientacionSexual ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Mascotas"] = esteUsuario.mascotas ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Busco"] = esteUsuario.busco ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Hijos"] = esteUsuario.hijos ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Vegetariano"] =
+        esteUsuario.vegetarianoOvegano ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Politca"] = esteUsuario.politica ?? 0;
+    esteUsuario.datosParaFiltrosUsuario["Que viva con"] =
+        esteUsuario.vivoCon ?? 0;
+
+    usuario["Filtros usuario"] = esteUsuario.datosParaFiltrosUsuario;
+  }
+
+  Future<void> establecerUsuarioEditado() async {
+    establecerEdades();
+
+    var geoposicion = await ControladorLocalizacion.instancia
+        .obtenerLocalizacionPorPrimeraVez()
+        .catchError(
+            (onError) => print("Hubo un error con la localizacion: $onError"));
+
+    ///
+    ///
+    ///Datos principales del usuario
+    ///
+    ///
+    usuario["verificado"] = {
+      "estadoVerificacion": esteUsuario.verificado,
+      "verificacionNotificada": false
+    };
+
+    ajustesUSuario["mostrarPerfil"] =
+        ControladorLocalizacion.instancia.mostrarmeEnHotty;
+    ajustesUSuario["distanciaMaxima"] =
+        ControladorLocalizacion.instancia.distanciaMaxima;
+    ajustesUSuario["edadFinal"] =
+        ControladorLocalizacion.instancia.getEdadFinal;
+    ajustesUSuario["edadInicial"] =
+        ControladorLocalizacion.instancia.getEdadInicial;
+    ajustesUSuario["enMillas"] =
+        ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas;
+    ajustesUSuario["mostrarMujeres"] =
+        ControladorLocalizacion.instancia.mostrarMujeres;
+    ajustesUSuario["rangoEdades"] =
+        ControladorLocalizacion.instancia.activadorEdadesDeseadas;
+
+    usuario["Id"] = esteUsuario.idUsuario;
+
+    usuario["siguienteRecompensa"] = esteUsuario.tiempoEstimadoRecompensa;
+
+    usuario["IMAGENPERFIL1"] = esteUsuario.imagenUrl1;
+    usuario["IMAGENPERFIL2"] = esteUsuario.imagenUrl2;
+    usuario["IMAGENPERFIL3"] = esteUsuario.imagenUrl3;
+    usuario["IMAGENPERFIL4"] = esteUsuario.imagenUrl4;
+    usuario["IMAGENPERFIL5"] = esteUsuario.imagenUrl5;
+    usuario["IMAGENPERFIL6"] = esteUsuario.imagenUrl6;
+    usuario["Nombre"] = esteUsuario.nombre;
+    usuario["sancionado"] = {
+      "usuarioSancionado": esteUsuario.usuarioBloqueado,
+      "tiempoDeSancion": esteUsuario.mapaSanciones["tiempoSancion"],
+      "finSancion": mapaSanciones["finSancion"],
+      "causasSancion": mapaSanciones["causasSancion"]
+    };
+
     usuario["creditos"] = creditosUsuario;
     usuario["posicion"] = geoposicion.data;
     usuario["Email"] = esteUsuario.email;
@@ -403,94 +581,8 @@ return rgbaList;
         esteUsuario.complexion ?? 0;
     esteUsuario.datosParaFiltrosUsuario["Tabaco"] = esteUsuario.tabaco ?? 0;
     esteUsuario.datosParaFiltrosUsuario["Alcohol"] = esteUsuario.alcohol ?? 0;
-  esteUsuario.datosParaFiltrosUsuario["orientacionSexual"]=esteUsuario.orientacionSexual??0;
-    esteUsuario.datosParaFiltrosUsuario["Mascotas"] = esteUsuario.mascotas ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Busco"] = esteUsuario.busco ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Hijos"] = esteUsuario.hijos ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Vegetariano"] =
-        esteUsuario.vegetarianoOvegano ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Politca"] = esteUsuario.politica ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Que viva con"] =
-        esteUsuario.vivoCon ?? 0;
-
-    usuario["Filtros usuario"] = esteUsuario.datosParaFiltrosUsuario;
-  }
-
-
-
-Future<void> establecerUsuarioEditado() async {
-    establecerEdades();
-
-    var geoposicion =
-        await ControladorLocalizacion.instancia.obtenerLocalizacionPorPrimeraVez()
-            .catchError((onError) =>
-                print("Hubo un error con la localizacion: $onError"));
-
-    ///
-    ///
-    ///Datos principales del usuario
-    ///
-    ///
-   usuario["verificado"]=Usuario.esteUsuario.verificado;
-   
-    ajustesUSuario["mostrarPerfil"] =
-        ControladorLocalizacion.instancia.mostrarmeEnHotty;
-    ajustesUSuario["distanciaMaxima"] =
-        ControladorLocalizacion.instancia.distanciaMaxima;
-    ajustesUSuario["edadFinal"] =
-        ControladorLocalizacion.instancia.getEdadFinal;
-    ajustesUSuario["edadInicial"] =
-        ControladorLocalizacion.instancia.getEdadInicial;
-    ajustesUSuario["enMillas"] =
-        ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas;
-    ajustesUSuario["mostrarMujeres"] =
-        ControladorLocalizacion.instancia.mostrarMujeres;
-    ajustesUSuario["rangoEdades"] =
-        ControladorLocalizacion.instancia.activadorEdadesDeseadas;
-
-
-    usuario["IMAGENPERFIL1"] = esteUsuario.imagenUrl1;
-    usuario["IMAGENPERFIL2"] = esteUsuario.imagenUrl2;
-    usuario["IMAGENPERFIL3"] = esteUsuario.imagenUrl3;
-    usuario["IMAGENPERFIL4"] = esteUsuario.imagenUrl4;
-    usuario["IMAGENPERFIL5"] = esteUsuario.imagenUrl5;
-    usuario["IMAGENPERFIL6"] = esteUsuario.imagenUrl6;
-
-   
-
-    usuario["posicion"] = geoposicion.data;
-  
-
-    
-    usuario["Edades"] = listaEdades;
-    usuario["Ajustes"] = ajustesUSuario;
-
-    ///
-    ///
-    /// Datos sobre el uso de la aplicacion
-    ///
-    ///
-    ///
-    usuario["Citas con"] = esteUsuario.getPreferenciaSexual;
-
-    usuario["Descripcion"] = esteUsuario.observaciones;
-
-
-    ///
-    ///
-    ///
-    /// Datos necesarios y mas especificos para coonocer mas al usuario
-    ///
-    ///
-    ///
-    ///
-
-    esteUsuario.datosParaFiltrosUsuario["Altura"] = esteUsuario.altura ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Complexion"] =
-        esteUsuario.complexion ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Tabaco"] = esteUsuario.tabaco ?? 0;
-    esteUsuario.datosParaFiltrosUsuario["Alcohol"] = esteUsuario.alcohol ?? 0;
-  esteUsuario.datosParaFiltrosUsuario["orientacionSexual"]=esteUsuario.orientacionSexual??0;
+    esteUsuario.datosParaFiltrosUsuario["orientacionSexual"] =
+        esteUsuario.orientacionSexual ?? 0;
     esteUsuario.datosParaFiltrosUsuario["Mascotas"] = esteUsuario.mascotas ?? 0;
     esteUsuario.datosParaFiltrosUsuario["Busco"] = esteUsuario.busco ?? 0;
     esteUsuario.datosParaFiltrosUsuario["Hijos"] = esteUsuario.hijos ?? 0;
@@ -509,7 +601,8 @@ Future<void> establecerUsuarioEditado() async {
     StorageReference reference = storage.ref();
     DocumentReference referenciaUsuario =
         databaseReference.collection("usuarios").doc(idUsuario);
-
+    List<Uint8List> listaBytesParaHash = new List();
+    List<String> listaStringsHash = new List();
 
     DocumentReference referenciaValoracionesLocales = databaseReference
         .collection("usuarios")
@@ -521,55 +614,20 @@ Future<void> establecerUsuarioEditado() async {
         .doc(idUsuario)
         .collection("estadoLlamada")
         .doc("estadoLlamada");
-         DocumentReference referenciaDenuncias = databaseReference
-        .collection("expedientes")
-        .doc(idUsuario);
-        
+    DocumentReference referenciaDenuncias =
+        databaseReference.collection("expedientes").doc(idUsuario);
+
     WriteBatch escrituraUsuario = databaseReference.batch();
     if (esteUsuario.fotosPerfil[0] != null) {
       String image1 = "$idUsuario/Perfil/imagenes/Image1.jpg";
       StorageReference referenciaImagen = reference.child(image1);
       StorageUploadTask uploadTask =
           referenciaImagen.putFile(esteUsuario.fotosPerfil[0]);
-          
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl1["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[0].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
-
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl1["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl1["altura"]=imagen.height;
-    esteUsuario.imagenUrl1["ancho"]=imagen.width;
-      print(url);
-});
-});
-     
-      
-    
-     
-  
-  
-
+      Uint8List bytesImagen = await esteUsuario.fotosPerfil[0].readAsBytes();
+      listaBytesParaHash.add(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[1] != null) {
       String imagen2 = "$idUsuario/Perfil/imagenes/Image2.jpg";
@@ -579,36 +637,9 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl2["Imagen"] = url;
-    
-      
-            Uint8List bytesImagen=  esteUsuario.fotosPerfil[1].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
 
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl2["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl2["altura"]=imagen.height;
-    esteUsuario.imagenUrl2["ancho"]=imagen.width;
-      print(url);
-});
-});
-      print(url);
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[1].readAsBytesSync();
+      listaBytesParaHash.add(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[2] != null) {
       String imagen3 = "$idUsuario/Perfil/imagenes/Image3.jpg";
@@ -618,34 +649,8 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl3["Imagen"] = url;
-             Uint8List bytesImagen=  esteUsuario.fotosPerfil[2].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
-
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl3["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl3["altura"]=imagen.height;
-    esteUsuario.imagenUrl3["ancho"]=imagen.width;
-      print(url);
-});
-});
-     
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[2].readAsBytesSync();
+      listaBytesParaHash.add(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[3] != null) {
       String imagen4 = "$idUsuario/Perfil/imagenes/Image4.jpg";
@@ -656,33 +661,8 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl4["Imagen"] = url;
 
-            Uint8List bytesImagen=  esteUsuario.fotosPerfil[3].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
-
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl4["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl4["altura"]=imagen.height;
-    esteUsuario.imagenUrl4["ancho"]=imagen.width;
-      print(url);
-});
-});
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[3].readAsBytesSync();
+      listaBytesParaHash.add(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[4] != null) {
       String imagen5 = "$idUsuario/Perfil/imagenes/Image5.jpg";
@@ -692,33 +672,8 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl5["Imagen"] = url;
-        Uint8List bytesImagen=  esteUsuario.fotosPerfil[4].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
-
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl5["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl5["altura"]=imagen.height;
-    esteUsuario.imagenUrl5["ancho"]=imagen.width;
-      print(url);
-});
-});
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[4].readAsBytesSync();
+      listaBytesParaHash.add(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[5] != null) {
       String imagen6 = "$idUsuario/Perfil/imagenes/Image6.jpg";
@@ -728,34 +683,11 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl6["Imagen"] = url;
-             Uint8List bytesImagen=  esteUsuario.fotosPerfil[5].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
-
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl6["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-     esteUsuario.imagenUrl6["altura"]=imagen.height;
-    esteUsuario.imagenUrl6["ancho"]=imagen.width;
-      print(url);
-});
-});
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[5].readAsBytesSync();
+      listaBytesParaHash.add(bytesImagen);
     }
+
+    listaStringsHash = await Usuario.listaHash(listaBytesParaHash);
     await establecerUsuario().then((value) async {
       escrituraUsuario.set(referenciaUsuario, usuario);
       escrituraUsuario
@@ -766,23 +698,21 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
         "cantidadValoraciones": 0,
         "puntuacionTotal": 0
       });
-      escrituraUsuario.set(referenciaDenuncias,{
-        "descripcion":esteUsuario.observaciones,
-        "vecesProcesado":0,
-        "caducidadProcesado":0,
-        "cantidadDenuncias":0,"denuncias":[],"imagenes":[
+      escrituraUsuario.set(referenciaDenuncias, {
+        "descripcion": esteUsuario.observaciones,
+        "vecesProcesado": 0,
+        "caducidadProcesado": 0,
+        "cantidadDenuncias": 0,
+        "denuncias": [],
+        "imagenes": [
           esteUsuario.imagenUrl1["Imagen"],
-           esteUsuario.imagenUrl2["Imagen"],
-            esteUsuario.imagenUrl3["Imagen"],
-             esteUsuario.imagenUrl4["Imagen"],
-              esteUsuario.imagenUrl5["Imagen"],
-               esteUsuario.imagenUrl6["Imagen"],
-
+          esteUsuario.imagenUrl2["Imagen"],
+          esteUsuario.imagenUrl3["Imagen"],
+          esteUsuario.imagenUrl4["Imagen"],
+          esteUsuario.imagenUrl5["Imagen"],
+          esteUsuario.imagenUrl6["Imagen"],
         ]
-
-
       });
-
 
       await escrituraUsuario.commit().catchError((onError) {
         print("Error al crear usuario: $onError");
@@ -790,16 +720,15 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
     });
   }
 
-  Future<void> editarPerfilUsuario(String idUsuario) async {
+  /*Future<void> editarPerfilUsuario(String idUsuario) async {
     FirebaseStorage storage = FirebaseStorage.instance;
     Usuario.esteUsuario.fotosPerfil =
         Usuario.esteUsuario.fotosUsuarioActualizar;
     StorageReference reference = storage.ref();
     DocumentReference referenciaUsuario =
         databaseReference.collection("usuarios").doc(idUsuario);
-             DocumentReference referenciaDenuncias = databaseReference
-        .collection("expedientes")
-        .doc(idUsuario);
+    DocumentReference referenciaDenuncias =
+        databaseReference.collection("expedientes").doc(idUsuario);
 
     WriteBatch escrituraUsuario = databaseReference.batch();
     if (esteUsuario.fotosPerfil[0] != null) {
@@ -810,34 +739,9 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
       esteUsuario.imagenUrl1["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[0].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
-
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl1["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl1["altura"]=imagen.height;
-    esteUsuario.imagenUrl1["ancho"]=imagen.width;
-      print(url);
-});
-});
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[0].readAsBytesSync();
+      String hashImagen = await transformarBlurHash(bytesImagen);
+      esteUsuario.imagenUrl1["hash"] = hashImagen;
     }
     if (esteUsuario.fotosPerfil[1] != null) {
       String imagen2 = "$idUsuario/Perfil/imagenes/Image2.jpg";
@@ -846,35 +750,10 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
           referenciaImagen.putFile(esteUsuario.fotosPerfil[1]);
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
-          esteUsuario.imagenUrl2["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[1].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
+      esteUsuario.imagenUrl2["Imagen"] = url;
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[1].readAsBytesSync();
 
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl2["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl2["altura"]=imagen.height;
-    esteUsuario.imagenUrl2["ancho"]=imagen.width;
-      print(url);
-});
-});
+      esteUsuario.imagenUrl2["hash"] = await transformarBlurHash(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[2] != null) {
       String imagen3 = "$idUsuario/Perfil/imagenes/Image3.jpg";
@@ -883,72 +762,23 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
           referenciaImagen.putFile(esteUsuario.fotosPerfil[2]);
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
-          esteUsuario.imagenUrl3["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[2].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
+      esteUsuario.imagenUrl3["Imagen"] = url;
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[2].readAsBytesSync();
 
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl3["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl3["altura"]=imagen.height;
-    esteUsuario.imagenUrl3["ancho"]=imagen.width;
-      print(url);
-});
-});
+      esteUsuario.imagenUrl3["hash"] = await transformarBlurHash(bytesImagen);
     }
-    if (esteUsuario.fotosPerfil[3] != null) {
+    if (esteUsuario.fotosPerfil[3] != null &&
+        esteUsuario.fotosPerfil.length > 3) {
       String imagen4 = "$idUsuario/Perfil/imagenes/Image4.jpg";
       StorageReference referenciaImagen = reference.child(imagen4);
       StorageUploadTask uploadTask =
           referenciaImagen.putFile(esteUsuario.fotosPerfil[3]);
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
-            esteUsuario.imagenUrl4["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[3].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
+      esteUsuario.imagenUrl4["Imagen"] = url;
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[3].readAsBytesSync();
 
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl4["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl4["altura"]=imagen.height;
-    esteUsuario.imagenUrl4["ancho"]=imagen.width;
-      print(url);
-});
-});
+      esteUsuario.imagenUrl4["hash"] = await transformarBlurHash(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[4] != null) {
       String imagen5 = "$idUsuario/Perfil/imagenes/Image5.jpg";
@@ -957,35 +787,10 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
           referenciaImagen.putFile(esteUsuario.fotosPerfil[4]);
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
-          esteUsuario.imagenUrl5["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[4].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
+      esteUsuario.imagenUrl5["Imagen"] = url;
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[4].readAsBytesSync();
 
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl5["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl5["altura"]=imagen.height;
-    esteUsuario.imagenUrl5["ancho"]=imagen.width;
-      print(url);
-});
-});
+      esteUsuario.imagenUrl5["hash"] = await transformarBlurHash(bytesImagen);
     }
     if (esteUsuario.fotosPerfil[5] != null) {
       String imagen6 = "$idUsuario/Perfil/imagenes/Image6.jpg";
@@ -994,72 +799,41 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
           referenciaImagen.putFile(esteUsuario.fotosPerfil[5]);
 
       var url = await (await uploadTask.onComplete).ref.getDownloadURL();
-           esteUsuario.imagenUrl5["Imagen"] = url;
-      Uint8List bytesImagen=  esteUsuario.fotosPerfil[5].readAsBytesSync();
-      Image memoria=Image.memory(bytesImagen);
-      
-      Uint8List rgbaList;
-      Completer completer = Completer<ui.Image>();
-      ImageStream stream=memoria.image.resolve(ImageConfiguration.empty);
-       ImageStreamListener listener;
-       listener=ImageStreamListener((frame,sync){
-        ui.Image imageni=frame.image;
-        completer.complete(imageni);
-        stream.removeListener(listener);
+      esteUsuario.imagenUrl6["Imagen"] = url;
+      Uint8List bytesImagen = esteUsuario.fotosPerfil[5].readAsBytesSync();
 
-
-
-
-      });
-
-stream.addListener(listener);
-
-      completer.future.then((imagen){
-imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
-  rgbaList=valor.buffer.asUint8List();
-    esteUsuario.imagenUrl5["hash"]=encodeBlurHash(rgbaList,imagen.width,imagen.height,);
-    esteUsuario.imagenUrl5["altura"]=imagen.height;
-    esteUsuario.imagenUrl5["ancho"]=imagen.width;
-      print(url);
-});
-});
+      esteUsuario.imagenUrl5["hash"] = await transformarBlurHash(bytesImagen);
     }
-    await establecerUsuario();
+    await establecerUsuarioEditado();
 
     escrituraUsuario.update(referenciaUsuario, usuario);
-       escrituraUsuario.update(referenciaDenuncias,{
-        "descripcion":esteUsuario.observaciones,
-       "imagenes":[
-          esteUsuario.imagenUrl1["Imagen"],
-           esteUsuario.imagenUrl2["Imagen"],
-            esteUsuario.imagenUrl3["Imagen"],
-             esteUsuario.imagenUrl4["Imagen"],
-              esteUsuario.imagenUrl5["Imagen"],
-               esteUsuario.imagenUrl6["Imagen"],
-
-        ]
-
-
-      });
+    escrituraUsuario.update(referenciaDenuncias, {
+      "descripcion": esteUsuario.observaciones,
+      "imagenes": [
+        esteUsuario.imagenUrl1["Imagen"],
+        esteUsuario.imagenUrl2["Imagen"],
+        esteUsuario.imagenUrl3["Imagen"],
+        esteUsuario.imagenUrl4["Imagen"],
+        esteUsuario.imagenUrl5["Imagen"],
+        esteUsuario.imagenUrl6["Imagen"],
+      ]
+    });
 
     await escrituraUsuario.commit().catchError((onError) {
       print("Error al actualizar  usuario: $onError");
     });
-  }
+  }*/
 
-
-
-  static submit(BuildContext context) async {
-
-
-
-    
+  void submit(BuildContext context) async {
     DocumentSnapshot val;
     FirebaseFirestore referencia = FirebaseFirestore.instance;
+    Usuario.esteUsuario.estadoProcesoCreacionCuenta =
+        EstadoCreacionCuenta.creando;
+    notifyListeners();
 
     print(esteUsuario.idUsuario);
 
-    Usuario.esteUsuario
+await    Usuario.esteUsuario
         .subirImagenPerfil(esteUsuario.idUsuario)
         .then((value) async {
       val = await referencia
@@ -1068,33 +842,69 @@ imagen.toByteData(format:ui.ImageByteFormat.rawRgba).then((valor){
           .get();
       esteUsuario.datosUsuario = val.data();
       if (Usuario.esteUsuario.datosUsuario != null) {
+        Usuario.esteUsuario.estadoProcesoCreacionCuenta =
+            EstadoCreacionCuenta.creada;
+        if (PantallaRegistro.clavePAtallaRegistro.currentContext != null) {
+          ControladorNotificacion.notificacionCuentaCreada(
+              PantallaRegistro.clavePAtallaRegistro.currentContext);
+        }
+        notifyListeners();
         ControladorInicioSesion.instancia
             .iniciarSesion(esteUsuario.idUsuario, context);
       }
+    }).catchError((error) {
+
+      print(error);
+      Usuario.esteUsuario.estadoProcesoCreacionCuenta =
+          EstadoCreacionCuenta.errorCrearCuenta;
+      if (PantallaRegistro.clavePAtallaRegistro.currentContext != null) {
+        ControladorNotificacion.notificacionErrorCrearCuenta(
+            PantallaRegistro.clavePAtallaRegistro.currentContext);
+      }
+
+      notifyListeners();
     });
-    print("SiguientePantalla");
 
     // Perfiles.perfilesCitas.obtenetPerfilesCitas();
   }
 
-  void alerta() {
+  void validadorFecha() {
+    int dur = PantallaDeInicio.fechaActual
+        .difference(Usuario.esteUsuario.fechaNacimiento)
+        .inDays;
+    int data = dur ~/ 365;
+    edad = data;
+
     notifyListeners();
   }
 
-  int validadorFecha() {
-    DateTime fechaTemporal;
+  Future<bool> eliminarUsuario() async {
+    bool eliminada = false;
 
-    fechaTemporal = new DateTime(anio ?? 0, mes ?? 0, dia ?? 0, 10, 10);
+    WriteBatch eliminacionConjunta = FirebaseFirestore.instance.batch();
 
-    print("Construyendo fechas:::::::::.   $fechaTemporal");
-
-    int dur = DateTime.now().difference(fechaTemporal).inDays;
-    int data = dur ~/ 365;
-    edad = data;
-    Usuario.esteUsuario.fechaNacimiento = fechaTemporal;
-    print(data);
-    notifyListeners();
-
-    return 0;
+    for (int i = 0;
+        i < Conversacion.conversaciones.listaDeConversaciones.length;
+        i++) {
+      eliminacionConjunta.delete(databaseReference
+          .collection("usuarios")
+          .doc(Conversacion.conversaciones.listaDeConversaciones[i].idRemitente)
+          .collection("conversaciones")
+          .doc(Conversacion
+              .conversaciones.listaDeConversaciones[i].idConversacion));
+    }
+    eliminacionConjunta.delete(databaseReference
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario));
+    await eliminacionConjunta.commit().then((valor) {
+      ControladorInicioSesion.instancia.cerrarSesion();
+    }).then((val) {
+      eliminada = true;
+      LimpiadorMemoria.liberarMemoria();
+    }).catchError((onError) {
+      print("error al eliminar");
+      eliminada = false;
+    });
+    return eliminada;
   }
 }

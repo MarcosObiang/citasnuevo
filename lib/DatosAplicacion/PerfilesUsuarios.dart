@@ -444,6 +444,30 @@ class Perfiles extends ChangeNotifier {
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
   static Future<DatosPerfiles> cargarIsolatePerfilDeterminado(
       String idPerfil) async {
     DatosPerfiles perfil;

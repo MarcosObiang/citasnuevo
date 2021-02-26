@@ -10,8 +10,12 @@ import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -84,7 +88,7 @@ class PantallaConversacion extends StatefulWidget {
 }
 
 class PantallaConversacionState extends State<PantallaConversacion>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin,RouteAware {
   String mensajeTemp;
   bool construido = false;
   bool mostrarBotonBajarRapido = true;
@@ -101,6 +105,42 @@ class PantallaConversacionState extends State<PantallaConversacion>
   DatosPerfiles perfilRemitente;
 
   final FocusNode _focusNode = FocusNode();
+    @override void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+      // TODO: implement didChangeDependencies
+      super.didChangeDependencies();
+    }
+
+
+
+
+
+    void didPopNext() {
+      
+    debugPrint("didPopNext ${runtimeType}");
+
+  
+  }
+
+  // Called when the current route has been pushed.
+  void didPush() {
+    debugPrint("didPush ${runtimeType}");
+  }
+
+  // Called when the current route has been popped off.
+  void didPop() {
+  
+
+
+    debugPrint("didPop ${runtimeType}");
+  }
+
+  // Called when a new route has been pushed, and the current route is no longer visible.
+  void didPushNext() {
+    
+    debugPrint("didPushNext ${runtimeType}");
+  }
 
   @override
   void initState() {
@@ -989,6 +1029,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
         child: Container(
           color: Colors.white,
           child: SafeArea(
+            key: PantallaConversacion.llavePantallaConversacion,
             child: Consumer<Conversacion>(
               builder: (BuildContext context, conversacion, Widget child) {
                 detectarConversacionExiste();
@@ -1025,120 +1066,118 @@ class PantallaConversacionState extends State<PantallaConversacion>
                           iconTheme: IconThemeData(color: Colors.black),
                           backgroundColor: Colors.white,
                           shadowColor: Colors.black,
-                          title: Center(
-                            child: Container(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Flexible(
-                                    flex: 5,
-                                    fit: FlexFit.tight,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10),
-                                          child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      widget.nombre,
-                                                      textAlign:
-                                                          TextAlign.start,
-                                                      style: TextStyle(
-                                                          fontSize: ScreenUtil()
-                                                              .setSp(40),
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Container(
-                                                        height: ScreenUtil()
-                                                            .setWidth(35),
-                                                        width: ScreenUtil()
-                                                            .setWidth(35),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                              color: widget
-                                                                      .estadoConexionRemitente
-                                                                  ? Colors
-                                                                      .transparent
-                                                                  : Colors
-                                                                      .transparent,
-                                                              width:
-                                                                  ScreenUtil()
-                                                                      .setSp(
-                                                                          5)),
-                                                          color: widget
-                                                                  .estadoConexionRemitente
-                                                              ? Colors.green
-                                                              : Colors
-                                                                  .transparent,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
+                          title: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                flex: 7,
+                                fit: FlexFit.tight,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 10),
+                                  child: Container(
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            widget.nombre,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign:
+                                                TextAlign.start,
+                                            style: TextStyle(
+                                                fontSize: ScreenUtil()
+                                                    .setSp(40),
+                                                fontWeight:
+                                                    FontWeight.bold,
+                                                color: Colors.black),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                estado == " " &&
+                                                        widget
+                                                            .estadoConexionRemitente
+                                                    ? "En linea"
+                                                    : estado,
+                                                textAlign: TextAlign.start,
+                                                 overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontSize: ScreenUtil()
+                                                        .setSp(30),
+                                                    color: Colors.black),
+                                              ),
+                                                 Padding(
+                                                padding:
+                                                    const EdgeInsets.all(
+                                                        8.0),
+                                                child: Container(
+                                                  height: ScreenUtil()
+                                                      .setWidth(35),
+                                                  width: ScreenUtil()
+                                                      .setWidth(35),
+                                                  decoration:
+                                                      BoxDecoration(
+                                                    shape:
+                                                        BoxShape.circle,
+                                                    border: Border.all(
+                                                        color: widget
+                                                                .estadoConexionRemitente
+                                                            ? Colors
+                                                                .transparent
+                                                            : Colors
+                                                                .transparent,
+                                                        width:
+                                                            ScreenUtil()
+                                                                .setSp(
+                                                                    5)),
+                                                    color: widget
+                                                            .estadoConexionRemitente
+                                                        ? Colors.green
+                                                        : Colors
+                                                            .transparent,
+                                                  ),
                                                 ),
-                                                Text(
-                                                  estado == " " &&
-                                                          widget
-                                                              .estadoConexionRemitente
-                                                      ? "En linea"
-                                                      : estado,
-                                                  textAlign: TextAlign.start,
-                                                  style: TextStyle(
-                                                      fontSize: ScreenUtil()
-                                                          .setSp(30),
-                                                      color: Colors.black),
-                                                )
-                                              ]),
-                                        ),
-                                      ],
-                                    ),
+                                              ),
+                                            ],
+                                          )
+                                        ]),
                                   ),
-                                  Flexible(
-                                    flex: 2,
-                                    fit: FlexFit.tight,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        IconButton(
-                                            icon: Icon(
-                                              LineAwesomeIcons.video_camera,
-                                              color: Colors.black,
-                                            ),
-                                            onPressed: () async {
-                                              confirmarVideoLLamada();
-                                            }),
-                                      ],
-                                    ),
-                                  ),
-                                  IconButton(
-                                      icon: Icon(
-                                        Icons.menu,
-                                        color: Colors.black,
-                                      ),
-                                      onPressed: () async {
-                                        mostrarOpcionesConversacion(context);
-                                      })
-                                ],
+                                ),
                               ),
-                            ),
+                              Flexible(
+                                flex: 2,
+                                fit: FlexFit.tight,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                        icon: Icon(
+                                          LineAwesomeIcons.video_camera,
+                                          color: Colors.black,
+                                        ),
+                                        onPressed: () async {
+                                          confirmarVideoLLamada();
+                                        }),
+                                  ],
+                                ),
+                              ),
+                              Flexible(
+                                    flex: 2,
+                                fit: FlexFit.tight,
+                                child: IconButton(
+                                    icon: Icon(
+                                      Icons.menu,
+                                      color: Colors.black,
+                                    ),
+                                    onPressed: () async {
+                                      mostrarOpcionesConversacion(context);
+                                    }),
+                              )
+                            ],
                           )),
                       resizeToAvoidBottomPadding: true,
                       resizeToAvoidBottomInset: true,
@@ -1205,8 +1244,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                         ]),
                                       ),
                                       Expanded(
-                                          child: Container(
-                                              child: entradaMensajes(context)))
+                                          child: entradaMensajes(context))
                                     ]),
                               ),
                             ],
@@ -1370,56 +1408,76 @@ class PantallaConversacionState extends State<PantallaConversacion>
         child: Column(
           children: [
             PantallaConversacion.responderMensaje
-                ? cuadroRespuesta()
-                : Container(),
-            Padding(
-              padding: const EdgeInsets.all(1.0),
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    children: <Widget>[
-                      Flexible(
-                        flex: 2,
-                        fit: FlexFit.tight,
-                        child: IconButton(
-                          iconSize: 70.sp,
-                          color: Colors.white,
-                          onPressed: () async {
-                            final gif = await GiphyPicker.pickGif(
-                                fullScreenDialog: false,
-                                context: context,
-                                apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
+                ? Flexible(
+                  flex: 10,
+                  fit: FlexFit.tight,
+                  child: cuadroRespuesta())
+                : Flexible(
+                  fit:FlexFit.tight,
+                  flex:0,
+                  child: Container(height: 0,width: 0,)),
+            Flexible(
+              fit: FlexFit.tight,
+              flex: 10,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: <Widget>[
+                    Flexible(
+                      flex: 2,
+                      fit: FlexFit.tight,
+                      child: IconButton(
+                        iconSize: 70.sp,
+                        color: Colors.white,
+                        onPressed: () async {
 
-                            widget.enviarMensajeImagenGif(
-                                gif.images.original.url,
-                                widget.mensajeId,
-                                PantallaConversacion.responderMensaje, {
-                              "mensaje": PantallaConversacion.mensajeResponder,
-                              "tipoMensaje": PantallaConversacion.tipoMensaje,
-                              "idMensaje":
-                                  PantallaConversacion.idMensajeResponder,
-                              "idEmisorMensaje":
-                                  PantallaConversacion.idEmisorMensajeResponder,
-                                  
-                                  
-                            });
-                                 PantallaConversacion.responderMensaje = false;
-                                 Focus.of(context).unfocus();
+if(Citas.estaConectado){
+    final gif = await GiphyPicker.pickGif(
+                              fullScreenDialog: false,
+                              context: context,
+                              apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
 
-                          },
-                          icon: Icon(LineAwesomeIcons.smile_o),
-                        ),
+                          widget.enviarMensajeImagenGif(
+                              gif.images.original.url,
+                              widget.mensajeId,
+                              PantallaConversacion.responderMensaje, {
+                            "mensaje": PantallaConversacion.mensajeResponder,
+                            "tipoMensaje": PantallaConversacion.tipoMensaje,
+                            "idMensaje":
+                                PantallaConversacion.idMensajeResponder,
+                            "idEmisorMensaje":
+                                PantallaConversacion.idEmisorMensajeResponder,
+                                
+                                
+                          });
+                               PantallaConversacion.responderMensaje = false;
+      
+                               
+
+}
+if(!Citas.estaConectado){
+  ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(context);
+}
+
+                        
+
+                        },
+                        icon: Icon(LineAwesomeIcons.smile_o),
                       ),
-                      Flexible(
-                        flex: 9,
-                        fit: FlexFit.tight,
-                        child: GestureDetector(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(30)),
-                            ),
+                    ),
+                    Flexible(
+                      flex: 9,
+                      fit: FlexFit.tight,
+                      child: Container(
+                       
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(30)),
+                        ),
+                        child: Scrollbar(
+                          child: SingleChildScrollView(
+                            reverse: true,
+                            scrollDirection:Axis.vertical,
                             child: TextField(
                               controller: controladorTexto,
                               inputFormatters: [
@@ -1432,8 +1490,8 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(20)))),
-                              minLines: null,
-                              maxLines: null,
+                              minLines: 1,
+                              maxLines: 9,
                               onChanged: (valor) {
                                 if ((valor != null ||
                                     valor != " " ||
@@ -1498,103 +1556,103 @@ class PantallaConversacionState extends State<PantallaConversacion>
                           ),
                         ),
                       ),
-                      mostrarBotonEnvio
-                          ? Flexible(
-                              flex: 2,
-                              fit: FlexFit.tight,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.green,
-                                ),
-                                child: FlatButton(
-                                  onPressed: () {
-                                    //   FocusScope.of(context).unfocus();
-
-                                    widget.estadoConversacion(false);
-
-                                    ocultarBotonEnvio();
-                                    mensajeTemp = controladorTexto.text;
-
-                                    if (mensajeTemp.isNotEmpty) {
-                                      widget.mensajesEnviar(
-                                          mensajeTemp,
-                                          widget.mensajeId,
-                                          PantallaConversacion.responderMensaje,
-                                          {
-                                            "mensaje": PantallaConversacion
-                                                .mensajeResponder,
-                                            "tipoMensaje": PantallaConversacion
-                                                .tipoMensaje,
-                                            "idMensaje": PantallaConversacion
-                                                .idMensajeResponder,
-                                            "idEmisorMensaje":
-                                                PantallaConversacion
-                                                    .idEmisorMensajeResponder
-                                          });
-                                      controladorTexto.clear();
-                                      mensajeTemp = "";
-                                      moverChatAbajo();
-                                      PantallaConversacion.tipoMensaje = "";
-                                      PantallaConversacion.idMensajeResponder =
-                                          "";
-                                      PantallaConversacion
-                                          .idEmisorMensajeResponder = "";
-                                      PantallaConversacion.responderMensaje =
-                                          false;
-                                      PantallaConversacion
-                                          .nombreEmisorMensajeResponder = "";
-                                      PantallaConversacion.mensajeResponder =
-                                          "";
-                                    }
-                                  },
-                                  child: Icon(
-                                    LineAwesomeIcons.send,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                    ),
+                    mostrarBotonEnvio
+                        ? Flexible(
+                            flex: 2,
+                            fit: FlexFit.tight,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.green,
                               ),
-                            )
-                          : Flexible(
-                              flex: 4,
-                              fit: FlexFit.tight,
-                              child: Center(
-                                child: Row(
-                                  children: <Widget>[
-                                    Flexible(
-                                      flex: 2,
-                                      fit: FlexFit.tight,
-                                      child: IconButton(
-                                        iconSize: 70.sp,
-                                        color: Colors.white,
-                                        onPressed: () {
-                                          iniciarGrabacionAudio().then((value) {
-                                            if (value) {
-                                              dialogoIniciarGrabacion(context);
-                                            }
-                                          });
-                                        },
-                                        icon: Icon(LineAwesomeIcons.microphone),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 2,
-                                      fit: FlexFit.tight,
-                                      child: IconButton(
-                                        color: Colors.white,
-                                        icon: Icon(Icons.add_photo_alternate),
-                                        iconSize: 70.sp,
-                                        onPressed: () {
-                                          opcionesImagenPerfil();
-                                        },
-                                      ),
-                                    ),
-                                  ],
+                              child: FlatButton(
+                                onPressed: () {
+                                  //   FocusScope.of(context).unfocus();
+
+                                  widget.estadoConversacion(false);
+
+                                  ocultarBotonEnvio();
+                                  mensajeTemp = controladorTexto.text;
+
+                                  if (mensajeTemp.isNotEmpty) {
+                                    widget.mensajesEnviar(
+                                        mensajeTemp,
+                                        widget.mensajeId,
+                                        PantallaConversacion.responderMensaje,
+                                        {
+                                          "mensaje": PantallaConversacion
+                                              .mensajeResponder,
+                                          "tipoMensaje": PantallaConversacion
+                                              .tipoMensaje,
+                                          "idMensaje": PantallaConversacion
+                                              .idMensajeResponder,
+                                          "idEmisorMensaje":
+                                              PantallaConversacion
+                                                  .idEmisorMensajeResponder
+                                        });
+                                    controladorTexto.clear();
+                                    mensajeTemp = "";
+                                    moverChatAbajo();
+                                    PantallaConversacion.tipoMensaje = "";
+                                    PantallaConversacion.idMensajeResponder =
+                                        "";
+                                    PantallaConversacion
+                                        .idEmisorMensajeResponder = "";
+                                    PantallaConversacion.responderMensaje =
+                                        false;
+                                    PantallaConversacion
+                                        .nombreEmisorMensajeResponder = "";
+                                    PantallaConversacion.mensajeResponder =
+                                        "";
+                                  }
+                                },
+                                child: Icon(
+                                  LineAwesomeIcons.send,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                    ],
-                  ),
+                          )
+                        : Flexible(
+                            flex: 4,
+                            fit: FlexFit.tight,
+                            child: Center(
+                              child: Row(
+                                children: <Widget>[
+                                  Flexible(
+                                    flex: 2,
+                                    fit: FlexFit.tight,
+                                    child: IconButton(
+                                      iconSize: 70.sp,
+                                      color: Colors.white,
+                                      onPressed: () {
+                                        iniciarGrabacionAudio().then((value) {
+                                          if (value) {
+                                            dialogoIniciarGrabacion(context);
+                                          }
+                                        });
+                                      },
+                                      icon: Icon(LineAwesomeIcons.microphone),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    flex: 2,
+                                    fit: FlexFit.tight,
+                                    child: IconButton(
+                                      color: Colors.white,
+                                      icon: Icon(Icons.add_photo_alternate),
+                                      iconSize: 70.sp,
+                                      onPressed: () {
+                                        opcionesImagenPerfil();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                  ],
                 ),
               ),
             ),

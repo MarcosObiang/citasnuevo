@@ -9,22 +9,34 @@ import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/liberadorMemoria.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/PrimeraPantalla.dart';
 
 import 'package:citasnuevo/base_app.dart';
 import 'package:citasnuevo/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:firebase_auth/firebase_auth.dart' as f;
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
+enum FasesInicioSesion{
+
+sesionNoIniciada,iniciandoSesion,sesionIniciada
+
+}
+
+
 class ControladorInicioSesion {
   static ControladorInicioSesion instancia = ControladorInicioSesion();
+  FasesInicioSesion fasesInicioSesion=FasesInicioSesion.sesionNoIniciada;
   final archivoInicioSesionAutomatico = new FlutterSecureStorage();
   FirebaseDatabase baseDatosConexion = FirebaseDatabase(
       app: app, databaseURL: "https://citas-46a84.firebaseio.com/");
@@ -46,9 +58,22 @@ class ControladorInicioSesion {
   
 
   Future<f.UserCredential> inicioSesionGoogle(BuildContext context) async {
+    fasesInicioSesion=FasesInicioSesion.iniciandoSesion;
     f.AuthCredential credencialGoogle;
 
-    final GoogleSignInAccount usuarioGoogle = await googleSignIn.signIn();
+    final GoogleSignInAccount usuarioGoogle = await googleSignIn.signIn().catchError((error){
+      if(error.code=="network_error"){
+        ManejadorErroresAplicacion.erroresInstancia.mostrarErrorConexion(PantallaDeInicio.clavePrimeraPantalla.currentContext);
+        fasesInicioSesion=FasesInicioSesion.sesionNoIniciada;
+        Usuario.esteUsuario.notifyListeners();
+      }
+        if(error.code=="sign_in_failed"){
+        ManejadorErroresAplicacion.erroresInstancia.mostrarErrorIniciarSesion(PantallaDeInicio.clavePrimeraPantalla.currentContext);
+        fasesInicioSesion=FasesInicioSesion.sesionNoIniciada;
+        Usuario.esteUsuario.notifyListeners();
+      }
+    
+    });
     f.UserCredential usuario;
     if (usuarioGoogle == null) {
       usuario = null;
@@ -60,9 +85,11 @@ class ControladorInicioSesion {
           idToken: autenticacionGoogle.idToken);
 
       usuario = await _auth.signInWithCredential(credencialGoogle);
-
+fasesInicioSesion=FasesInicioSesion.sesionIniciada;
+Usuario.esteUsuario.notifyListeners();
       print("sesionIniciada ${usuario.user.displayName}");
     }
+    
 
     return usuario;
   }
@@ -74,25 +101,34 @@ class ControladorInicioSesion {
   ///Inicio de sesion en Facebook
 
   Future<f.UserCredential> inicioSesionFacebook(BuildContext context) async {
+    Usuario.esteUsuario.notifyListeners();
+    fasesInicioSesion=FasesInicioSesion.iniciandoSesion;
     FacebookLoginResult result = await facebookLogin.logIn(['email']);
     f.UserCredential usuarioFacebook;
     if (result.status == FacebookLoginStatus.cancelledByUser) {
+      fasesInicioSesion=FasesInicioSesion.sesionNoIniciada;
       usuarioFacebook = null;
     }
 
 //Problema al iniciar sesion del cual se daran detalles
     if (result.status == FacebookLoginStatus.error) {
+      fasesInicioSesion=FasesInicioSesion.sesionNoIniciada;
+      Usuario.esteUsuario.notifyListeners();
       print(
           "Ha ocurrido un error al conectar con Facebook:${result.errorMessage}");
       usuarioFacebook = null;
+      ManejadorErroresAplicacion.erroresInstancia.mostrarErrorConexion(PantallaDeInicio.clavePrimeraPantalla.currentContext);
     }
 
 //El iniciio de sesion ha sido un exito
     if (result.status == FacebookLoginStatus.loggedIn) {
+      
       final f.AuthCredential credencialFacebook =
           f.FacebookAuthProvider.credential(result.accessToken.token);
 
       usuarioFacebook = await _auth.signInWithCredential(credencialFacebook);
+      fasesInicioSesion=FasesInicioSesion.sesionIniciada;
+      Usuario.esteUsuario.notifyListeners();
       print("sesionIniciada ${usuarioFacebook.user.displayName}");
     }
 
@@ -106,8 +142,13 @@ class ControladorInicioSesion {
     
     await googleSignIn.isSignedIn().then((valor) {if(valor){
 seCerroSesion=true;
-      googleSignIn.disconnect();
-       LimpiadorMemoria.liberarMemoria();
+      googleSignIn.disconnect().then((valorGogole){
+   
+        LimpiadorMemoria.liberarMemoria();
+      }).catchError((error){
+      print("Error al cerrar cuenta con google $error");
+    });
+       
  
  
     }});
@@ -115,15 +156,19 @@ seCerroSesion=true;
   await  facebookLogin.isLoggedIn.then((valorFacebook) {
       if(valorFacebook){
         seCerroSesion=true;
-        facebookLogin.logOut();
-            LimpiadorMemoria.liberarMemoria();
+        facebookLogin.logOut().then((val){
+    LimpiadorMemoria.liberarMemoria();
+        });
+        
      
    
     
       }
+    }).catchError((error){
+      print("Error al cerrar cuenta con facebook $error");
     });
      
-    }).
+   PantallaDeInicio.iniciarSesion = false; }).
     catchError((onError) => seCerroSesion = false);
 
 print("cerrando");
@@ -168,7 +213,9 @@ if(Usuario.esteUsuario.usuarioBloqueado==false){
 
         Conversacion.conversaciones.escucharMensajes();
  Navigator.push(
-            context, MaterialPageRoute(builder: (context) => start()));
+   
+            context, MaterialPageRoute(
+              builder: (context) => start()));
 }
           
         });
@@ -187,7 +234,7 @@ if(Usuario.esteUsuario.usuarioBloqueado==false){
         SolicitudConversacion.instancia.obtenerSolicitudes();
      
       }
-      if(Usuario.esteUsuario.datosUsuario == null&&!value.exists){
+      if(Usuario.esteUsuario.datosUsuario == null&&value.exists==false){
      //  FirebaseAuth.instance.currentUser.delete();
      // ignore: invalid_use_of_protected_member
      sinError=false;
@@ -205,7 +252,7 @@ return sinError;
         .reference()
         .child(".info/connected")
         .onValue
-        .listen((event) {
+        .listen((event)async {
       Map<String, dynamic> ultimaConexion = new Map();
       ultimaConexion["Status"] = "Conectado";
       ultimaConexion["Hora"] = DateTime.now().toString();
@@ -230,14 +277,25 @@ return sinError;
         Citas.estaConectado = true;
 
         primeraConexion = true;
-        // BaseAplicacion.mostrarNotificacionConexionCorrecta(BaseAplicacion.claveBase.currentContext);
+       //  BaseAplicacion.mostrarNotificacionConexionCorrecta(BaseAplicacion.claveBase.currentContext);
+     
         Usuario.esteUsuario.notifyListeners();
+        Conversacion.conversaciones.notifyListeners();
+
       } else {
-        Citas.estaConectado = false;
+     
         if (primeraConexion) {
-          //BaseAplicacion.mostrarNotificacionConexionPerdida(BaseAplicacion.claveBase.currentContext);
+          bool internet= await   DataConnectionChecker().hasConnection;
+          if(!internet){
+               Citas.estaConectado = false;
+  BaseAplicacion.mostrarNotificacionConexionPerdida(BaseAplicacion.claveBase.currentContext);
+          }
+          
+   
+
         }
         Usuario.esteUsuario.notifyListeners();
+        Conversacion.conversaciones.notifyListeners();
       }
     });
   }

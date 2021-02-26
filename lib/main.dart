@@ -21,6 +21,7 @@ FirebaseApp app;
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   
   
   ControladorNotificacion.instancia.inicializarNotificaciones();
@@ -30,6 +31,7 @@ Future<void> main() async {
   app = await Firebase.initializeApp(
      
       options: FirebaseOptions(
+
        projectId: "citas-46a84",
           appId: "1:912262965304:android:6a20f31e4ab32f9bf81ecd",
           apiKey: "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc",
@@ -41,7 +43,12 @@ Future<void> main() async {
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) => runApp(MaterialApp(
+
+        theme: ThemeData(primaryColor: Colors.red),
         debugShowCheckedModeBanner: false,
+           routes: {
+             "/PantallaInicio":(_)=>PantallaDeInicio()
+           },
             home: MultiProvider(providers: [
               ChangeNotifierProvider(create: (_) => Usuario()),
               ChangeNotifierProvider(create: (_) => Perfiles()),

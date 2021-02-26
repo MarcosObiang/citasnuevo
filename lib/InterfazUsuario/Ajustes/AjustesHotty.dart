@@ -1,6 +1,14 @@
+import 'dart:async';
+
 import 'package:citasnuevo/DatosAplicacion/ControladorInicioSesion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
+import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
+import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/PrimeraPantalla.dart';
 import 'package:citasnuevo/base_app.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,11 +17,57 @@ import 'package:provider/provider.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 
 class Ajustes extends StatefulWidget {
+ 
   @override
   _AjustesState createState() => _AjustesState();
 }
 
-class _AjustesState extends State<Ajustes> {
+class _AjustesState extends State<Ajustes> with RouteAware{
+    @override void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+      // TODO: implement didChangeDependencies
+      super.didChangeDependencies();
+    }
+
+      // Called when the top route has been popped off, and the current route shows up.
+  void didPopNext() {
+    debugPrint("didPopNext ${runtimeType}");
+
+    setState(() {
+          
+        });
+  }
+
+  // Called when the current route has been pushed.
+  void didPush() {
+    debugPrint("didPush ${runtimeType}");
+  }
+
+  // Called when the current route has been popped off.
+  void didPop() {
+    ControladorLocalizacion.instancia.guardarAjustes();
+    ControladorLocalizacion.instancia=null;
+    ControladorLocalizacion.instancia=new ControladorLocalizacion();
+    QueryPerfiles.cerrarConvexionesQuery();
+      QueryPerfiles.listaStreamsCerrados=null;
+       QueryPerfiles.listaStreamsCerrados=new List();
+     ControladorLocalizacion.instancia.obtenerLocalizacion().then((value)async {
+ Perfiles.perfilesCitas.listaPerfiles=new List<DatosPerfiles>();
+   ControladorLocalizacion.instancia.cargaPerfiles();
+     }
+);
+
+    debugPrint("didPop ${runtimeType}");
+  }
+
+  // Called when a new route has been pushed, and the current route is no longer visible.
+  void didPushNext() {
+    debugPrint("didPushNext ${runtimeType}");
+  }
+
+@override
+
   RangeValues valoresRangoEdad = new RangeValues(
       ControladorLocalizacion.instancia.getEdadInicial,
       ControladorLocalizacion.instancia.getEdadFinal);
@@ -24,13 +78,7 @@ class _AjustesState extends State<Ajustes> {
         child: Consumer<ControladorLocalizacion>(
           builder: (context, myType, child) {
             return SafeArea(
-                child: WillPopScope(
-                  onWillPop: (){
-                   
-                    return ControladorLocalizacion.instancia.guardarAjustes();
-
-                  },
-                                  child: Scaffold(
+                child: Scaffold(
                     
                     appBar: AppBar(
                       backgroundColor: Colors.deepPurple[900],
@@ -69,7 +117,6 @@ class _AjustesState extends State<Ajustes> {
                           botonBorracCuenta()
                         ]),
                       )),
-                ),
               );
           },
         ));
@@ -79,18 +126,273 @@ class _AjustesState extends State<Ajustes> {
     return Padding(
                     padding: const EdgeInsets.only(
                         top: 10, bottom: 10, left: 0, right: 0),
-                    child: Container(
-                      height: 250.h,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              "Mostrar",
+                              style:
+                                  GoogleFonts.lato(fontSize: 50.sp,color: Colors.white),
+                            ),
+                           
+                            Container(
+                      height: 70.h,
                       decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
                           color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
                           borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
+                              BorderRadius.all(Radius.circular(30))),
+                      child: Row(children: [
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 1,
+                          child: GestureDetector(
+                               onTap: (){
+
+                           
+                                  if(!ControladorLocalizacion.instancia.getMostrarMujeres){
+                                  ControladorLocalizacion.instancia.setMostrarMujeres=true;
+                                }
+                               },
+                                                            child: Container(
+                              decoration: BoxDecoration(
+                                color: ControladorLocalizacion.instancia.getMostrarMujeres?Colors.deepPurple:Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    
+                                      topLeft: Radius.circular(30),
+                                      bottomLeft: Radius.circular(30))),
+                                    child:Center(child: Text("Mujeres",style:GoogleFonts.lato(fontSize:40.sp,color: ControladorLocalizacion.instancia.getMostrarMujeres?Colors.white:Colors.black,)))
+                        
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          flex: 1,
+                          child: GestureDetector(
+                            onTap: (){
+
+                                if(ControladorLocalizacion.instancia.getMostrarMujeres){
+                                  ControladorLocalizacion.instancia.setMostrarMujeres=false;
+                                }
+                                 
+                               },
+                                                            child: Container(
+                              decoration: BoxDecoration(
+                                color: !ControladorLocalizacion.instancia.getMostrarMujeres?Colors.deepPurple:Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(30),
+                                      bottomRight: Radius.circular(30))),
+                                           child:Center(child: Text("Hombres",style:GoogleFonts.lato(fontSize:40.sp,color: !ControladorLocalizacion.instancia.getMostrarMujeres?Colors.white:Colors.black,)))
+                            ),
+                          ),
+                        )
+                      ]),
+                    )
+                          ]),
+                    ),
+                  );
+  }
+
+  Padding botonVisibilidad() {
+    return Padding(
+                    padding: const EdgeInsets.only(
+                        top: 10, bottom: 40, left: 0, right: 0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Perfil visible",
+                                  style:
+                                      GoogleFonts.lato(fontSize: 40.sp,color: Colors.white),
+                                ),
+                                Switch(
+                                  
+                                  value: ControladorLocalizacion.instancia.getMostrarmeEnHotty, onChanged: (value){
+                                  ControladorLocalizacion.instancia.setMostrarmeEnHotty=value;
+                                })
+                              ],
+                            ),
+                           
+                  
+                          ]),
+                    ),
+                  );
+  }
+
+  Widget botonCerrarSesion() {
+    return Padding(
+      padding: const EdgeInsets.only(top:30,bottom:60,left:0,right:0),
+      child: GestureDetector(
+                        onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
+                            .then((value) {
+                          if (value) {
+                            Navigator.of(context).popUntil((route)=>route.isFirst);
+                       
+                            
+                          }
+                        }),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Cerrar Sesion",
+
+
+                                  style: GoogleFonts.lato(
+                                      fontSize: 50.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                                      Icon(Icons.exit_to_app,color: Colors.white,)
+                            ],
+                          ),
+                        ),
+                      ),
+    );
+  }
+
+    Widget botonBorracCuenta() {
+    return Padding(
+      padding: const EdgeInsets.only(top:60,bottom:8,left:0,right:0),
+      child: GestureDetector(
+                        onTap: () =>ManejadorErroresAplicacion.erroresInstancia.mostrarAdvertenciaBorrarCuenta(context),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Borrar cuenta",
+                                  style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                      fontSize: 50.sp,
+                                      fontWeight: FontWeight.bold)),
+                                      Icon(Icons.delete,color: Colors.white,)
+                            ],
+                          ),
+                        ),
+                      ),
+    );
+  }
+ Widget botonTerminosDeServicio() {
+    return Padding(
+      padding: const EdgeInsets.only(top:30,bottom:8,left:0,right:0),
+      child: GestureDetector(
+                        onTap: () =>ManejadorErroresAplicacion.erroresInstancia.mostrarAdvertenciaBorrarCuenta(context),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Terminos de servicio",
+                                  style: GoogleFonts.lato(
+                                      fontSize: 50.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                                      
+                            ],
+                          ),
+                        ),
+                      ),
+    );
+  }
+
+    Widget botonPoliticaPrivacidad() {
+    return Padding(
+      padding: const EdgeInsets.only(top:10,bottom:8,left:0,right:0),
+      child: GestureDetector(
+                        onTap: () => ManejadorErroresAplicacion.erroresInstancia.mostrarAdvertenciaBorrarCuenta(context),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Politica de privacidad",
+                                  style: GoogleFonts.lato(
+                                     color: Colors.white,
+                                      fontSize: 50.sp,
+                                      fontWeight: FontWeight.bold)),
+                                   
+                            ],
+                          ),
+                        ),
+                      ),
+    );
+  }
+     Widget botonLicencias() {
+    return Padding(
+      padding: const EdgeInsets.only(top:10,bottom:30,left:0,right:0),
+      child: GestureDetector(
+                        onTap: () {
+                          showAboutDialog(context: context,
+                          applicationLegalese: "En este apartado veras con detalles todas las licencias que usa la aplicacion para mas informacion dirigete a Hotty.com",
+                          applicationName: "Hotty",
+                          applicationVersion: "0.0.1"
+                          );
+                        }
+                   ,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Licencias",
+                                  style: GoogleFonts.lato(
+                                     color: Colors.white,
+                                      fontSize: 50.sp,
+                                      fontWeight: FontWeight.bold)),
+                                   
+                            ],
+                          ),
+                        ),
+                      ),
+    );
+  }
+       Widget botonContacto() {
+    return Padding(
+      padding: const EdgeInsets.only(top:30,bottom:30,left:0,right:0),
+      child: GestureDetector(
+                        onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
+                            .then((value) {
+                          if (value) {
+                            Navigator.pop(
+                                BaseAplicacion.claveBase.currentContext);
+                          }
+                        }),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Asistencia",
+                                  style: GoogleFonts.lato(
+                                     color: Colors.white,
+                                      fontSize: 50.sp,
+                                      fontWeight: FontWeight.bold)),
+                                      Icon(Icons.headset_mic, color: Colors.white,)
+                                   
+                            ],
+                          ),
+                        ),
+                      ),
+    );
+  }
+
+  Padding deslizadorDistancia() {
+    return Padding(
+                      padding: const EdgeInsets.only(
+                          top: 10, bottom: 10, left: 0, right: 0),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -98,12 +400,32 @@ class _AjustesState extends State<Ajustes> {
                             mainAxisAlignment:
                                 MainAxisAlignment.spaceEvenly,
                             children: [
-                              Text(
-                                "Mostrar",
-                                style:
-                                    GoogleFonts.lato(fontSize: 50.sp),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Distancia",
+                                    style:
+                                        GoogleFonts.lato(fontSize: 60.sp, color: Colors.white,),
+                                  ),
+                                  Text(
+                                  ! ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas? "${ControladorLocalizacion.instancia.getDiistanciaMaxima.toInt()} Km":"${(ControladorLocalizacion.instancia.getDiistanciaMaxima*0.62).toInt()} mi",
+                                    style:
+                                        GoogleFonts.lato(fontSize: 60.sp, color: Colors.white,),
+                                  ),
+                                ],
                               ),
-                             
+                              Slider(
+                                value: ControladorLocalizacion
+                                    .instancia.getDiistanciaMaxima,
+                                onChanged: (value) {
+                                  ControladorLocalizacion.instancia
+                                      .setDiistanciaMaxima = value;
+                                },
+                                min: 10,
+                                max: 150,
+                              ),
                               Container(
                         height: 70.h,
                         decoration: BoxDecoration(
@@ -116,21 +438,15 @@ class _AjustesState extends State<Ajustes> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: GestureDetector(
-                                 onTap: (){
-
-                             
-                                    if(!ControladorLocalizacion.instancia.getMostrarMujeres){
-                                    ControladorLocalizacion.instancia.setMostrarMujeres=true;
-                                  }
-                                 },
+                                    onTap: ()=>ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas=false,
                                                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: ControladorLocalizacion.instancia.getMostrarMujeres?Colors.deepPurple:Colors.white,
+                                  color: !ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.deepPurple:Colors.white,
                                     borderRadius: BorderRadius.only(
                                       
                                         topLeft: Radius.circular(30),
                                         bottomLeft: Radius.circular(30))),
-                                      child:Center(child: Text("Mujeres",style:GoogleFonts.lato(fontSize:40.sp,color: ControladorLocalizacion.instancia.getMostrarMujeres?Colors.white:Colors.black,)))
+                                      child:Center(child: Text("Km",style:GoogleFonts.lato(fontSize:50.sp,color: !ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.white:Colors.black,)))
                           
                               ),
                             ),
@@ -139,412 +455,20 @@ class _AjustesState extends State<Ajustes> {
                             fit: FlexFit.tight,
                             flex: 1,
                             child: GestureDetector(
-                              onTap: (){
-
-                                  if(ControladorLocalizacion.instancia.getMostrarMujeres){
-                                    ControladorLocalizacion.instancia.setMostrarMujeres=false;
-                                  }
-                                   
-                                 },
+                              onTap: ()=>ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas=true,
                                                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: !ControladorLocalizacion.instancia.getMostrarMujeres?Colors.deepPurple:Colors.white,
+                                  color: ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.deepPurple:Colors.white,
                                     borderRadius: BorderRadius.only(
                                         topRight: Radius.circular(30),
                                         bottomRight: Radius.circular(30))),
-                                             child:Center(child: Text("Hombres",style:GoogleFonts.lato(fontSize:40.sp,color: !ControladorLocalizacion.instancia.getMostrarMujeres?Colors.white:Colors.black,)))
+                                             child:Center(child: Text("Millas",style:GoogleFonts.lato(fontSize:50.sp,color: ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.white:Colors.black,)))
                               ),
                             ),
                           )
                         ]),
                       )
                             ]),
-                      ),
-                    ),
-                  );
-  }
-
-  Padding botonVisibilidad() {
-    return Padding(
-                    padding: const EdgeInsets.only(
-                        top: 10, bottom: 40, left: 0, right: 0),
-                    child: Container(
-                      height: 150.h,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Perfil visible",
-                                    style:
-                                        GoogleFonts.lato(fontSize: 40.sp),
-                                  ),
-                                  Switch(value: ControladorLocalizacion.instancia.getMostrarmeEnHotty, onChanged: (value){
-                                    ControladorLocalizacion.instancia.setMostrarmeEnHotty=value;
-                                  })
-                                ],
-                              ),
-                             
-                  
-                            ]),
-                      ),
-                    ),
-                  );
-  }
-
-  Widget botonCerrarSesion() {
-    return Padding(
-      padding: const EdgeInsets.only(top:30,bottom:60,left:0,right:0),
-      child: Container(
-        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-        child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
-                              .then((value) {
-                            if (value) {
-                              Navigator.pop(
-                                  BaseAplicacion.claveBase.currentContext);
-                                  setState(() {
-                                    
-                                  });
-                            }
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Cerrar Sesion",
-
-
-                                    style: GoogleFonts.lato(
-                                        fontSize: 50.sp,
-                                        fontWeight: FontWeight.bold)),
-                                        Icon(Icons.exit_to_app)
-                              ],
-                            ),
-                          ),
-                        ),
-      ),
-    );
-  }
-
-    Widget botonBorracCuenta() {
-    return Padding(
-      padding: const EdgeInsets.only(top:60,bottom:8,left:0,right:0),
-      child: Container(
-        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-        child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
-                              .then((value) {
-                            if (value) {
-                              Navigator.pop(
-                                  BaseAplicacion.claveBase.currentContext);
-                            }
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Borrar cuenta",
-                                    style: GoogleFonts.lato(
-                                        fontSize: 50.sp,
-                                        fontWeight: FontWeight.bold)),
-                                        Icon(Icons.delete)
-                              ],
-                            ),
-                          ),
-                        ),
-      ),
-    );
-  }
- Widget botonTerminosDeServicio() {
-    return Padding(
-      padding: const EdgeInsets.only(top:30,bottom:8,left:0,right:0),
-      child: Container(
-        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-        child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
-                              .then((value) {
-                            if (value) {
-                              Navigator.pop(
-                                  BaseAplicacion.claveBase.currentContext);
-                            }
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Terminos de servicio",
-                                    style: GoogleFonts.lato(
-                                        fontSize: 50.sp,
-                                        fontWeight: FontWeight.bold)),
-                                        
-                              ],
-                            ),
-                          ),
-                        ),
-      ),
-    );
-  }
-
-    Widget botonPoliticaPrivacidad() {
-    return Padding(
-      padding: const EdgeInsets.only(top:10,bottom:8,left:0,right:0),
-      child: Container(
-        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-        child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
-                              .then((value) {
-                            if (value) {
-                              Navigator.pop(
-                                  BaseAplicacion.claveBase.currentContext);
-                            }
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Politica de privacidad",
-                                    style: GoogleFonts.lato(
-                                        fontSize: 50.sp,
-                                        fontWeight: FontWeight.bold)),
-                                     
-                              ],
-                            ),
-                          ),
-                        ),
-      ),
-    );
-  }
-     Widget botonLicencias() {
-    return Padding(
-      padding: const EdgeInsets.only(top:10,bottom:30,left:0,right:0),
-      child: Container(
-        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-        child: GestureDetector(
-                          onTap: () {
-                            showAboutDialog(context: context,
-                            applicationLegalese: "En este apartado veras con detalles todas las licencias que usa la aplicacion para mas informacion dirigete a Hotty.com",
-                            applicationName: "Hotty",
-                            applicationVersion: "0.0.1"
-                            );
-                          }
-                     ,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Licencias",
-                                    style: GoogleFonts.lato(
-                                        fontSize: 50.sp,
-                                        fontWeight: FontWeight.bold)),
-                                     
-                              ],
-                            ),
-                          ),
-                        ),
-      ),
-    );
-  }
-       Widget botonContacto() {
-    return Padding(
-      padding: const EdgeInsets.only(top:30,bottom:30,left:0,right:0),
-      child: Container(
-        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.deepPurple[300],
-                                blurRadius: 5,
-                                spreadRadius: 5)
-                          ],
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20))),
-        child: GestureDetector(
-                          onTap: () => ControladorInicioSesion.instancia.cerrarSesion()
-                              .then((value) {
-                            if (value) {
-                              Navigator.pop(
-                                  BaseAplicacion.claveBase.currentContext);
-                            }
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Asistencia",
-                                    style: GoogleFonts.lato(
-                                        fontSize: 50.sp,
-                                        fontWeight: FontWeight.bold)),
-                                        Icon(Icons.headset_mic)
-                                     
-                              ],
-                            ),
-                          ),
-                        ),
-      ),
-    );
-  }
-
-  Padding deslizadorDistancia() {
-    return Padding(
-                      padding: const EdgeInsets.only(
-                          top: 10, bottom: 10, left: 0, right: 0),
-                      child: Container(
-                        height: 350.h,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.deepPurple[300],
-                                  blurRadius: 5,
-                                  spreadRadius: 5)
-                            ],
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Distancia",
-                                      style:
-                                          GoogleFonts.lato(fontSize: 60.sp),
-                                    ),
-                                    Text(
-                                    ! ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas? "${ControladorLocalizacion.instancia.getDiistanciaMaxima.toInt()} Km":"${(ControladorLocalizacion.instancia.getDiistanciaMaxima*0.62).toInt()} mi",
-                                      style:
-                                          GoogleFonts.lato(fontSize: 60.sp),
-                                    ),
-                                  ],
-                                ),
-                                Slider(
-                                  value: ControladorLocalizacion
-                                      .instancia.getDiistanciaMaxima,
-                                  onChanged: (value) {
-                                    ControladorLocalizacion.instancia
-                                        .setDiistanciaMaxima = value;
-                                  },
-                                  min: 10,
-                                  max: 150,
-                                ),
-                                Container(
-                          height: 70.h,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black),
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(30))),
-                          child: Row(children: [
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 1,
-                              child: GestureDetector(
-                                      onTap: ()=>ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas=false,
-                                                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: !ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.deepPurple:Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        
-                                          topLeft: Radius.circular(30),
-                                          bottomLeft: Radius.circular(30))),
-                                        child:Center(child: Text("Km",style:GoogleFonts.lato(fontSize:50.sp,color: !ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.white:Colors.black,)))
-                            
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 1,
-                              child: GestureDetector(
-                                onTap: ()=>ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas=true,
-                                                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.deepPurple:Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(30),
-                                          bottomRight: Radius.circular(30))),
-                                               child:Center(child: Text("Millas",style:GoogleFonts.lato(fontSize:50.sp,color: ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas?Colors.white:Colors.black,)))
-                                ),
-                              ),
-                            )
-                          ]),
-                        )
-                              ]),
-                        ),
                       ),
                     );
   }
@@ -553,67 +477,53 @@ class _AjustesState extends State<Ajustes> {
     return Padding(
                       padding: const EdgeInsets.only(
                           top: 40, bottom: 10, left: 0, right: 0),
-                      child: Container(
-                        height: 250.h,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.deepPurple[300],
-                                  blurRadius: 5,
-                                  spreadRadius: 5)
-                            ],
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Rango de edad",
-                                      style:
-                                          GoogleFonts.lato(fontSize: 60.sp),
-                                    ),
-                                    Text(
-                                      "${(ControladorLocalizacion.instancia.getEdadInicial).toInt()}-${(ControladorLocalizacion.instancia.getEdadFinal).toInt()}",
-                                      style:
-                                          GoogleFonts.lato(fontSize: 60.sp),
-                                    ),
-                                  ],
-                                ),
-                                FlutterSlider(
-                                  values: [
-                                    ControladorLocalizacion
-                                        .instancia.getEdadInicial,
-                                    ControladorLocalizacion
-                                        .instancia.getEdadFinal
-                                  ],
-                                  rangeSlider: true,
-                                  onDragging:
-                                      (value, valorMinimo, valorMaximo) {
-                                    print(value);
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Rango de edad",
+                                    style:
+                                        GoogleFonts.lato(fontSize: 60.sp, color: Colors.white,),
+                                  ),
+                                  Text(
+                                    "${(ControladorLocalizacion.instancia.getEdadInicial).toInt()}-${(ControladorLocalizacion.instancia.getEdadFinal).toInt()}",
+                                    style:
+                                        GoogleFonts.lato(fontSize: 60.sp, color: Colors.white,),
+                                  ),
+                                ],
+                              ),
+                              FlutterSlider(
+                                values: [
+                                  ControladorLocalizacion
+                                      .instancia.getEdadInicial,
+                                  ControladorLocalizacion
+                                      .instancia.getEdadFinal
+                                ],
+                                rangeSlider: true,
+                                onDragging:
+                                    (value, valorMinimo, valorMaximo) {
+                       
 
-                                    ControladorLocalizacion.instancia
-                                        .setEdadInicial = valorMinimo;
-                                    ControladorLocalizacion
-                                        .instancia.setEdadFinal = valorMaximo;
+                                  ControladorLocalizacion.instancia
+                                      .setEdadInicial = valorMinimo;
+                                  ControladorLocalizacion
+                                      .instancia.setEdadFinal = valorMaximo;
 
-                                    print(
-                                        "${(ControladorLocalizacion.instancia.getEdadInicial).toInt()}-${(ControladorLocalizacion.instancia.getEdadFinal).toInt()}");
-                                  },
                                  
-                                  min: 18,
-                                  max: 71,
-                                )
-                              ]),
-                        ),
+                                },
+                               
+                                min: 18,
+                                max: 71,
+                              )
+                            ]),
                       ),
                     );
   }

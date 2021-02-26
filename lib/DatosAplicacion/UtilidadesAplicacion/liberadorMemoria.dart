@@ -10,6 +10,7 @@ import 'package:citasnuevo/DatosAplicacion/ControladorVerificacion.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/Valoraciones.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart';
 import 'package:citasnuevo/base_app.dart';
 
 class LimpiadorMemoria {
@@ -32,6 +33,7 @@ Conversacion.conversaciones.cerrarConexionesConversacion();
   if(ControladorCreditos.instancia!=null){
       ControladorCreditos.instancia.cerrarEscuchadorUsuario();
   }
+  QueryPerfiles.cerrarConvexionesQuery();
 
 
   QueryPerfiles.listaStreamsCerrados=null;
@@ -62,6 +64,7 @@ Conversacion.conversaciones.cerrarConexionesConversacion();
 }
 
 static void iniciarMemoria(){
+  Conversaciones.enPantallaConversacion=true;
   BaseAplicacion.indicePagina=0;
    QueryPerfiles.listaStreamsCerrados=new List();
       Usuario.esteUsuario=new Usuario();

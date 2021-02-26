@@ -8,22 +8,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:ntp/ntp.dart';
 
 class SancionesUsuario with ChangeNotifier {
-  static SancionesUsuario instancia= new SancionesUsuario();
+  static SancionesUsuario instancia = new SancionesUsuario();
   bool perfilInapropiado = false;
   bool hacePublicidad = false;
   bool menorEdad = false;
   bool otros = false;
-   StreamController<int> contador;
-   int segundosRestantes = 0;
-   bool finSancion = false;
+  StreamController<int> contador;
+  int segundosRestantes = 0;
+  bool finSancion = false;
 
-   Future<void> obtenerSanciones() async {
+  Future<void> obtenerSanciones() async {
     int unidadesSancion = Usuario.esteUsuario.mapaSanciones["tiempoSancion"];
     bool sancionadoUsuario =
         Usuario.esteUsuario.mapaSanciones["usuarioSancionado"];
     List<dynamic> listaSanciones =
         Usuario.esteUsuario.mapaSanciones["sanciones"];
-        Usuario.esteUsuario.usuarioBloqueado = sancionadoUsuario;
+    Usuario.esteUsuario.usuarioBloqueado = sancionadoUsuario;
 
     if (sancionadoUsuario) {
       Usuario.esteUsuario.bloqueadoHasta =
@@ -52,7 +52,7 @@ class SancionesUsuario with ChangeNotifier {
             "sancionado": {
               "finSancion": val,
               "tiempoSancion": 5 * unidadesSancion,
-              "sanciones": listaSanciones,
+              "sanciones": [],
               "usuarioSancionado": true
             }
           });
@@ -65,51 +65,55 @@ class SancionesUsuario with ChangeNotifier {
                       1000)) -
                   ((val.millisecondsSinceEpoch ~/ 1000));
           segundosRestantes = diferencia;
-          if(diferencia>0){
- contadorHastaRecompensa();
-        for (int a = 0; a < listaSanciones.length; a++) {
-            Sanciones.listaSanciones.add(Sanciones(
-              sancion: listaSanciones[a],
-            ));
+          if (diferencia > 0) {
+            contadorHastaRecompensa();
+            for (int a = 0; a < listaSanciones.length; a++) {
+              Sanciones.listaSanciones.add(Sanciones(
+                sancion: listaSanciones[a],
+              ));
+            }
+            Usuario.esteUsuario.bloqueadoHasta =
+                Usuario.esteUsuario.mapaSanciones["finSancion"].toDate();
+            Usuario.esteUsuario.usuarioBloqueado = sancionadoUsuario;
+            Conversacion.conversaciones.notifyListeners();
+          } else {
+               Usuario.dbRef
+              .collection("usuarios")
+              .doc(Usuario.esteUsuario.idUsuario)
+              .update({
+            "sancionado": {
+              "finSancion": val,
+              "tiempoSancion": 5 * unidadesSancion,
+              "sanciones": listaSanciones,
+              "usuarioSancionado": false
+            }
+          });
+            Usuario.esteUsuario.usuarioBloqueado = false;
+            finSancion = true;
+            //   finSancionUsuario();
           }
-          Usuario.esteUsuario.bloqueadoHasta =
-              Usuario.esteUsuario.mapaSanciones["finSancion"].toDate();
-          Usuario.esteUsuario.usuarioBloqueado = sancionadoUsuario;
-          Conversacion.conversaciones.notifyListeners();
-          }
-          else{
- Usuario.esteUsuario.usuarioBloqueado = false;
-            finSancion=true;
-         //   finSancionUsuario();
-          }
-
-         
-   
         }
       });
     }
- 
+
     Conversacion.conversaciones.notifyListeners();
   }
 
-   void contadorHastaRecompensa() async {
+  void contadorHastaRecompensa() async {
     contador = StreamController.broadcast();
     Timer flutterTimer;
 
-    flutterTimer = new Timer.periodic(Duration(seconds: 1), (valor)async {
+    flutterTimer = new Timer.periodic(Duration(seconds: 1), (valor) async {
       if (segundosRestantes > 0) {
         segundosRestantes -= 1;
         contador.add(segundosRestantes);
       }
       if (segundosRestantes <= 0) {
-     
-    finSancion=true;
-   
-    Conversacion.conversaciones.notifyListeners();
-       flutterTimer.cancel();
+        finSancion = true;
+
+        Conversacion.conversaciones.notifyListeners();
+        flutterTimer.cancel();
         contador.close();
- 
-        
       }
     });
   }
@@ -135,9 +139,4 @@ class SancionesUsuario with ChangeNotifier {
 
     return sancionFinalizadaConExito;
   }
-
-
-
-
-
 }

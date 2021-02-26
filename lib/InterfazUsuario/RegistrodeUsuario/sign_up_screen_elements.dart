@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/InterfazUsuario/Ajustes/EditarUsuario.dart';
+import 'package:citasnuevo/PrimeraPantalla.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drag_and_drop_gridview/devdrag.dart';
@@ -16,16 +17,12 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
-import 'package:citasnuevo/InterfazUsuario/IniciodeSesion/login_screen.dart';
-
-import 'sign_up_methods.dart';
-import '../../main.dart';
+import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 import 'sign_up_screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 ///**************************************************************************************************************************************************************
@@ -79,7 +76,6 @@ class EntradaTextoState extends State<EntradaTexto> {
 
   @override
   void initState() {
-    Usuario.esteUsuario.nombre = widget.nombre_campo;
     controladorTexto.text = Usuario.esteUsuario.nombre;
     super.initState();
   }
@@ -102,7 +98,7 @@ class EntradaTextoState extends State<EntradaTexto> {
     return TextField(
       maxLines: lineas,
       maxLength: caracteres,
-      textInputAction: TextInputAction.next,
+      textInputAction: TextInputAction.done,
       controller: controladorTexto,
       style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
@@ -122,6 +118,9 @@ class EntradaTextoState extends State<EntradaTexto> {
             Usuario.esteUsuario.nombre = val;
           }
         });
+      },
+      onSubmitted: (String palabra) {
+        Usuario.esteUsuario.nombre = palabra;
       },
     );
   }
@@ -214,127 +213,42 @@ class BotonNacimientoState extends State<BotonNacimiento> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        
-        width: 600.w,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(3))),
-        child: Row(
-          children: [
-            Flexible(
-              flex: 2,
-              fit: FlexFit.tight,
-              child: TextFormField(
-                textInputAction: TextInputAction.next,
-                focusNode: nodoDia,
-                maxLength: 2,
-                maxLines: 1,
-                maxLengthEnforced: true,
-                keyboardType: TextInputType.datetime,
-                controller: controladorTextoDia,
-                onEditingComplete: () {
-                  print(Usuario.esteUsuario.fechaNacimiento);
-                },
-                   enableInteractiveSelection: false,
-                style: TextStyle(fontSize: 55.sp),
-                decoration: InputDecoration(
-               
-                    counter: Offstage(),
-                    hintText: "dd",
-                    hintStyle: TextStyle(color: Colors.grey)),
-                onChanged: (valor) {
-                  if (valor.length >= 2) {
-                    
-                    Usuario.esteUsuario.dia = int.parse(valor);
-                    nodoDia.unfocus();
-                    nodoMes.requestFocus();
-                  }
-                  if (valor.length == 0) {}
-                },
-              ),
-            ),
-            Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: Text("/", style: TextStyle(fontSize: 55.sp))),
-            Flexible(
-              flex: 2,
-              fit: FlexFit.tight,
-              child: TextField(
-                   enableInteractiveSelection: false,
-                focusNode: nodoMes,
-                textInputAction: TextInputAction.done,
-                maxLength: 2,
-                keyboardType: TextInputType.datetime,
-                controller: controladorTextoMes,
-                onEditingComplete: () {
-                  print(Usuario.esteUsuario.fechaNacimiento);
-                },
-                style: TextStyle(fontSize: 55.sp),
-                decoration: InputDecoration(
-              
-                  counter: Offstage(),
-                  hintText: "mm",
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
-                onChanged: (valor) {
-                  if (valor.length >= 2) {
-                    Usuario.esteUsuario.mes = int.parse(valor);
-                    nodoMes.unfocus();
-                    nodoAnio.requestFocus();
-                  }
-
-                  if (valor.length == 0) {
-                    nodoMes.unfocus();
-                    nodoDia.requestFocus();
-                  }
-                },
-              ),
-            ),
-            Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: Text("/", style: TextStyle(fontSize: 55.sp))),
-            Flexible(
-              flex: 4,
-              fit: FlexFit.tight,
-              child: TextField(
-                
-                showCursor: true,
-                enableInteractiveSelection: false,
-                textAlignVertical: TextAlignVertical.bottom,
-                textInputAction: TextInputAction.done,
-                focusNode: nodoAnio,
-                maxLength: 4,
-                keyboardType: TextInputType.datetime,
-                controller: controladorTextoAnio,
-                onEditingComplete: () {
-                  print(Usuario.esteUsuario.fechaNacimiento);
-                },
-                style: TextStyle(fontSize: 55.sp),
-                decoration: InputDecoration(
-                
-                    isDense: true,
-                    counter: Offstage(),
-                    hintText: "yyyy",
-                    hintStyle: TextStyle(color: Colors.grey)),
-                onChanged: (valor) {
-                  if (valor.length >= 4) {
-                    Usuario.esteUsuario.anio = int.parse(valor);
-                    Usuario.esteUsuario.validadorFecha();
-                  }
-                  if (valor.length == 0) {
-                    nodoAnio.unfocus();
-                    nodoMes.requestFocus();
-                  }
-                },
-                onSubmitted: (valor) {
-                  nodoAnio.unfocus();
-                },
-              ),
-            ),
-          ],
-        ));
+      width: 600.w,
+      height: 100.h,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(3))),
+      child: GestureDetector(
+          onTap: () async {
+            Usuario.esteUsuario.fechaNacimiento =
+                await DatePicker.showSimpleDatePicker(
+              context,
+              reverse: true,
+              initialDate: PantallaDeInicio.fechaActual
+                  .subtract(Duration(days: 365 * 18)),
+              firstDate: PantallaDeInicio.fechaActual
+                  .subtract(Duration(days: 365 * 90)),
+              dateFormat: "dd-MMMM-yyyy",
+              locale: DateTimePickerLocale.en_us,
+              looping: false,
+            );
+            Usuario.esteUsuario.validadorFecha();
+            Usuario.esteUsuario.notifyListeners();
+          },
+          child: Container(
+            child: Center(
+                child: Usuario.esteUsuario.fechaNacimiento == null
+                    ? Text(
+                        "Pulsa para seleccionar",
+                        style: GoogleFonts.lato(fontSize: 60.sp),
+                      )
+                    : Text(
+                        f.format(
+                          Usuario.esteUsuario.fechaNacimiento,
+                        ),
+                        style: GoogleFonts.lato(fontSize: 50.sp))),
+          )),
+    );
   }
 }
 
@@ -412,77 +326,82 @@ class CampoSexo extends StatefulWidget {
 }
 
 class CampoSexoState extends State<CampoSexo> {
-  
-
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 10, bottom: 10, left: 0, right: 0),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          "Sexo",
-                          style:
-                              GoogleFonts.lato(fontSize: 50.sp),
-                        ),
-                       
-                        Container(
+        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  "Sexo",
+                  style: GoogleFonts.lato(fontSize: 50.sp),
+                ),
+                Container(
                   height: 100.h,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
+                      border: Border.all(color: Colors.black),
                       color: Colors.white,
-                      borderRadius:
-                          BorderRadius.all(Radius.circular(10))),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: Row(children: [
                     Flexible(
                       fit: FlexFit.tight,
                       flex: 1,
                       child: GestureDetector(
-                           onTap: (){
-                             Usuario.esteUsuario.setSexoMujer=false;
-
-                           },
-                                                        child: Container(
-                          decoration: BoxDecoration(
-                            color: !Usuario.esteUsuario.getSexoMujer?Colors.deepPurple:Colors.white,
-                              borderRadius: BorderRadius.only(
-                                
-                                  topLeft: Radius.circular(10),
-                                  bottomLeft: Radius.circular(10))),
-                                child:Center(child: Text("Hombre",style:GoogleFonts.lato(fontSize:40.sp,color: !Usuario.esteUsuario.getSexoMujer?Colors.white:Colors.black,)))
-                    
-                        ),
+                        onTap: () {
+                          Usuario.esteUsuario.setSexoMujer = false;
+                        },
+                        child: Container(
+                            decoration: BoxDecoration(
+                                color: !Usuario.esteUsuario.getSexoMujer
+                                    ? Colors.deepPurple
+                                    : Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    bottomLeft: Radius.circular(10))),
+                            child: Center(
+                                child: Text("Hombre",
+                                    style: GoogleFonts.lato(
+                                      fontSize: 40.sp,
+                                      color: !Usuario.esteUsuario.getSexoMujer
+                                          ? Colors.white
+                                          : Colors.black,
+                                    )))),
                       ),
                     ),
-                    
                     Flexible(
                       fit: FlexFit.tight,
                       flex: 1,
                       child: GestureDetector(
-                        onTap: (){
-                          Usuario.esteUsuario.setSexoMujer=true;
+                        onTap: () {
+                          Usuario.esteUsuario.setSexoMujer = true;
                         },
-                                                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Usuario.esteUsuario.getSexoMujer?Colors.deepPurple:Colors.white,
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10))),
-                                       child:Center(child: Text("Mujer",style:GoogleFonts.lato(fontSize:40.sp,color: Usuario.esteUsuario.getSexoMujer?Colors.white:Colors.black,)))
-                        ),
+                        child: Container(
+                            decoration: BoxDecoration(
+                                color: Usuario.esteUsuario.getSexoMujer
+                                    ? Colors.deepPurple
+                                    : Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(10),
+                                    bottomRight: Radius.circular(10))),
+                            child: Center(
+                                child: Text("Mujer",
+                                    style: GoogleFonts.lato(
+                                      fontSize: 40.sp,
+                                      color: Usuario.esteUsuario.getSexoMujer
+                                          ? Colors.white
+                                          : Colors.black,
+                                    )))),
                       ),
                     )
                   ]),
                 )
-                      ]),
-                ),
-              ),
+              ]),
+        ),
+      ),
     );
   }
 }
@@ -515,85 +434,108 @@ class CampoPreferenciaSexual extends StatefulWidget {
 }
 
 class CampoPreferenciaSexualState extends State<CampoPreferenciaSexual> {
-
-
   Widget build(BuildContext context) {
     return Container(
-      
-      child:Padding(
+      child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment:
-                MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
                 "Busco",
-                style:
-                    GoogleFonts.lato(fontSize: 50.sp),
+                style: GoogleFonts.lato(fontSize: 50.sp),
               ),
-             
               Container(
-        height: 100.h,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
-            color: Colors.white,
-            borderRadius:
-                BorderRadius.all(Radius.circular(10))),
-        child: Row(children: [
-          Flexible(
-            fit: FlexFit.tight,
-            flex: 1,
-            child: GestureDetector(
-                 onTap: (){
-                   Usuario.esteUsuario.setPreferenciaSexual=0;
-                 },
-                                              child: Container(
+                height: 100.h,
                 decoration: BoxDecoration(
-                  color: Usuario.esteUsuario.getPreferenciaSexual==0?Colors.deepPurple:Colors.white,
-                    borderRadius: BorderRadius.only(
-                      
-                        topLeft: Radius.circular(10),
-                        bottomLeft: Radius.circular(10))),
-                      child:Center(child: Text("Hombre",style:GoogleFonts.lato(fontSize:35.sp,color: Usuario.esteUsuario.getPreferenciaSexual==0?Colors.white:Colors.black,)))
-          
-              ),
-            ),
-          ),
-               Flexible(
-            fit: FlexFit.tight,
-            flex: 1,
-            child: GestureDetector(
-              onTap: (){
-                Usuario.esteUsuario.setPreferenciaSexual=1;
-              },
-                                              child: Container(
-                decoration: BoxDecoration(
-                  color: Usuario.esteUsuario.getPreferenciaSexual==1?Colors.deepPurple:Colors.white,
+                    border: Border.all(color: Colors.black),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                child: Row(children: [
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: GestureDetector(
+                      onTap: () {
+                        Usuario.esteUsuario.setPreferenciaSexual = 0;
+                      },
+                      child: Container(
+                          decoration: BoxDecoration(
+                              color:
+                                  Usuario.esteUsuario.getPreferenciaSexual == 0
+                                      ? Colors.deepPurple
+                                      : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  bottomLeft: Radius.circular(10))),
+                          child: Center(
+                              child: Text("Hombre",
+                                  style: GoogleFonts.lato(
+                                    fontSize: 35.sp,
+                                    color: Usuario.esteUsuario
+                                                .getPreferenciaSexual ==
+                                            0
+                                        ? Colors.white
+                                        : Colors.black,
+                                  )))),
+                    ),
                   ),
-                             child:Center(child: Text("Ambos",style:GoogleFonts.lato(fontSize:35.sp,color: Usuario.esteUsuario.getPreferenciaSexual==1?Colors.white:Colors.black,)))
-              ),
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.tight,
-            flex: 1,
-            child: GestureDetector(
-              onTap: (){
-                Usuario.esteUsuario.setPreferenciaSexual=2;
-              },
-                                              child: Container(
-                decoration: BoxDecoration(
-                  color: Usuario.esteUsuario.getPreferenciaSexual==2?Colors.deepPurple:Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10))),
-                             child:Center(child: Text("Mujer",style:GoogleFonts.lato(fontSize:35.sp,color:Usuario.esteUsuario.getPreferenciaSexual==2?Colors.white:Colors.black,)))
-              ),
-            ),
-          )
-        ]),
-      )
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: GestureDetector(
+                      onTap: () {
+                        Usuario.esteUsuario.setPreferenciaSexual = 1;
+                      },
+                      child: Container(
+                          decoration: BoxDecoration(
+                            color: Usuario.esteUsuario.getPreferenciaSexual == 1
+                                ? Colors.deepPurple
+                                : Colors.white,
+                          ),
+                          child: Center(
+                              child: Text("Ambos",
+                                  style: GoogleFonts.lato(
+                                    fontSize: 35.sp,
+                                    color: Usuario.esteUsuario
+                                                .getPreferenciaSexual ==
+                                            1
+                                        ? Colors.white
+                                        : Colors.black,
+                                  )))),
+                    ),
+                  ),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
+                    child: GestureDetector(
+                      onTap: () {
+                        Usuario.esteUsuario.setPreferenciaSexual = 2;
+                      },
+                      child: Container(
+                          decoration: BoxDecoration(
+                              color:
+                                  Usuario.esteUsuario.getPreferenciaSexual == 2
+                                      ? Colors.deepPurple
+                                      : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  bottomRight: Radius.circular(10))),
+                          child: Center(
+                              child: Text("Mujer",
+                                  style: GoogleFonts.lato(
+                                    fontSize: 35.sp,
+                                    color: Usuario.esteUsuario
+                                                .getPreferenciaSexual ==
+                                            2
+                                        ? Colors.white
+                                        : Colors.black,
+                                  )))),
+                    ),
+                  )
+                ]),
+              )
             ]),
       ),
     );
@@ -612,19 +554,10 @@ class CampoPreferenciaSexualState extends State<CampoPreferenciaSexual> {
 ///
 ///*************************************************************************************************************************************************************
 
-
 ///**************************************************************************************************************************************************************
 ///  WIDGET SIGN IN BUTTON: Boton encargado de hacer llamar a la funcion que envia los datos introducidos por el usuario en la pantalla de registro
 ///
 ///*************************************************************************************************************************************************************
-
-
-
-
-
-
-
-
 
 class ModificadorVeganismo extends StatefulWidget {
   @override
@@ -909,7 +842,6 @@ class FotosPerfilStateNuevas extends State<FotosPerfilNuevas> {
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-       
             lockAspectRatio: true),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
@@ -940,7 +872,6 @@ class FotosPerfilStateNuevas extends State<FotosPerfilNuevas> {
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-         
             lockAspectRatio: true),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
@@ -1018,16 +949,15 @@ class _AtributosDestacadosUsuarioState
               padding: const EdgeInsets.all(10.0),
               child: Column(
                 children: [
-
                   Flexible(
                     flex: 1,
                     fit: FlexFit.tight,
                     child: Text(
-              "Caracteristicas",
-              style: TextStyle(fontSize: 60.sp, fontWeight: FontWeight.bold),
-            ),
+                      "Caracteristicas",
+                      style: TextStyle(
+                          fontSize: 60.sp, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                 
                   Flexible(
                       flex: 18,
                       fit: FlexFit.tight,
@@ -1043,8 +973,7 @@ class _AtributosDestacadosUsuarioState
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    PantallaRegistroFinal())),
+                                builder: (context) => PantallaRegistroFinal())),
                         child: Container(
                           height: 150.h,
                           width: 600.w,
@@ -1086,8 +1015,7 @@ class _ListaCaracteristicasEditarState
     return Container(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: <Widget>[
             /*Text("Trabajo y Formacion"),
             ModificadorFormacion(),

@@ -6,6 +6,7 @@ import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/InterfazUsuario/Ajustes/PantallaAjustes.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
+import 'package:flash/flash.dart';
 
 
 import 'package:firebase_database/firebase_database.dart';
@@ -27,13 +28,15 @@ import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart
 
 
 
-
 import 'package:flushbar/flushbar.dart';
 import 'package:citasnuevo/main.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BaseAplicacion extends State<start> with WidgetsBindingObserver {
+  
+
+
   static AppLifecycleState notificadorEstadoAplicacion; 
   static final GlobalKey claveNavegacion = GlobalKey();
   static final GlobalKey claveBase = GlobalKey();
@@ -81,6 +84,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
   }
 
   Widget build(BuildContext context) {
+
     // ignore: todo
     // TODO: implement build
     return WillPopScope(
@@ -90,19 +94,11 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
       },
           child: ChangeNotifierProvider.value(
         value: Conversacion.conversaciones,
-            child: MaterialApp(
+            child: Material(
           key: claveBase,
-          debugShowCheckedModeBanner: false,
-          theme: new ThemeData(
-              highlightColor: Colors.purple,
-              tabBarTheme: TabBarTheme(
-                  unselectedLabelStyle: TextStyle(fontSize: ScreenUtil().setSp(50)),
-                  labelColor: Colors.green,
-                  unselectedLabelColor: Colors.black87,
-                  labelStyle: TextStyle(fontSize: ScreenUtil().setSp(50))),
-              primaryColor: Colors.white,
-              accentColor: Colors.purple),
-          home: Container(
+          
+     
+          child: Container(
             color: Colors.deepPurple[900],
             height: ScreenUtil.screenHeight,
             child: Stack(
@@ -125,52 +121,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
                        ),
               
                 
-            Usuario.esteUsuario.usuarioBloqueado==true?   SafeArea(
-                 child: Material(
-                   child: Container(
-                    height: ScreenUtil.screenHeight,
-                    width: ScreenUtil.screenWidth,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Su cuenta ha sido bloqueada hasta el ${BaseAplicacion.formatoFecha.format(Usuario.esteUsuario.bloqueadoHasta)}",style:GoogleFonts.lato(color: Colors.white,fontSize:60.sp)),
-                          Divider(height: 100.h,),
-                          Text("En Hotty nos tomamos muy en serio la seguridad y comodidad de nuestra comunidad,su perfil fue denunciado y moderado por las siguientes causas",style:GoogleFonts.lato(color: Colors.white,fontSize:50.sp)),
-                          Container(decoration: BoxDecoration(color: Colors.blue),),
-                          Divider(height: 100.h,),
-
-                          Container(
-                            
-                            height: 500.h,
-                            child: ListView(children: Sanciones.listaSanciones,)),
-
-                              Divider(height: 100.h,),
-                          
-                          RaisedButton(
-                            onPressed:(){ ControladorInicioSesion.instancia.cerrarSesion().then((val){
-                              if(val){
-                                Navigator.pop(context);
-                              }
-                            });},
-                            child: Text("Cerrar Sesion"),),
-                               RaisedButton(
-                            onPressed:(){ ControladorInicioSesion.instancia.cerrarSesion().then((val){
-                              if(val){
-                                Navigator.pop(context);
-                              }
-                            });},
-                            child: Text("Más informacion"),),
-                        ],
-                      ),
-
-                    ), 
-                    
-                    
-                     color:Colors.deepPurple,),
-                 ),
-               ):Container(height: 0,width: 0,)
+         
               ],
             ),
           ),
@@ -199,7 +150,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
       elevation: 0.0,
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.home, size: ScreenUtil().setSp(60),color: BaseAplicacion.indicePagina==0?Colors.white:Colors.black),
+          icon: Icon(Icons.people_alt_outlined, size: ScreenUtil().setSp(60),color: BaseAplicacion.indicePagina==0?Colors.white:Colors.black),
           title: new Text(
             "",
             style: TextStyle(
@@ -212,7 +163,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
             icon: Stack(
               alignment: Alignment.bottomLeft,
               children: [
-              Icon(Icons.people, size: ScreenUtil().setSp(60),color: BaseAplicacion.indicePagina==0?Colors.white:Colors.black),
+              Icon(Icons.message_outlined, size: ScreenUtil().setSp(60),color: BaseAplicacion.indicePagina==0?Colors.white:Colors.black),
             Container(
               height: 30.w,
               width: 30.w,
@@ -238,7 +189,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
             backgroundColor: Colors.red),
         
         BottomNavigationBarItem(
-            icon: Icon(Icons.settings, size: ScreenUtil().setSp(60),color: BaseAplicacion.indicePagina==0?Colors.white:Colors.black),
+            icon: Icon(Icons.settings_outlined, size: ScreenUtil().setSp(60),color: BaseAplicacion.indicePagina==0?Colors.white:Colors.black),
             title: new Text(
               "",
               style: TextStyle(

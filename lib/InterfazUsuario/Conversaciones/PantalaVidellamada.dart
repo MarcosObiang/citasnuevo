@@ -41,7 +41,7 @@ class CallPage extends StatefulWidget {
 class CallPageState extends State<CallPage> with RouteAware{
   static final _users = <int>[];
   final _infoStrings = <String>[];
-  int segundosVideo=Usuario.esteUsuario.minutosRestantesVideoChat*60;
+
   bool muted = false;
   var formatoTiempo=new DateFormat("HH:mm:ss");
   Timer cronometroVideoPantalla;
@@ -89,24 +89,7 @@ class CallPageState extends State<CallPage> with RouteAware{
 
 
 
-  void iniciarCuentaAtrasVideo(){
-    int contadorSegundos=0;
 
-
-     cronometroVideoPantalla=new Timer.periodic(Duration(seconds:1), (timer) {
-      setState(() {
-
-      });
-      contadorSegundos+=1;
-      segundosVideo-=1;
-      if(contadorSegundos==60){
-        contadorSegundos=0;
-        Usuario.esteUsuario.minutosRestantesVideoChat-=1;
-       // FirebaseFirestore.instance.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).update({"minutosVideo":FieldValue.increment(-1)});
-      }
-
-    });
-  }
 
 
 
@@ -171,7 +154,7 @@ class CallPageState extends State<CallPage> with RouteAware{
     };
 
     AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
-      iniciarCuentaAtrasVideo();
+      
       setState(() {
         final info = 'userJoined: $uid';
         print("Usuario en el canal^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");

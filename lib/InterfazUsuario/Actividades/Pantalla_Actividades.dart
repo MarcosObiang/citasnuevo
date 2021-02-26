@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import 'package:provider/provider.dart';
@@ -300,40 +301,14 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
         
           return SafeArea(
                       child: Container(
+                        
               decoration: BoxDecoration(
+                color: Colors.deepPurple,
                 ),
               height: ScreenUtil().setHeight(2000),
               child: Stack(alignment: AlignmentDirectional.center, children: <
                   Widget>[
-                   ! Citas.estaConectado? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Stack(
-                              alignment: Alignment.bottomCenter,
-                           
-                              children: [
-                                Icon(LineAwesomeIcons.broadcast_tower,size: ScreenUtil().setSp(500),),
-                                Positioned(
-                                  right: ScreenUtil().setWidth(300),
-                                  
-                                  child: Icon(Icons.cancel,size: ScreenUtil().setSp(200),color: Colors.red,))
-                              ],
-                            ),
-                            Divider(height: ScreenUtil().setHeight(100)),
-                            Text(
-                              "No tiene conexion",
-                              style: TextStyle(color: Colors.black,fontSize: ScreenUtil().setSp(60)),
-                            )
-                          ],
-                        ),
-                      ):
-                
-                
-                
-                
-                perfiles.listaPerfiles == null
-                    ? Center(
+                   Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -344,11 +319,13 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
                             )
                           ],
                         ),
-                      )
-                    : Container(
+                      ),
+                     Container(
                       height: widget.limites.biggest.height,
                       width: widget.limites.biggest.width,
-                      child: LayoutBuilder(
+                      color: Colors.deepPurple,
+                      child:
+                       LayoutBuilder(
                         builder: (BuildContext context,
                             BoxConstraints espacioPerfiles) {
                           return PerfilesGenteCitas(

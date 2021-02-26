@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/QueriesLocalizacion/models/DistanceDocSnapshot.dart';
 import 'package:citasnuevo/DatosAplicacion/QueriesLocalizacion/point.dart';
@@ -8,15 +9,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:citasnuevo/DatosAplicacion/QueriesLocalizacion/geoflutterfire.dart';
-import 'package:provider/provider.dart';
+
 
 class ControladorLocalizacion with ChangeNotifier {
   static ControladorLocalizacion instancia = new ControladorLocalizacion();
-  StreamSubscription<List<DistanceDocSnapshot>> recibirPerfiles;
-   Position posicion;
-   var geo = Geoflutterfire();
+
+  Position posicion;
+  var geo = Geoflutterfire();
   static final firestore = FirebaseFirestore.instance;
-   GeoFirePoint miPosicion;
+  GeoFirePoint miPosicion;
   double edadInicial = 19;
   double distanciaMaxima = 60;
   double edadFinal = 25;
@@ -24,10 +25,10 @@ class ControladorLocalizacion with ChangeNotifier {
   bool mostrarmeEnHotty = true;
   bool mostrarMujeres = true;
 
-   List<int> activadorEdadesDeseadas = new List();
-   List<List<int>> grupoActivadorEdadesDeseadas = new List();
+  List<int> activadorEdadesDeseadas = new List();
+  List<List<int>> grupoActivadorEdadesDeseadas = new List();
   Map<String, dynamic> mapaAjustes = new Map();
-   List<Map<String, dynamic>> listaPerfilesNube = new List();
+  List<Map<String, dynamic>> listaPerfilesNube = new List();
 
   Future<bool> guardarAjustes() async {
     rangoEdad();
@@ -57,16 +58,12 @@ class ControladorLocalizacion with ChangeNotifier {
   ///
   ///
   ///GETTERS Y SETTERS
- bool get getMostrarMujeres => mostrarMujeres;
+  bool get getMostrarMujeres => mostrarMujeres;
 
- set setMostrarMujeres(bool mostrarMujeres) {
-   
-   
+  set setMostrarMujeres(bool mostrarMujeres) {
     this.mostrarMujeres = mostrarMujeres;
     notifyListeners();
-    }
-  
-
+  }
 
   bool get getMostrarmeEnHotty => mostrarmeEnHotty;
 
@@ -118,11 +115,9 @@ class ControladorLocalizacion with ChangeNotifier {
       activadorEdadesDeseadas.add(edadInicio);
       edadInicio += 1;
     }
-    print(distanciaMaxima.toInt());
-    print(activadorEdadesDeseadas);
   }
 
-   Future<GeoFirePoint> obtenerLocalizacionPorPrimeraVez() async {
+  Future<GeoFirePoint> obtenerLocalizacionPorPrimeraVez() async {
     ControladorLocalizacion.instancia.rangoEdad();
     this.posicion = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
@@ -134,7 +129,6 @@ class ControladorLocalizacion with ChangeNotifier {
         .doc(Usuario.esteUsuario.idUsuario)
         .set({"posicion": miPosicion.data});
 
-    print(posicion.toString());
     return miPosicion;
   }
 
@@ -169,33 +163,24 @@ class ControladorLocalizacion with ChangeNotifier {
       }
     }
     grupoActivadorEdadesDeseadas.addAll(grupoListaEdadesTemporales);
-
-for(int c=0;c<grupoActivadorEdadesDeseadas.length;c++){
-cargarPerfiles(grupoActivadorEdadesDeseadas[c],c);
-
-
-}
-
-
-
-
+    QueryPerfiles.canalesCerrados();
+    for (int c = 0; c < grupoActivadorEdadesDeseadas.length; c++) {
+      cargarPerfiles(grupoActivadorEdadesDeseadas[c], c);
+    }
   }
 
-  void cargarPerfiles(List<int> edades,int cantidadEdades)async {
-
+  void cargarPerfiles(List<int> edades, int cantidadEdades) async {
     Query referenciaColeccion = firestore
         .collection("usuarios")
         .where("Ajustes.mostrarPerfil", isEqualTo: true)
-        .where("Sexo",isEqualTo:mostrarMujeres)
+        .where("Sexo", isEqualTo: mostrarMujeres)
         .where("Edades", arrayContainsAny: edades)
         .limit(10);
-        QueryPerfiles(referenciaColeccion: referenciaColeccion,indiceStream: cantidadEdades);
-       
+    QueryPerfiles(
+        referenciaColeccion: referenciaColeccion, indiceStream: cantidadEdades);
 
-
-
-   // Perfiles.perfilesCitas.cargarIsolate(listaPerfilesNube);
-   // recibirPerfiles.cancel();
+    // Perfiles.perfilesCitas.cargarIsolate(listaPerfilesNube);
+    // recibirPerfiles.cancel();
   }
 
   Future<void> obtenerLocalizacion() async {
@@ -206,25 +191,21 @@ cargarPerfiles(grupoActivadorEdadesDeseadas[c],c);
         geo.point(latitude: posicion.latitude, longitude: posicion.longitude);
     firestore.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).update(
         {"posicion": miPosicion.data}).catchError((onError) => print(onError));
-    print(instancia);
   }
 }
 
-
-
-
-
-
-
-
-
 class QueryPerfiles {
-
-  static cerrarConvexionesQuery(){
+  static cerrarConvexionesQuery() {
     queryPerfiles.clear();
+    flujo = null;
+    streamsCreeados = false;
 
+    contadorStreamsCerrados = 0;
+
+    flujo = new StreamController<bool>();
   }
-   StreamController flujo=StreamController<bool>();
+
+  static StreamController<bool> flujo = new StreamController<bool>();
   List<int> listaEdades = new List();
   bool streamCerrado = false;
   static bool streamsCreeados = false;
@@ -232,11 +213,16 @@ class QueryPerfiles {
   StreamSubscription<List<DistanceDocSnapshot>> recibirPerfiles;
   static var geo = Geoflutterfire();
   Query referenciaColeccion;
-  int indiceStream=0;
-  static List<bool>listaStreamsCerrados=new List();
- 
-  
-  QueryPerfiles({@required this.referenciaColeccion,@required this.indiceStream}) {
+  int indiceStream = 0;
+  static List<bool> listaStreamsCerrados = new List();
+  static int contadorStreamsCerrados = 0;
+
+  ///En en constructor añadimos el mismo objeto a una lista de streams creados y iniciamos el stream de geoflutterfire
+  ///si creams tres streams de [GeoFlutterfire], hay un stream llamado [flujo] el cual escucha los valores booleanos que emiten los tres streams cuand hayan
+  ///acabado, si creamos tres streams y flujo recibe tres booleanos con valor [false] entonces sabremos que todos los streams ya estan competos
+
+  QueryPerfiles(
+      {@required this.referenciaColeccion, @required this.indiceStream}) {
     queryPerfiles.add(this);
     recibirPerfiles = geo
         .collection(
@@ -248,59 +234,78 @@ class QueryPerfiles {
             field: "posicion",
             strictMode: true)
         .listen((event) {
-      if (event != null) {
+      if (event.length > 0) {
         for (DistanceDocSnapshot documento in event) {
           if (documento.documentSnapshot.id != Usuario.esteUsuario.idUsuario) {
             Map<String, dynamic> mapaDatos = documento.documentSnapshot.data();
             mapaDatos["distancia"] = documento.distance;
-
-            ControladorLocalizacion.instancia.listaPerfilesNube.add(mapaDatos);
+            if (perfilExiste(mapaDatos["Id"]) == 0) {
+              ControladorLocalizacion.instancia.listaPerfilesNube
+                  .add(mapaDatos);
+            }
           }
         }
-           recibirPerfiles.cancel().then((value) { 
-             
-             this.streamCerrado = true;
-             flujo.add(this.streamCerrado);
-             });
+        recibirPerfiles.cancel().then((value) {
+          this.streamCerrado = true;
+          flujo.add(this.streamCerrado);
+        });
       }
-      if(event==null){
-       recibirPerfiles.cancel().then((value) { 
-             
-             this.streamCerrado = true;
-             flujo.add(this.streamCerrado);
-             });
-      }
-if(this.indiceStream==ControladorLocalizacion.instancia.grupoActivadorEdadesDeseadas.length-1){
-  canalesCerrados();
-}
-   
-    }
-   
-    );
-  }
-
-
-
- void canalesCerrados()async {
-
-     flujo.stream.listen((event) {
-      listaStreamsCerrados.add(event);
-      if(listaStreamsCerrados.length==ControladorLocalizacion.instancia.grupoActivadorEdadesDeseadas.length){
-        if(Usuario.esteUsuario.perfilesBloqueados!=null){
-          if(Usuario.esteUsuario.perfilesBloqueados.length>0){
-   for(int a=0;a<Usuario.esteUsuario.perfilesBloqueados.length;a++){
-         for(int b=0;b<ControladorLocalizacion.instancia.listaPerfilesNube.length;b++){
-           if(ControladorLocalizacion.instancia.listaPerfilesNube[b]["Id"]==Usuario.esteUsuario.perfilesBloqueados[a]){
-             ControladorLocalizacion.instancia.listaPerfilesNube.removeAt(b);
-           }
-         }
-       }
-          }
-        }
-    
-        flujo.close().then((value) => Perfiles.cargarPerfilesCitas( ControladorLocalizacion.instancia.listaPerfilesNube));
+      if (event.length == 0) {
+        recibirPerfiles.cancel().then((value) {
+          this.streamCerrado = true;
+          flujo.add(this.streamCerrado);
+        });
       }
     });
- 
+  }
+
+  int perfilExiste(String idPerfil) {
+    int idPerfilExiste = 0;
+    if (ControladorLocalizacion.instancia.listaPerfilesNube.length > 0) {
+      for (int i = 0;
+          i < ControladorLocalizacion.instancia.listaPerfilesNube.length;
+          i++) {
+        if (ControladorLocalizacion.instancia.listaPerfilesNube[i]["Id"] ==
+            idPerfil) {
+          idPerfilExiste++;
+        }
+      }
+    }
+
+    return idPerfilExiste;
+  }
+
+  ///Este metodo tiene como objetivo escuchar las señales que mandan los diversos objetos [QueryPerfiles] cuando han terminado de obtener los perfiles con las edades deseadas para que sean procesadas por el isolate y hacer que sean perfiles
+  static void canalesCerrados() async {
+    flujo.stream.listen((event) {
+      listaStreamsCerrados.add(event);
+      if (listaStreamsCerrados.length ==
+          ControladorLocalizacion
+              .instancia.grupoActivadorEdadesDeseadas.length) {
+        if (Usuario.esteUsuario.perfilesBloqueados != null) {
+          if (Usuario.esteUsuario.perfilesBloqueados.length > 0) {
+            for (int a = 0;
+                a < Usuario.esteUsuario.perfilesBloqueados.length;
+                a++) {
+              for (int b = 0;
+                  b <
+                      ControladorLocalizacion
+                          .instancia.listaPerfilesNube.length;
+                  b++) {
+                if (ControladorLocalizacion.instancia.listaPerfilesNube[b]
+                        ["Id"] ==
+                    Usuario.esteUsuario.perfilesBloqueados[a]) {
+                  ControladorLocalizacion.instancia.listaPerfilesNube
+                      .removeAt(b);
+                }
+              }
+            }
+          }
+        }
+
+        flujo.close().then((value) => Perfiles.cargarPerfilesCitas(
+            ControladorLocalizacion.instancia.listaPerfilesNube));
+      }
+    });
   }
 }

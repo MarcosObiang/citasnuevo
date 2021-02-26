@@ -40,14 +40,7 @@ class ImagenesCarrete extends StatefulWidget {
         @required this.distancia, this.nombre, this.alias, this.edad, this.pieFoto, this.nombreEnFoto}) {
  // cargarHash();
   }
-    void cargarHash()async{
- 
-     Uint8List pixeles=decodeBlurHash(hash,ancho,altura);
-        Bitmap bitmap=Bitmap.fromHeadless(ancho,altura,pixeles);
-        imagen=await bitmap.buildImage().catchError((error){
-          print(error);
-        });
-  }
+
   
 
   @override
@@ -122,7 +115,7 @@ class BloqueDescripcion1 extends StatelessWidget {
     return Container(
       height: ScreenUtil().setHeight(500),
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: Colors.deepPurple,
         borderRadius: BorderRadius.all(Radius.circular(3)),
       ),
       child: Padding(
@@ -135,13 +128,13 @@ class BloqueDescripcion1 extends StatelessWidget {
               style: TextStyle(color: Colors.white),
             ),
             Divider(
-              height: ScreenUtil().setHeight(100),
-              color: Colors.transparent,
+              height: ScreenUtil().setHeight(50),
+              color: Colors.white,
             ),
             Text(
               descripcionPerfil,
               style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  GoogleFonts.lato(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),

@@ -6,6 +6,9 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flash/flash.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 class ControladorNotificacion {
@@ -215,7 +218,7 @@ class ControladorNotificacion {
 
   static void mostrarNotificacionMensajeAplicaionAbierta(
       BuildContext context, String emisorMensaje, String mensaje) {
-   /* Flushbar(
+    Flushbar(
       message: mensaje,
       duration: Duration(seconds: 2),
       flushbarPosition: FlushbarPosition.TOP,
@@ -230,6 +233,172 @@ class ControladorNotificacion {
       borderRadius: 10,
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.all(10),
-    )..show(context);*/
+    )..show(context);
+  }
+  static void mostrarNotificacionEsperandoRespuestaRecompensa(BuildContext context){
+  
+
+  showFlash(
+    duration: Duration(seconds: 3),
+    context: context,builder: (context,controller){
+    return Flash.dialog(
+      controller: controller,
+      alignment: Alignment.topCenter,
+      borderRadius:  BorderRadius.all(Radius.circular(10)),
+      backgroundColor: Colors.deepPurple,
+
+      child: Container(
+        width: ScreenUtil().setWidth(500),
+        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+
+
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Espere...",style: GoogleFonts.lato(fontSize: 55.sp,color:Colors.white),),
+              CircularProgressIndicator()
+            ],
+          ),
+        ),
+      ),);
+  });
+
+}
+
+
+  static void mostrarNotificacionRespuestaRecompensaObtenida(BuildContext context){
+  
+
+  showFlash(
+    duration: Duration(seconds: 3),
+    context: context,builder: (context,controller){
+    return Flash.dialog(
+      controller: controller,
+      alignment: Alignment.topCenter,
+      borderRadius:  BorderRadius.all(Radius.circular(10)),
+      backgroundColor: Colors.deepPurple,
+      margin: EdgeInsets.only(top:10),
+
+      child: Container(
+        width: ScreenUtil().setWidth(900),
+        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+
+
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Has ganado 500 Creditos",style: GoogleFonts.lato(fontSize: 55.sp,color:Colors.white),),
+             Icon(Icons.check_circle,color:Colors.green)
+            ],
+          ),
+        ),
+      ),);
+  });
+
+}
+  static void notificacionCuentaCreada(BuildContext context) {
+      showFlash(
+    duration: Duration(seconds: 3),
+    context: context,builder: (context,controller){
+    return Flash.dialog(
+      controller: controller,
+      alignment: Alignment.topCenter,
+      borderRadius:  BorderRadius.all(Radius.circular(10)),
+      borderColor: Colors.white,
+
+      backgroundColor: Colors.green[700],
+      margin: EdgeInsets.only(bottom:150.h),
+
+      child: Container(
+        width: ScreenUtil().setWidth(900),
+        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+
+
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Cuenta creada",style: GoogleFonts.lato(fontSize: 55.sp,color:Colors.white),),
+             Icon(Icons.check_circle_outline,color:Colors.white)
+            ],
+          ),
+        ),
+      ),);
+  });
+  }
+
+
+  static void notificacionErrorCrearCuenta(BuildContext context) {
+      showFlash(
+    duration: Duration(seconds: 3),
+    context: context,builder: (context,controller){
+    return Flash.dialog(
+      controller: controller,
+      alignment: Alignment.topCenter,
+      borderRadius:  BorderRadius.all(Radius.circular(10)),
+      borderColor: Colors.white,
+
+      backgroundColor: Colors.red,
+      margin: EdgeInsets.only(bottom:150.h),
+
+      child: Container(
+        width: ScreenUtil().setWidth(900),
+        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+
+
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Error al crear la cuenta",style: GoogleFonts.lato(fontSize: 55.sp,color:Colors.white),),
+             Icon(Icons.error,color:Colors.white)
+            ],
+          ),
+        ),
+      ),);
+  });
+  }
+
+
+  static void notificacionErrorConexion(BuildContext context) {
+      showFlash(
+    duration: Duration(seconds: 3),
+    context: context,builder: (context,controller){
+    return Flash.dialog(
+      controller: controller,
+      alignment: Alignment.topCenter,
+      borderRadius:  BorderRadius.all(Radius.circular(10)),
+      borderColor: Colors.white,
+
+      backgroundColor: Colors.red,
+      margin: EdgeInsets.only(bottom:150.h),
+
+      child: Container(
+        width: ScreenUtil().setWidth(900),
+        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+
+
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("No estás conectado a internet",style: GoogleFonts.lato(fontSize: 55.sp,color:Colors.white),),
+             Icon(Icons.error,color:Colors.white)
+            ],
+          ),
+        ),
+      ),);
+  });
   }
 }
+
+
+
+

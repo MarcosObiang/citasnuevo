@@ -2,7 +2,11 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantallaConversacion.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
@@ -15,6 +19,13 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+enum EstadosListaMensajes{
+  listaVacia,cargandoLista,listaCargada
+}
+
+
+
+
 class TituloChat extends StatefulWidget {
   List<Mensajes> listadeMensajes = new List();
   String idRemitente;
@@ -24,6 +35,8 @@ class TituloChat extends StatefulWidget {
   String imagen;
   String nombre;
   PantallaConversacion pantalla;
+  bool pulsado=false;
+  EstadosListaMensajes estado=EstadosListaMensajes.listaVacia;
 
   int mensajesSinLeer=0;
 
@@ -50,6 +63,8 @@ class TituloChat extends StatefulWidget {
   Future<List<Mensajes>> obtenerMensajes(
       String identificadorMensajes, String rutaRemitente) async {
     List<Mensajes> temp = new List();
+      this.estado=EstadosListaMensajes.cargandoLista;
+      Conversacion.conversaciones.notifyListeners();
   
     
 
@@ -72,9 +87,11 @@ class TituloChat extends StatefulWidget {
           print(identificadorMensajes);
     
           for (int a = 0; a < dato.docs.length; a++) {
- 
-            print(dato.docs[a].get("Tipo Mensaje"));
-            if (dato.docs[a].get("Tipo Mensaje") == "Texto" ||
+             if( dato.docs[a].get("idMensaje")!=null&&dato.docs[a].get("Tipo Mensaje")!=null&&dato.docs[a].get("respuesta")!=null&&dato.docs[a].get("mensajeRespuesta")!=null&&
+                  dato.docs[a].get("mensajeLeidoRemitente")!=null&&dato.docs[a].get("Nombre emisor")!=null&&dato.docs[a].get("idConversacion")!=null&&dato.docs[a].get("mensajeLeido")!=null&&
+                  dato.docs[a].get("identificadorUnicoMensaje")!=null&&dato.docs[a].get("idEmisor")!=null&&dato.docs[a].get("Hora mensaje")!=null&&dato.docs[a].get("Mensaje")!=null
+                  ){
+                                if (dato.docs[a].get("Tipo Mensaje") == "Texto" ||
                 dato.docs[a].get("Tipo Mensaje") == "Imagen" ||
                 dato.docs[a].get("Tipo Mensaje") == "Gif") {
               Mensajes mensaje = new Mensajes(
@@ -117,8 +134,18 @@ class TituloChat extends StatefulWidget {
 
               temp = List.from(temp)..add(mensaje);
             }
+
+                  }
+ 
+          
+
           }
         }}
+      }).catchError((onError){
+        print("Error al abrir conversacion");
+          this.estado=EstadosListaMensajes.listaVacia;
+          Conversacion.conversaciones.notifyListeners();
+        ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(ConversacionesLikes.claveListaConversaciones.currentContext);
       });
     }
 
@@ -299,6 +326,7 @@ class TituloChat extends StatefulWidget {
      
 
     }
+    this.estado=EstadosListaMensajes.listaCargada;
 
     return temp;
   }
@@ -435,7 +463,8 @@ class TituloChat extends StatefulWidget {
         .doc(idConversacion);
 
     if (!this.conversacion.grupo) {
-      if (mensajeTexto != null) {
+      if(Citas.estaConectado==true){
+    if (mensajeTexto != null) {
         Map<String, dynamic> mensaje = Map();
         DateTime horaMensaje = DateTime.now();
         mensaje["Hora mensaje"] = horaMensaje;
@@ -470,7 +499,18 @@ class TituloChat extends StatefulWidget {
         escrituraMensajes.set(direccionMensajesUsuario, mensaje);
         await escrituraMensajes.commit();
       }
+      }
+
+      
+  
     }
+
+    if(Citas.estaConectado==false){
+        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
+ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
+        }
+        
+      }
 
   }
 
@@ -532,6 +572,8 @@ class TituloChat extends StatefulWidget {
             .doc()
             .set(mensaje);
       }
+
+      if(Citas.estaConectado==true){
       if (!this.conversacion.grupo) {
         escrituraMensajes.update(referenciaConversacionRemitente, {
           "cantidadMensajesSinLeer": FieldValue.increment(1),
@@ -552,6 +594,14 @@ class TituloChat extends StatefulWidget {
         escrituraMensajes.set(direccionMensajesUsuario, mensaje);
         await escrituraMensajes.commit();
       }
+      }
+      if(Citas.estaConectado==false){
+        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
+ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
+        }
+        
+      }
+
     }
   }
 
@@ -617,7 +667,9 @@ class TituloChat extends StatefulWidget {
             print("ImagenEnviada");
           });
         }
-        if (!conversacion.grupo) {
+
+if(Citas.estaConectado==true){
+          if (!conversacion.grupo) {
           escrituraMensajes.update(referenciaConversacionRemitente, {
             "cantidadMensajesSinLeer": FieldValue.increment(1),
             "ultimoMensaje": {
@@ -638,6 +690,18 @@ class TituloChat extends StatefulWidget {
 
           await escrituraMensajes.commit();
         }
+
+}
+
+ if(Citas.estaConectado==false){
+        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
+ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
+        }}
+
+
+        
+
+        
       }
     }
   }
@@ -701,7 +765,8 @@ class TituloChat extends StatefulWidget {
               print("ImagenEnviada");
             });
           }
-          if (!conversacion.grupo) {
+          if(Citas.estaConectado==true){
+                    if (!conversacion.grupo) {
             escrituraMensajes.update(referenciaConversacionRemitente, {
               "cantidadMensajesSinLeer": FieldValue.increment(1),
               "ultimoMensaje": {
@@ -722,6 +787,16 @@ class TituloChat extends StatefulWidget {
 
             await escrituraMensajes.commit();
           }
+
+          }
+
+          if(Citas.estaConectado==false){
+        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
+ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
+        }
+        
+      }
+  
         }
       }
     });
@@ -861,194 +936,234 @@ class TituloChatState extends State<TituloChat> {
               padding: const EdgeInsets.all(4.0),
               child: FlatButton(
                 onPressed: () async {
-                  if (widget.listadeMensajes == null) {
+
+                  if (widget.listadeMensajes == null&&Citas.estaConectado==true&&Conversaciones.enPantallaConversacion==true) {
                     widget.listadeMensajes = await widget.obtenerMensajes(
                         widget.mensajeId, widget.idRemitente);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => widget.pantalla));
-                  } else {
+                  }   if (widget.listadeMensajes != null&&Conversaciones.enPantallaConversacion==true) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => widget.pantalla));
+
                   }
+
+                    if (widget.listadeMensajes == null&&Citas.estaConectado==false){
+ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(ConversacionesLikes.claveListaConversaciones.currentContext);
+                    }
                 },
                 child: Container(
-                    height: ScreenUtil().setHeight(200),
+                    height: ScreenUtil().setHeight(250),
                     decoration: BoxDecoration(
                       color: widget.mensajesSinLeer>0?Colors.purple[100]:Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            height: 200.h,
-                            width: 200.h,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  image: NetworkImage(
-                                    widget.imagen,
-                                  ),
-                                  fit: BoxFit.cover),
-                            ),
-                          ),
-                          Flexible(
-                            flex: 6,
-                            fit: FlexFit.tight,
-                            child: Container(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    Flexible(
-                                      flex: 5,
-                                      fit: FlexFit.tight,
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                              height:
-                                                  ScreenUtil().setHeight(100),
-                                              child: nombre == null
-                                                  ? Text("")
-                                                  : Text(
-                                                      widget.nombre,
+                      child: Stack(
+                        
+                        children: [
+                     
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                height: 200.h,
+                                width: 200.h,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: NetworkImage(
+                                        widget.imagen,
+                                      ),
+                                      fit: BoxFit.cover),
+                                ),
+                              ),
+                              Flexible(
+                                flex: 6,
+                                fit: FlexFit.tight,
+                                child: Container(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: <Widget>[
+                                        Flexible(
+                                          flex: 5,
+                                          fit: FlexFit.tight,
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                    height:
+                                                        ScreenUtil().setHeight(100),
+                                                    child: nombre == null
+                                                        ? Text("")
+                                                        : Text(
+                                                           widget.nombre,
+                                                            overflow:
+                                                                TextOverflow.ellipsis,
+                                                            style: TextStyle(
+                                                                fontSize: ScreenUtil()
+                                                                    .setSp(40),
+                                                                fontWeight:
+                                                                    FontWeight.bold),
+                                                          )),
+                                              ),
+                                              widget.estadoConexion
+                                                  ? Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10),
+                                                      child: Container(
+                                                        height: 50.w,
+                                                        width: ScreenUtil()
+                                                            .setWidth(50),
+                                                        decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color: Colors.green,
+                                                            border: Border.all(
+                                                                color: Colors.white,
+                                                                width: ScreenUtil()
+                                                                    .setWidth(5))),
+                                                      ),
+                                                    )
+                                                  : Container()
+                                            ],
+                                          ),
+                                        ),
+                                        Flexible(
+                                          flex: 5,
+                                          fit: FlexFit.tight,
+                                          child: Container(
+                                              child: widget.estadoConversacion ==
+                                                      "Escribiendo"
+                                                  ? Text(
+                                                      "Escribiendo.....",
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                       style: TextStyle(
                                                           fontSize: ScreenUtil()
                                                               .setSp(40),
                                                           fontWeight:
-                                                              FontWeight.bold),
-                                                    )),
-                                          widget.estadoConexion
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10),
-                                                  child: Container(
-                                                    height: 50.w,
-                                                    width: ScreenUtil()
-                                                        .setWidth(50),
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Colors.green,
-                                                        border: Border.all(
-                                                            color: Colors.white,
-                                                            width: ScreenUtil()
-                                                                .setWidth(5))),
-                                                  ),
-                                                )
-                                              : Container()
-                                        ],
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 5,
-                                      fit: FlexFit.tight,
-                                      child: Container(
-                                          child: widget.estadoConversacion ==
-                                                  "Escribiendo"
-                                              ? Text(
-                                                  "Escribiendo.....",
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                      fontSize: ScreenUtil()
-                                                          .setSp(40),
-                                                      fontWeight:
-                                                          cantidadMensajesSinLeer >
-                                                                  0
-                                                              ? FontWeight.bold
-                                                              : FontWeight
-                                                                  .normal),
-                                                )
-                                              : widget.ultimoMensaje == null
-                                                  ? Container()
-                                                  : widget.ultimoMensaje[
-                                                              "tipoMensaje"] ==
-                                                          "texto"
-                                                      ? Text(widget.ultimoMensaje[
-                                                                      "mensaje"] ==
-                                                                  null ||
-                                                              widget.ultimoMensaje[
-                                                                      "mensaje"] ==
-                                                                  "null"
-                                                          ? ""
-                                                          : widget.ultimoMensaje[
-                                                              "mensaje"],overflow: TextOverflow.ellipsis,)
+                                                              cantidadMensajesSinLeer >
+                                                                      0
+                                                                  ? FontWeight.bold
+                                                                  : FontWeight
+                                                                      .normal),
+                                                    )
+                                                  : widget.ultimoMensaje == null
+                                                      ? Container()
                                                       : widget.ultimoMensaje[
                                                                   "tipoMensaje"] ==
-                                                              "audio"
-                                                          ? Row(children: [
-                                                              Icon(Icons.mic,
-                                                                  color: Colors
-                                                                      .black),
-                                                              Text(mostrarDuracion(
+                                                              "texto"
+                                                          ? Text(widget.ultimoMensaje[
+                                                                          "mensaje"] ==
+                                                                      null ||
                                                                   widget.ultimoMensaje[
-                                                                      "duracion"]))
-                                                            ])
-                                                          : widget.ultimoMensaje["tipoMensaje"] == "imagen"
-                                                              ? Row(
-                                                                  children: [
-                                                                    Icon(Icons
-                                                                        .image),
-                                                                    Text(
-                                                                        "Imagen")
-                                                                  ],
-                                                                )
-                                                              : widget.ultimoMensaje["tipoMensaje"] == "gif"
+                                                                          "mensaje"] ==
+                                                                      "null"
+                                                              ? ""
+                                                              : widget.ultimoMensaje[
+                                                                  "mensaje"],overflow: TextOverflow.ellipsis,)
+                                                          : widget.ultimoMensaje[
+                                                                      "tipoMensaje"] ==
+                                                                  "audio"
+                                                              ? Row(children: [
+                                                                  Icon(Icons.mic,
+                                                                      color: Colors
+                                                                          .black),
+                                                                  Text(mostrarDuracion(
+                                                                      widget.ultimoMensaje[
+                                                                          "duracion"]))
+                                                                ])
+                                                              : widget.ultimoMensaje["tipoMensaje"] == "imagen"
                                                                   ? Row(
                                                                       children: [
                                                                         Icon(Icons
                                                                             .image),
                                                                         Text(
-                                                                            "Gif")
+                                                                            "Imagen")
                                                                       ],
                                                                     )
-                                                                  : Container()),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Flexible(
-                            flex: 1,
-                            fit: FlexFit.tight,
-                            child: Container(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  height: 80.w,
-                                  width: 80.w,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: cantidadMensajesSinLeer > 0
-                                          ? Colors.purple
-                                          : Colors.transparent),
-                                  child: Center(
-                                    child: Text(
-                                      "$cantidadMensajesSinLeer",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: ScreenUtil().setSp(30)),
+                                                                  : widget.ultimoMensaje["tipoMensaje"] == "gif"
+                                                                      ? Row(
+                                                                          children: [
+                                                                            Icon(Icons
+                                                                                .image),
+                                                                            Text(
+                                                                                "Gif")
+                                                                          ],
+                                                                        )
+                                                                      : Container()),
+                                        )
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
+                              Flexible(
+                                flex: 1,
+                                fit: FlexFit.tight,
+                                child: Container(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      height: 80.w,
+                                      width: 80.w,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: cantidadMensajesSinLeer > 0
+                                              ? Colors.purple
+                                              : Colors.transparent),
+                                      child: Center(
+                                        child:
+                                        
+                                        
+                                        
+                                         Text(
+                                          "$cantidadMensajesSinLeer",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: ScreenUtil().setSp(30)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                           widget.estado==EstadosListaMensajes.cargandoLista? Container
+                          (
+
+                               decoration: BoxDecoration(
+                      color: Color.fromRGBO(20, 20, 20, 100),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                            height: 250.h,
+                            
+                            
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+
+
+                              Text("Cargando conversación...",style:GoogleFonts.lato(color: Colors.white)),
+                              Container(height: 120.h,width: 120.h,
+                                  child: CircularProgressIndicator(),
+                                  )
+
+                            ],),):Container(height: 0,width: 0,)
+                       
                         ],
                       ),
                     )),

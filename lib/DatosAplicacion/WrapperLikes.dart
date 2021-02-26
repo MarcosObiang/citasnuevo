@@ -20,7 +20,7 @@ class DatosPerfiles {
   double valoracion;
   bool verificado;
   List<Widget> carrete = new List();
-
+  bool visible=true;
   List<Map<String, dynamic>> linksHistorias = new List();
   FirebaseFirestore baseDatosRef;
   Map<String, dynamic> datosValoracion = new Map();
@@ -70,6 +70,7 @@ class DatosPerfiles {
     datosValoracion["idDestino"] = idUsuario;
     datosValoracion["revelada"] = false;
     datosValoracion["id valoracion"] = idValor;
+    datosValoracion["visible"]=visible;
     _enviarValoracion(idValor);
   }
 
