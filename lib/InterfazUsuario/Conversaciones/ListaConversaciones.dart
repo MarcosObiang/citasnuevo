@@ -1,5 +1,6 @@
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -80,6 +81,7 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
       child: Consumer<Conversacion>(
         builder: (context, myType, child) {
           return Material(
+        
             key: ConversacionesLikes.claveListaConversaciones,
             child: Column(
               children: [
@@ -88,28 +90,31 @@ class people_screen extends State<start> with SingleTickerProviderStateMixin {
                   width: ScreenUtil.defaultWidth.toDouble(),
                   child: Stack(
                     children: [
-                      Citas.estaConectado == true
-                          ? Container(
+                     if (EstadoConexionInternet.estadoConexion.conexion== EstadoConexion.conectado) Container(
+                            padding: EdgeInsets.only(left: 15.w,right:15.w),
+                                color: Colors.deepPurple,
                               height: kToolbarHeight,
                               width: ScreenUtil.defaultWidth.toDouble(),
                               child: Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    "Chats",
-                                    style: GoogleFonts.lato(
-                                        color: Colors.black,
-                                        fontSize: 70.sp,
-                                        fontWeight: FontWeight.bold),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 15.w,right:30.w),
+                                    child: Text(
+                                      "Chats",
+                                      style: GoogleFonts.lato(
+                                          color: Colors.white,
+                                          fontSize: 70.sp,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                   Icon(Icons.message_outlined,
-                                      color: Colors.black)
+                                      color: Colors.white)
                                 ],
                               ),
-                            )
-                          : Container(
+                            ) else Container(
                               height: kToolbarHeight,
                               width: ScreenUtil.defaultWidth.toDouble(),
                               color: Colors.black,
@@ -215,7 +220,7 @@ class _ConversacionesState extends State<Conversaciones> with RouteAware {
     return ChangeNotifierProvider.value(
       value: Conversacion.conversaciones,
       child: Container(
-          color: Colors.white,
+          color: Colors.deepPurple,
           child: Consumer<Conversacion>(
             builder: (BuildContext context, conversacion, Widget child) {
               return Stack(children: <Widget>[
@@ -228,7 +233,7 @@ class _ConversacionesState extends State<Conversaciones> with RouteAware {
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(30),
                                   topRight: Radius.circular(30))),
-                          child: conversacion.listaDeConversaciones.length > 0
+                          child: conversacion.listaDeConversaciones.length > 0&&Conversacion.conversaciones.estadoModuloConversacion==EstadoModuloConversaciones.cagradoCorrectamente
                               ? ListView.builder(
                                   itemCount:
                                       conversacion.listaDeConversaciones.length,
@@ -238,7 +243,7 @@ class _ConversacionesState extends State<Conversaciones> with RouteAware {
                                         .ventanaChat;
                                   },
                                 )
-                              : Center(
+                              :conversacion.listaDeConversaciones?.length == 0&&Conversacion.conversaciones.estadoModuloConversacion==EstadoModuloConversaciones.noCargado? Center(
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 50, right: 50),
@@ -253,7 +258,42 @@ class _ConversacionesState extends State<Conversaciones> with RouteAware {
                                       ],
                                     ),
                                   ),
-                                )),
+                                ):conversacion.listaDeConversaciones?.length == 0&&Conversacion.conversaciones.estadoModuloConversacion==EstadoModuloConversaciones.cargadoIncorrectamete?Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 50, right: 50),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.warning_rounded,
+                                            color: Colors.black, size: 150.sp),
+                                        Text(
+                                            "Ha habido un error al cargar las conversaciones",style: GoogleFonts.lato(),),
+                                            ElevatedButton(
+                                              
+                                              onPressed: (){
+
+                                                Conversacion.conversaciones.obtenerConversaciones();
+                                              }, child: Text("Intentar de nuevo",style:GoogleFonts.lato()))
+                                      ],
+                                    ),
+                                  ),
+                                ):Conversacion.conversaciones.estadoModuloConversacion==EstadoModuloConversaciones.cargando?Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 50, right: 50),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        CircularProgressIndicator(),
+                                        Text(
+                                            "Cargando conversaciones")
+                                      ],
+                                    ),
+                                  ),
+                                ):Container())
                     ),
                   ],
                 ),
@@ -275,14 +315,16 @@ class _PantallaSolicitudesConversacionesState
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.deepPurple[900],
+
+color:Colors.deepPurple,
+shadowColor: Colors.deepPurple,
       child: SafeArea(
         child: Column(
           children: [
             AppBar(
-              leading: new Container(),
+             elevation: 0,
               iconTheme: IconThemeData(color: Colors.white),
-              backgroundColor: Colors.deepPurple[900],
+              backgroundColor: Colors.deepPurple,
               title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -304,7 +346,7 @@ class _PantallaSolicitudesConversacionesState
             ),
             Expanded(
               child: Container(
-                color: Colors.deepPurple[900],
+             decoration: BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(30),topRight: Radius.circular(30)),color: Colors.white),
                 child: Center(
                     child: Solicitudes
                                 .instancia.listaSolicitudesConversacion.length >
@@ -319,7 +361,7 @@ class _PantallaSolicitudesConversacionesState
                                 Icon(Icons.message_outlined,
                                     color: Colors.black, size: 150.sp),
                                 Text(
-                                  "Aún no tienes solicitudes de conversacion, sé paciente",
+                                  "Aún no tienes solicitudes de conversacion",
                                 )
                               ],
                             ),

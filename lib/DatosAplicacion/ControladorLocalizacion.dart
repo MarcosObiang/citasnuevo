@@ -1,18 +1,17 @@
 import 'dart:async';
 
-import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/QueriesLocalizacion/models/DistanceDocSnapshot.dart';
 import 'package:citasnuevo/DatosAplicacion/QueriesLocalizacion/point.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:citasnuevo/DatosAplicacion/QueriesLocalizacion/geoflutterfire.dart';
 
-
-class ControladorLocalizacion with ChangeNotifier {
-  static ControladorLocalizacion instancia = new ControladorLocalizacion();
+class ControladorAjustes with ChangeNotifier {
+  static ControladorAjustes instancia = new ControladorAjustes();
 
   Position posicion;
   var geo = Geoflutterfire();
@@ -24,16 +23,24 @@ class ControladorLocalizacion with ChangeNotifier {
   bool visualizarDistanciaEnMillas = false;
   bool mostrarmeEnHotty = true;
   bool mostrarMujeres = true;
+  bool mostrarCm = true;
+  bool get getMostrarCm => this.mostrarCm;
 
-  List<int> activadorEdadesDeseadas = new List();
-  List<List<int>> grupoActivadorEdadesDeseadas = new List();
+  set setMostrarCm(bool mostrarCm) {
+    this.mostrarCm = mostrarCm;
+    notifyListeners();
+  }
+
+  List<int> activadorEdadesDeseadas = [];
+  List<List<int>> grupoActivadorEdadesDeseadas = [];
   Map<String, dynamic> mapaAjustes = new Map();
-  List<Map<String, dynamic>> listaPerfilesNube = new List();
+  List<Map<String, dynamic>> listaPerfilesNube = [];
 
   Future<bool> guardarAjustes() async {
     rangoEdad();
     bool acabado = false;
     mapaAjustes["edadInicial"] = edadInicial.toInt();
+    mapaAjustes["enCm"] = mostrarCm;
     mapaAjustes["edadFinal"] = edadFinal.toInt();
     mapaAjustes["enMillas"] = visualizarDistanciaEnMillas;
     mapaAjustes["mostrarMujeres"] = mostrarMujeres;
@@ -47,8 +54,7 @@ class ControladorLocalizacion with ChangeNotifier {
         .doc(Usuario.esteUsuario.idUsuario)
         .update({"Ajustes": mapaAjustes})
         .then((value) => acabado = true)
-        .catchError((onError) =>
-            print("Ha ocurrido un error guardando los ajustes: $onError"));
+        .catchError((onError) {});
 
     return acabado;
   }
@@ -118,7 +124,7 @@ class ControladorLocalizacion with ChangeNotifier {
   }
 
   Future<GeoFirePoint> obtenerLocalizacionPorPrimeraVez() async {
-    ControladorLocalizacion.instancia.rangoEdad();
+    ControladorAjustes.instancia.rangoEdad();
     this.posicion = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -134,9 +140,12 @@ class ControladorLocalizacion with ChangeNotifier {
 
   void cargaPerfiles() async {
     int contadorPosicionesListaTemporal = 0;
-    List<int> edadesTemporales = new List();
-    List<List<int>> grupoListaEdadesTemporales = new List();
+    List<int> edadesTemporales = [];
+    List<List<int>> grupoListaEdadesTemporales = [];
+    // ignore: unused_local_variable
     int diferenciaPosicionLista = activadorEdadesDeseadas.length;
+    grupoActivadorEdadesDeseadas.clear();
+
     for (int a = 0;
         a < activadorEdadesDeseadas.length;
         a++, contadorPosicionesListaTemporal++) {
@@ -151,7 +160,7 @@ class ControladorLocalizacion with ChangeNotifier {
           (contadorPosicionesListaTemporal == edadesTemporales.length &&
               edadesTemporales.length < 10)) {
         diferenciaPosicionLista = activadorEdadesDeseadas.length - a;
-        List<int> cacheEdades = new List();
+        List<int> cacheEdades = [];
         cacheEdades = edadesTemporales;
 
         grupoListaEdadesTemporales = List.from(grupoListaEdadesTemporales)
@@ -169,13 +178,13 @@ class ControladorLocalizacion with ChangeNotifier {
     }
   }
 
-  void cargarPerfiles(List<int> edades, int cantidadEdades) async {
+  void cargarPerfiles(List<int> edades, int cantidadEdades,) async {
     Query referenciaColeccion = firestore
         .collection("usuarios")
         .where("Ajustes.mostrarPerfil", isEqualTo: true)
         .where("Sexo", isEqualTo: mostrarMujeres)
         .where("Edades", arrayContainsAny: edades)
-        .limit(10);
+        .limit(15);
     QueryPerfiles(
         referenciaColeccion: referenciaColeccion, indiceStream: cantidadEdades);
 
@@ -197,75 +206,111 @@ class ControladorLocalizacion with ChangeNotifier {
 class QueryPerfiles {
   static cerrarConvexionesQuery() {
     queryPerfiles.clear();
+    queryPerfiles=null;
+    queryPerfiles= [];
     flujo = null;
     streamsCreeados = false;
+     listaStreamsCerrados=new List();
 
     contadorStreamsCerrados = 0;
 
-    flujo = new StreamController<bool>();
+    flujo = new StreamController.broadcast();
   }
 
-  static StreamController<bool> flujo = new StreamController<bool>();
-  List<int> listaEdades = new List();
-  bool streamCerrado = false;
+  static StreamController<bool> flujo = new StreamController.broadcast();
+
   static bool streamsCreeados = false;
-  static List<QueryPerfiles> queryPerfiles = new List();
-  StreamSubscription<List<DistanceDocSnapshot>> recibirPerfiles;
-  static var geo = Geoflutterfire();
+  static List<QueryPerfiles> queryPerfiles = [];
+  static Geoflutterfire geo = Geoflutterfire();
+  static List<bool> listaStreamsCerrados = [];
+  static int contadorStreamsCerrados = 0;
+  List<int> listaEdades = [];
+  bool streamCerrado = false;
+ var recibirPerfiles;
   Query referenciaColeccion;
   int indiceStream = 0;
-  static List<bool> listaStreamsCerrados = new List();
-  static int contadorStreamsCerrados = 0;
 
-  ///En en constructor añadimos el mismo objeto a una lista de streams creados y iniciamos el stream de geoflutterfire
+  ///En en constructor añadimos el mismo objeto a una lista de streams creados e iniciamos el stream de geoflutterfire
   ///si creams tres streams de [GeoFlutterfire], hay un stream llamado [flujo] el cual escucha los valores booleanos que emiten los tres streams cuand hayan
   ///acabado, si creamos tres streams y flujo recibe tres booleanos con valor [false] entonces sabremos que todos los streams ya estan competos
 
   QueryPerfiles(
       {@required this.referenciaColeccion, @required this.indiceStream}) {
-    queryPerfiles.add(this);
-    recibirPerfiles = geo
-        .collection(
-          collectionRef: referenciaColeccion,
-        )
-        .within(
-            center: ControladorLocalizacion.instancia.miPosicion,
-            radius: ControladorLocalizacion.instancia.distanciaMaxima,
-            field: "posicion",
-            strictMode: true)
-        .listen((event) {
-      if (event.length > 0) {
-        for (DistanceDocSnapshot documento in event) {
-          if (documento.documentSnapshot.id != Usuario.esteUsuario.idUsuario) {
-            Map<String, dynamic> mapaDatos = documento.documentSnapshot.data();
-            mapaDatos["distancia"] = documento.distance;
-            if (perfilExiste(mapaDatos["Id"]) == 0) {
-              ControladorLocalizacion.instancia.listaPerfilesNube
-                  .add(mapaDatos);
+    try {
+      queryPerfiles.add(this);
+   
+      recibirPerfiles = geo
+          .collection(
+            collectionRef: referenciaColeccion,
+          )
+          .within(
+              center: ControladorAjustes.instancia.miPosicion,
+              radius: ControladorAjustes.instancia.distanciaMaxima,
+              field:  "posicion",
+              strictMode: true).handleError((onError){
+              recibirPerfiles.cancel().then((value) {
+            this.streamCerrado = true;
+            flujo.add(this.streamCerrado);
+          });
+              })
+          .listen((event) {
+        if (event.length > 0) {
+          for (DistanceDocSnapshot documento in event) {
+            if (documento.documentSnapshot.id !=
+                Usuario.esteUsuario.idUsuario) {
+              Map<String, dynamic> mapaDatos =
+                  documento.documentSnapshot.data();
+              mapaDatos["distancia"] = documento.distance;
+            /*  if (_perfilExiste(mapaDatos["Id"]) == 0) {
+                ControladorAjustes.instancia.listaPerfilesNube.add(mapaDatos);
+              }*/
+
+                  ControladorAjustes.instancia.listaPerfilesNube.add(mapaDatos);
             }
           }
+          recibirPerfiles.cancel().then((value) {
+            this.streamCerrado = true;
+            flujo.add(this.streamCerrado);
+          });
         }
-        recibirPerfiles.cancel().then((value) {
-          this.streamCerrado = true;
-          flujo.add(this.streamCerrado);
-        });
-      }
-      if (event.length == 0) {
-        recibirPerfiles.cancel().then((value) {
-          this.streamCerrado = true;
-          flujo.add(this.streamCerrado);
-        });
-      }
-    });
+        if (event.length == 0) {
+          recibirPerfiles.cancel().then((value) {
+            this.streamCerrado = true;
+            flujo.add(this.streamCerrado);
+          });
+        }
+      });
+
+  
+    } on Exception {
+      cerrarConvexionesQuery();
+      QueryPerfiles.listaStreamsCerrados = null;
+      Perfiles.perfilesCitas.estadoLista = EstadoListaPerfiles.errorCargarLista;
+      Usuario.esteUsuario.notifyListeners();
+    }
+
+    if (EstadoConexionInternet.estadoConexion.conexion !=
+        EstadoConexion.conectado) {
+          Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.listaVacia;
+          Perfiles.perfilesCitas.notifyListeners();
+      throw Exception("Error al obtener perfiles");
+    }
   }
 
-  int perfilExiste(String idPerfil) {
+  handleError() {
+    throw Exception("No se pueden cargar los perfiles");
+  }
+
+  /// Con este metodo probamos que no exista otro igual
+  /// probamos que no exista otro perfil igual
+
+  int _perfilExiste(String idPerfil) {
     int idPerfilExiste = 0;
-    if (ControladorLocalizacion.instancia.listaPerfilesNube.length > 0) {
+    if (ControladorAjustes.instancia.listaPerfilesNube.length > 0) {
       for (int i = 0;
-          i < ControladorLocalizacion.instancia.listaPerfilesNube.length;
+          i < ControladorAjustes.instancia.listaPerfilesNube.length;
           i++) {
-        if (ControladorLocalizacion.instancia.listaPerfilesNube[i]["Id"] ==
+        if (ControladorAjustes.instancia.listaPerfilesNube[i]["Id"] ==
             idPerfil) {
           idPerfilExiste++;
         }
@@ -280,31 +325,36 @@ class QueryPerfiles {
     flujo.stream.listen((event) {
       listaStreamsCerrados.add(event);
       if (listaStreamsCerrados.length ==
-          ControladorLocalizacion
-              .instancia.grupoActivadorEdadesDeseadas.length) {
+          ControladorAjustes.instancia.grupoActivadorEdadesDeseadas.length) {
         if (Usuario.esteUsuario.perfilesBloqueados != null) {
           if (Usuario.esteUsuario.perfilesBloqueados.length > 0) {
             for (int a = 0;
                 a < Usuario.esteUsuario.perfilesBloqueados.length;
                 a++) {
               for (int b = 0;
-                  b <
-                      ControladorLocalizacion
-                          .instancia.listaPerfilesNube.length;
+                  b < ControladorAjustes.instancia.listaPerfilesNube.length;
                   b++) {
-                if (ControladorLocalizacion.instancia.listaPerfilesNube[b]
-                        ["Id"] ==
+                if (ControladorAjustes.instancia.listaPerfilesNube[b]["Id"] ==
                     Usuario.esteUsuario.perfilesBloqueados[a]) {
-                  ControladorLocalizacion.instancia.listaPerfilesNube
-                      .removeAt(b);
+                  ControladorAjustes.instancia.listaPerfilesNube.removeAt(b);
                 }
               }
             }
           }
         }
 
-        flujo.close().then((value) => Perfiles.cargarPerfilesCitas(
-            ControladorLocalizacion.instancia.listaPerfilesNube));
+        flujo.close().then((value) {
+          if (ControladorAjustes.instancia.listaPerfilesNube.isNotEmpty) {
+            Perfiles.cargarPerfilesCitas(
+                ControladorAjustes.instancia.listaPerfilesNube);
+          } else {
+            Perfiles.perfilesCitas.estadoLista = EstadoListaPerfiles.listaVacia;
+              Usuario.esteUsuario.notifyListeners();
+          }
+        });
+      } else{
+      
+
       }
     });
   }

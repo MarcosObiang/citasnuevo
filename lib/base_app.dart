@@ -58,15 +58,17 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
   setState(() {
     notificadorEstadoAplicacion=estado;
   });
+  super.didChangeAppLifecycleState(estado);
 }
 
 
   void initState() {
+    WidgetsFlutterBinding.ensureInitialized();
+     WidgetsBinding.instance.addObserver(this);
 
     super.initState();
 
-    WidgetsFlutterBinding.ensureInitialized();
-     WidgetsBinding.instance.addObserver(this);
+    
   }
 
    @override
@@ -95,6 +97,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
           child: ChangeNotifierProvider.value(
         value: Conversacion.conversaciones,
             child: Material(
+             
           key: claveBase,
           
      
@@ -114,7 +117,7 @@ void didChangeAppLifecycleState(AppLifecycleState estado){
                          alignment: Alignment.bottomCenter,
                                                 child: Consumer<Conversacion>(
                   builder: (context, myType, child) {
-                    print("construir");
+                 
                     return  barraBajaPrincipalNavegacion();
                   },
                 ),

@@ -5,17 +5,22 @@ import 'dart:io' as Io;
 
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorDenuncias.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorPermisos.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVideollamadas.dart';
 import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
+import 'package:citasnuevo/InterfazUsuario/Conversaciones/TituloChat.dart';
 import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/base_app.dart';
 import 'package:citasnuevo/main.dart';
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +31,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -36,12 +42,14 @@ class PantallaConversacion extends StatefulWidget {
   Function mensajesAudio;
   Function mensajesImagen;
   Function estadoConversacion;
+  Function obtenerMasMensajesConversacion;
   Function recibirEstadoConversacionActualizado;
   Function marcarLeidoMensaje;
   Function marcarMensajeLeidoRemitente;
   Function enviarMensajeImagenGif;
   String estadoEscribiendoRemitente;
   Function estadoConexion;
+  Function todosLosMensajesCargados;
   static bool responderMensaje = false;
   static String idEmisorMensajeResponder;
   static String idMensajeResponder;
@@ -54,15 +62,17 @@ class PantallaConversacion extends StatefulWidget {
   String idConversacion;
   Function mensajesEnviar;
   String idRemitente;
-  int cantidadMensajes;
+  StreamController<EstadoCargaMesajesAdicionales> estadoCargaMensajes;
+
   static final GlobalKey llavePantallaConversacion = new GlobalKey();
   bool esGrupo;
   bool estadoConexionRemitente = false;
-  List<Mensajes> mensajesTemporales = new List();
+  List<Mensajes> mensajesTemporales = [];
   static String nombreExponer;
 
-
   PantallaConversacion({
+    @required this.todosLosMensajesCargados,
+    @required this.obtenerMasMensajesConversacion,
     @required this.estadoConexion,
     @required this.enviarMensajeImagenGif,
     @required this.idConversacion,
@@ -88,10 +98,20 @@ class PantallaConversacion extends StatefulWidget {
 }
 
 class PantallaConversacionState extends State<PantallaConversacion>
-    with SingleTickerProviderStateMixin,RouteAware {
+    with SingleTickerProviderStateMixin, RouteAware {
   String mensajeTemp;
   bool construido = false;
-  bool mostrarBotonBajarRapido = true;
+  bool mostrarBotonBajarRapido = false;
+  get getMostrarBotonBajarRapido => this.mostrarBotonBajarRapido;
+
+  set setMostrarBotonBajarRapido(mostrarBotonBajarRapidoNuevo) {
+    //   this.mostrarBotonBajarRapido = mostrarBotonBajarRapido;
+    if (this.mostrarBotonBajarRapido != mostrarBotonBajarRapidoNuevo) {
+      this.mostrarBotonBajarRapido = mostrarBotonBajarRapidoNuevo;
+      Usuario.esteUsuario.notifyListeners();
+    }
+  }
+
   bool mostrarBotonEnvio = false;
   bool estaGrabando = false;
   FlutterAudioRecorder recorder;
@@ -101,70 +121,142 @@ class PantallaConversacionState extends State<PantallaConversacion>
   bool primerosMensajesAudioCargados = false;
   bool continuaEscribiendo = false;
   ImagePicker imagePicker = new ImagePicker();
-  bool conversacionExiste;
+  bool conversacionExiste = true;
   DatosPerfiles perfilRemitente;
+  int cantidadMensajes;
+  EstadoCargaMesajesAdicionales estadoMensajesAdicionales;
+
+  get getEstadoMensajesAdicionales => this.estadoMensajesAdicionales;
+
+ set setEstadoMensajesAdicionales( estadoMensajesAdicionales) { 
+   
+   
+   this.estadoMensajesAdicionales = estadoMensajesAdicionales;
+
+   
+    }
+ 
+ 
+ 
+ 
+  int get getCantidadMensajes => this.cantidadMensajes;
+
+  set setCantidadMensajes(int cantidadMensajes) {
+    this.cantidadMensajes = cantidadMensajes;
+    if (controlador.hasClients&&mostrarBotonBajarRapido==false) {
+      moverChatAbajo();
+    }
+  }
 
   final FocusNode _focusNode = FocusNode();
-    @override void didChangeDependencies() {
+  @override
+  void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context));
-      // TODO: implement didChangeDependencies
-      super.didChangeDependencies();
-    }
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
 
-
-
-
-
-    void didPopNext() {
-      
-    debugPrint("didPopNext ${runtimeType}");
-
-  
+  void didPopNext() {
+    debugPrint("didPopNext $runtimeType");
   }
 
   // Called when the current route has been pushed.
   void didPush() {
-    debugPrint("didPush ${runtimeType}");
+    debugPrint("didPush $runtimeType");
   }
 
   // Called when the current route has been popped off.
   void didPop() {
-  
-
-
-    debugPrint("didPop ${runtimeType}");
+    debugPrint("didPop $runtimeType");
   }
 
   // Called when a new route has been pushed, and the current route is no longer visible.
   void didPushNext() {
-    
-    debugPrint("didPushNext ${runtimeType}");
+    debugPrint("didPushNext $runtimeType");
   }
 
   @override
   void initState() {
-    // TODO: implement initState
-  for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones.length;i++){
-    if(Conversacion.conversaciones.listaDeConversaciones[i].idConversacion==widget.idConversacion){
-      PantallaConversacion.nombreExponer=Conversacion.conversaciones.listaDeConversaciones[i].nombreRemitente;
-      print(PantallaConversacion.nombreExponer);
-    }
-  }
     super.initState();
+    
+    widget.estadoCargaMensajes=StreamController.broadcast();
+    Conversacion.conversaciones.conversacionAbierta = widget.idConversacion;
+    controlador = new ScrollController();
+    controlador.addListener(() {
+      // ignore: invalid_use_of_protected_member
+      if (controlador.positions.isNotEmpty &&
+          controlador.position?.maxScrollExtent != null) {
+        if (controlador.position.pixels >
+                controlador.position.maxScrollExtent * 0.10 &&
+            mostrarBotonBajarRapido == false) {
+          setMostrarBotonBajarRapido = true;
+        }
+        if (controlador.position.pixels <
+                controlador.position.maxScrollExtent * 0.10 &&
+            mostrarBotonBajarRapido == true) {
+          setMostrarBotonBajarRapido = false;
+        }
+
+         if (controlador.position.pixels ==
+                controlador.position.maxScrollExtent &&estadoMensajesAdicionales!=EstadoCargaMesajesAdicionales.noQuedanMensajes&&estadoMensajesAdicionales!=EstadoCargaMesajesAdicionales.cargando
+                &&PuenteVentanaChat.of(context).todosLosMensajesCargados==false
+         ) {
+                     this.estadoMensajesAdicionales=EstadoCargaMesajesAdicionales.cargando;
+       widget.estadoCargaMensajes.add(EstadoCargaMesajesAdicionales.cargando);
+          
+     notificacionCargandoMensajesAdicionales(context);
+   try{
+              widget.obtenerMasMensajesConversacion(widget.mensajeId,widget.idRemitente).then((estadoOperacion){
+               this.estadoMensajesAdicionales=estadoOperacion;
+widget.estadoCargaMensajes.add(estadoOperacion);
+
+           });
+
+   }
+   on Exception {
+                    this.estadoMensajesAdicionales=EstadoCargaMesajesAdicionales.error;
+widget.estadoCargaMensajes.add(EstadoCargaMesajesAdicionales.error);
+   }
+  
+         
+      
+        }
+
+
+
+      }
+    });
+
+    // TODO: implement initState
+    for (int i = 0;
+        i < Conversacion.conversaciones.listaDeConversaciones.length;
+        i++) {
+      if (Conversacion.conversaciones.listaDeConversaciones[i].idConversacion ==
+          widget.idConversacion) {
+        PantallaConversacion.nombreExponer = Conversacion
+            .conversaciones.listaDeConversaciones[i].nombreRemitente;
+        widget.mensajesTemporales = Conversacion.conversaciones
+            .listaDeConversaciones[i].ventanaChat.listadeMensajes;
+      }
+    }
   }
 
   @override
   void dispose() {
+  widget.estadoCargaMensajes.close();
     _focusNode.dispose();
+    if (controlador.hasListeners) {
+      controlador.removeListener(() {});
+    }
     Conversacion.conversaciones.calcularCantidadMensajesSinLeer();
+    Conversacion.conversaciones.conversacionAbierta = null;
     PantallaConversacion.responderMensaje = false;
     super.dispose();
   }
 
   void detectarConversacionExiste() {
     conversacionExiste = false;
-    
 
     for (int i = 0;
         i < Conversacion.conversaciones.listaDeConversaciones.length;
@@ -380,19 +472,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                           padding: const EdgeInsets.only(left: 20.0, right: 20),
                           child: GestureDetector(
                               onTap: () {
-                                if (perfilRemitente != null) {
-                                  mostrarPerfilRemitente(
-                                      context, perfilRemitente);
-                                }
-                                if (perfilRemitente == null) {
-                                  Perfiles.cargarIsolatePerfilDeterminado(
-                                          widget.idRemitente)
-                                      .then((value) {
-                                    perfilRemitente = value;
-                                    mostrarPerfilRemitente(
-                                        context, perfilRemitente);
-                                  });
-                                }
+                            mostrarPerfilRemitente(context);
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(
@@ -472,12 +552,31 @@ class PantallaConversacionState extends State<PantallaConversacion>
         });
   }
 
-  void mostrarPerfilRemitente(BuildContext context, DatosPerfiles perfil) {
+  void mostrarPerfilRemitente(BuildContext context) async{
     showDialog(
         useSafeArea: true,
         context: context,
         builder: (context) {
-          return Center(
+
+
+
+          return StatefulBuilder(builder: (BuildContext context,setState){
+                  if (perfilRemitente != null) {
+                                
+                                }
+                                if (perfilRemitente == null) {
+                                  Perfiles.cargarIsolatePerfilDeterminado(
+                                          widget.idRemitente)
+                                      .then((value) {
+                                    perfilRemitente = value.first;
+                                    setState((){
+
+                                    });
+                              
+                                  });
+                                }
+
+            return           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Material(
@@ -485,12 +584,12 @@ class PantallaConversacionState extends State<PantallaConversacion>
                 child: Container(
                   height: ScreenUtil.screenHeight,
                   width: ScreenUtil.screenWidth,
-                  child: Column(
+                  child: perfilRemitente !=null? Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: ListView(
-                            children: perfil.carrete,
+                            children: perfilRemitente.carrete,
                           ),
                         ),
                         Padding(
@@ -504,12 +603,30 @@ class PantallaConversacionState extends State<PantallaConversacion>
                             },
                           ),
                         )
-                      ]),
+                      ]): Container(
+                        height:50.h,
+                        width: 50.h,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            LoadingIndicator(
+                              colors:[ Colors.white, Colors.purple,Colors.red],
+                              indicatorType: Indicator.ballScaleMultiple,),
+                           Text("Por favor, espere",style:GoogleFonts.lato(color: Colors.white,fontSize:60.sp)),
+
+                          ],
+                        )),
                   color: Colors.transparent,
                 ),
               ),
             ),
           );
+
+          });
+          
+          
+          
+
         });
   }
 
@@ -570,13 +687,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
                                             widget.mensajeId,
                                             bloquear)
                                         .then((value) {
-                                      if (value == 0) {
-                                        Navigator.pop(context);
-                                      }
-                                      if (value == 1) {
-                                        Navigator.pop(context);
-                                        print("error");
-                                      }
+                                      Navigator.pop(context);
                                     });
                                   },
                                   child: Padding(
@@ -674,9 +785,36 @@ class PantallaConversacionState extends State<PantallaConversacion>
               Row(
                 children: <Widget>[
                   FlatButton(
-                      onPressed: () {
+                      onPressed: ()async {
                         Navigator.of(context, rootNavigator: true).pop();
-                        llamadaVideo();
+
+         EstadosPermisos permisoCamara=   await  ControladorPermisos.instancia.comprobarPermisoCamara();
+          EstadosPermisos permisoMicrofono=   await  ControladorPermisos.instancia.comprobarPermisoMicrofono();  
+
+          if(permisoMicrofono!=EstadosPermisos.permisoConcedido&&permisoCamara!=EstadosPermisos.permisoConcedido){
+            if(BaseAplicacion.claveBase.currentContext!=null){
+   ManejadorErroresAplicacion.erroresInstancia.mostrarDialogoPermisosVideollamada(BaseAplicacion.claveBase.currentContext,);
+            }
+         
+          }
+                if(permisoMicrofono==EstadosPermisos.permisoConcedido&&permisoCamara!=EstadosPermisos.permisoConcedido){
+            if(BaseAplicacion.claveBase.currentContext!=null){
+   ManejadorErroresAplicacion.erroresInstancia.mostrarDialogoPermisosVideollamada(BaseAplicacion.claveBase.currentContext,);
+            }
+         
+          }
+                if(permisoMicrofono!=EstadosPermisos.permisoConcedido&&permisoCamara==EstadosPermisos.permisoConcedido){
+            if(BaseAplicacion.claveBase.currentContext!=null){
+   ManejadorErroresAplicacion.erroresInstancia.mostrarDialogoPermisosVideollamada(BaseAplicacion.claveBase.currentContext,);
+            }
+         
+          }
+
+          if(permisoMicrofono==EstadosPermisos.permisoConcedido&&permisoCamara==EstadosPermisos.permisoConcedido){
+      llamadaVideo();
+          }
+
+                 
                       },
                       child: Row(
                         children: <Widget>[
@@ -701,7 +839,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
         });
   }
 
-  abrirGaleria(BuildContext context) async {
+  void abrirGaleria(BuildContext context) async {
     var status = await Permission.storage.status;
     if (status.isUndetermined) {
       Permission.storage.request().then((value) async {
@@ -774,7 +912,7 @@ class PantallaConversacionState extends State<PantallaConversacion>
     }
   }
 
-  abrirCamara(BuildContext context) async {
+  void abrirCamara(BuildContext context) async {
     var status = await Permission.camera.status;
     if (status.isUndetermined) {
       Permission.storage.request().then((value) async {
@@ -847,59 +985,23 @@ class PantallaConversacionState extends State<PantallaConversacion>
     }
   }
 
-  ScrollController controlador = new ScrollController();
-  void emprezarListaAbajo() {
-    print("Construido");
-    var timer = Timer(Duration(milliseconds: 50), () {
-      print("Construido");
-      construido = true;
-      controlador.jumpTo(controlador.position.maxScrollExtent);
-      Conversacion.conversaciones.notifyListeners();
-    });
-    if (construido) {
-      print("parado");
-      timer.cancel();
-    }
-
-    //  timer.cancel();
-  }
+  ScrollController controlador;
 
   void moverChatAbajo() {
-    if (controlador.positions.isNotEmpty) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        controlador.animateTo(controlador.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 900),
-            curve: Curves.easeInOutCubic);
-      });
-    }
+    controlador.animateTo(controlador.position.minScrollExtent,
+        duration: const Duration(milliseconds: 1500), curve: Curves.easeInOut);
+  }
+
+    void moverChatArribaDespuesCarga() {
+    controlador.animateTo(controlador.position.maxScrollExtent*0.10,
+        duration: const Duration(milliseconds: 1500), curve: Curves.easeInOut);
   }
 
   void moverChatAbajoLento() {
+    controlador.animateTo(controlador.position.minScrollExtent,
+        duration: const Duration(milliseconds: 1500), curve: Curves.easeInOut);
     if (controlador.positions.isNotEmpty) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        controlador.animateTo(controlador.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut);
-      });
-    }
-  }
-
-  void mostrarBotonAbajo() {
-    if (controlador.positions.isNotEmpty &&
-        controlador.position.maxScrollExtent != null) {
-      if (controlador.position.pixels <
-              controlador.position.maxScrollExtent * 0.80 &&
-          mostrarBotonBajarRapido == false) {
-        mostrarBotonBajarRapido = true;
-        print("abajooo");
-        Conversacion.conversaciones.notifyListeners();
-      }
-      if (controlador.position.pixels >
-              controlador.position.maxScrollExtent * 0.96 &&
-          mostrarBotonBajarRapido == true) {
-        mostrarBotonBajarRapido = false;
-        Conversacion.conversaciones.notifyListeners();
-      }
+      SchedulerBinding.instance.addPostFrameCallback((_) {});
     }
   }
 
@@ -916,61 +1018,89 @@ class PantallaConversacionState extends State<PantallaConversacion>
       Conversacion.conversaciones.notifyListeners();
     }
   }
+ void notificacionCargandoMensajesAdicionales(BuildContext context) {
+   EstadoCargaMesajesAdicionales buffer=EstadoCargaMesajesAdicionales.cargando;
+   bool desactivado=false;
+      showFlash(
 
-  Future<bool> iniciarGrabacionAudio() async {
-    bool iniciarGrabacion = false;
+    
+    context: context,builder: (context,controller){
+    return StreamBuilder<EstadoCargaMesajesAdicionales>(
 
-    if (ControladorPermisos.instancia.getPermisoMicrofono == false ||
-        ControladorPermisos.instancia.getPermisoMicrofono == null) {
-      EstadosPermisos permisos =
-          await ControladorPermisos.instancia.comprobarPermisoMicrofono();
+      stream: widget.estadoCargaMensajes.stream,
+      initialData: EstadoCargaMesajesAdicionales.cargando,
 
-      if (permisos == EstadosPermisos.permisoConcedido) {
-        iniciarGrabacion = true;
-        final directorio = await getApplicationDocumentsDirectory();
-        String referenciaCompleta =
-            "${directorio.path}'/'${DateTime.now().toUtc().toIso8601String()}";
-        print(directorio.path);
-        Io.Directory(referenciaCompleta)
-            .create(recursive: true)
-            .then((valor) async {
-          punteroGrabacion = new Io.File("${valor.path}.aac");
-          print(referenciaCompleta);
-          recorder = FlutterAudioRecorder("${valor.path}.aac",
-              audioFormat: AudioFormat.AAC);
-          await recorder.initialized;
-          await recorder.start();
-        });
-      } else {
-        iniciarGrabacion = false;
+      
+      builder: (BuildContext context, AsyncSnapshot<EstadoCargaMesajesAdicionales> snapshot){
+
+
+      if(snapshot.data==EstadoCargaMesajesAdicionales.cargados&&desactivado==false){
+         desactivado=true;
+        buffer=snapshot.data;
+        Future.delayed(Duration(milliseconds: 1000)).then((value) =>controller.dismiss());
       }
-    }
-    if (ControladorPermisos.instancia.getPermisoMicrofono == true) {
-      iniciarGrabacion = true;
-    }
-    return iniciarGrabacion;
+        if(snapshot.data==EstadoCargaMesajesAdicionales.noQuedanMensajes&&desactivado==false){
+          buffer=snapshot.data;
+          desactivado=true;
+         widget.todosLosMensajesCargados(true);
+        Future.delayed(Duration(milliseconds: 1000)).then((value) =>controller.dismiss());
+      }
+        if(snapshot.data==EstadoCargaMesajesAdicionales.error&&desactivado==false){
+           buffer=snapshot.data;
+          desactivado=true;
+        Future.delayed(Duration(milliseconds: 1000)).then((value) =>controller.dismiss());
+      }
+      return Flash.bar(
+      controller: controller,
+      position: FlashPosition.top,
+      margin: EdgeInsets.only(top:kToolbarHeight*1.2 ),
+      borderRadius:  BorderRadius.all(Radius.circular(30)),
+      borderColor: Colors.white,
+ 
+
+      backgroundColor: Colors.deepPurple,
+     
+
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        curve: 
+        Curves.bounceIn,
+        width: snapshot.data==EstadoCargaMesajesAdicionales.noQuedanMensajes?ScreenUtil().setWidth(900):600.w,
+        height: 100.h,
+        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
+
+
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child:buffer==EstadoCargaMesajesAdicionales.cargando? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Cargando más mensajes" ,style: GoogleFonts.lato(color:Colors.white),),
+              LoadingIndicator(indicatorType: Indicator.ballScaleMultiple, color: Colors.white,),])
+          
+            :buffer==EstadoCargaMesajesAdicionales.cargados? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Hecho" ,style: GoogleFonts.lato(color:Colors.white),),
+            Icon(Icons.check_circle,color: Colors.green,),]):buffer==EstadoCargaMesajesAdicionales.error? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Algo ha ido mal" ,style: GoogleFonts.lato(color:Colors.white),),
+             Icon(Icons.cancel_outlined),]):buffer==EstadoCargaMesajesAdicionales.noQuedanMensajes? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Todos los mensajes han sido cargados" ,style: GoogleFonts.lato(color:Colors.white),),
+             Icon(Icons.check_circle,color: Colors.green,) ,]):Container()
+          
+        ),
+      ),);
+    });
+    
+    
+
+  });
   }
 
-  void pararGrabacion(bool completada, int duracion) async {
-    if (completada) {
-      await recorder.stop();
-
-      Uint8List audio = punteroGrabacion.readAsBytesSync();
-      print(audio);
-      widget.mensajesAudio(audio, widget.mensajeId, duracion,
-          PantallaConversacion.responderMensaje, {
-        "mensaje": PantallaConversacion.mensajeResponder,
-        "tipoMensaje": PantallaConversacion.tipoMensaje,
-        "idMensaje": PantallaConversacion.idMensajeResponder,
-        "idEmisorMensaje": PantallaConversacion.idEmisorMensajeResponder
-      });
-    }
-    if (!completada) {
-      await recorder.stop().then((value) async {
-        await punteroGrabacion.delete();
-      });
-    }
-  }
 
   void llamadaVideo() async {
     bool video = false;
@@ -1014,318 +1144,321 @@ class PantallaConversacionState extends State<PantallaConversacion>
   TextEditingController controladorTexto = new TextEditingController();
 
   Widget build(BuildContext context) {
-    bool empezarListaAbajo = true;
-    if (controlador.hasClients) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {});
-    }
 
     return ChangeNotifierProvider.value(
       value: Conversacion.conversaciones,
-      child: WillPopScope(
-        onWillPop: () async {
-          widget.estadoConversacion(false);
-          return true;
-        },
-        child: Container(
-          color: Colors.white,
-          child: SafeArea(
-            key: PantallaConversacion.llavePantallaConversacion,
-            child: Consumer<Conversacion>(
-              builder: (BuildContext context, conversacion, Widget child) {
-                detectarConversacionExiste();
-                widget.marcarMensajeLeidoRemitente();
+      child: Container(
+        color: Colors.deepPurple,
+        child: SafeArea(
+          key: PantallaConversacion.llavePantallaConversacion,
+          child: Consumer<Conversacion>(
+            builder: (BuildContext context, chat, Widget child) {
+              widget.marcarMensajeLeidoRemitente();
+              widget.estadoConexionRemitente = widget.estadoConexion();
+              estado = widget.recibirEstadoConversacionActualizado();
 
-                widget.cantidadMensajes = widget.mensajesTemporales.length;
-                widget.mensajesTemporales = widget.mensajesTexto();
+              if (getCantidadMensajes !=
+                  PuenteVentanaChat.of(context).listaMensajes?.length) {
+                setCantidadMensajes =
+                    PuenteVentanaChat.of(context).listaMensajes?.length;
+              }
 
-                if (widget.mensajesTemporales.isEmpty) {
-                  emprezarListaAbajo();
-                }
-                if (widget.mensajesTemporales.length >
-                    widget.cantidadMensajes) {
-                  moverChatAbajo();
-                }
+              if(this.getEstadoMensajesAdicionales!=PuenteVentanaChat.of(context).estadoCargaMensajesAdicionales){
+                this.setEstadoMensajesAdicionales=PuenteVentanaChat.of(context).estadoCargaMensajesAdicionales;
+              }
 
-                if (!primerosMensajesAudioCargados &&
-                    widget.mensajesTemporales != null) {
-                  for (int i = 0; i < widget.mensajesTemporales.length; i++) {
-                    if (widget.mensajesTemporales[i].tipoMensaje == "Audio" &&
-                        widget.mensajesTemporales[i].duracionMensaje == null) {}
-                  }
-                  primerosMensajesAudioCargados = true;
-                }
-                print(estado);
-                estado = widget.recibirEstadoConversacionActualizado();
-                widget.estadoConexionRemitente = widget.estadoConexion();
+              
 
-                return Stack(
-                  children: [
-                    Scaffold(
-                      appBar: AppBar(
-                          elevation: 0,
-                          iconTheme: IconThemeData(color: Colors.black),
-                          backgroundColor: Colors.white,
-                          shadowColor: Colors.black,
-                          title: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Flexible(
-                                flex: 7,
-                                fit: FlexFit.tight,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 10),
-                                  child: Container(
-                                    child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            widget.nombre,
-                                            overflow: TextOverflow.ellipsis,
-                                            textAlign:
-                                                TextAlign.start,
-                                            style: TextStyle(
-                                                fontSize: ScreenUtil()
-                                                    .setSp(40),
-                                                fontWeight:
-                                                    FontWeight.bold,
-                                                color: Colors.black),
-                                          ),
-                                          Row(
+              return StreamBuilder<String>(
+                  stream:
+                      Conversacion.conversaciones.conversacionEliminada.stream,
+                  initialData: " ",
+                  builder: (BuildContext context, AsyncSnapshot<String> dato) {
+                    if (dato.data == widget.idConversacion) {
+                      conversacionExiste = false;
+                    }
+                    return Stack(
+                      children: [
+                        Scaffold(
+                          appBar: AppBar(
+                              elevation: 0,
+                              iconTheme: IconThemeData(color: Colors.black),
+                              backgroundColor: Colors.deepPurple,
+                              shadowColor: Colors.white,
+                              leading: IconButton(
+                                icon: Icon(Icons.arrow_back_ios_outlined,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  widget.estadoConversacion(false);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Flexible(
+                                    flex: 3,
+                                    fit: FlexFit.tight,
+                                    child: GestureDetector(
+                                      onTap:()=>mostrarPerfilRemitente(context),
+                                      child: Container(
+                                        height: kToolbarHeight,
+                                        width: kToolbarHeight,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color:
+                                                    widget.estadoConexionRemitente
+                                                        ? Colors.green
+                                                        : Colors.transparent,
+                                                width: 6.h),
+                                            image: DecorationImage(
+                                                image: NetworkImage(
+                                                    widget.imagenId))),
+                                      ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    flex: 10,
+                                    fit: FlexFit.tight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: Container(
+                                        child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                estado == " " &&
-                                                        widget
-                                                            .estadoConexionRemitente
-                                                    ? "En linea"
-                                                    : estado,
+                                                widget.nombre,
+                                                overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.start,
-                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
-                                                    fontSize: ScreenUtil()
-                                                        .setSp(30),
-                                                    color: Colors.black),
+                                                    fontSize:
+                                                        ScreenUtil().setSp(40),
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white),
                                               ),
-                                                 Padding(
-                                                padding:
-                                                    const EdgeInsets.all(
-                                                        8.0),
-                                                child: Container(
-                                                  height: ScreenUtil()
-                                                      .setWidth(35),
-                                                  width: ScreenUtil()
-                                                      .setWidth(35),
-                                                  decoration:
-                                                      BoxDecoration(
-                                                    shape:
-                                                        BoxShape.circle,
-                                                    border: Border.all(
-                                                        color: widget
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    estado == " " &&
+                                                            widget
                                                                 .estadoConexionRemitente
-                                                            ? Colors
-                                                                .transparent
-                                                            : Colors
-                                                                .transparent,
-                                                        width:
-                                                            ScreenUtil()
-                                                                .setSp(
-                                                                    5)),
-                                                    color: widget
-                                                            .estadoConexionRemitente
-                                                        ? Colors.green
-                                                        : Colors
-                                                            .transparent,
+                                                        ? "En linea"
+                                                        : estado,
+                                                    textAlign: TextAlign.start,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                        fontSize: ScreenUtil()
+                                                            .setSp(30),
+                                                        color: Colors.white),
                                                   ),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        ]),
+                                                ],
+                                              )
+                                            ]),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              Flexible(
-                                flex: 2,
-                                fit: FlexFit.tight,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
+                                  Flexible(
+                                    flex: 5,
+                                    fit: FlexFit.tight,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        IconButton(
+                                            icon: Icon(
+                                              LineAwesomeIcons.video_camera,
+                                              color: Colors.white,
+                                            ),
+                                            onPressed: () async {
+                                              confirmarVideoLLamada();
+                                            }),
+                                      ],
+                                    ),
+                                  ),
+                                  Flexible(
+                                    flex: 2,
+                                    fit: FlexFit.tight,
+                                    child: IconButton(
                                         icon: Icon(
-                                          LineAwesomeIcons.video_camera,
-                                          color: Colors.black,
+                                          Icons.menu,
+                                          color: Colors.white,
                                         ),
                                         onPressed: () async {
-                                          confirmarVideoLLamada();
+                                          mostrarOpcionesConversacion(context);
                                         }),
-                                  ],
-                                ),
-                              ),
-                              Flexible(
-                                    flex: 2,
-                                fit: FlexFit.tight,
-                                child: IconButton(
-                                    icon: Icon(
-                                      Icons.menu,
-                                      color: Colors.black,
-                                    ),
-                                    onPressed: () async {
-                                      mostrarOpcionesConversacion(context);
-                                    }),
-                              )
-                            ],
-                          )),
-                      resizeToAvoidBottomPadding: true,
-                      resizeToAvoidBottomInset: true,
-                      primary: false,
-                      backgroundColor: Color.fromRGBO(20, 20, 10, 100),
-                      body: LayoutBuilder(builder:
-                          (BuildContext context, BoxConstraints limites) {
-                        return SingleChildScrollView(
-                          physics: NeverScrollableScrollPhysics(),
-                          reverse: true,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                height: limites.maxHeight,
-                                width: limites.maxWidth,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: NetworkImage(
-                                          widget.imagenId,
-                                        ),
-                                        fit: BoxFit.cover)),
-                              ),
-                              Container(
-                                height: limites.biggest.height,
-                                color: Color.fromRGBO(20, 20, 20, 60),
-                                child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        height: PantallaConversacion
-                                                .responderMensaje
-                                            ? limites.biggest.height -
-                                                ScreenUtil().setHeight(600)
-                                            : limites.biggest.height - 250.h,
-                                        child: Stack(children: [
-                                          NotificationListener<
-                                              ScrollUpdateNotification>(
-                                            // ignore: missing_return
-                                            onNotification: (val) {
-                                              mostrarBotonAbajo();
-                                            },
-                                            child: ListView.builder(
-                                              controller: controlador,
-                                              itemCount: widget
-                                                  .mensajesTemporales.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      indice) {
-                                                if (empezarListaAbajo) {
-                                                  emprezarListaAbajo();
-                                                  empezarListaAbajo = false;
-                                                }
-                                                mostrarBotonAbajo();
-                                                return widget
-                                                    .mensajesTemporales[indice];
-                                              },
+                                  )
+                                ],
+                              )),
+                          resizeToAvoidBottomInset: true,
+                          primary: false,
+                          backgroundColor: Colors.deepPurple,
+                          body: LayoutBuilder(builder:
+                              (BuildContext context, BoxConstraints limites) {
+                            return SingleChildScrollView(
+                              physics: NeverScrollableScrollPhysics(),
+                              reverse: true,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    height: limites.maxHeight,
+                                    width: limites.maxWidth,
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            image: NetworkImage(
+                                              widget.imagenId,
                                             ),
+                                            fit: BoxFit.cover)),
+                                  ),
+                                  Container(
+                                    height: limites.biggest.height,
+                                    color: Color.fromRGBO(20, 20, 20, 60),
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            height: PantallaConversacion
+                                                    .responderMensaje
+                                                ? limites.biggest.height -
+                                                    ScreenUtil().setHeight(600)
+                                                : limites.biggest.height -
+                                                    250.h,
+                                            child: Stack(children: [
+                                              NotificationListener<
+                                                  ScrollUpdateNotification>(
+                                                // ignore: missing_return
+                                                onNotification: (val) {},
+                                                child: ListView.builder(
+                                                  reverse: true,
+                                                  controller: controlador,
+                                                  itemCount:
+                                                      PuenteVentanaChat.of(
+                                                              context)
+                                                          .listaMensajes
+                                                          ?.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          indice) {
+                                                    return PuenteVentanaChat.of(
+                                                            context)
+                                                        .listaMensajes[indice];
+                                                  },
+                                                ),
+                                              ),
+                                              ChangeNotifierProvider(
+                                                  create: (_) => Usuario(),
+                                                  child: ChangeNotifierProvider
+                                                      .value(
+                                                    value: Usuario.esteUsuario,
+                                                    child: (Consumer<Usuario>(
+                                                      builder: (context, myType,
+                                                          child) {
+                                                        return mostrarBotonBajarRapido
+                                                            ? RepaintBoundary(
+                                                                child:
+                                                                    botonBajarChatRapido())
+                                                            : Container();
+                                                      },
+                                                    )),
+                                                  ))
+                                            ]),
                                           ),
-                                          mostrarBotonBajarRapido
-                                              ? botonBajarChatRapido()
-                                              : Container(),
+                                          Expanded(
+                                              child: entradaMensajes(context))
                                         ]),
-                                      ),
-                                      Expanded(
-                                          child: entradaMensajes(context))
-                                    ]),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                    !conversacionExiste
-                        ? Material(
-                            color: Color.fromRGBO(20, 20, 20, 50),
-                            child: Container(
-                              height: ScreenUtil.screenHeight -
-                                  kBottomNavigationBarHeight,
-                              width: ScreenUtil.screenWidth,
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "Esta conversacion ha sido eliminada",
-                                          style: TextStyle(
-                                              fontSize: 50.sp,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white),
-                                        ),
-                                        Divider(height: 200.h),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 20.0, right: 20),
-                                          child: GestureDetector(
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 20.0, right: 20),
-                                                child: Container(
-                                                  height: 100.h,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  30))),
+                            );
+                          }),
+                        ),
+                        !conversacionExiste
+                            ? Material(
+                                color: Color.fromRGBO(20, 20, 20, 50),
+                                child: Container(
+                                  height: ScreenUtil.screenHeight -
+                                      kBottomNavigationBarHeight,
+                                  width: ScreenUtil.screenWidth,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Esta conversacion ha sido eliminada",
+                                              style: TextStyle(
+                                                  fontSize: 50.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            ),
+                                            Divider(height: 200.h),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20.0, right: 20),
+                                              child: GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                  },
                                                   child: Padding(
                                                     padding:
                                                         const EdgeInsets.only(
-                                                            left: 15.0,
-                                                            right: 15),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text("Entendido",
-                                                            style: TextStyle(
-                                                                fontSize: 60.sp,
+                                                            left: 20.0,
+                                                            right: 20),
+                                                    child: Container(
+                                                      height: 100.h,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          30))),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 15.0,
+                                                                right: 15),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text("Entendido",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        60.sp,
+                                                                    color: Colors
+                                                                        .white)),
+                                                            Icon(
+                                                                Icons
+                                                                    .check_circle,
                                                                 color: Colors
-                                                                    .white)),
-                                                        Icon(Icons.check_circle,
-                                                            color: Colors.white)
-                                                      ],
+                                                                    .white)
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ),
-                                              )),
-                                        ),
-                                      ]),
+                                                  )),
+                                            ),
+                                          ]),
+                                    ),
+                                  ),
+                                  color: Color.fromRGBO(20, 20, 20, 50),
                                 ),
-                              ),
-                              color: Color.fromRGBO(20, 20, 20, 50),
-                            ),
-                          )
-                        : Container()
-                  ],
-                );
-              },
-            ),
+                              )
+                            : Container()
+                      ],
+                    );
+                  });
+            },
           ),
         ),
       ),
@@ -1355,49 +1488,6 @@ class PantallaConversacionState extends State<PantallaConversacion>
     );
   }
 
-  Flexible visorMensajes(BuildContext context,
-      List<Mensajes> mensajesTemporales, bool empezarListaAbajo) {
-    return Flexible(
-      flex: 30,
-      fit: FlexFit.tight,
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Container(
-          child: ListView.builder(
-            controller: controlador,
-            itemCount: mensajesTemporales.length,
-            itemBuilder: (BuildContext context, indice) {
-              if (empezarListaAbajo) {
-                emprezarListaAbajo();
-                empezarListaAbajo = false;
-              }
-              mostrarBotonAbajo();
-              return mensajesTemporales[indice];
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Positioned botonBajarFinal() {
-    return Positioned(
-        left: ScreenUtil().setWidth(1100),
-        bottom: ScreenUtil().setHeight(400),
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(3)),
-              color: Colors.grey),
-          width: ScreenUtil().setWidth(200),
-          child: FlatButton(
-            onPressed: () {
-              moverChatAbajoLento();
-            },
-            child: Center(child: Icon(Icons.arrow_downward)),
-          ),
-        ));
-  }
-
   Widget entradaMensajes(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(8),
@@ -1409,16 +1499,17 @@ class PantallaConversacionState extends State<PantallaConversacion>
           children: [
             PantallaConversacion.responderMensaje
                 ? Flexible(
-                  flex: 10,
-                  fit: FlexFit.tight,
-                  child: cuadroRespuesta())
+                    flex: 10, fit: FlexFit.tight, child: cuadroRespuesta())
                 : Flexible(
-                  fit:FlexFit.tight,
-                  flex:0,
-                  child: Container(height: 0,width: 0,)),
+                    fit: FlexFit.tight,
+                    flex: 0,
+                    child: Container(
+                      height: 0,
+                      width: 0,
+                    )),
             Flexible(
               fit: FlexFit.tight,
-              flex: 10,
+              flex: 15,
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
@@ -1430,37 +1521,31 @@ class PantallaConversacionState extends State<PantallaConversacion>
                         iconSize: 70.sp,
                         color: Colors.white,
                         onPressed: () async {
+                          if (EstadoConexionInternet.estadoConexion.conexion ==
+                              EstadoConexion.conectado) {
+                            final gif = await GiphyPicker.pickGif(
+                                fullScreenDialog: false,
+                                context: context,
+                                apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
 
-if(Citas.estaConectado){
-    final gif = await GiphyPicker.pickGif(
-                              fullScreenDialog: false,
-                              context: context,
-                              apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
-
-                          widget.enviarMensajeImagenGif(
-                              gif.images.original.url,
-                              widget.mensajeId,
-                              PantallaConversacion.responderMensaje, {
-                            "mensaje": PantallaConversacion.mensajeResponder,
-                            "tipoMensaje": PantallaConversacion.tipoMensaje,
-                            "idMensaje":
-                                PantallaConversacion.idMensajeResponder,
-                            "idEmisorMensaje":
-                                PantallaConversacion.idEmisorMensajeResponder,
-                                
-                                
-                          });
-                               PantallaConversacion.responderMensaje = false;
-      
-                               
-
-}
-if(!Citas.estaConectado){
-  ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(context);
-}
-
-                        
-
+                            widget.enviarMensajeImagenGif(
+                                gif.images.original.url,
+                                widget.mensajeId,
+                                PantallaConversacion.responderMensaje, {
+                              "mensaje": PantallaConversacion.mensajeResponder,
+                              "tipoMensaje": PantallaConversacion.tipoMensaje,
+                              "idMensaje":
+                                  PantallaConversacion.idMensajeResponder,
+                              "idEmisorMensaje":
+                                  PantallaConversacion.idEmisorMensajeResponder,
+                            });
+                            PantallaConversacion.responderMensaje = false;
+                          }
+                          if (EstadoConexionInternet.estadoConexion.conexion !=
+                              EstadoConexion.conectado) {
+                            ManejadorErroresAplicacion.erroresInstancia
+                                .mostrarErrorEnvioMensaje(context);
+                          }
                         },
                         icon: Icon(LineAwesomeIcons.smile_o),
                       ),
@@ -1469,91 +1554,85 @@ if(!Citas.estaConectado){
                       flex: 9,
                       fit: FlexFit.tight,
                       child: Container(
-                       
                         decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(30)),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
                         ),
-                        child: Scrollbar(
-                          child: SingleChildScrollView(
-                            reverse: true,
-                            scrollDirection:Axis.vertical,
-                            child: TextField(
-                              controller: controladorTexto,
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(3000)
-                              ],
-                              decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  contentPadding: EdgeInsets.all(10),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(20)))),
-                              minLines: 1,
-                              maxLines: 9,
-                              onChanged: (valor) {
-                                if ((valor != null ||
-                                    valor != " " ||
-                                    valor.isNotEmpty ||
-                                    valor.length > 0)) {
-                                  mostrarBotontexto();
+                        child: TextField(
+                          controller: controladorTexto,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(3000)
+                          ],
+                          decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              filled: true,
+                              contentPadding: EdgeInsets.all(10),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(20)))),
+                          minLines: 1,
+                          maxLines: 9,
+                          
+                          onChanged: (valor) {
+                            if ((valor != null ||
+                                valor != " " ||
+                                valor.isNotEmpty ||
+                                valor.length > 0)) {
+                              mostrarBotontexto();
 
-                                  if (mostrarBotonEnvio &&
-                                      !continuaEscribiendo) {
-                                    widget.estadoConversacion(true);
-                                    continuaEscribiendo = true;
-                                  }
-                                }
-                                if (valor == null ||
-                                    valor == " " ||
-                                    valor.isEmpty) {
-                                  ocultarBotonEnvio();
-                                  if (!mostrarBotonEnvio) {
-                                    widget.estadoConversacion(false);
-                                    continuaEscribiendo = false;
-
-                                    mostrarBotonEnvio = false;
-                                  }
-                                }
-                                mensajeTemp = valor;
-                              },
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (valor) {
+                              if (mostrarBotonEnvio &&
+                                  !continuaEscribiendo) {
+                                widget.estadoConversacion(true);
+                                continuaEscribiendo = true;
+                              }
+                            }
+                            if (valor == null ||
+                                valor == " " ||
+                                valor.isEmpty) {
+                              ocultarBotonEnvio();
+                              if (!mostrarBotonEnvio) {
                                 widget.estadoConversacion(false);
+                                continuaEscribiendo = false;
 
-                                ocultarBotonEnvio();
-                                mensajeTemp = valor;
+                                mostrarBotonEnvio = false;
+                              }
+                            }
+                            mensajeTemp = valor;
+                          },
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (valor) {
+                            widget.estadoConversacion(false);
+                             continuaEscribiendo = false;
 
-                                if (mensajeTemp.isNotEmpty) {
-                                  widget.mensajesEnviar(
-                                      mensajeTemp,
-                                      widget.mensajeId,
-                                      PantallaConversacion.responderMensaje, {
-                                    "mensaje":
-                                        PantallaConversacion.mensajeResponder,
-                                    "tipoMensaje":
-                                        PantallaConversacion.tipoMensaje,
-                                    "idMensaje":
-                                        PantallaConversacion.idMensajeResponder,
-                                    "idEmisorMensaje": PantallaConversacion
-                                        .idEmisorMensajeResponder
-                                  });
-                                  controladorTexto.clear();
-                                  mensajeTemp = "";
-                                  moverChatAbajo();
-                                  PantallaConversacion.tipoMensaje = "";
-                                  PantallaConversacion.idMensajeResponder = "";
-                                  PantallaConversacion
-                                      .idEmisorMensajeResponder = "";
-                                  PantallaConversacion.responderMensaje = false;
-                                  PantallaConversacion
-                                      .nombreEmisorMensajeResponder = "";
-                                  PantallaConversacion.mensajeResponder = "";
-                                }
-                              },
-                            ),
-                          ),
+                            ocultarBotonEnvio();
+                            mensajeTemp = valor;
+
+                            if (mensajeTemp.isNotEmpty) {
+                              widget.mensajesEnviar(
+                                  mensajeTemp,
+                                  widget.mensajeId,
+                                  PantallaConversacion.responderMensaje, {
+                                "mensaje":
+                                    PantallaConversacion.mensajeResponder,
+                                "tipoMensaje":
+                                    PantallaConversacion.tipoMensaje,
+                                "idMensaje":
+                                    PantallaConversacion.idMensajeResponder,
+                                "idEmisorMensaje": PantallaConversacion
+                                    .idEmisorMensajeResponder
+                              });
+                              controladorTexto.clear();
+                              mensajeTemp = "";
+                              moverChatAbajo();
+                              PantallaConversacion.tipoMensaje = "";
+                              PantallaConversacion.idMensajeResponder = "";
+                              PantallaConversacion
+                                  .idEmisorMensajeResponder = "";
+                              PantallaConversacion.responderMensaje = false;
+                              PantallaConversacion
+                                  .nombreEmisorMensajeResponder = "";
+                              PantallaConversacion.mensajeResponder = "";
+                            }
+                          },
                         ),
                       ),
                     ),
@@ -1564,13 +1643,13 @@ if(!Citas.estaConectado){
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.green,
+                                color: Colors.deepPurple,
                               ),
                               child: FlatButton(
                                 onPressed: () {
-                                  //   FocusScope.of(context).unfocus();
 
                                   widget.estadoConversacion(false);
+                                   continuaEscribiendo = false;
 
                                   ocultarBotonEnvio();
                                   mensajeTemp = controladorTexto.text;
@@ -1579,18 +1658,16 @@ if(!Citas.estaConectado){
                                     widget.mensajesEnviar(
                                         mensajeTemp,
                                         widget.mensajeId,
-                                        PantallaConversacion.responderMensaje,
-                                        {
-                                          "mensaje": PantallaConversacion
-                                              .mensajeResponder,
-                                          "tipoMensaje": PantallaConversacion
-                                              .tipoMensaje,
-                                          "idMensaje": PantallaConversacion
-                                              .idMensajeResponder,
-                                          "idEmisorMensaje":
-                                              PantallaConversacion
-                                                  .idEmisorMensajeResponder
-                                        });
+                                        PantallaConversacion.responderMensaje, {
+                                      "mensaje":
+                                          PantallaConversacion.mensajeResponder,
+                                      "tipoMensaje":
+                                          PantallaConversacion.tipoMensaje,
+                                      "idMensaje": PantallaConversacion
+                                          .idMensajeResponder,
+                                      "idEmisorMensaje": PantallaConversacion
+                                          .idEmisorMensajeResponder
+                                    });
                                     controladorTexto.clear();
                                     mensajeTemp = "";
                                     moverChatAbajo();
@@ -1603,8 +1680,7 @@ if(!Citas.estaConectado){
                                         false;
                                     PantallaConversacion
                                         .nombreEmisorMensajeResponder = "";
-                                    PantallaConversacion.mensajeResponder =
-                                        "";
+                                    PantallaConversacion.mensajeResponder = "";
                                   }
                                 },
                                 child: Icon(
@@ -1615,27 +1691,12 @@ if(!Citas.estaConectado){
                             ),
                           )
                         : Flexible(
-                            flex: 4,
+                            flex: 2,
                             fit: FlexFit.tight,
                             child: Center(
                               child: Row(
                                 children: <Widget>[
-                                  Flexible(
-                                    flex: 2,
-                                    fit: FlexFit.tight,
-                                    child: IconButton(
-                                      iconSize: 70.sp,
-                                      color: Colors.white,
-                                      onPressed: () {
-                                        iniciarGrabacionAudio().then((value) {
-                                          if (value) {
-                                            dialogoIniciarGrabacion(context);
-                                          }
-                                        });
-                                      },
-                                      icon: Icon(LineAwesomeIcons.microphone),
-                                    ),
-                                  ),
+                           
                                   Flexible(
                                     flex: 2,
                                     fit: FlexFit.tight,
@@ -1664,10 +1725,11 @@ if(!Citas.estaConectado){
 
   Container cuadroRespuesta() {
     Mensajes mensajeAudio;
-    if(PantallaConversacion.tipoMensaje=="Audio"){
-      for(int i=0;i<widget.mensajesTemporales.length;i++){
-        if(PantallaConversacion.idMensajeResponder==widget.mensajesTemporales[i].identificadorUnicoMensaje){
-          mensajeAudio=widget.mensajesTemporales[i];
+    if (PantallaConversacion.tipoMensaje == "Audio") {
+      for (int i = 0; i < widget.mensajesTemporales.length; i++) {
+        if (PantallaConversacion.idMensajeResponder ==
+            widget.mensajesTemporales[i].identificadorUnicoMensaje) {
+          mensajeAudio = widget.mensajesTemporales[i];
         }
       }
     }
@@ -1742,95 +1804,7 @@ if(!Citas.estaConectado){
                                                     }),
                                               ],
                                             )
-                                          :             Row(
-                                            children: [
-                                              Flexible(
-                                                flex: 2,
-                                                fit:FlexFit.tight,
-                                                child: Text("Audio"),
-                                              
-                                              ),
-
-                                              Flexible(
-                                                flex: 5,
-                                                fit:FlexFit.tight,
-
-                                                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(3),
-                          topRight: Radius.circular(3),
-                          bottomLeft: Radius.circular(3))),
-                  child: Row(
-                    children: <Widget>[
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 3,
-                        child: Container(
-                          child: Center(
-                            child: FlatButton(
-                              onPressed: () {
-                                mensajeAudio.reproducirAudio();
-                              },
-                              child: Center(
-                                  child: Icon(
-                                Icons.play_arrow,
-                                size: ScreenUtil().setSp(100),
-                              )),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 11,
-                        child: Container(
-                          child: Stack(alignment: Alignment.center, children: <
-                              Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 15.0, right: 15),
-                              child: LinearPercentIndicator(
-                                lineHeight: ScreenUtil().setHeight(70),
-                                percent: mensajeAudio.posicion,
-                              ),
-                            ),
-                            SliderTheme(
-                              data: SliderThemeData(
-                                thumbColor: Colors.transparent,
-                                activeTickMarkColor: Colors.transparent,
-                                activeTrackColor: Colors.transparent,
-                                disabledActiveTickMarkColor: Colors.transparent,
-                                disabledActiveTrackColor: Colors.transparent,
-                                disabledInactiveTickMarkColor:
-                                    Colors.transparent,
-                                disabledInactiveTrackColor: Colors.transparent,
-                                disabledThumbColor: Colors.transparent,
-                                inactiveTickMarkColor: Colors.transparent,
-                                inactiveTrackColor: Colors.transparent,
-                                overlappingShapeStrokeColor: Colors.transparent,
-                                overlayColor: Colors.transparent,
-                                valueIndicatorColor: Colors.transparent,
-                              ),
-                              child: Slider(
-                                value: mensajeAudio.posicion,
-                                max: mensajeAudio.duracionMensaje.toDouble(),
-                                min: 0,
-                                onChanged: (val) {
-                                  mensajeAudio.posicionAudio(val);
-                                },
-                              ),
-                            ),
-                          ]),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                                              ),
-                                            ],
-                                          ),))),
+                                          : Container()))),
                 ],
               ),
             ),
@@ -1840,16 +1814,7 @@ if(!Citas.estaConectado){
     );
   }
 
-  void dialogoIniciarGrabacion(BuildContext context) {
-    showGeneralDialog(
-        barrierDismissible: false,
-        transitionDuration: const Duration(milliseconds: 100),
-        context: context,
-        pageBuilder: (BuildContext context, Animation animation,
-            Animation secondanimation) {
-          return DialogoGrabacion(pararGrabacion: pararGrabacion);
-        });
-  }
+
 
   void mostrarOpcionesDenuncias(BuildContext context) {
     showDialog(
@@ -1901,7 +1866,7 @@ if(!Citas.estaConectado){
                               child: Container(
                                 height: 100.h,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.deepPurple,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(30))),
                                 child: Padding(
@@ -1947,7 +1912,7 @@ if(!Citas.estaConectado){
                               child: Container(
                                 height: 100.h,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.deepPurple,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(30))),
                                 child: Padding(
@@ -1992,7 +1957,7 @@ if(!Citas.estaConectado){
                               child: Container(
                                 height: 100.h,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.deepPurple,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(30))),
                                 child: Padding(
@@ -2037,7 +2002,7 @@ if(!Citas.estaConectado){
                               child: Container(
                                 height: 100.h,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.deepPurple,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(30))),
                                 child: Padding(
@@ -2082,7 +2047,7 @@ if(!Citas.estaConectado){
                               child: Container(
                                 height: 100.h,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.deepPurple,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(30))),
                                 child: Padding(
@@ -2127,7 +2092,7 @@ if(!Citas.estaConectado){
                               child: Container(
                                 height: 100.h,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.deepPurple,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(30))),
                                 child: Padding(

@@ -1,26 +1,34 @@
 import 'dart:typed_data';
 
-import 'package:blurhash_dart/blurhash_dart.dart';
+
 import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
-import 'dart:ui' as ui;
+
 
 import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaPerfiles.dart';
+import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_Actividades_elements.dart';
 
 
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/screenutil.dart';
+
 import 'package:network_image_to_byte/network_image_to_byte.dart';
 import 'dart:io' as Io;
 import 'package:path_provider/path_provider.dart';
 import 'Usuario.dart';
 import 'dart:isolate';
-import 'package:bitmap/bitmap.dart';
+
+enum EstadoListaPerfiles{
+
+listaVacia,cargandoLista,listaCargada,errorCargarLista
+
+}
+
+
+
 
 Future<DatosPerfiles> ActualizarPErfilDeterinado(
     Map<String, dynamic> lista) async {
@@ -320,9 +328,9 @@ verificado: verificado["estadoVerificacion"]!="verificado"?false:true,
 
       perfilCreado.add(DatosPerfiles.citas(
           linksHistorias: links,
-          verificado: verificado!="verificado"?false:true,
+          verificado: verificado["estadoVerificacion"]!="verificado"?false:true,
           edad: edadPerfil ,
-          distancia: distancia.toInt(),
+          distancia: distancia?.toInt(),
           carrete: perfilTemp,
           valoracion: 5.0,
           nombreusuaio: nombre,
@@ -330,10 +338,10 @@ verificado: verificado["estadoVerificacion"]!="verificado"?false:true,
     } else {
       perfilCreado.add(DatosPerfiles.citas(
           linksHistorias: links,
-          verificado: verificado!="verificado"?false:true,
+          verificado:verificado["estadoVerificacion"]!="verificado"?false:true,
           carrete: perfilTemp,
               edad: edadPerfil ,
-          distancia: distancia.toInt(),
+          distancia: distancia==null?0:distancia.toInt(),
           valoracion: 5.0,
           nombreusuaio: nombre,
           idUsuario: idUsuario));
@@ -345,8 +353,9 @@ verificado: verificado["estadoVerificacion"]!="verificado"?false:true,
 }
 
 class Perfiles extends ChangeNotifier {
+  EstadoListaPerfiles estadoLista=EstadoListaPerfiles.listaVacia;
   static void cargarPerfilesCitas(List<Map<String, dynamic>> listaProvisional) {
-    Perfiles.perfilesCitas.cargarIsolate(listaProvisional);
+    Perfiles.perfilesCitas.cargarIsolate(listaProvisional).onError((error, stackTrace) => Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.errorCargarLista);
   }
 
   static void cargarPerfilesAmistad() {}
@@ -390,9 +399,23 @@ class Perfiles extends ChangeNotifier {
     ///
     Perfiles.perfilesCitas.listaPerfiles = await enviarRecibirCitas(
         Usuario.esteUsuario, puertoEnvio, listaProvisional);
+        if(PerfilesGenteCitas.indicePerfil!=null){
+ 
+        }
+
+        
 
     /// Aqui acabamos con el isolate despues de que el [await] nos devuelva los datos pedidos del otro [isolate]
     proceso.kill();
+    if(Perfiles.perfilesCitas.listaPerfiles!=null){
+      if(Perfiles.perfilesCitas.listaPerfiles.isNotEmpty){
+        Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.listaCargada;
+      }
+      if(Perfiles.perfilesCitas.listaPerfiles.isEmpty){
+        Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.listaVacia;
+      }
+    }
+    
     Usuario.esteUsuario.notifyListeners();
   }
 
@@ -468,9 +491,9 @@ class Perfiles extends ChangeNotifier {
 
   
 
-  static Future<DatosPerfiles> cargarIsolatePerfilDeterminado(
+  static Future<List<DatosPerfiles>> cargarIsolatePerfilDeterminado(
       String idPerfil) async {
-    DatosPerfiles perfil;
+   List <DatosPerfiles> perfil;
 
     ///Aqui aun estando en el isolado principal le hacemos una peticion a firebase parque nos de los datos necesarios atraves del metodo [obtenerPerfilesAmistad]
     ///
@@ -487,14 +510,21 @@ class Perfiles extends ChangeNotifier {
     ///ya que sera ese nuestro puerto de comunicacion
     ///
     ///
-    Isolate proceso = await Isolate.spawn(
+    Isolate proceso;
+    
+    proceso= await Isolate.spawn(
         isolatePerfilDetermiando, puertoRecepcion.sendPort,
         debugName: "IsolatePerfilDeterminado");
+
 
     /// [puertoEnvio] aqui almacenamos la respuesta que obtenemos de  [isolatePerfilDeterminado] de donde recibimos el puerto de envio del [isolate]
     ///
     ///
     SendPort puertoEnvio = await puertoRecepcion.first;
+
+   // Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.cargandoLista;
+
+
 
     ///
     ///[enviarRecibirCitas], aqui enviamos los datos obtenidos del metodo [obtenerPErfilesAmistad] y tambien pasamos [puertoEnvio] del [isolate]
@@ -505,6 +535,8 @@ class Perfiles extends ChangeNotifier {
     /// Aqui acabamos con el isolate despues de que el [await] nos devuelva los datos pedidos del otro [isolate]
     ///
     ///
+    ///
+  //  Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.cargandoLista;
     proceso.kill();
 
     return perfil;
@@ -530,7 +562,7 @@ class Perfiles extends ChangeNotifier {
     ///[perfilesCitas] guardará los datos recibidos de [ActualizarPerfilDetermado()]
     ///
     ///
-    DatosPerfiles perfilesCita;
+    List<DatosPerfiles> perfilesCita;
 
     ///[puertoRespuesta] es el puesrto de comunicacion con el isolado principal
     ///
@@ -552,7 +584,7 @@ class Perfiles extends ChangeNotifier {
       SendPort sendPort = msj[1];
       Map<String, dynamic> lista = msj[2];
 
-      perfilesCita = await ActualizarPErfilDeterinado(lista);
+      perfilesCita = await actualizarPerfilesCitas([lista]);
       sendPort.send(perfilesCita);
     }
   }

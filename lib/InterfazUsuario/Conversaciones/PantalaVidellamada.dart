@@ -54,9 +54,7 @@ class CallPageState extends State<CallPage> with RouteAware{
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
     routeObserver.unsubscribe(this);
-    if(cronometroVideoPantalla.isActive){
-      cronometroVideoPantalla.cancel();
-    }
+  
     super.dispose();
   }
 

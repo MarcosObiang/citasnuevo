@@ -3,7 +3,9 @@ import 'dart:ui' as ui;
 import 'package:bitmap/bitmap.dart';
 import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/InterfazUsuario/Ajustes/PantallaAjustes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -206,6 +208,12 @@ class BloqueFiltrosPersonales extends StatefulWidget {
 
   bool queVivaCon = false;
 
+  bool sexualidad=false;
+
+  
+
+  String valorSexualidad;
+
   String valorAltura;
 
   String valorBusco;
@@ -223,6 +231,7 @@ class BloqueFiltrosPersonales extends StatefulWidget {
   String valorPolitica;
 
   String valorQueVivaCon;
+  bool sexualidadIgual=false;
 
   bool complexionIgual=false;
 
@@ -241,28 +250,29 @@ class BloqueFiltrosPersonales extends StatefulWidget {
   bool queVivaConIgual=false;
 
 bool filtrosCargados=false;
-  BloqueFiltrosPersonales({@required this.filtroValor}) {
-    
-
-  }
+  BloqueFiltrosPersonales({@required this.filtroValor});
 
   @override
   _BloqueFiltrosPersonalesState createState() => _BloqueFiltrosPersonalesState();
 }
 
 class _BloqueFiltrosPersonalesState extends State<BloqueFiltrosPersonales> {
+ int alturaCm;
+  
 
   List<Widget> filtrosCreados = new List();
 
 
+  @override
+  void initState(){
   
-  void init(){
-
+    
+    coincidenciaFiltros();
+    alturaCm= (double.parse(widget.valorAltura)*100).toInt() ;
     super.initState();
-    cincidenciaFiltros();
   }
 
-void cincidenciaFiltros(){
+void coincidenciaFiltros(){
   
      for (Map filtros in widget.filtroValor) {
       Icon simbolo = Icon(Icons.home);
@@ -444,20 +454,100 @@ void cincidenciaFiltros(){
       
         
     if(filtros["Valor"]!=0){
-      widget. alcohol = true;
+      widget.alcohol = true;
         if(filtros["Valor"]==1){
 
-          widget.valorQueVivaCon="Solo";
+          widget.valorAlcohol="En sociedad";
         }
         if(filtros["Valor"]==2){
-          widget.valorQueVivaCon="Con padres";
+          widget.valorAlcohol="No bebo";
         }
             if(filtros["Valor"]==3){
-          widget.valorQueVivaCon="Con amigos";
+          widget.valorAlcohol="Bebo";
+        }
+            if(filtros["Valor"]==4){
+          widget.valorAlcohol="Odio el alcohol";
         }
       
       if(filtros["Valor"]==Usuario.esteUsuario.alcohol){
           widget.alcoholIgual=true;
+        }
+
+
+        }
+
+
+
+      }
+      
+            if (filtros["Filtro"] == "Tabaco") {
+        simbolo = Icon(LineAwesomeIcons.smoking);
+      
+        
+    if(filtros["Valor"]!=0){
+      widget.tabaco = true;
+        if(filtros["Valor"]==1){
+
+          widget.valorTabaco="Fumo";
+        }
+        if(filtros["Valor"]==2){
+          widget.valorTabaco="No fumo";
+        }
+            if(filtros["Valor"]==3){
+          widget.valorTabaco="A veces";
+        }
+            if(filtros["Valor"]==4){
+          widget.valorTabaco="Odio el tabaco";
+        }
+      
+      if(filtros["Valor"]==Usuario.esteUsuario.tabaco){
+          widget.tabacoIgual=true;
+        }
+
+
+        }
+
+
+
+      }
+
+               if (filtros["Filtro"] == "orientacionSexual") {
+        simbolo = Icon(LineAwesomeIcons.venus_mars);
+      
+        
+    if(filtros["Valor"]!=0){
+      widget.sexualidad = true;
+        if(filtros["Valor"]==1){
+
+          widget.valorSexualidad="Heterosexual";
+        }
+        if(filtros["Valor"]==2){
+    widget.valorSexualidad="Gay";
+        }
+            if(filtros["Valor"]==3){
+          widget.valorSexualidad="Lesbiana";
+        }
+            if(filtros["Valor"]==4){
+          widget.valorSexualidad="Bisexual";
+        }
+              if(filtros["Valor"]==5){
+          widget.valorSexualidad="Asexual";
+        }
+              if(filtros["Valor"]==6){
+          widget.valorSexualidad="Demisexual";
+        }
+              if(filtros["Valor"]==7){
+          widget.valorSexualidad="Queer";
+        }
+              if(filtros["Valor"]==8){
+          widget.valorSexualidad="Pansexual";
+        }
+              if(filtros["Valor"]==9){
+          widget.valorSexualidad="Preguntame";
+        }
+      
+      if(filtros["Valor"]==Usuario.esteUsuario.getOrientacionSexual){
+          widget.sexualidadIgual=true;
         }
 
 
@@ -484,33 +574,36 @@ void cincidenciaFiltros(){
 
   @override
   Widget build(BuildContext context) {
+   
     if(!widget.filtrosCargados){
-      cincidenciaFiltros();
-      print("Filtrapa");
+      coincidenciaFiltros();
+      
     }
     // TODO: implement build
     return Container(
-      height: ScreenUtil().setHeight(400),
+      height: ScreenUtil().setHeight(550),
       width: ImagenesCarrete.limitesCuadro.biggest.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Center(
-          child: GridView.count(
-              physics: NeverScrollableScrollPhysics(),
-              crossAxisSpacing: ScreenUtil().setWidth(10),
-              mainAxisSpacing: ScreenUtil().setHeight(10),
-              childAspectRatio: 5 / 1.5,
-              crossAxisCount: 3,
+      child: Align(
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 30,bottom:30,left: 10,right: 10),
+          child: Wrap(
+            runSpacing: 20.w,
+            spacing: 20.w,
+          
+            runAlignment: WrapAlignment.spaceEvenly,
+
               children: [
                 widget.altura
                     ? Container(
+                        width: 250.w,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(30)),
-                          color: Colors.purple,
-                          border: Border.all(color: Colors.black),
+                          color: Colors.grey[400],
+                         
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(5.0),
@@ -518,15 +611,16 @@ void cincidenciaFiltros(){
                             children: [
                               Icon(
                                 LineAwesomeIcons.ruler_vertical,
-                                size: ScreenUtil().setSp(40),
-                                color: Colors.white,
+                                size: ScreenUtil().setSp(50),
+                                color: Colors.black,
                               ),
                               Text(
-                                widget.valorAltura,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: ScreenUtil().setSp(40)),
+                          ControladorAjustes.instancia.mostrarCm?  "$alturaCm cm":"${(alturaCm*0.032808399).toStringAsFixed(2)} ft",
+                                style: GoogleFonts.lato(
+
+                                 fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                 ),
                               ),
                             ],
                           ),
@@ -534,166 +628,72 @@ void cincidenciaFiltros(){
                       )
                     : Container(color: Colors.transparent),
                widget. busco
-                    ? Container(
-                        decoration: BoxDecoration(
-                          color: widget.buscoIgual?Colors.green: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.ring,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                               widget. valorBusco,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                    ?widgetValor(widget.buscoIgual,Icon(LineAwesomeIcons.ring,size: 50.sp,color: widget.buscoIgual?Colors.white: Colors.black,),widget.valorBusco)
                     : Container(color: Colors.transparent),
                 widget.complexion
-                    ? Container(
-                        decoration: BoxDecoration(
-                              color: widget.complexionIgual?Colors.green: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.dumbbell,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                widget.valorComplexion,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                    ? widgetValor(widget.complexionIgual,Icon(LineAwesomeIcons.dumbbell,size: 50.sp,color: widget.complexionIgual?Colors.white: Colors.black,),widget.valorComplexion)
                     : Container(color: Colors.transparent),
                 widget.hijos
-                    ? Container(
-                        decoration: BoxDecoration(
-                              color: widget.hijosIgual?Colors.green: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.ring,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                widget.valorHijos,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                    ? widgetValor(widget.hijosIgual,Icon(LineAwesomeIcons.baby,size: 50.sp,color: widget.hijosIgual?Colors.white: Colors.black,),widget.valorHijos)
                     : Container(color: Colors.transparent),
                widget. mascotas
-                    ? Container(
-                        decoration: BoxDecoration(
-                              color: widget.mascotasIgual?Colors.green: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.dog,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                widget.valorMascotas,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                    ? widgetValor(widget.mascotasIgual,Icon(LineAwesomeIcons.dog,size: 50.sp,color: widget.mascotasIgual?Colors.white: Colors.black,),widget.valorMascotas)
                     : Container(color: Colors.transparent),
                 widget.politica
-                    ? Container(
-                        decoration: BoxDecoration(
-                              color: widget.politicaIgual?Colors.green: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.landmark,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                                widget.valorPolitica,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                    ? widgetValor(widget.politicaIgual,Icon(LineAwesomeIcons.place_of_worship,size: 50.sp,color: widget.politicaIgual?Colors.white: Colors.black,),widget.valorPolitica)
                     : Container(color: Colors.transparent),
                 widget.queVivaCon
-                    ? Container(
-                          
-                        decoration: BoxDecoration(
-                          color:widget. queVivaConIgual?Colors.green: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LineAwesomeIcons.home,
-                                size: ScreenUtil().setSp(40),
-                              ),
-                              Text(
-                               widget. valorQueVivaCon,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil().setSp(40)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                    ? widgetValor(widget.queVivaConIgual,Icon(LineAwesomeIcons.home,size: 50.sp,color: widget.queVivaConIgual?Colors.white: Colors.black,),widget.valorQueVivaCon)
                     : Container(color: Colors.transparent),
+                          widget.alcohol
+                    ? widgetValor(widget.alcoholIgual,Icon(LineAwesomeIcons.beer,size: 50.sp,color: widget.alcoholIgual?Colors.white: Colors.black,),widget.valorAlcohol)
+                    : Container(color: Colors.transparent)
+                    ,
+                          widget.tabaco
+                    ? widgetValor(widget.tabacoIgual,Icon(LineAwesomeIcons.smoking,size: 50.sp,color: widget.tabacoIgual?Colors.white: Colors.black,),widget.valorTabaco)
+                    : Container(color: Colors.transparent)
+                    ,
+                          widget.sexualidad
+                    ? widgetValor(widget.sexualidadIgual,Icon(LineAwesomeIcons.venus_mars,size: 50.sp,color: widget.sexualidadIgual?Colors.white: Colors.black,),widget.valorSexualidad)
+                    : Container(color: Colors.transparent)
               ]),
         ),
       ),
     );
+  }
+
+  Container widgetValor(bool esIgual,Icon icono,String valor) {
+    return Container(
+      width: 400.w,
+    
+                      decoration: BoxDecoration(
+                            color: esIgual?Colors.deepPurple: Colors.grey[400],
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
+                     
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                           icono,
+                            Padding(
+
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Text(
+                                valor,
+                                style: GoogleFonts.lato(
+                                  fontWeight: FontWeight.bold,
+                                  
+                         
+                                    color: esIgual?Colors.white: Colors.black,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
   }
 }
 

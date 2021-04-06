@@ -18,7 +18,7 @@ class SancionesUsuario with ChangeNotifier {
   bool finSancion = false;
 
   Future<void> obtenerSanciones() async {
-    int unidadesSancion = Usuario.esteUsuario.mapaSanciones["tiempoSancion"];
+    int unidadesSancion = Usuario.esteUsuario.mapaSanciones["tiempoDeSancion"];
     bool sancionadoUsuario =
         Usuario.esteUsuario.mapaSanciones["usuarioSancionado"];
     List<dynamic> listaSanciones =

@@ -48,7 +48,7 @@ Conversacion.conversaciones.cerrarConexionesConversacion();
         ControladorInicioSesion.instancia=null;
         Solicitudes.instancia=null;
         SolicitudConversacion.instancia=null;
-        ControladorLocalizacion.instancia=null;
+        ControladorAjustes.instancia=null;
         ControladorNotificacion.instancia=null;
         SancionesUsuario.instancia=null;
         ControladorVerificacion.instanciaVerificacion=null;
@@ -73,7 +73,7 @@ static void iniciarMemoria(){
         ControladorInicioSesion.instancia=new ControladorInicioSesion();
         Solicitudes.instancia=new Solicitudes();
         SolicitudConversacion.instancia=new SolicitudConversacion();
-        ControladorLocalizacion.instancia=new ControladorLocalizacion();
+        ControladorAjustes.instancia=new ControladorAjustes();
         ControladorNotificacion.instancia=new ControladorNotificacion();
         SancionesUsuario.instancia=new SancionesUsuario();
         ControladorVerificacion.instanciaVerificacion=new ControladorVerificacion.instancia();

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/ObtenerImagenPerfil.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/TiempoAplicacion.dart';
+import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
 
 import 'package:citasnuevo/InterfazUsuario/Valoraciones/ListaValoraciones.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,9 +21,10 @@ enum RevelarValoracionEstado { noRevelada, revelando, revelada }
 
 class Valoracion extends ChangeNotifier {
   static Valoracion instanciar = Valoracion();
-   bool errorObtenerValoraciones = false;
+  bool errorObtenerValoraciones = false;
   static DateTime tiempoReferencia;
   String imagenEmisor;
+  DatosPerfiles perfilRemitente;
   String idEmisor;
   String aliasEmisor;
   String nombreEmisor;
@@ -41,8 +44,8 @@ class Valoracion extends ChangeNotifier {
 
   set setValoracionRevelada(bool valoracionRevelada) {
     this.valoracionRevelada = valoracionRevelada;
-    if(valoracionRevelada){
-      this.estadoRevelacion=RevelarValoracionEstado.revelada;
+    if (valoracionRevelada) {
+      this.estadoRevelacion = RevelarValoracionEstado.revelada;
       Valoracion.instanciar.notifyListeners();
     }
 
@@ -135,9 +138,9 @@ class Valoracion extends ChangeNotifier {
 
     print(Usuario.esteUsuario.idUsuario);
 
-    DateTime value = await NTP.now();
-    if(value!=null){
-      value=DateTime.now();
+    DateTime value = TiempoAplicacion.tiempoAplicacion.marcaTiempoAplicacion;
+    if (value != null) {
+      value = DateTime.now();
     }
     tiempoReferencia = value;
     fechaParaQuery = tiempoReferencia.subtract(Duration(days: 1));
@@ -146,84 +149,104 @@ class Valoracion extends ChangeNotifier {
         .collection("valoraciones")
         .where("Time", isGreaterThanOrEqualTo: fechaParaQuery)
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
-        .get().catchError((error){
-          print("Error al recuperar valoraciones con tiempo de la base de datos");
-        });
-if(dato!=null){
-    if (dato.docs.length > 0) {
-      print("escuchado a ${dato.docs.length} valoraciones");
+        .get()
+        .catchError((error) {
+  
+    });
+    if (dato != null) {
+      if (dato.docs.length > 0) {
 
-      print(dato.docs.length);
-      for (int i = 0; i < dato.docs.length; i++) {
-        print("Creando");
-        if (dato.docs[i].id != "mediaPuntos") {
-          crearValoracion(
-              (dato.docs[i].get("Id emisor").toString()),
-              (dato.docs[i].get("Nombre emisor").toString()).toString(),
-              (dato.docs[i].get("Alias Emisor").toString()).toString(),
-              (dato.docs[i].get("Imagen Usuario").toString()).toString(),
-              (dato.docs[i].get("Mensaje").toString()).toString(),
-              double.parse(
-                  (dato.docs[i].get("Valoracion").toString()).toString()),
-              (dato.docs[i].get("Time")).toDate(),
-              (dato.docs[i].get("caducidad")).toDate(),
-              (dato.docs[i].get("id valoracion").toString()).toString(),
-              dato.docs[i].get("revelada"));
+        for (int i = 0; i < dato.docs.length; i++) {
+          if (dato.docs[i].id != "mediaPuntos") {
+            if (dato.docs[i].get("Id emisor") != null &&
+                dato.docs[i].get("Nombre emisor") != null &&
+                dato.docs[i].get("Imagen Usuario") != null &&
+                dato.docs[i].get("Valoracion") != null &&
+                dato.docs[i].get("Mensaje") != null &&
+                dato.docs[i].get("Time") != null &&
+                dato.docs[i].get("revelada") != null &&
+                dato.docs[i].get("caducidad") != null &&
+                dato.docs[i].get("id valoracion") != null) {
+              crearValoracion(
+                  (dato.docs[i].get("Id emisor").toString()),
+                  (dato.docs[i].get("Nombre emisor").toString()).toString(),
+                  (dato.docs[i].get("Alias Emisor").toString()).toString(),
+                  (dato.docs[i].get("Imagen Usuario").toString()).toString(),
+                  (dato.docs[i].get("Mensaje").toString()).toString(),
+                  double.parse(
+                      (dato.docs[i].get("Valoracion").toString()).toString()),
+                  (dato.docs[i].get("Time")).toDate(),
+                  (dato.docs[i].get("caducidad")).toDate(),
+                  (dato.docs[i].get("id valoracion").toString()).toString(),
+                  dato.docs[i].get("revelada"));
+            }
+          }
+
+          if (dato.docs[i].id == "mediaPuntos") {
+            if (dato.docs[i].get("mediaTotal") != null &&
+                dato.docs[i].get("cantidadValoraciones") != null) {
+              mediaUsuario = dato.docs[i].get("mediaTotal").toDouble();
+              visitasTotales = dato.docs[i].get("cantidadValoraciones");
+            }
+          }
         }
-        if (dato.docs[i].id == "mediaPuntos") {
-          mediaUsuario = dato.docs[i].get("mediaTotal");
-          visitasTotales = dato.docs[i].get("cantidadValoraciones");
-        }
+
+        instanciar.notifyListeners();
       }
-
-      instanciar.notifyListeners();
     }
-}
-
 
     QuerySnapshot datos = await instanciaBaseDatos
         .collection("valoraciones")
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .where("revelada", isEqualTo: true)
         .where("Time", isLessThan: fechaParaQuery)
-        .get().catchError((error){
-          print("Error al recuperar valoraciones de la base de datos");
-        });
+        .get()
+        .catchError((error) {
+      print("Error al recuperar valoraciones de la base de datos");
+    });
 
-        if(datos!=null){
-if (datos.docs.length > 0) {
-     
+    if (datos != null) {
+      if (datos.docs.length > 0) {
+        print(datos.docs.length);
+        for (int i = 0; i < datos.docs.length; i++) {
+          if (datos.docs[i].id != "mediaPuntos"&&dato.docs.isNotEmpty==false) {
+            if (datos.docs[i].get("Id emisor") != null &&
+                datos.docs[i].get("Nombre emisor") != null &&
+                datos.docs[i].get("Imagen Usuario") != null &&
+                datos.docs[i].get("Valoracion") != null &&
+                datos.docs[i].get("Mensaje") != null &&
+                datos.docs[i].get("Time") != null &&
+                datos.docs[i].get("id valoracion") != null &&
+                datos.docs[i].get("revelada") != null &&
+                datos.docs[i].get("caducidad") != null) {
+              crearValoracion(
+                  (datos.docs[i].get("Id emisor").toString()),
+                  (datos.docs[i].get("Nombre emisor").toString()).toString(),
+                  (datos.docs[i].get("Alias Emisor").toString()).toString(),
+                  (datos.docs[i].get("Imagen Usuario").toString()).toString(),
+                  (datos.docs[i].get("Mensaje").toString()).toString(),
+                  double.parse(
+                      (datos.docs[i].get("Valoracion").toString()).toString()),
+                  (datos.docs[i].get("Time")).toDate(),
+                  (datos.docs[i].get("caducidad")).toDate(),
+                  (datos.docs[i].get("id valoracion").toString()).toString(),
+                  datos.docs[i].get("revelada"));
+            }
+          }
+          if (datos.docs[i].id == "mediaPuntos"&&datos.docs.isNotEmpty==false) {
+            if (datos.docs[i].get("mediaTotal") != null &&
+                datos.docs[i].get("cantidadValoraciones") != null) {
+              mediaUsuario = datos.docs[i].get("mediaTotal").toDouble();
+              visitasTotales = datos.docs[i].get("cantidadValoraciones");
+            }
+          }
+        }
 
-      print(datos.docs.length);
-      for (int i = 0; i < datos.docs.length; i++) {
-        print("Creando");
-        if (datos.docs[i].id != "mediaPuntos") {
-          crearValoracion(
-              (datos.docs[i].get("Id emisor").toString()),
-              (datos.docs[i].get("Nombre emisor").toString()).toString(),
-              (datos.docs[i].get("Alias Emisor").toString()).toString(),
-              (datos.docs[i].get("Imagen Usuario").toString()).toString(),
-              (datos.docs[i].get("Mensaje").toString()).toString(),
-              double.parse(
-                  (datos.docs[i].get("Valoracion").toString()).toString()),
-              (datos.docs[i].get("Time")).toDate(),
-              (datos.docs[i].get("caducidad")).toDate(),
-              (datos.docs[i].get("id valoracion").toString()).toString(),
-              datos.docs[i].get("revelada"));
-        }
-        if (datos.docs[i].id == "mediaPuntos") {
-          mediaUsuario = datos.docs[i].get("mediaTotal");
-          visitasTotales = datos.docs[i].get("cantidadValoraciones");
-        }
+        instanciar.notifyListeners();
       }
-
-      instanciar.notifyListeners();
     }
-        }
 
-        escucharValoraciones();
-
-    
+    escucharValoraciones();
   }
 
   void obtenerMedia() async {
@@ -235,20 +258,24 @@ if (datos.docs.length > 0) {
         .collection("valoraciones")
         .get()
         .then((dato) {
-      if (dato.docs.length > 0) {
-        for (int a = 0; a < dato.docs.length; a++) {
-          if (dato.docs[a].id == "mediaPuntos") {
-            mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
-            visitasTotales = dato.docs[a].get("cantidadValoraciones");
+          if (dato.docs.length > 0) {
+            for (int a = 0; a < dato.docs.length; a++) {
+              if (dato.docs[a].id == "mediaPuntos") {
+                if (dato.docs[a].get("mediaTotal") != null &&
+                    dato.docs[a].get("cantidadValoraciones") != null) {
+                  mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
+                  visitasTotales = dato.docs[a].get("cantidadValoraciones");
+                }
+              }
+            }
           }
-        }
-      }
-    }).then((value) => escucharMedia());
+        })
+        .then((value) => escucharMedia())
+        .catchError((onError) {});
   }
 
   void escucharMedia() async {
     FirebaseFirestore instanciaBaseDatos = FirebaseFirestore.instance;
-    bool coincidencias;
 
     print(Usuario.esteUsuario.idUsuario);
     escuchadorMedia = instanciaBaseDatos
@@ -260,8 +287,11 @@ if (datos.docs.length > 0) {
       if (dato.docs.length > 0) {
         for (int a = 0; a < dato.docs.length; a++) {
           if (dato.docs[a].id == "mediaPuntos") {
-            mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
-            visitasTotales = dato.docs[a].get("cantidadValoraciones");
+            if (dato.docs[a].get("mediaTotal") != null &&
+                dato.docs[a].get("cantidadValoraciones") != null) {
+              mediaUsuario = dato.docs[a].get("mediaTotal").toDouble();
+              visitasTotales = dato.docs[a].get("cantidadValoraciones");
+            }
           }
         }
 
@@ -281,108 +311,126 @@ if (datos.docs.length > 0) {
         .where("idDestino", isEqualTo: Usuario.esteUsuario.idUsuario)
         .snapshots()
         .listen((dato) {
-          if(dato!=null){
-      if (dato.docChanges.length > 0) {
-        for (int a = 0; a < dato.docChanges.length; a++) {
-          if (dato.docChanges[a].type != DocumentChangeType.removed) {
-            for (int b = 0; b < dato.docChanges.length; b++) {
-              coincidencias = false;
-              int indice = 0;
-              for (int i = 0; i < listaDeValoraciones.length; i++) {
-                if (dato.docs[b].id != "mediaPuntos") {
-                  if (dato.docChanges[b].doc.id ==
-                      listaDeValoraciones[i].idValoracion) {
-                    coincidencias = true;
-                    indice = i;
+      try {
+        if (dato != null) {
+          if (dato.docChanges.length > 0) {
+            for (int a = 0; a < dato.docChanges.length; a++) {
+              if (dato.docChanges[a].type != DocumentChangeType.removed) {
+                for (int b = 0; b < dato.docChanges.length; b++) {
+                  coincidencias = false;
+                  int indice = 0;
+                  for (int i = 0; i < listaDeValoraciones.length; i++) {
+                    if (dato.docs[b].id != "mediaPuntos") {
+                      if (dato.docChanges[b].doc.id ==
+                          listaDeValoraciones[i].idValoracion) {
+                        coincidencias = true;
+                        indice = i;
+                      }
+                    }
+                  }
+
+                  if (coincidencias) {
+                    if (dato.docChanges[b].doc.get("Nombre emisor") !=
+                        listaDeValoraciones[indice].nombreEmisor) {
+                      listaDeValoraciones[indice].nombreEmisor =
+                          dato.docChanges[b].doc.get("Nombre emisor");
+                    }
+                    if (dato.docChanges[b].doc.get("Imagen Usuario") !=
+                        listaDeValoraciones[indice].imagenEmisor) {
+                      listaDeValoraciones[indice].imagenEmisor =
+                          dato.docChanges[b].doc.get("Imagen Usuario");
+                    }
+                    if (dato.docChanges[b].doc.get("revelada") !=
+                        listaDeValoraciones[indice].valoracionRevelada) {
+                      listaDeValoraciones[indice].setValoracionRevelada =
+                          dato.docChanges[b].doc.get("revelada");
+                    }
+                  }
+
+                  instanciar.notifyListeners();
+
+                  if (!coincidencias) {
+                    if (dato.docs[b].id != "mediaPuntos") {
+                      if (dato.docChanges[b].doc.get("Id emisor") != null &&
+                          dato.docChanges[b].doc.get("Nombre emisor") != null &&
+                          dato.docChanges[b].doc.get("Imagen Usuario") !=
+                              null &&
+                          dato.docChanges[b].doc.get("Mensaje") != null &&
+                          dato.docChanges[b].doc.get("Time") != null &&
+                          dato.docChanges[b].doc.get("caducidad") != null &&
+                          dato.docChanges[b].doc.get("id valoracion") != null &&
+                          dato.docChanges[b].doc.get("revelada") != null) {}
+                      sumarValoracion(
+                          dato.docChanges[b].doc.get("Id emisor"),
+                          dato.docChanges[b].doc.get("Nombre emisor"),
+                          dato.docChanges[b].doc.get("Alias Emisor"),
+                          dato.docChanges[b].doc.get("Imagen Usuario"),
+                          dato.docChanges[b].doc.get("Mensaje"),
+                          double.parse((dato.docChanges[b].doc
+                              .get("Valoracion")
+                              .toString())),
+                          (dato.docChanges[b].doc.get("Time")).toDate(),
+                          (dato.docChanges[b].doc.get("caducidad")).toDate(),
+                          (dato.docChanges[b].doc
+                                  .get("id valoracion")
+                                  .toString())
+                              .toString(),
+                          (dato.docChanges[b].doc.get("revelada")));
+                    }
                   }
                 }
               }
 
-              if (coincidencias) {
-                if (dato.docChanges[b].doc.get("Nombre emisor") !=
-                    listaDeValoraciones[indice].nombreEmisor) {
-                  listaDeValoraciones[indice].nombreEmisor =
-                      dato.docChanges[b].doc.get("Nombre emisor");
-                }
-                if (dato.docChanges[b].doc.get("Imagen Usuario") !=
-                    listaDeValoraciones[indice].imagenEmisor) {
-                  listaDeValoraciones[indice].imagenEmisor =
-                      dato.docChanges[b].doc.get("Imagen Usuario");
-                }
-                if (dato.docChanges[b].doc.get("revelada") !=
-                    listaDeValoraciones[indice].valoracionRevelada) {
-                  listaDeValoraciones[indice].setValoracionRevelada =
-                      dato.docChanges[b].doc.get("revelada");
+              if (dato.docChanges[a].type == DocumentChangeType.removed) {
+                String idValoracionEliminar =
+                    dato.docChanges[a].doc.get("id valoracion");
+
+                for (int z = 0;
+                    z < Valoracion.instanciar.listaDeValoraciones.length;
+                    z++) {
+                  if (Valoracion
+                          .instanciar.listaDeValoraciones[z].idValoracion ==
+                      idValoracionEliminar) {
+                    if (ListaDeValoraciones
+                            .llaveListaValoraciones.currentState !=
+                        null)
+                      Valoracion.instanciar.listaDeValoraciones[z]
+                          .valoracionVisible = false;
+                    Valoracion.instanciar.listaDeValoraciones[z]
+                        .notificadorEliminacion
+                        .notifyListeners();
+                  }
+                  if (ListaDeValoraciones.llaveListaValoraciones.currentState ==
+                      null) {
+                    int indiceValoracionEliminar = Valoracion
+                        .instanciar.listaDeValoraciones
+                        .indexWhere((valoracion) =>
+                            valoracion.idValoracion == idValoracionEliminar);
+                    if (indiceValoracionEliminar >= 0) {
+                      Valoracion.instanciar.listaDeValoraciones
+                          .removeAt(indiceValoracionEliminar);
+                    }
+                  }
                 }
               }
-
-              instanciar.notifyListeners();
-
-              if (!coincidencias) {
-                print("Creando");
-                if (dato.docs[b].id != "mediaPuntos") {
-                  sumarValoracion(
-                      (dato.docChanges[b].doc.get("Id emisor").toString()),
-                      (dato.docChanges[b].doc.get("Nombre emisor").toString())
-                          .toString(),
-                      (dato.docChanges[b].doc.get("Alias Emisor").toString())
-                          .toString(),
-                      (dato.docChanges[b].doc.get("Imagen Usuario").toString())
-                          .toString(),
-                      (dato.docChanges[b].doc.get("Mensaje").toString())
-                          .toString(),
-                      double.parse(
-                          (dato.docChanges[b].doc.get("Valoracion").toString())
-                              .toString()),
-                      (dato.docChanges[b].doc.get("Time")).toDate(),
-                      (dato.docChanges[b].doc.get("caducidad")).toDate(),
-                      (dato.docChanges[b].doc.get("id valoracion").toString())
-                          .toString(),
-                      (dato.docChanges[b].doc.get("revelada")));
-                }
+              if(dato.docs.length>a){
+                    if (dato.docs[a].id == "mediaPuntos") {
+                mediaUsuario =
+                    dato.docChanges[a].doc.get("mediaTotal").toDouble();
+                visitasTotales =
+                    dato.docChanges[a].doc.get("cantidadValoraciones");
               }
+
+              }
+          
             }
-          }
-
-          if (dato.docChanges[a].type == DocumentChangeType.removed) {
-            String idValoracionEliminar =
-                dato.docChanges[a].doc.get("id valoracion");
-
-            for (int z = 0;
-                z < Valoracion.instanciar.listaDeValoraciones.length;
-                z++) {
-              if (Valoracion.instanciar.listaDeValoraciones[z].idValoracion ==
-                  idValoracionEliminar) {
-                if (ListaDeValoraciones.llaveListaValoraciones.currentState !=
-                    null)
-                  Valoracion.instanciar.listaDeValoraciones[z]
-                      .valoracionVisible = false;
-                Valoracion
-                    .instanciar.listaDeValoraciones[z].notificadorEliminacion
-                    .notifyListeners();
-              }
-              if (ListaDeValoraciones.llaveListaValoraciones.currentState ==
-                  null) {
-                int indiceValoracionEliminar = Valoracion
-                    .instanciar.listaDeValoraciones
-                    .indexWhere((valoracion) =>
-                        valoracion.idValoracion == idValoracionEliminar);
-                if (indiceValoracionEliminar >= 0) {
-                  Valoracion.instanciar.listaDeValoraciones
-                      .removeAt(indiceValoracionEliminar);
-                }
-              }
-            }
-          }
-          if (dato.docs[a].id == "mediaPuntos") {
-            mediaUsuario = dato.docChanges[a].doc.get("mediaTotal").toDouble();
-            visitasTotales = dato.docChanges[a].doc.get("cantidadValoraciones");
           }
         }
-      }
-          }
+        
+      } on Exception {}
 
       instanciar.notifyListeners();
+      Usuario.esteUsuario.notifyListeners();
     });
   }
 

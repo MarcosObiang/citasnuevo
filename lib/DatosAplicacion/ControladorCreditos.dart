@@ -50,7 +50,7 @@ class ControladorCreditos {
     DateTime fechaActual = await NTP.now();
     int fechaEnSegundos = (fechaActual.millisecondsSinceEpoch ~/ 1000);
     if (Usuario.esteUsuario.creditosUsuario >= creditos) {
-      HttpsCallableResult resultado =
+    
           await llamarRestarCreditos.call(<String, dynamic>{
         "idUsuario": Usuario.esteUsuario.idUsuario,
         "idValoracion": idValoracion,
@@ -69,6 +69,8 @@ class ControladorCreditos {
         "primeraSolicitud": false,
         "idUsuario": Usuario.esteUsuario.idUsuario,
         "idSolicitud": idSolicitud,
+      }).catchError((onError){
+        
       });
       print("${resultado.data} resultado funcion");
     }
@@ -119,7 +121,7 @@ class ControladorCreditos {
     });
   }
 
-  void escucharCreditos() {
+  void escucharEstadoUsuario() {
     FirebaseFirestore referenciaCreditos = FirebaseFirestore.instance;
     escuchadorUsuario = referenciaCreditos
         .collection("usuarios")
@@ -129,24 +131,27 @@ class ControladorCreditos {
         .listen((event) async {
       if (event != null) {
         
-        if(event.docChanges.first.type!=DocumentChangeType.removed){
+        if(event.docChanges.first.type!=DocumentChangeType.removed||event.docChanges.first.type!=DocumentChangeType.modified){
 
                Map<String, dynamic> ajustes = event.docs.first["Ajustes"];
-    ControladorLocalizacion.instancia.setMostrarmeEnHotty =
+    ControladorAjustes.instancia.setMostrarmeEnHotty =
         ajustes["mostrarPerfil"];
-    ControladorLocalizacion.instancia.setDiistanciaMaxima =
+    ControladorAjustes.instancia.setDiistanciaMaxima =
         ajustes["distanciaMaxima"].toDouble();
-    ControladorLocalizacion.instancia.setEdadFinal =
+    ControladorAjustes.instancia.setEdadFinal =
         ajustes["edadFinal"].toDouble();
-    ControladorLocalizacion.instancia.setEdadInicial =
+    ControladorAjustes.instancia.setEdadInicial =
         ajustes["edadInicial"].toDouble();
-    ControladorLocalizacion.instancia.setVisualizarDistanciaEnMillas =
+    ControladorAjustes.instancia.setVisualizarDistanciaEnMillas =
         ajustes["enMillas"];
-    ControladorLocalizacion.instancia.mostrarMujeres =
+    ControladorAjustes.instancia.mostrarMujeres =
         ajustes["mostrarMujeres"];
-    ControladorLocalizacion.instancia.activadorEdadesDeseadas =
-        new List<int>.from(ajustes["rangoEdades"]);
+        ControladorAjustes.instancia.mostrarCm =
+        ajustes["enCm"];
 
+
+    ControladorAjustes.instancia.activadorEdadesDeseadas =
+        new List<int>.from(ajustes["rangoEdades"]);
 
 
 

@@ -1,10 +1,12 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorPermisos.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/ObtenerImagenPerfil.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantalaVidellamada.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/Mensajes.dart';
+import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
@@ -93,7 +95,7 @@ class VideoLlamada {
       if (value.get("Estado") == "Ocupado") {
         resultado = "Ocupado";
       }
-    });
+    }).catchError((onError)=>print(" No se puede hacer la llamada"));
 
     if (resultado == "Conectado") {
       iniciarLLamadaVideo(usuario, context);
@@ -130,6 +132,28 @@ class VideoLlamada {
 
   static void contestarLLamadaVideo(String usuarioId, BuildContext context,
       Map<String, dynamic> datosLLamada) async {
+
+
+EstadosPermisos permisoCamara= await ControladorPermisos.instancia.comprobarPermisoCamara();
+EstadosPermisos permisoMicrofono= await ControladorPermisos.instancia.comprobarPermisoMicrofono();
+
+
+if(permisoCamara!=EstadosPermisos.permisoConcedido&&permisoMicrofono!=EstadosPermisos.permisoConcedido){
+    colgarLLamadaVideo(
+                                                  usuarioId, datosLLamada);
+  ManejadorErroresAplicacion.erroresInstancia.mostrarDialogoPermisosVideollamadaContestar(BaseAplicacion.claveBase.currentContext);
+}
+if(permisoCamara!=EstadosPermisos.permisoConcedido&&permisoMicrofono==EstadosPermisos.permisoConcedido){
+   colgarLLamadaVideo(
+                                                  usuarioId, datosLLamada);
+    ManejadorErroresAplicacion.erroresInstancia.mostrarDialogoPermisosVideollamadaContestar(BaseAplicacion.claveBase.currentContext);
+}
+if(permisoCamara==EstadosPermisos.permisoConcedido&&permisoMicrofono!=EstadosPermisos.permisoConcedido){
+   colgarLLamadaVideo(
+                                                  usuarioId, datosLLamada);
+    ManejadorErroresAplicacion.erroresInstancia.mostrarDialogoPermisosVideollamadaContestar(BaseAplicacion.claveBase.currentContext);
+}
+if(permisoCamara==EstadosPermisos.permisoConcedido&&permisoMicrofono==EstadosPermisos.permisoConcedido){
     Map<String, dynamic> estadoLLamada = new Map();
     estadoLLamada["Estado"] = "Ocpuado";
     datosLLamada["StatusLLamada"] = "Conectado";
@@ -161,6 +185,13 @@ class VideoLlamada {
     }).catchError((onError) {
       print(onError);
     });
+  
+}
+
+
+
+
+  
   }
 
   static void iniciarLLamadaVideo(String usuario, BuildContext context) async {
@@ -225,7 +256,7 @@ class VideoLlamada {
       print(onError);
     });
 
-    print("Llamada iniciada");
+
   }
 
   static void escucharLLamadasEntrantes() {
@@ -271,7 +302,7 @@ class VideoLlamada {
 
       }
       else{
-        await referenciaBaseDatos.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).collection("llamadas").doc(idLLamadaEntrante).snapshots()..listen((event) { }).cancel();
+        await referenciaBaseDatos.collection("usuarios").doc(Usuario.esteUsuario.idUsuario).collection("llamadas").doc(idLLamadaEntrante).snapshots().listen((event) { }).cancel();
         Navigator.of(context).pop();
       }
     });

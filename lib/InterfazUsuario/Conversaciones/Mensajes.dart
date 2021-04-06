@@ -1,14 +1,12 @@
-
-
 import 'dart:io' as Io;
 
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/TiempoAplicacion.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantallaConversacion.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-
 
 import 'package:path_provider/path_provider.dart';
 
@@ -21,7 +19,6 @@ import 'package:line_awesome_icons/line_awesome_icons.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -39,137 +36,37 @@ import 'package:http/http.dart' as http;
 
 class Mensajes extends StatefulWidget {
   String mensaje;
-  DateTime horaMensaje;
+  String horaMensaje;
+  DateTime horaMensajeFormatoDate;
   String idMensaje;
   String idEmisor;
   String tipoMensaje;
   String nombreEmisor;
-  int duracionMensaje = 0;
-  double posicion = 0;
+
   bool mensajeLeido;
-  final Key clave = GlobalKey();
+
   String idRemitente;
-  static bool reproduciendoOtro = false;
-  bool reproduciendo;
-  AudioPlayer player = AudioPlayer();
-  static List<Mensajes> mensajesEnReproduccion = new List();
-  static AudioPlayerState estado;
-  static bool turno;
-  String directorioAudio;
-  double prueba = 0;
-  bool cargandoAudio = false;
+
   bool leido = false;
   bool mensajeLeidoRemitente = false;
   String identificadorUnicoMensaje;
   String idConversacion;
-  bool mostrarOpcionesMensaje=false;
-  String directoriofinal;
+  bool mostrarOpcionesMensaje = false;
+
   bool respuesta;
-  Map<String,dynamic> respuestaMensaje=new Map();
+  Map<String, dynamic> respuestaMensaje = new Map();
   String nombreRemitente;
   Widget widgetRespuesta;
+  int diaMensaje;
+ 
 
-  final f = new DateFormat('HH:mm');
-  final dia = new DateFormat("yMMMMEEEEd");
-
-  void cargarAudio() async {
-    if (player == null) {
-      print("vacioestaaaaaaaas");
-    }
-    Uint8List audio;
-    var response = await http.readBytes(mensaje);
-
-    audio = response;
-
-    final directorio = await getApplicationDocumentsDirectory();
-
-    directorioAudio = "${directorio.path}/${DateTime.now()}";
-    await Io.Directory(directorioAudio)
-        .create(recursive: true)
-        .then((valor) async {
-      print(valor.path);
-      directoriofinal = "${valor.path}/${DateTime.now()}.aac";
-      Io.File puntero = new Io.File(directoriofinal);
-      puntero.writeAsBytesSync(audio, mode: FileMode.write, flush: true);
-      print("${valor.path}.aac");
-    });
-  }
-
-  reproducirAudio() async {
-    player.state = estado;
-    print("Reprodiciendo esteAudio");
-
-    await player.setUrl(mensaje);
-    if (mensajesEnReproduccion.length != 0 && mensajesEnReproduccion != null) {
-      mensajesEnReproduccion[0].pararAudio();
-      mensajesEnReproduccion.clear();
-    }
-
-    mensajesEnReproduccion.add(this);
-
-    if (duracionMensaje == null) {
-      duracionMensaje = await Future.delayed(
-          Duration(milliseconds: 2), () => player.getDuration());
-      print(duracionMensaje);
-    }
-    print(duracionMensaje);
-    player.play(mensaje);
-
-    player.onAudioPositionChanged.listen((Duration p) {
-      posicion = ((p.inMilliseconds / duracionMensaje) * 0.1 * 10);
-      
-      Conversacion.conversaciones.notifyListeners();
-      print(posicion);
-    });
-
-    player.onPlayerCompletion.listen((event) {
-  /*   if(1-posicion>0){
-Timer flutterTimer;
-
-flutterTimer=new Timer.periodic(Duration(milliseconds: 1),(valor){
-posicion+=0.1;
-
-if(posicion>=0.99){
-  flutterTimer.cancel();
-   
-  
-}
-});
-
-
-
-
-
-      }*/
-     posicion = 0;
-    });
-    player.onPlayerStateChanged.listen((AudioPlayerState s) {
-     
-    });
-  }
-
-  void pararAudio() {
-    player.stop();
-  }
-
-  void pausarAudio() {
-    player.pause();
-  }
-
-  void resumirAudio() {
-    player.resume();
-  }
-
-  void posicionAudio(double valor) {
-    Duration duracion = Duration(milliseconds: valor.toInt());
-    //Conversacion.conversaciones.notifyListeners();
-    player.seek(duracion);
-  }
+  int anioMesMensaje;
+  int mesMensaje;
 
   Mensajes(
       {@required this.idMensaje,
       @required this.respuesta,
-     
+      @required this.horaMensajeFormatoDate,
       @required this.identificadorUnicoMensaje,
       @required this.respuestaMensaje,
       @required this.mensajeLeido,
@@ -184,9 +81,8 @@ if(posicion>=0.99){
       {@required this.idMensaje,
       @required this.mensajeLeido,
       @required this.identificadorUnicoMensaje,
-      @required this.duracionMensaje,
-    @required this.respuesta,
-     @required this.respuestaMensaje,
+      @required this.respuesta,
+      @required this.respuestaMensaje,
       @required this.mensajeLeidoRemitente,
       @required this.idConversacion,
       @required this.nombreEmisor,
@@ -199,7 +95,6 @@ if(posicion>=0.99){
   Mensajes.local(
       {@required this.idMensaje,
       @required this.idEmisor,
-      @required this.duracionMensaje,
       @required this.mensaje,
       @required this.horaMensaje,
       @required this.tipoMensaje}) {
@@ -212,6 +107,7 @@ if(posicion>=0.99){
       @required this.horaMensaje,
       @required this.tipoMensaje});
   Mensajes.separadorHora({
+    @required this.horaMensajeFormatoDate,
     @required this.horaMensaje,
     @required this.idEmisor,
   }) {
@@ -223,6 +119,8 @@ if(posicion>=0.99){
 }
 
 class _MensajesState extends State<Mensajes> {
+   final formatoFecha=DateFormat("yMEd");
+
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: Conversacion.conversaciones,
@@ -231,28 +129,24 @@ class _MensajesState extends State<Mensajes> {
           return widget.idEmisor == Usuario.esteUsuario.idUsuario
               ? Column(
                   children: <Widget>[
-                    widget.tipoMensaje == "Audio"
-                        ? mensajeAudioUsuario()
-                        : widget.tipoMensaje == "Texto"
-                            ? mensajeTextoUsuario()
-                            : widget.tipoMensaje == "SeparadorHora"
-                                ? separadorHoraUsuario()
-                                : widget.tipoMensaje == "Imagen"
-                                    ? mensajeImagenUsuario(context)
-                                    : mensajeGifUsuario(context)
+                    widget.tipoMensaje == "Texto"
+                        ? mensajeTextoUsuario()
+                        : widget.tipoMensaje == "SeparadorHora"
+                            ? separadorHoraUsuario()
+                            : widget.tipoMensaje == "Imagen"
+                                ? mensajeImagenUsuario(context)
+                                : mensajeGifUsuario(context)
                   ],
                 )
               : Column(
                   children: <Widget>[
-                    widget.tipoMensaje == "Audio"
-                        ? mensajeAudioRemitente()
-                        : widget.tipoMensaje == "Texto"
-                            ? mensajeTextoRemitente()
-                            : widget.tipoMensaje == "SeparadorHora"
-                                ? separadorHoraRemitente()
-                                : widget.tipoMensaje == "Imagen"
-                                    ? mensajeImagenRemitente(context)
-                                    : mensajeGifRemitente(context)
+                    widget.tipoMensaje == "Texto"
+                        ? mensajeTextoRemitente()
+                        : widget.tipoMensaje == "SeparadorHora"
+                            ? separadorHoraRemitente()
+                            : widget.tipoMensaje == "Imagen"
+                                ? mensajeImagenRemitente(context)
+                                : mensajeGifRemitente(context)
                   ],
                 );
         },
@@ -264,10 +158,10 @@ class _MensajesState extends State<Mensajes> {
     return Align(
       alignment: Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: (){
-          if(widget.respuesta==false){
-            widget.mostrarOpcionesMensaje=true;
-            setState((){});
+        onLongPress: () {
+          if (widget.respuesta == false) {
+            widget.mostrarOpcionesMensaje = true;
+            setState(() {});
           }
         },
         child: Padding(
@@ -282,31 +176,38 @@ class _MensajesState extends State<Mensajes> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                widget.mostrarOpcionesMensaje?  opcionesMensaje():Container(width: 0,height:0,),
-          Container(
-                 decoration: BoxDecoration(
-                            
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Colors.green,
-                          ),
+                widget.mostrarOpcionesMensaje
+                    ? opcionesMensaje()
+                    : Container(
+                        width: 0,
+                        height: 0,
+                      ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.deepPurple,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                         widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        widget.respuesta
+                            ? widget.widgetRespuesta
+                            : Container(
+                                width: 0,
+                                height: 0,
+                              ),
                         Container(
                           height: 700.w,
                           width: 700.w,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(widget.mensaje,
-                            scale: 1,
-                              headers: {'accept': 'image/*'})),
+                                fit: BoxFit.cover,
+                                image: NetworkImage(widget.mensaje,
+                                    scale: 1, headers: {'accept': 'image/*'})),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             color: Colors.transparent,
                           ),
-            
                         ),
                       ],
                     ),
@@ -315,8 +216,10 @@ class _MensajesState extends State<Mensajes> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    child: Text(widget.f.format(widget.horaMensaje),
-                        style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                    child: Text(
+                      widget.horaMensaje,
+                      style: GoogleFonts.lato(color: Colors.white),
+                    ),
                   ),
                 )
               ],
@@ -331,12 +234,10 @@ class _MensajesState extends State<Mensajes> {
     return Align(
       alignment: Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: (){
-          if(!widget.respuesta){
-            widget.mostrarOpcionesMensaje=true;
-            setState((){
-
-            });
+        onLongPress: () {
+          if (!widget.respuesta) {
+            widget.mostrarOpcionesMensaje = true;
+            setState(() {});
           }
         },
         child: Padding(
@@ -351,34 +252,49 @@ class _MensajesState extends State<Mensajes> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
+                widget.mostrarOpcionesMensaje
+                    ? opcionesMensaje()
+                    : Container(
+                        height: 0,
+                        width: 0,
+                      ),
                 Container(
+                  padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.green,
+                    color: Colors.deepPurple,
                   ),
-           
                   child: Column(
                     children: [
-                        widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
-                 Container(
-                   height: 500.w,
-                   width: 500.w,
-                   decoration: BoxDecoration(
-                   borderRadius:BorderRadius.all(Radius.circular(10)),
-                   image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(widget.mensaje,
-                    scale: 1,
-               )),),),
+                      widget.respuesta
+                          ? widget.widgetRespuesta
+                          : Container(
+                              width: 0,
+                              height: 0,
+                            ),
+                      Container(
+                        height: 500.w,
+                        width: 500.w,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(
+                                widget.mensaje,
+                                scale: 1,
+                              )),
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    child: Text(widget.f.format(widget.horaMensaje),
-                        style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                    child: Text(
+                      widget.horaMensaje,
+                      style: GoogleFonts.lato(color: Colors.white),
+                    ),
                   ),
                 )
               ],
@@ -391,44 +307,50 @@ class _MensajesState extends State<Mensajes> {
 
   Container separadorHoraRemitente() {
     return Container(
-      child: Text(widget.horaMensaje.day == DateTime.now().day
-          ? "Hoy"
-          : widget.dia.format(widget.horaMensaje),style: GoogleFonts.lato(color:Colors.white),),
+      child: Text(
+        widget.diaMensaje ==
+                    TiempoAplicacion
+                        .tiempoAplicacion.marcaTiempoAplicacion.day &&
+                widget.mesMensaje ==
+                    TiempoAplicacion
+                        .tiempoAplicacion.marcaTiempoAplicacion.month &&
+                widget.anioMesMensaje ==
+                    TiempoAplicacion.tiempoAplicacion.marcaTiempoAplicacion.year
+            ? "Hoy"
+            :formatoFecha.format(widget.horaMensajeFormatoDate),
+        style: GoogleFonts.lato(color: Colors.white),
+      ),
     );
   }
 
   Container mensajeTextoRemitente() {
     return Container(
-      
       child: Stack(
-
         children: [
           Align(
             alignment: Alignment.centerLeft,
             child: GestureDetector(
-              onLongPress: (){
-                if(!widget.respuesta){
-             widget.mostrarOpcionesMensaje=true;
-                                      setState((){
-
-                                      });
+              onLongPress: () {
+                if (!widget.respuesta) {
+                  widget.mostrarOpcionesMensaje = true;
+                  setState(() {});
                 }
- 
-
               },
               child: Padding(
-                padding:
-                    const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
+                padding: const EdgeInsets.only(
+                    right: 50, left: 10, bottom: 20, top: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                     widget.mostrarOpcionesMensaje?opcionesMensaje():Container(height: 0,width:0,),
-                     
-                     
-                     
+                    widget.mostrarOpcionesMensaje
+                        ? opcionesMensaje()
+                        : Container(
+                            height: 0,
+                            width: 0,
+                          ),
                     Container(
                         decoration: BoxDecoration(
-                            color: Colors.green,
+                            color: Colors.deepPurple,
                             borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(15),
                                 topRight: Radius.circular(15),
@@ -437,13 +359,17 @@ class _MensajesState extends State<Mensajes> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                             widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
-                        
+                            widget.respuesta
+                                ? widget.widgetRespuesta
+                                : Container(
+                                    width: 0,
+                                    height: 0,
+                                  ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 widget.mensaje,
-                                style: TextStyle(fontSize: ScreenUtil().setSp(40)),
+                                style: GoogleFonts.lato(color: Colors.white),
                               ),
                             ),
                           ],
@@ -453,8 +379,8 @@ class _MensajesState extends State<Mensajes> {
                       child: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
-                          child: Text(widget.f.format(widget.horaMensaje),
-                              style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                          child: Text(widget.horaMensaje,
+                              style: GoogleFonts.lato(color: Colors.white)),
                         ),
                       ),
                     )
@@ -468,127 +394,16 @@ class _MensajesState extends State<Mensajes> {
     );
   }
 
-  Align mensajeAudioRemitente() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: GestureDetector(
-        onLongPress:(){
-          if(widget.respuesta==false)
-{
-  widget.mostrarOpcionesMensaje=true;
-}        },
-        child: Padding(
-          padding:
-              const EdgeInsets.only(right: 50, left: 10, bottom: 20, top: 20),
-          child: Container(
-            height: ScreenUtil().setHeight(600),
-            width: ScreenUtil().setWidth(800),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                
-                children: <Widget>[
-                   widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
-                  Container(
-                    color: Colors.green,
-                    child: Column(
-                      
-                      children: [
-                         widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
-                        Row(
-                          children: <Widget>[
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 3,
-                              child: Container(
-                                child: Center(
-                                  child: FlatButton(
-                                    onPressed: () {
-                                      widget.reproducirAudio();
-                                    },
-                                    child: Center(
-                                        child: Icon(
-                                      Icons.play_arrow,
-                                      size: ScreenUtil().setSp(100),
-                                    )),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 11,
-                              child: Container(
-                                child: Stack(alignment: Alignment.center, children: <
-                                    Widget>[
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.only(left: 15.0, right: 15),
-                                    child: LinearPercentIndicator(
-                                      lineHeight: ScreenUtil().setHeight(70),
-                                      percent: widget.posicion,
-                                    ),
-                                  ),
-                                  SliderTheme(
-                                    data: SliderThemeData(
-                                      thumbColor: Colors.transparent,
-                                      activeTickMarkColor: Colors.transparent,
-                                      activeTrackColor: Colors.transparent,
-                                      disabledActiveTickMarkColor: Colors.transparent,
-                                      disabledActiveTrackColor: Colors.transparent,
-                                      disabledInactiveTickMarkColor:
-                                          Colors.transparent,
-                                      disabledInactiveTrackColor: Colors.transparent,
-                                      disabledThumbColor: Colors.transparent,
-                                      inactiveTickMarkColor: Colors.transparent,
-                                      inactiveTrackColor: Colors.transparent,
-                                      overlappingShapeStrokeColor: Colors.transparent,
-                                      overlayColor: Colors.transparent,
-                                      valueIndicatorColor: Colors.transparent,
-                                    ),
-                                    child: Slider(
-                                      value: widget.posicion,
-                                      max: widget.duracionMensaje.toDouble() ?? 0,
-                                      min: 0,
-                                      onChanged: (val) {
-                                        widget.posicionAudio(val);
-                                      },
-                                    ),
-                                  ),
-                                ]),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      child: Text(widget.f.format(widget.horaMensaje),
-                          style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Align mensajeGifUsuario(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
-      onLongPress: (){
-        if(widget.respuesta==false){
-          widget.mostrarOpcionesMensaje=true;
-          setState((){});
-        }
-      },
+        onLongPress: () {
+          if (widget.respuesta == false) {
+            widget.mostrarOpcionesMensaje = true;
+            setState(() {});
+          }
+        },
         child: Padding(
           padding:
               const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
@@ -601,33 +416,38 @@ class _MensajesState extends State<Mensajes> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                           widget.mostrarOpcionesMensaje?  opcionesMensaje():Container(width: 0,height:0,),
-
-
+                widget.mostrarOpcionesMensaje
+                    ? opcionesMensaje()
+                    : Container(
+                        width: 0,
+                        height: 0,
+                      ),
                 Container(
-                 decoration: BoxDecoration(
-                            
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Colors.blue,
-                          ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.deepPurple,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                         widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        widget.respuesta
+                            ? widget.widgetRespuesta
+                            : Container(
+                                width: 0,
+                                height: 0,
+                              ),
                         Container(
                           height: 700.w,
                           width: 700.w,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(widget.mensaje,
-                            scale: 1,
-                              headers: {'accept': 'image/*'})),
+                                fit: BoxFit.cover,
+                                image: NetworkImage(widget.mensaje,
+                                    scale: 1, headers: {'accept': 'image/*'})),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             color: Colors.transparent,
                           ),
-            
                         ),
                       ],
                     ),
@@ -639,11 +459,14 @@ class _MensajesState extends State<Mensajes> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
-                        child: Text(widget.f.format(widget.horaMensaje),
-                            style: GoogleFonts.lato(color:Colors.white,fontSize: ScreenUtil().setSp(35))),
+                        child: Text(widget.horaMensaje,
+                            style: GoogleFonts.lato(
+                              color: Colors.white,
+                            )),
                       ),
                       widget.mensajeLeidoRemitente
-                     ? Text(" Visto",style: GoogleFonts.lato(color: Colors.white,fontSize:35.sp),)
+                          ? Icon(Icons.check_circle,
+                              color: Colors.deepPurple[200])
                           : Container()
                     ],
                   ),
@@ -660,12 +483,10 @@ class _MensajesState extends State<Mensajes> {
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
-        onLongPress:(){
-          if(widget.respuesta==false){
-            widget.mostrarOpcionesMensaje=true;
-            setState(() {
-                          
-                        });
+        onLongPress: () {
+          if (widget.respuesta == false) {
+            widget.mostrarOpcionesMensaje = true;
+            setState(() {});
           }
         },
         child: Padding(
@@ -680,33 +501,41 @@ class _MensajesState extends State<Mensajes> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                 widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
+                widget.mostrarOpcionesMensaje
+                    ? opcionesMensaje()
+                    : Container(
+                        height: 0,
+                        width: 0,
+                      ),
                 Container(
-                  
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.blue,
+                    color: Colors.deepPurple,
                   ),
-                  
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                          widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
-                            Container(
-                  height: 700.w,
-                  width: 700.w,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(widget.mensaje,
-                    scale: 1,
-               )),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.transparent,
-                  ),
-            
-                ),
+                        widget.respuesta
+                            ? widget.widgetRespuesta
+                            : Container(
+                                width: 0,
+                                height: 0,
+                              ),
+                        Container(
+                          height: 700.w,
+                          width: 700.w,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                  widget.mensaje,
+                                  scale: 1,
+                                )),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Colors.transparent,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -717,11 +546,12 @@ class _MensajesState extends State<Mensajes> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
-                        child: Text(widget.f.format(widget.horaMensaje),
-                            style: TextStyle(fontSize: ScreenUtil().setSp(35))),
+                        child: Text(widget.horaMensaje,
+                            style: GoogleFonts.lato(color: Colors.white)),
                       ),
                       widget.mensajeLeidoRemitente
-                       ? Text("Leido",style: GoogleFonts.lato(color: Colors.white),)
+                          ? Icon(Icons.check_circle,
+                              color: Colors.deepPurple[200])
                           : Container()
                     ],
                   ),
@@ -736,65 +566,77 @@ class _MensajesState extends State<Mensajes> {
 
   Padding opcionesMensaje() {
     return Padding(
-                             padding: const EdgeInsets.all(8.0),
-                             child: Container(
-                               width: 600.w,
-                               height: 150.h,
-                              decoration: BoxDecoration(
-                                  color: Colors.redAccent,
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15),
-                                      topRight: Radius.circular(15),
-                                      bottomLeft: Radius.circular(15),
-                                      bottomRight: Radius.circular(15))),
-                              padding: EdgeInsets.all(5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                              
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                    IconButton(
-                                      onPressed: (){
-                             
-                                      
-           widget.mostrarOpcionesMensaje=false;
-                                        PantallaConversacion.responderMensaje=true;
-                                        PantallaConversacion.tipoMensaje=widget.tipoMensaje;
-                                        PantallaConversacion.idEmisorMensajeResponder=widget.idEmisor;
-                                        PantallaConversacion.idMensajeResponder=widget.identificadorUnicoMensaje;
-                                        PantallaConversacion.mensajeResponder=widget.mensaje;
-                                        PantallaConversacion.nombreEmisorMensajeResponder=widget.nombreEmisor;
-                                        Conversacion.conversaciones.notifyListeners();
-                                       
-
-                                      },
-                                      icon: Icon(Icons.reply,color: Colors.white,),),
-                                        
-
-                                      GestureDetector(onTap:(){
-                                           widget.mostrarOpcionesMensaje=false;
-                                        setState((){
-
-                                        });
-                                      },
-                                      child: Container(child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("Cancelar"),
-                                      ),),
-                                      )
-                                  ],),
-                                ],
-                              )),
-                           );
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+          width: 600.w,
+          height: 150.h,
+          decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15))),
+          padding: EdgeInsets.all(5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      widget.mostrarOpcionesMensaje = false;
+                      PantallaConversacion.responderMensaje = true;
+                      PantallaConversacion.tipoMensaje = widget.tipoMensaje;
+                      PantallaConversacion.idEmisorMensajeResponder =
+                          widget.idEmisor;
+                      PantallaConversacion.idMensajeResponder =
+                          widget.identificadorUnicoMensaje;
+                      PantallaConversacion.mensajeResponder = widget.mensaje;
+                      PantallaConversacion.nombreEmisorMensajeResponder =
+                          widget.nombreEmisor;
+                      Conversacion.conversaciones.notifyListeners();
+                    },
+                    icon: Icon(
+                      Icons.reply,
+                      color: Colors.white,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      widget.mostrarOpcionesMensaje = false;
+                      setState(() {});
+                    },
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Cancelar"),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          )),
+    );
   }
 
   Container separadorHoraUsuario() {
     return Container(
-      child: Text(widget.horaMensaje.day == DateTime.now().day
-          ? "Hoy"
-          : widget.dia.format(widget.horaMensaje),style: GoogleFonts.lato(color:Colors.white)),
+      child: Text(
+        widget.diaMensaje ==
+                    TiempoAplicacion
+                        .tiempoAplicacion.marcaTiempoAplicacion.day &&
+                widget.mesMensaje ==
+                    TiempoAplicacion
+                        .tiempoAplicacion.marcaTiempoAplicacion.month &&
+                widget.anioMesMensaje ==
+                    TiempoAplicacion.tiempoAplicacion.marcaTiempoAplicacion.year
+            ? "Hoy":
+           formatoFecha.format(widget.horaMensajeFormatoDate),
+        style: GoogleFonts.lato(color: Colors.white),
+      ),
     );
   }
 
@@ -802,14 +644,12 @@ class _MensajesState extends State<Mensajes> {
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
-        onLongPress: (){
-          if(widget.respuesta==false){
- widget.mostrarOpcionesMensaje=true;
+        onLongPress: () {
+          if (widget.respuesta == false) {
+            widget.mostrarOpcionesMensaje = true;
           }
-         
-          setState((){
 
-          });
+          setState(() {});
         },
         child: Padding(
           padding:
@@ -818,11 +658,15 @@ class _MensajesState extends State<Mensajes> {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-       
-                      widget.mostrarOpcionesMensaje? opcionesMensaje():Container(height: 0,width: 0,),
+              widget.mostrarOpcionesMensaje
+                  ? opcionesMensaje()
+                  : Container(
+                      height: 0,
+                      width: 0,
+                    ),
               Container(
                   decoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: Colors.deepPurple,
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(15),
                           topRight: Radius.circular(15),
@@ -834,11 +678,16 @@ class _MensajesState extends State<Mensajes> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
+                        widget.respuesta
+                            ? widget.widgetRespuesta
+                            : Container(
+                                width: 0,
+                                height: 0,
+                              ),
                         Container(
                           child: Text(
                             widget.mensaje,
-                            style: TextStyle(fontSize: ScreenUtil().setSp(40)),
+                            style: GoogleFonts.lato(color: Colors.white),
                           ),
                         ),
                       ],
@@ -850,11 +699,13 @@ class _MensajesState extends State<Mensajes> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                      child: Text(widget.f.format(widget.horaMensaje),
-                          style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                    ),
+                        child: Text(
+                      widget.horaMensaje,
+                      style: GoogleFonts.lato(color: Colors.white),
+                    )),
                     widget.mensajeLeidoRemitente
-                        ? Text("Leido",style: GoogleFonts.lato(color: Colors.white),)
+                        ? Icon(Icons.check_circle,
+                            color: Colors.deepPurple[200])
                         : Container()
                   ],
                 ),
@@ -867,268 +718,92 @@ class _MensajesState extends State<Mensajes> {
   }
 
   Padding cajaRespuestaMensajes() {
-
- Mensajes mensajeRespuestaAudio;
-    if(widget.respuesta&&widget.respuestaMensaje["tipoMensaje"]=="Audio"){
-     
-      for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++ ){
-        if(Conversacion.conversaciones.listaDeConversaciones[z].idMensajes==widget.idMensaje){
-          for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes.length;i++){
-            if(widget.respuestaMensaje["idMensaje"]==Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i].identificadorUnicoMensaje){
-              mensajeRespuestaAudio=Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
-
+    Mensajes mensajeRespuestaAudio;
+    if (widget.respuesta && widget.respuestaMensaje["tipoMensaje"] == "Audio") {
+      for (int z = 0;
+          z < Conversacion.conversaciones.listaDeConversaciones.length;
+          z++) {
+        if (Conversacion.conversaciones.listaDeConversaciones[z].idMensajes ==
+            widget.idMensaje) {
+          for (int i = 0;
+              i <
+                  Conversacion.conversaciones.listaDeConversaciones[z]
+                      .ventanaChat.listadeMensajes.length;
+              i++) {
+            if (widget.respuestaMensaje["idMensaje"] ==
+                Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat
+                    .listadeMensajes[i].identificadorUnicoMensaje) {
+              mensajeRespuestaAudio = Conversacion.conversaciones
+                  .listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
             }
           }
         }
       }
     }
     return Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: Container(
-                                 decoration: BoxDecoration(
-                    color:widget.idEmisor==Usuario.esteUsuario.idUsuario? Colors.green:Colors.blue,
-                    borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                          bottomLeft: Radius.circular(15))),
-                          child:Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                 widget.respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(PantallaConversacion.nombreExponer),
-                         
-                               widget.respuestaMensaje["tipoMensaje"]=="Texto"? Text(widget.respuestaMensaje["mensaje"]):  widget.respuestaMensaje["tipoMensaje"]=="Imagen"? Container(
-                                      decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(widget.respuestaMensaje["mensaje"],
-                    scale: 1,
-               )),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.transparent,
-                  ),
-                                 height: 500.w,width: 500.w,) : widget.respuestaMensaje["tipoMensaje"]=="Gif"?
-                                 Container(
-                                      decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(widget.respuestaMensaje["mensaje"],
-                    scale: 1,
-                      headers: {'accept': 'image/*'})
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.transparent,
-                  ),
-                                 height: 700.w,width: 700.w,) : Container(
-                    decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(3),
-                            topRight: Radius.circular(3),
-                            bottomLeft: Radius.circular(3))),
-                    child: Row(
-                      children: <Widget>[
-                        Flexible(
-                          fit: FlexFit.tight,
-                          flex: 3,
-                          child: Container(
-                            child: Center(
-                              child: FlatButton(
-                                onPressed: () {
-                                  mensajeRespuestaAudio.reproducirAudio();
-                                },
-                                child: Center(
-                                    child: Icon(
-                                  Icons.play_arrow,
-                                  size: ScreenUtil().setSp(100),
-                                )),
-                              ),
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Container(
+          decoration: BoxDecoration(
+              color: widget.idEmisor == Usuario.esteUsuario.idUsuario
+                  ? Colors.green
+                  : Colors.blue,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                  bottomLeft: Radius.circular(15))),
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.respuestaMensaje["idEmisorMensaje"] ==
+                        Usuario.esteUsuario.idUsuario
+                    ? Text("Yo")
+                    : Text(PantallaConversacion.nombreExponer),
+                widget.respuestaMensaje["tipoMensaje"] == "Texto"
+                    ? Text(widget.respuestaMensaje["mensaje"])
+                    : widget.respuestaMensaje["tipoMensaje"] == "Imagen"
+                        ? Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(
+                                    widget.respuestaMensaje["mensaje"],
+                                    scale: 1,
+                                  )),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: Colors.transparent,
                             ),
-                          ),
-                        ),
-                        Flexible(
-                          fit: FlexFit.tight,
-                          flex: 11,
-                          child: Container(
-                            child: Stack(alignment: Alignment.center, children: <
-                                Widget>[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15.0, right: 15),
-                                child: LinearPercentIndicator(
-                                  lineHeight: ScreenUtil().setHeight(70),
-                                  percent: mensajeRespuestaAudio.posicion,
+                            height: 500.w,
+                            width: 500.w,
+                          )
+                        : widget.respuestaMensaje["tipoMensaje"] == "Gif"
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(
+                                          widget.respuestaMensaje["mensaje"],
+                                          scale: 1,
+                                          headers: {'accept': 'image/*'})),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  color: Colors.transparent,
                                 ),
-                              ),
-                              SliderTheme(
-                                data: SliderThemeData(
-                                  thumbColor: Colors.transparent,
-                                  activeTickMarkColor: Colors.transparent,
-                                  activeTrackColor: Colors.transparent,
-                                  disabledActiveTickMarkColor: Colors.transparent,
-                                  disabledActiveTrackColor: Colors.transparent,
-                                  disabledInactiveTickMarkColor:
-                                      Colors.transparent,
-                                  disabledInactiveTrackColor: Colors.transparent,
-                                  disabledThumbColor: Colors.transparent,
-                                  inactiveTickMarkColor: Colors.transparent,
-                                  inactiveTrackColor: Colors.transparent,
-                                  overlappingShapeStrokeColor: Colors.transparent,
-                                  overlayColor: Colors.transparent,
-                                  valueIndicatorColor: Colors.transparent,
-                                ),
-                                child: Slider(
-                                  value: mensajeRespuestaAudio.posicion,
-                                  max: mensajeRespuestaAudio.duracionMensaje.toDouble(),
-                                  min: 0,
-                                  onChanged: (val) {
-                                    mensajeRespuestaAudio.posicionAudio(val);
-                                  },
-                                ),
-                              ),
-                            ]),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-      
-                              ],
-                            ),
-                          )),
-                      );
-  }
-
-  Align mensajeAudioUsuario() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: GestureDetector(
-        onLongPress: (){
-          if(widget.respuesta==false){
-            widget.mostrarOpcionesMensaje=true;
-            setState((){});
-          }
-        },
-        child: Padding(
-          padding:
-              const EdgeInsets.only(right: 10, left: 50, bottom: 20, top: 20),
-          child: Container(
-            height: ScreenUtil().setHeight(500),
-            width: ScreenUtil().setWidth(900),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-               
-                children: <Widget>[
-                   widget.mostrarOpcionesMensaje==true?opcionesMensaje():Container(height:0,width:0),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(3),
-                            topRight: Radius.circular(3),
-                            bottomLeft: Radius.circular(3))),
-                    child: Column(
-
-                      children: [
-                          widget.respuesta?widget.widgetRespuesta:Container(width:0,height: 0,),
-                        Row(
-                          children: <Widget>[
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 3,
-                              child: Container(
-                                child: Center(
-                                  child: FlatButton(
-                                    onPressed: () {
-                                      widget.reproducirAudio();
-                                    },
-                                    child: Center(
-                                        child: Icon(
-                                      Icons.play_arrow,
-                                      size: ScreenUtil().setSp(100),
-                                    )),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 11,
-                              child: Container(
-                                child: Stack(alignment: Alignment.center, children: <
-                                    Widget>[
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.only(left: 15.0, right: 15),
-                                    child: LinearPercentIndicator(
-                                      lineHeight: ScreenUtil().setHeight(70),
-                                      percent: widget.posicion,
-                                    ),
-                                  ),
-                                  SliderTheme(
-                                    data: SliderThemeData(
-                                      thumbColor: Colors.transparent,
-                                      activeTickMarkColor: Colors.transparent,
-                                      activeTrackColor: Colors.transparent,
-                                      disabledActiveTickMarkColor: Colors.transparent,
-                                      disabledActiveTrackColor: Colors.transparent,
-                                      disabledInactiveTickMarkColor:
-                                          Colors.transparent,
-                                      disabledInactiveTrackColor: Colors.transparent,
-                                      disabledThumbColor: Colors.transparent,
-                                      inactiveTickMarkColor: Colors.transparent,
-                                      inactiveTrackColor: Colors.transparent,
-                                      overlappingShapeStrokeColor: Colors.transparent,
-                                      overlayColor: Colors.transparent,
-                                      valueIndicatorColor: Colors.transparent,
-                                    ),
-                                    child: Slider(
-                                      value: widget.posicion,
-                                      max: widget.duracionMensaje.toDouble(),
-                                      min: 0,
-                                      onChanged: (val) {
-                                        widget.posicionAudio(val);
-                                      },
-                                    ),
-                                  ),
-                                ]),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          child: Text(widget.f.format(widget.horaMensaje),
-                              style: TextStyle(fontSize: ScreenUtil().setSp(35))),
-                        ),
-                        widget.mensajeLeidoRemitente
-                            ? Icon(Icons.check_circle,
-                                color: Colors.white, size: 50.sp)
+                                height: 700.w,
+                                width: 700.w,
+                              )
                             : Container()
-                      ],
-                    ),
-                  )
-                ],
-              ),
+              ],
             ),
-          ),
-        ),
-      ),
+          )),
     );
   }
 }
 
 class DialogoGrabacion extends StatefulWidget {
- final Function pararGrabacion;
+  final Function pararGrabacion;
   DialogoGrabacion({@required this.pararGrabacion});
   @override
   _DialogoGrabacionState createState() => _DialogoGrabacionState();
@@ -1169,7 +844,6 @@ class _DialogoGrabacionState extends State<DialogoGrabacion>
       iniciarContador();
     }
 
-   
     mostradorCronometro =
         cronometro.elapsed.inMinutes.toString().padLeft(2, "0") +
             ":" +
@@ -1359,18 +1033,51 @@ class VisorImagenesPerfiles extends StatelessWidget {
   VisorImagenesPerfiles({@required this.imagen});
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.white,
-        child: LayoutBuilder(builder: (
-          BuildContext context,
-          BoxConstraints limites,
-        ) {
-          return Container(
-            height: limites.biggest.height,
-            width: limites.biggest.width,
-            color: Colors.black,
-            child: Image.network(imagen),
-          );
-        }));
+    return Material(
+      child: SafeArea(
+        child: Container(
+            color: Colors.white,
+            child: LayoutBuilder(builder: (
+              BuildContext context,
+              BoxConstraints limites,
+            ) {
+              return Stack(
+                children: [
+                  InteractiveViewer(
+                    child: Container(
+                      height: limites.biggest.height,
+                      width: limites.biggest.width,
+                      color: Colors.black,
+                      child: Image.network(imagen),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                          decoration: BoxDecoration(
+                            gradient: RadialGradient(
+                                focalRadius: 50.w,
+                                radius: 2.w,
+                                colors: [
+                                  Colors.deepPurple,
+                                  Colors.transparent
+                                ]),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                              icon: Icon(
+                                Icons.arrow_back_ios_outlined,
+                                color: Colors.white,
+                              ),
+                              onPressed: () => Navigator.pop(context))),
+                    ),
+                  ),
+                ],
+              );
+            })),
+      ),
+    );
   }
 }

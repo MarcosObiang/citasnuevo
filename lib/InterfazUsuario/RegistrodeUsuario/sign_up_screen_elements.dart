@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/TiempoAplicacion.dart';
 import 'package:citasnuevo/InterfazUsuario/Ajustes/EditarUsuario.dart';
 import 'package:citasnuevo/PrimeraPantalla.dart';
 
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:ntp/ntp.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
@@ -224,9 +226,10 @@ class BotonNacimientoState extends State<BotonNacimiento> {
                 await DatePicker.showSimpleDatePicker(
               context,
               reverse: true,
-              initialDate: PantallaDeInicio.fechaActual
+              initialDate: TiempoAplicacion
+                  .tiempoAplicacion.marcaTiempoAplicacion
                   .subtract(Duration(days: 365 * 18)),
-              firstDate: PantallaDeInicio.fechaActual
+              firstDate: TiempoAplicacion.tiempoAplicacion.marcaTiempoAplicacion
                   .subtract(Duration(days: 365 * 90)),
               dateFormat: "dd-MMMM-yyyy",
               locale: DateTimePickerLocale.en_us,
@@ -345,7 +348,7 @@ class CampoSexoState extends State<CampoSexo> {
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.black),
                       color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                      borderRadius: BorderRadius.all(Radius.circular(15))),
                   child: Row(children: [
                     Flexible(
                       fit: FlexFit.tight,
@@ -357,7 +360,7 @@ class CampoSexoState extends State<CampoSexo> {
                         child: Container(
                             decoration: BoxDecoration(
                                 color: !Usuario.esteUsuario.getSexoMujer
-                                    ? Colors.deepPurple
+                                    ? Colors.green[900]
                                     : Colors.white,
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(10),
@@ -382,7 +385,7 @@ class CampoSexoState extends State<CampoSexo> {
                         child: Container(
                             decoration: BoxDecoration(
                                 color: Usuario.esteUsuario.getSexoMujer
-                                    ? Colors.deepPurple
+                                    ? Colors.green[900]
                                     : Colors.white,
                                 borderRadius: BorderRadius.only(
                                     topRight: Radius.circular(10),
@@ -464,7 +467,7 @@ class CampoPreferenciaSexualState extends State<CampoPreferenciaSexual> {
                           decoration: BoxDecoration(
                               color:
                                   Usuario.esteUsuario.getPreferenciaSexual == 0
-                                      ? Colors.deepPurple
+                                      ? Colors.green[900]
                                       : Colors.white,
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(10),
@@ -491,7 +494,7 @@ class CampoPreferenciaSexualState extends State<CampoPreferenciaSexual> {
                       child: Container(
                           decoration: BoxDecoration(
                             color: Usuario.esteUsuario.getPreferenciaSexual == 1
-                                ? Colors.deepPurple
+                                ? Colors.green[900]
                                 : Colors.white,
                           ),
                           child: Center(
@@ -517,7 +520,7 @@ class CampoPreferenciaSexualState extends State<CampoPreferenciaSexual> {
                           decoration: BoxDecoration(
                               color:
                                   Usuario.esteUsuario.getPreferenciaSexual == 2
-                                      ? Colors.deepPurple
+                                      ? Colors.green[900]
                                       : Colors.white,
                               borderRadius: BorderRadius.only(
                                   topRight: Radius.circular(10),
@@ -629,7 +632,7 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
               child: SafeArea(
                 child: Scaffold(
                   resizeToAvoidBottomInset: true,
-                  resizeToAvoidBottomPadding: true,
+            
                   body: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Column(

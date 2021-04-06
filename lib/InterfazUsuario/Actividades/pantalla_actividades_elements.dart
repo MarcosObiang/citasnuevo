@@ -10,15 +10,20 @@ import 'package:citasnuevo/DatosAplicacion/ControladorLikes.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
 import 'package:citasnuevo/DatosAplicacion/ControladorVerificacion.dart';
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import "package:citasnuevo/Inte../../DatosAplicacion/ControladorConversacion.dart";
 import 'package:citasnuevo/InterfazUsuario/Actividades/TarjetaPerfiles.dart';
+import 'package:citasnuevo/InterfazUsuario/Ajustes/AjustesHotty.dart';
+import 'package:citasnuevo/InterfazUsuario/Ajustes/PantallaAjustes.dart';
 import "package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart";
 import 'package:citasnuevo/InterfazUsuario/Valoraciones/ListaValoraciones.dart';
+import 'package:citasnuevo/base_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:ntp/ntp.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -50,7 +55,7 @@ import 'package:swipe_stack/swipe_stack.dart';
 import 'Pantalla_Actividades.dart';
 
 // ignore: must_be_immutable
-class PerfilesGenteCitas extends StatefulWidget {
+class PerfilesGenteCitas extends StatefulWidget  {
   List<List<Widget>> perfiles = new List();
   static int posicion;
 
@@ -76,16 +81,7 @@ class PerfilesGenteCitas extends StatefulWidget {
   }
 }
 
-class ControlarLista {
-  Function noTeGusta;
-  Function teGusta;
-  static ControlarLista controladorLista = ControlarLista();
-
-  ControlarLista.instancia({@required this.noTeGusta, @required this.teGusta});
-  ControlarLista();
-}
-
-class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
+class PerfilesGenteCitasState extends State<PerfilesGenteCitas> with AutomaticKeepAliveClientMixin {
   static ItemScrollController mover = new ItemScrollController();
   static SwiperController controladorSwipe = new SwiperController();
 
@@ -99,25 +95,9 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
   int devolverIndices = 0;
   bool leGusta = false;
   double valorSlider = 5;
-  int obtenerIndice(String datos) {
-    print("buscando indice");
-    bool datosCoinciden = false;
-    for (int i = 0; i < Perfiles.perfilesCitas.listaPerfiles.length; i++) {
-      if (datos == Perfiles.perfilesCitas.listaPerfiles[i].idUsuario &&
-          widget.cambiarIndice) {
-        datosCoinciden = true;
-        widget.cambiarIndice = false;
-        return i;
-      }
-      if ((!datosCoinciden) &&
-          (i == Perfiles.perfilesCitas.listaPerfiles.length - 1)) {
-        widget.cambiarIndice = false;
-        return -1;
-      }
-    }
-  }
-
+  
   @override
+  // ignore: must_call_super
   Widget build(BuildContext context) {
     return Container(
       height: widget.limites.biggest.height,
@@ -125,162 +105,249 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
       decoration: BoxDecoration(),
       child: Stack(
         children: <Widget>[
-          LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints box) {
-              PerfilesGenteCitas.limitesPrimeraFoto = box;
-              PerfilesGenteCitas.limitesParaCreador = box;
-              ImagenesCarrete.limitesCuadro = box;
-              return Container(
-                color: Colors.white,
-                height: box.biggest.height,
-                width: box.biggest.width,
-                child: GestureDetector(
-                  onHorizontalDragStart: (valor) {},
-                  onHorizontalDragUpdate: (valor) {},
-                  onHorizontalDragCancel: () {},
-                  onHorizontalDragDown: (valor) {},
-                  onHorizontalDragEnd: (valor) {},
-                  onLongPress: () {},
-                  child: Swiper(
-                    loop: false,
-                    physics: NeverScrollableScrollPhysics(),
-                    layout: SwiperLayout.STACK,
-                    itemWidth: box.biggest.width,
-                    curve: Curves.easeInOut,
-                    onIndexChanged: (index) {
-                      PerfilesGenteCitas.indicePerfil = index;
-                      if (Perfiles.perfilesCitas.listaPerfiles.length >
-                          PerfilesGenteCitas.indicePerfil + 1) {
-                        PerfilesGenteCitas.valorPerfilPasado = Perfiles
-                            .perfilesCitas
-                            .listaPerfiles[PerfilesGenteCitas.indicePerfil]
-                            .valoracion;
-                        PerfilesGenteCitas.valorPerfilPresente = Perfiles
-                            .perfilesCitas
-                            .listaPerfiles[PerfilesGenteCitas.indicePerfil + 1]
-                            .valoracion;
-                        Perfiles.perfilesCitas.notifyListeners();
-                      }
-                      setState(() {});
+          Perfiles.perfilesCitas.estadoLista == EstadoListaPerfiles.listaCargada
+              ? LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints box) {
+                    PerfilesGenteCitas.limitesPrimeraFoto = box;
+                    PerfilesGenteCitas.limitesParaCreador = box;
+                    ImagenesCarrete.limitesCuadro = box;
+                    return Container(
+                      color: Colors.white,
+                      height: box.biggest.height,
+                      width: box.biggest.width,
+                      child: GestureDetector(
+                        onHorizontalDragStart: (valor) {},
+                        onHorizontalDragUpdate: (valor) {},
+                        onHorizontalDragCancel: () {},
+                        onHorizontalDragDown: (valor) {},
+                        onHorizontalDragEnd: (valor) {},
+                        onLongPress: () {},
+                        child: Swiper(
+                          loop: false,
+                          physics: NeverScrollableScrollPhysics(),
+                          layout: SwiperLayout.STACK,
+                          itemWidth: box.biggest.width,
+                          curve: Curves.easeInOut,
+                          onIndexChanged: (index) {
+                            if (Perfiles.perfilesCitas.listaPerfiles != null) {
+                              PerfilesGenteCitas.indicePerfil = index;
+                              if (Perfiles.perfilesCitas.listaPerfiles.length >
+                                  PerfilesGenteCitas.indicePerfil + 1) {
+                                PerfilesGenteCitas.valorPerfilPasado = Perfiles
+                                    .perfilesCitas
+                                    .listaPerfiles[
+                                        PerfilesGenteCitas.indicePerfil]
+                                    .valoracion;
+                                PerfilesGenteCitas.valorPerfilPresente =
+                                    Perfiles
+                                        .perfilesCitas
+                                        .listaPerfiles[
+                                            PerfilesGenteCitas.indicePerfil + 1]
+                                        .valoracion;
+                                Perfiles.perfilesCitas.notifyListeners();
+                              }
+                            }
 
-                      widget.cambiarIndice = false;
-                    },
-                    controller: controladorSwipe,
-                    itemCount: Perfiles.perfilesCitas.listaPerfiles.length,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (BuildContext context, int indice) {
-                      return RepaintBoundary(
-                        child: Container(
-                          height: box.biggest.height,
-                          width: box.biggest.width,
-                          color: Colors.white,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: <Widget>[
-                              Stack(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Perfiles.perfilesCitas.listaPerfiles !=
-                                              null
-                                          ? ListView(
-                                              padding: EdgeInsets.all(0),
-                                              children: Perfiles
-                                                  .perfilesCitas
-                                                  .listaPerfiles[indice]
-                                                  .carrete,
-                                            )
-                                          : Center(
-                                              child: Text(
-                                              "Esto esta algo vacio",
-                                              style: GoogleFonts.lato(
-                                                  color: Colors.white,
-                                                  fontSize: 70.sp),
-                                            )),
-                                    ],
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: Container(
-                                      height: kBottomNavigationBarHeight,
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
-                                            colors: [
-                                              Colors.black,
-                                              Colors.transparent
-                                            ]),
-                                      ),
+                                 if(this.mounted){
+                             setState(() {});
+
+                        }
+                 
+                         
+
+                            widget.cambiarIndice = false;
+                          },
+                          controller: controladorSwipe,
+                          itemCount:
+                              Perfiles.perfilesCitas.listaPerfiles.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (BuildContext context, int indice) {
+                            PerfilesGenteCitas.indicePerfil=indice;
+                            return RepaintBoundary(
+                              child: Container(
+                                height: box.biggest.height,
+                                width: box.biggest.width,
+                                color: Colors.white,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: <Widget>[
+                                    Stack(
+                                      children: [
+                                        ListView(
+                                          padding: EdgeInsets.all(0),
+                                          children: Perfiles.perfilesCitas
+                                              .listaPerfiles[indice].carrete,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Container(
+                                            height: kBottomNavigationBarHeight,
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                  begin: Alignment.bottomCenter,
+                                                  end: Alignment.topCenter,
+                                                  colors: [
+                                                    Colors.black,
+                                                    Colors.transparent
+                                                  ]),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    leGusta
+                                        ? pantallaGusta(box, indice)
+                                        : Container(),
+                                  ],
+                                ),
                               ),
-                              leGusta
-                                  ? pantallaGusta(box, indice)
-                                  : Container(),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : Perfiles.perfilesCitas.estadoLista ==
+                      EstadoListaPerfiles.listaVacia
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:20,right:80.0),
+                        child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                                  "Vaya algo ha ido mal.....",
+                                  style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                    fontSize: 70.sp
+                                  ),
+                                ),
+                                Divider(height:100.h),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                
+                                "Upps no hay perfiles que coincidan con tu busqueda, prueba a modificar los filtros",textAlign: TextAlign.left,
+                                style: GoogleFonts.lato(
+                                    color: Colors.white, ),
+                              ),
+                              RaisedButton(
+                                color: Colors.deepPurple[900],
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Ajustes()));
+                                },
+                                child: Text(
+                                  "Cambiar filtros",
+                                  style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
                             ],
                           ),
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Puede que en tu zona no hayan muchos usuarios de Hotty, comparte la aplicacion con tus amigos y gana 2500 creditos por cada amigo que invites",
+                                style: GoogleFonts.lato(
+                                    color: Colors.white, ),
+                              ),
+                              RaisedButton(
+                                color: Colors.deepPurple[900],
+                                onPressed: () {
+                                  Navigator.push(context,CupertinoPageRoute(builder: (context)=>PantallaCompartir()));
+                                },
+                                child: Text(
+                                  "Invitar a amigos",
+                                  style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                    ),
+                      ))
+                  : Perfiles.perfilesCitas.estadoLista ==
+                          EstadoListaPerfiles.errorCargarLista
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(50.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                "Ha habido un error al obtener a los usuarios",
+                                style: GoogleFonts.lato(
+                                    color: Colors.white, fontSize: 70.sp),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
-          deslizadorCompuesto(),
-          !Citas.estaConectado
-              ? Container(
-                  color: Colors.purple,
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Icon(
-                              LineAwesomeIcons.broadcast_tower,
-                              size: ScreenUtil().setSp(500),
+                        RaisedButton(
+                            color:Colors.deepPurple[900],
+                            child: Text("Intentar de nuevo",style: GoogleFonts.lato(color:Colors.white)),onPressed: ()async{
+                               ControladorAjustes.instancia.obtenerLocalizacion().then(
+                 
+                (value) async => ControladorAjustes.instancia.cargaPerfiles());
+                Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.cargandoLista;
+               setState(() {
+                                
+                              });
+                        },)
+                              ],
                             ),
-                            Positioned(
-                                right: ScreenUtil().setWidth(300),
-                                child: Icon(
-                                  Icons.cancel,
-                                  size: ScreenUtil().setSp(200),
-                                  color: Colors.red,
-                                ))
-                          ],
+                          ))
+                      : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 100.h,
+                                width: 100.h,
+                                child: LoadingIndicator(indicatorType: Indicator.ballScaleMultiple, color: Colors.white,)),
+                              Text(
+                              "Por favor, espere",
+                              style: GoogleFonts.lato(
+                                  color: Colors.white, fontSize: 70.sp),
                         ),
-                        Divider(height: ScreenUtil().setHeight(100)),
-                        Text(
-                          "No tiene conexion",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: ScreenUtil().setSp(60)),
-                        )
-                      ],
+                            ],
+                          )),
+          Perfiles.perfilesCitas.estadoLista == EstadoListaPerfiles.listaCargada
+              ? deslizadorCompuesto()
+              : Container(
+                  height: 0,
+                  width: 0,
+                ),
+          EstadoConexionInternet.estadoConexion.conexion !=
+                  EstadoConexion.conectado
+              ? Container(
+                  color: Color.fromRGBO(20, 20, 20, 100),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            "Espere mientras se intenta reestablecer la conexion con el servidor",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: ScreenUtil().setSp(60)),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 )
               : Container(),
-          Perfiles.perfilesCitas.listaPerfiles == null
-              ? Center(
-                  child: Text(
-                  "Esto esta algo vacio",
-                  style: GoogleFonts.lato(color: Colors.white, fontSize: 70.sp),
-                ))
-              : Perfiles.perfilesCitas.listaPerfiles.isEmpty
-                  ? Center(
-                      child: Text(
-                      "Esto esta algo vacio",
-                      style: GoogleFonts.lato(
-                          color: Colors.white, fontSize: 70.sp),
-                    ))
-                  : Container(),
-       
-        
           botonesLateralesCitas(context),
         ],
       ),
@@ -294,7 +361,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
         height: 150.w,
         width: 150.w,
         decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
           color: Color.fromRGBO(36, 28, 41, 100),
         ),
         child: Center(child: panelDenunciasPerfiles(context)),
@@ -311,159 +378,15 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
           height: 150.w,
           width: 150.w,
           decoration: BoxDecoration(
-       borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
             color: Color.fromRGBO(36, 28, 41, 100),
           ),
-          child: panelRecompensas(context),
+          child: BotonAnimadoRecompensas(
+            recompensaPorReferencia: recompensaPorReferencia,
+            recompensaDiaria: recompensaDiaria,
+            recompensaPorVerificacion: recompensaPorVerificacion,
+          ),
         ),
-      ),
-    );
-  }
-
-  
-
-  GestureDetector panelRecompensas(BuildContext context) {
-    return GestureDetector(
-      onTap: () => showDialog(
-          context: context,
-          builder: (context) {
-
-    return StatefulBuilder(builder: (BuildContext context,setState){
-      return ChangeNotifierProvider.value(
-        value: Usuario.esteUsuario,
-
-
-        child: Consumer<Usuario>(
-          builder: (context, myType, child) {
-            return   Center(
-                child: Container(
-                  height: ScreenUtil.screenHeight,
-                  width: ScreenUtil.screenWidth,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
-                  ),
-                  child: Material(
-                    color: Color.fromRGBO(20, 20, 20, 50),
-                    child: Column(children: [
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 2,
-                        child: Container(
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text("Recompensas",
-                                    style: GoogleFonts.lato(
-                                        color: Colors.white70,
-                                        fontSize: ScreenUtil().setSp(75),
-                                        fontWeight: FontWeight.bold)),
-                                Icon(LineAwesomeIcons.coins,
-                                    color: Colors.white70, size: 120.sp)
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        fit: FlexFit.tight,
-                        flex: 12,
-                        child: Container(
-                            child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: LayoutBuilder(
-                            builder:
-                                (BuildContext context, BoxConstraints limites) {
-                              return Container(
-                                width: limites.biggest.width,
-                                height: limites.biggest.height,
-                                child: ListView(children: [
-                                  Usuario.esteUsuario.tiempoEstimadoRecompensa !=
-                                          0
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child:
-                                        
-
-
-                                              recompensaDiaria(limites, context),
-                                        )
-                                      : Container(
-                                          height: 0,
-                                          width: 0,
-                                        ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child:
-                                        recompensaPorReferencia(limites, context),
-                                  ),
-                                  Usuario.esteUsuario.verificado ==
-                                              "verificado" ||
-                                          Usuario.esteUsuario.verificado ==
-                                              "enProceso"
-                                      ? Container(
-                                          height: 0,
-                                          width: 0,
-                                        )
-                                      : Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: recompensaPorVerificacion(
-                                              limites, context),
-                                        )
-                                ]),
-                              );
-                            },
-                          ),
-                        )),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        fit: FlexFit.loose,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.deepPurple,
-                              borderRadius: BorderRadius.all(Radius.circular(1))),
-                          width: ScreenUtil.screenWidth,
-                          child: FlatButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.arrow_back,color:Colors.white),
-                                    Text(
-                                      "Atras",
-                                      textAlign: TextAlign.start,
-                                      style: GoogleFonts.lato(fontSize: 50.sp,color:Colors.white),
-                                    ),
-                                  ],
-                                )),
-                          ),
-                        ),
-                      )
-                    ]),
-                  ),
-                ),
-              ) ;
-          },
-        )
-        
-        
-       
-      );
-    },);
-
-
-            
-          }),
-      child: Icon(
-        LineAwesomeIcons.coins,
-        color: Colors.white,
-        size: 80.sp,
       ),
     );
   }
@@ -703,7 +626,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Stack(
         children: [
-          
           Container(
             height: 500.h,
             child: Padding(
@@ -711,38 +633,50 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Text(
-                        "500 Creditos gratis",
-                        textAlign: TextAlign.start,
-                        style:
-                            GoogleFonts.lato(fontSize: 70.sp, color: Colors.white60),
-                      ),
-                      Icon(
-                        LineAwesomeIcons.money_bill,
-                        size: 120.sp,
-                        color: Colors.white60,
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Si tienes menos de 175 creditos, entonces puedes reponer 500 creditos gratuitos para gastar en la aplicación cada día.",
-                      textAlign: TextAlign.start,
-                      style: GoogleFonts.lato(color: Colors.white, fontSize: 40.sp),
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text(
+                          "500 Creditos gratis",
+                          textAlign: TextAlign.start,
+                          style: GoogleFonts.lato(
+                              fontSize: 65.sp, color: Colors.white60),
+                        ),
+                        Icon(
+                          LineAwesomeIcons.money_bill,
+                          size: 120.sp,
+                          color: Colors.white60,
+                        )
+                      ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  Flexible(
+                    flex: 6,
+                    fit: FlexFit.tight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Si tienes menos de 175 creditos, entonces puedes reponer 500 creditos gratuitos para gastar en la aplicación cada día.",
+                        textAlign: TextAlign.start,
+                        style: GoogleFonts.lato(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 3,
+                    fit: FlexFit.tight,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Usuario.esteUsuario.segundosRestantesRecompensa > 0
-                            ? Colors.grey
-                            : Colors.green,
+                        color:
+                            Usuario.esteUsuario.segundosRestantesRecompensa > 0
+                                ? Colors.grey
+                                : Colors.green,
                       ),
                       width: limites.biggest.width,
                       child: FlatButton(
@@ -752,20 +686,23 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                           },
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: Usuario.esteUsuario.segundosRestantesRecompensa > 0
+                            child: Usuario.esteUsuario
+                                        .segundosRestantesRecompensa >
+                                    0
                                 ? Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       Text(
                                         "Tiempo Restante",
                                         textAlign: TextAlign.start,
-                                        style: GoogleFonts.lato(fontSize: 40.sp),
+                                        style: GoogleFonts.lato(),
                                       ),
                                       StreamBuilder<int>(
-                                        stream: Usuario
-                                            .esteUsuario.tiempoHastaRecompensa.stream,
-                                        initialData: Usuario
-                                            .esteUsuario.segundosRestantesRecompensa,
+                                        stream: Usuario.esteUsuario
+                                            .tiempoHastaRecompensa.stream,
+                                        initialData: Usuario.esteUsuario
+                                            .segundosRestantesRecompensa,
                                         builder: (BuildContext context,
                                             AsyncSnapshot<int> dato) {
                                           if (Usuario.esteUsuario
@@ -774,27 +711,27 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
 
                                           return Container(
                                               child: Text(
-                                                  Valoracion.formatoTiempo.format(
-                                                      DateTime(
-                                                          0, 0, 0, 0, 0, dato.data)),
+                                                  Valoracion.formatoTiempo
+                                                      .format(DateTime(0, 0, 0,
+                                                          0, 0, dato.data)),
                                                   style: GoogleFonts.lato(
-                                                      fontSize: 40.sp,
                                                       color: Colors.black)));
                                         },
                                       ),
                                       Icon(
                                         LineAwesomeIcons.clock,
                                         color: Colors.black,
-                                        size: 60.sp,
                                       ),
                                     ],
                                   )
                                 : Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       Text(
                                         "Reclamar recompensa",
-                                        style: GoogleFonts.lato(fontSize: 40.sp),
+                                        style:
+                                            GoogleFonts.lato(fontSize: 40.sp),
                                       ),
                                       Icon(
                                         LineAwesomeIcons.money_bill,
@@ -809,38 +746,46 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
               ),
             ),
           ),
-       ControladorCreditos.instancia.estadoSolicitudCreditos==EstadoSolicitudCreditosGratuitos.solicitando? Container(
-          height: 500.h,
-          width: ScreenUtil.screenWidth,
-     
-         decoration: BoxDecoration(
-            color: Color.fromRGBO(20, 20, 20, 100),
-          border: Border.all(color: Colors.deepPurple),
-          borderRadius: BorderRadius.all(Radius.circular(10))),
-        
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-            color: Colors.deepPurple,
-          border: Border.all(color: Colors.deepPurple),
-          borderRadius: BorderRadius.all(Radius.circular(10))),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text("Procesando....",style:GoogleFonts.lato(color: Colors.white,fontSize:50.sp)),
-                    CircularProgressIndicator()
-                  ],
-                ),
-              ),
-            ),
-          )),
-        ),):Container(height: 0,width: 0,)
-        
+          ControladorCreditos.instancia.estadoSolicitudCreditos ==
+                  EstadoSolicitudCreditosGratuitos.solicitando
+              ? Container(
+                  height: 500.h,
+                  width: ScreenUtil.screenWidth,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(20, 20, 20, 100),
+                      border: Border.all(color: Colors.deepPurple),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                        child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.deepPurple,
+                            border: Border.all(color: Colors.deepPurple),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text("Procesando....",
+                                  style: GoogleFonts.lato(
+                                      color: Colors.white, fontSize: 50.sp)),
+                              CircularProgressIndicator()
+                            ],
+                          ),
+                        ),
+                      ),
+                    )),
+                  ),
+                )
+              : Container(
+                  height: 0,
+                  width: 0,
+                )
         ],
       ),
     );
@@ -897,7 +842,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                   child: Container(
                                     height: 100.h,
                                     decoration: BoxDecoration(
-                                        color: Colors.black,
+                                        color: Colors.deepPurple,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30))),
                                     child: Padding(
@@ -908,8 +853,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text("Perfil falso/SPAM",
-                                              style: TextStyle(
-                                                  fontSize: 40.sp,
+                                              style: GoogleFonts.lato(
                                                   color: Colors.white)),
                                         ],
                                       ),
@@ -944,7 +888,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                   child: Container(
                                     height: 100.h,
                                     decoration: BoxDecoration(
-                                        color: Colors.black,
+                                        color: Colors.deepPurple,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30))),
                                     child: Padding(
@@ -955,8 +899,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text("Menor de edad",
-                                              style: TextStyle(
-                                                  fontSize: 40.sp,
+                                              style: GoogleFonts.lato(
                                                   color: Colors.white)),
                                         ],
                                       ),
@@ -990,7 +933,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                   child: Container(
                                     height: 100.h,
                                     decoration: BoxDecoration(
-                                        color: Colors.black,
+                                        color: Colors.deepPurple,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30))),
                                     child: Padding(
@@ -1001,8 +944,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text("Contenido inapropiado",
-                                              style: TextStyle(
-                                                  fontSize: 40.sp,
+                                              style: GoogleFonts.lato(
                                                   color: Colors.white)),
                                         ],
                                       ),
@@ -1036,7 +978,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                   child: Container(
                                     height: 100.h,
                                     decoration: BoxDecoration(
-                                        color: Colors.black,
+                                        color: Colors.deepPurple,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30))),
                                     child: Padding(
@@ -1047,8 +989,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text("Hace Publicidad",
-                                              style: TextStyle(
-                                                  fontSize: 40.sp,
+                                              style: GoogleFonts.lato(
                                                   color: Colors.white)),
                                         ],
                                       ),
@@ -1082,7 +1023,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                   child: Container(
                                     height: 100.h,
                                     decoration: BoxDecoration(
-                                        color: Colors.black,
+                                        color: Colors.deepPurple,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30))),
                                     child: Padding(
@@ -1093,7 +1034,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text("Otros",
-                                              style: TextStyle(
+                                              style: GoogleFonts.lato(
                                                   fontSize: 40.sp,
                                                   color: Colors.white)),
                                         ],
@@ -1103,16 +1044,40 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                 )),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: IconButton(
-                              color: Colors.red,
-                              icon: Icon(Icons.cancel),
-                              iconSize: 160.sp,
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          )
+                            padding:
+                                const EdgeInsets.only(left: 60.0, right: 60),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20),
+                                  child: Container(
+                                    height: 100.h,
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15.0, right: 15),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Icon(Icons.arrow_back_ios,
+                                              color: Colors.white),
+                                          Text("Atras",
+                                              style: GoogleFonts.lato(
+                                                  fontSize: 40.sp,
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
                         ]),
                     color: Colors.transparent,
                   ),
@@ -1126,10 +1091,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
       ),
     );
   }
-
-
-
-
 
   Align botonesLateralesCitas(BuildContext context) {
     return Align(
@@ -1147,9 +1108,9 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                   height: 150.h,
                   width: 150.w,
                   decoration: BoxDecoration(
-                       gradient:RadialGradient(
-                     focalRadius: 50.h,
-                     colors: [Colors.black,Colors.transparent]),
+                      gradient: RadialGradient(
+                          focalRadius: 50.h,
+                          colors: [Colors.black, Colors.transparent]),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: GestureDetector(
                     onTap: () => Navigator.push(
@@ -1157,7 +1118,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                         MaterialPageRoute(
                             builder: (context) => ListaDeValoraciones())),
                     child: Stack(
-                     
                       children: [
                         Container(
                             decoration: BoxDecoration(
@@ -1167,51 +1127,54 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                             ),
                             child: Center(
                               child: Text(
-                                "${Valoracion.instanciar.mediaUsuario.toStringAsFixed(2)}",
+                                "${Valoracion.instanciar.mediaUsuario != null ? Valoracion.instanciar.mediaUsuario.toStringAsFixed(2) : 0}",
                                 style: GoogleFonts.lato(
                                     fontSize: 45.sp,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold),
                               ),
                             )),
-                    Valoracion.instanciar.listaDeValoraciones.length>0?    Align(
-                          alignment: Alignment.bottomLeft,
-                          child:Valoracion.instanciar.listaDeValoraciones.length<9? Container(
-                          
-                            decoration: BoxDecoration(
-                          shape:BoxShape.circle,
-                              color:Colors.deepPurple
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Text(
-                                "${Valoracion.instanciar.listaDeValoraciones.length}",
-                                style: GoogleFonts.lato(
-                                fontSize: 35.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ):Container(
-                          
-                            decoration: BoxDecoration(
-                            
-                              borderRadius: BorderRadius.all(
-                                 Radius.circular(10)),
-                              color:Colors.deepPurple
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Text(
-                                "${Valoracion.instanciar.listaDeValoraciones.length}",
-                                style: GoogleFonts.lato(
-                                fontSize: 35.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          )
-                        ):Container(height: 0,width:0,)
+                        Valoracion.instanciar.listaDeValoraciones.length > 0
+                            ? Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Valoracion.instanciar.listaDeValoraciones
+                                            .length <
+                                        9
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.deepPurple),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: Text(
+                                            "${Valoracion.instanciar.listaDeValoraciones.length}",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 35.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                            color: Colors.deepPurple),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3.0),
+                                          child: Text(
+                                            "${Valoracion.instanciar.listaDeValoraciones.length}",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 35.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ))
+                            : Container(
+                                height: 0,
+                                width: 0,
+                              )
                       ],
                     ),
                   ),
@@ -1223,9 +1186,9 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                   height: 150.h,
                   width: 150.w,
                   decoration: BoxDecoration(
-                   gradient:RadialGradient(
-                     focalRadius: 50.h,
-                     colors: [Colors.black,Colors.transparent]),
+                      gradient: RadialGradient(
+                          focalRadius: 50.h,
+                          colors: [Colors.black, Colors.transparent]),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: GestureDetector(
                     onTap: () => Navigator.push(
@@ -1234,7 +1197,6 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                             builder: (context) =>
                                 PantallaSolicitudesConversaciones())),
                     child: Stack(
-                   
                       children: [
                         Container(
                           child: Center(
@@ -1245,40 +1207,51 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                             ),
                           ),
                         ),
-                     Solicitudes.instancia.listaSolicitudesConversacion.length>0?   Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Solicitudes.instancia.listaSolicitudesConversacion.length<9? Container(
-                                decoration: BoxDecoration(
-          color: Colors.deepPurple,
-              shape: BoxShape.circle
-                     ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Text(
-                                "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
-                                style: GoogleFonts.lato(
-                                fontSize: 35.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ):Container(
-                                decoration: BoxDecoration(
-          color: Colors.deepPurple,
-                      borderRadius: BorderRadius.all(Radius.circular(10))
-                     ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Text(
-                                "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
-                                style: GoogleFonts.lato(
-                                fontSize: 35.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          )
-                        ):Container(height: 0,width: 0,)
+                        Solicitudes.instancia.listaSolicitudesConversacion
+                                    .length >
+                                0
+                            ? Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Solicitudes
+                                            .instancia
+                                            .listaSolicitudesConversacion
+                                            .length <
+                                        9
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                            color: Colors.deepPurple,
+                                            shape: BoxShape.circle),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Text(
+                                            "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 35.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                            color: Colors.deepPurple,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10))),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3.0),
+                                          child: Text(
+                                            "${Solicitudes.instancia.listaSolicitudesConversacion.length}",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 35.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ))
+                            : Container(
+                                height: 0,
+                                width: 0,
+                              )
                       ],
                     ),
                   ),
@@ -1286,13 +1259,13 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                 Container(
                   height: 50.h,
                 ),
-                     Container(
+                Container(
                   height: 150.h,
                   width: 150.w,
                   decoration: BoxDecoration(
-          gradient:RadialGradient(colors: [Colors.black,Colors.transparent]),
-                      borderRadius: BorderRadius.all(Radius.circular(10))
-                     ),
+                      gradient: RadialGradient(
+                          colors: [Colors.black, Colors.transparent]),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: GestureDetector(
                     onTap: () => Navigator.push(
                         context,
@@ -1305,14 +1278,20 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                           flex: 4,
                           fit: FlexFit.tight,
                           child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                    topLeft: Radius.circular(10)),
-                              ),
-                              child: panelRecompensas(context),),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  topLeft: Radius.circular(10)),
+                            ),
+                            child: RepaintBoundary(
+                                child: BotonAnimadoRecompensas(
+                              recompensaPorReferencia: recompensaPorReferencia,
+                              recompensaDiaria: recompensaDiaria,
+                              recompensaPorVerificacion:
+                                  recompensaPorVerificacion,
+                            )),
+                          ),
                         ),
-             
                       ],
                     ),
                   ),
@@ -1325,7 +1304,8 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                   width: 150.w,
                   decoration: BoxDecoration(
                       color: Color.fromRGBO(36, 28, 41, 100),
-                      gradient:RadialGradient(colors: [Colors.black,Colors.transparent]),
+                      gradient: RadialGradient(
+                          colors: [Colors.black, Colors.transparent]),
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: GestureDetector(
                     onTap: () => Navigator.push(
@@ -1340,10 +1320,10 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                           flex: 4,
                           fit: FlexFit.tight,
                           child: Container(
-                            child: Center(child: panelDenunciasPerfiles(context)),
+                            child:
+                                Center(child: panelDenunciasPerfiles(context)),
                           ),
                         ),
-                  
                       ],
                     ),
                   ),
@@ -1408,19 +1388,22 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                               color: Colors.white,
                               size: 50.sp,
                             ),
-                          ! ControladorLocalizacion.instancia.getVisualizarDistanciaEnMillas? Text(
-                              "${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].distancia} Km",
-                              style: GoogleFonts.lato(
-                                  fontSize: 45.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ):Text(
-                              "${((Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].distancia).toInt()*0.62).toStringAsFixed(0)} mi",
-                              style: GoogleFonts.lato(
-                                  fontSize: 45.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            )
+                            !ControladorAjustes
+                                    .instancia.getVisualizarDistanciaEnMillas
+                                ? Text(
+                                    "${Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].distancia} Km",
+                                    style: GoogleFonts.lato(
+                                        fontSize: 45.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  )
+                                : Text(
+                                    "${((Perfiles.perfilesCitas.listaPerfiles[PerfilesGenteCitas.indicePerfil].distancia).toInt() * 0.62).toStringAsFixed(0)} mi",
+                                    style: GoogleFonts.lato(
+                                        fontSize: 45.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  )
                           ],
                         )
                       ]),
@@ -1447,12 +1430,12 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                 color: Color.fromRGBO(36, 28, 41, 100),
                                 blurRadius: 2,
                                 spreadRadius: 2)
-                          ], shape: BoxShape.circle, color: Colors.white),
+                          ], shape: BoxShape.circle, color: Colors.deepPurple),
                           child: Center(
                             child: Icon(
-                              Icons.close,
+                              Icons.close_outlined,
                               size: 90.sp,
-                              color: Colors.red,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -1478,12 +1461,12 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                                 color: Color.fromRGBO(36, 28, 41, 100),
                                 blurRadius: 2,
                                 spreadRadius: 2)
-                          ], shape: BoxShape.circle, color: Colors.white),
+                          ], shape: BoxShape.circle, color: Colors.deepPurple),
                           child: Center(
                             child: Icon(
-                              LineAwesomeIcons.heart_1,
+                              LineAwesomeIcons.heart,
                               size: 90.sp,
-                              color: Colors.green,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -1670,8 +1653,8 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                 borderRadius: BorderRadius.all(Radius.circular(5)),
                 color:
                     Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >=
-                            5.0
-                        ? Color.fromRGBO(27, 196, 35, 100)
+                            4.9
+                        ? Color.fromARGB(90, 196, 51, 255)
                         : Color.fromRGBO(255, 0, 42, 100)),
             height: valor,
             width: limitesPantallaLeGusta.biggest.width,
@@ -1722,7 +1705,8 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
                         ),
                       ),
         Perfiles.perfilesCitas.listaPerfiles[indice].valoracion >= 0
-            ? anilloPuntuacion(limitesPantallaLeGusta, indice)
+            ? RepaintBoundary(
+                child: anilloPuntuacion(limitesPantallaLeGusta, indice))
             : Container(),
       ],
     );
@@ -1803,6 +1787,19 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
     );
   }
 
+void llamarMasPerfiles(int indice){
+  if(Perfiles.perfilesCitas.listaPerfiles.length-indice<6){
+    QueryPerfiles.cerrarConvexionesQuery();
+    print("borrados");
+
+     ControladorAjustes.instancia.obtenerLocalizacion().then(
+                 
+                (value) async => ControladorAjustes.instancia.cargaPerfiles());
+               // Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.cargandoLista;
+
+print("borrados");
+  }
+}
   Padding deslizadorPuntuacion(
     Function soltarLike,
     int indice,
@@ -1823,8 +1820,7 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
               inactiveTrackColor: Colors.transparent,
               disabledThumbColor: Colors.transparent,
               valueIndicatorShape: SliderComponentShape.noOverlay,
-              thumbColor: Colors.blueAccent,
-              
+              thumbColor: Colors.deepPurple,
               thumbShape: RoundSliderThumbShape(
                 enabledThumbRadius: 30,
               ),
@@ -1841,35 +1837,58 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
               leGusta = true;
             },
             onChanged: (valor) {
-              setState(() {
+              if(this.mounted){
+                      setState(() {
                 Perfiles
                     .perfilesCitas
                     .listaPerfiles[PerfilesGenteCitas.indicePerfil]
                     .valoracion = valor;
               });
+
+              }
+        
             },
             onChangeEnd: (valor) {
               Future.delayed(Duration(milliseconds: 250)).then((value) {
-                controladorSwipe.next();
-                if (Perfiles.perfilesCitas.listaPerfiles.length ==
-                    PerfilesGenteCitas.indicePerfil + 1) {
-                  dialogoFinPerfiles(context);
-                  Perfiles.perfilesCitas.notifyListeners();
-                  Perfiles.perfilesCitas
-                      .listaPerfiles[PerfilesGenteCitas.indicePerfil]
-                      .crearDatosValoracion();
-                  print("calificao");
-                }
-                if (Perfiles.perfilesCitas.listaPerfiles.length >
-                    PerfilesGenteCitas.indicePerfil + 1) {
-                  Perfiles.perfilesCitas.notifyListeners();
-                  Perfiles.perfilesCitas
-                      .listaPerfiles[PerfilesGenteCitas.indicePerfil]
-                      .crearDatosValoracion();
-                  print("calificao");
-                }
+                if (EstadoConexionInternet.estadoConexion.conexion ==
+                    EstadoConexion.conectado) {
+                  controladorSwipe.next(animation: true);
+                  llamarMasPerfiles(indice);
 
-                leGusta = false;
+                  if (Perfiles.perfilesCitas.listaPerfiles.length ==
+                      PerfilesGenteCitas.indicePerfil + 1) {
+                    Perfiles.perfilesCitas.estadoLista=EstadoListaPerfiles.listaVacia;
+               setState(() {
+                                
+                              });
+
+                        
+                 
+                    Perfiles.perfilesCitas
+                        .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                        .crearDatosValoracion();
+                  }
+                  if (Perfiles.perfilesCitas.listaPerfiles.length >
+                      PerfilesGenteCitas.indicePerfil + 1) {
+                   
+                    Perfiles.perfilesCitas
+                        .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                        .crearDatosValoracion();
+                  }
+
+                  leGusta = false;
+                } else {
+                  Perfiles
+                      .perfilesCitas
+                      .listaPerfiles[PerfilesGenteCitas.indicePerfil]
+                      .valoracion = 5;
+                     if(this.mounted){
+                             setState(() {});
+
+                        }
+                 
+                  throw Exception("Sin internet");
+                }
               });
             },
             min: 0,
@@ -1879,37 +1898,251 @@ class PerfilesGenteCitasState extends State<PerfilesGenteCitas> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
+class BotonAnimadoRecompensas extends StatefulWidget {
+  final Function recompensaDiaria;
+  final Function recompensaPorReferencia;
+  final Function recompensaPorVerificacion;
+
+  BotonAnimadoRecompensas(
+      {@required this.recompensaDiaria,
+      @required this.recompensaPorReferencia,
+      @required this.recompensaPorVerificacion});
+  @override
+  _BotonAnimadoRecompensasState createState() =>
+      _BotonAnimadoRecompensasState();
+}
+
+class _BotonAnimadoRecompensasState extends State<BotonAnimadoRecompensas>
+    with SingleTickerProviderStateMixin {
+  Animation<Color> animacionColor;
+  AnimationController controladooranimacionColor;
+  double tiempo;
+
+  @override
+  void initState() {
+    controladooranimacionColor = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 500),
+        animationBehavior: AnimationBehavior.normal);
+    animacionColor =
+        ColorTween(begin: Color.fromRGBO(20, 20, 20, 100), end: Colors.purple)
+            .animate(controladooranimacionColor);
+    controladooranimacionColor.forward();
+    controladooranimacionColor.repeat(reverse: true);
+    controladooranimacionColor.addListener(() {
+      if (BaseAplicacion.indicePagina == 0) {
+
+        if(this.mounted){
+              setState(() {});
+
+        }
+    
+      }
+    });
+    super.initState();
+  }
+
+  void dispose() {
+    controladooranimacionColor.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(Usuario.esteUsuario!=null){
+      if(Usuario.esteUsuario.segundosRestantesRecompensa>86400){
+        Usuario.esteUsuario.segundosRestantesRecompensa=86400;
+      }
+      if(Usuario.esteUsuario.segundosRestantesRecompensa!=null&&Usuario.esteUsuario.tiempoEstimadoRecompensa!=null){
+double  diferenciaActualYTiemporestante=    86400  -  (Usuario.esteUsuario.segundosRestantesRecompensa.toDouble());
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   tiempo =
+    diferenciaActualYTiemporestante/
+            86400;
+      }
+    }
+ 
+    return RepaintBoundary(
+      child: GestureDetector(
+        onTap: () => showDialog(
+            context: context,
+            builder: (context) {
+              return StatefulBuilder(
+                builder: (BuildContext context, setState) {
+                  return ChangeNotifierProvider.value(
+                      value: Usuario.esteUsuario,
+                      child: Consumer<Usuario>(
+                        builder: (context, myType, child) {
+                          return Center(
+                            child: Container(
+                              height: ScreenUtil.screenHeight,
+                              width: ScreenUtil.screenWidth,
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(40)),
+                              ),
+                              child: Material(
+                                color: Color.fromRGBO(20, 20, 20, 50),
+                                child: Column(children: [
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    flex: 2,
+                                    child: Container(
+                                      child: Center(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Text("Recompensas",
+                                                style: GoogleFonts.lato(
+                                                    color: Colors.white70,
+                                                    fontSize:
+                                                        ScreenUtil().setSp(75),
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            Icon(LineAwesomeIcons.coins,
+                                                color: Colors.white70,
+                                                size: 120.sp)
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    flex: 12,
+                                    child: Container(
+                                        child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: LayoutBuilder(
+                                        builder: (BuildContext context,
+                                            BoxConstraints limites) {
+                                          return Container(
+                                            width: limites.biggest.width,
+                                            height: limites.biggest.height,
+                                            child: ListView(children: [
+                                              Usuario.esteUsuario
+                                                          .tiempoEstimadoRecompensa !=
+                                                      0
+                                                  ? Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: widget
+                                                          .recompensaDiaria(
+                                                              limites, context),
+                                                    )
+                                                  : Container(
+                                                      height: 0,
+                                                      width: 0,
+                                                    ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: widget
+                                                    .recompensaPorReferencia(
+                                                        limites, context),
+                                              ),
+                                              Usuario.esteUsuario.verificado ==
+                                                          "verificado" ||
+                                                      Usuario.esteUsuario
+                                                              .verificado ==
+                                                          "enProceso"
+                                                  ? Container(
+                                                      height: 0,
+                                                      width: 0,
+                                                    )
+                                                  : Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: widget
+                                                          .recompensaPorVerificacion(
+                                                              limites, context),
+                                                    )
+                                            ]),
+                                          );
+                                        },
+                                      ),
+                                    )),
+                                  ),
+                                  Flexible(
+                                    flex: 1,
+                                    fit: FlexFit.loose,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.deepPurple,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1))),
+                                      width: ScreenUtil.screenWidth,
+                                      child: FlatButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Icon(Icons.arrow_back,
+                                                    color: Colors.white),
+                                                Text(
+                                                  "Atras",
+                                                  textAlign: TextAlign.start,
+                                                  style: GoogleFonts.lato(
+                                                      fontSize: 50.sp,
+                                                      color: Colors.white),
+                                                ),
+                                              ],
+                                            )),
+                                      ),
+                                    ),
+                                  )
+                                ]),
+                              ),
+                            ),
+                          );
+                        },
+                      ));
+                },
+              );
+            }),
+        child: Container(
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color:  Usuario.esteUsuario.tiempoEstimadoRecompensa!=0&&Usuario.esteUsuario.segundosRestantesRecompensa==0
+                  ? animacionColor.value
+                  : Colors.transparent),
+          child: CircularPercentIndicator(
+            circularStrokeCap: CircularStrokeCap.round,
+            percent: Usuario.esteUsuario.segundosRestantesRecompensa > 0
+                ? tiempo
+                : 1,
+            progressColor: Usuario.esteUsuario.segundosRestantesRecompensa == 0
+                ? Colors.transparent
+                : Colors.yellow[600],
+            backgroundColor: Colors.transparent,
+            radius: 120.w,
+            center: Icon(
+              LineAwesomeIcons.coins,
+              color: Colors.white,
+              size: 80.sp,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // ignore: must_be_immutable
 class PantallaDenunciaVisorPerfiles extends StatefulWidget {

@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
+import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/TiempoAplicacion.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/base_app.dart';
 import 'package:flash/flash.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +25,11 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
 import 'Usuario.dart';
+
+class ExcepcionLikes implements Exception {
+  String mensaje;
+  ExcepcionLikes(mesaje);
+}
 
 enum RevelarSolicitudEstado { noRevelada, revelando, revelada }
 
@@ -162,14 +171,11 @@ class SolicitudConversacion with ChangeNotifier {
   void obtenerSolicitudes() async {
     int indice = 0;
 
-    DateTime fechaQueryInternet;
-    await NTP
-        .now()
-        .then((value) => fechaQueryInternet = value)
-        .catchError((onError) => fechaQueryInternet = DateTime.now());
-
-    this.fechaReferenciaSolicitudes = fechaQueryInternet;
-    DateTime fechaQuery = fechaQueryInternet.subtract(Duration(days: 1));
+    this.fechaReferenciaSolicitudes =
+        TiempoAplicacion.tiempoAplicacion.marcaTiempoAplicacion;
+    DateTime fechaQuery = TiempoAplicacion
+        .tiempoAplicacion.marcaTiempoAplicacion
+        .subtract(Duration(days: 1));
     baseDatosRef
         .collection("solicitudes conversaciones")
         .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
@@ -187,30 +193,30 @@ class SolicitudConversacion with ChangeNotifier {
               documento.get("solicitudRevelada") != null &&
               documento.get("calificacion") != null &&
               documento.get("idSolicitudConversacion") != null) {
-                SolicitudConversacion solicitud = new SolicitudConversacion.crear(
-              fechaSolicitud: documento.get("tiemmpo").toDate(),
-              idEmisor: documento.get("idEmisor"),
-              nombreEmisor: documento.get("nombreEmisor"),
-              fechaCaducidadSolicitud: documento.get("caducidad").toDate(),
-              idDestino: documento.get("idDestino"),
-              imagenEmisor: documento.get("imagenEmisor"),
-              solicitudRevelada: documento.get("solicitudRevelada"),
-              calificacion: documento.get("calificacion"),
-              idSolicitudConversacion:
-                  documento.get("idSolicitudConversacion"));
-          // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
-          Solicitudes.instancia.listaSolicitudesConversacion
-              .insert(indice, solicitud);
-              }
-          
+            SolicitudConversacion solicitud = new SolicitudConversacion.crear(
+                fechaSolicitud: documento.get("tiemmpo").toDate(),
+                idEmisor: documento.get("idEmisor"),
+                nombreEmisor: documento.get("nombreEmisor"),
+                fechaCaducidadSolicitud: documento.get("caducidad").toDate(),
+                idDestino: documento.get("idDestino"),
+                imagenEmisor: documento.get("imagenEmisor"),
+                solicitudRevelada: documento.get("solicitudRevelada"),
+                calificacion: documento.get("calificacion"),
+                idSolicitudConversacion:
+                    documento.get("idSolicitudConversacion"));
+            // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
+            Solicitudes.instancia.listaSolicitudesConversacion
+                .insert(indice, solicitud);
+          }
         }
       }
     }).then((value) => escucharSolicitudesConversacion());
   }
 
   void escucharSolicitudesConversacion() async {
-    DateTime fechaQuery =
-        fechaReferenciaSolicitudes.subtract(Duration(days: 1));
+    DateTime fechaQuery = TiempoAplicacion
+        .tiempoAplicacion.marcaTiempoAplicacion
+        .subtract(Duration(days: 1));
     escuchadorSolicitudes = baseDatosRef
         .collection("solicitudes conversaciones")
         .where("tiemmpo", isGreaterThanOrEqualTo: fechaQuery)
@@ -236,108 +242,144 @@ class SolicitudConversacion with ChangeNotifier {
             }
 
             if (coincidencias) {
-              if(event.docChanges[a].doc.get("nombreEmisor")!=null&&event.docChanges[a].doc.get("imagenEmisor")!=null&&event.docChanges[a].doc.get("solicitudRevelada")!=null){
-if (event.docChanges[a].doc.get("nombreEmisor") !=
-                  Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                      .nombreEmisor) {
-                Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                    .nombreEmisor = event.docChanges[a].doc.get("nombreEmisor");
+              if (event.docChanges[a].doc.get("nombreEmisor") != null &&
+                  event.docChanges[a].doc.get("imagenEmisor") != null &&
+                  event.docChanges[a].doc.get("solicitudRevelada") != null &&
+                  event.docChanges[a].doc.get("tiemmpo") != null &&
+                  event.docChanges[a].doc.get("idDestino") != null &&
+                  event.docChanges[a].doc.get("caducidad") != null &&
+                  event.docChanges[a].doc.get("calificacion") != null &&
+                  event.docChanges[a].doc.get("idSolicitudConversacion") !=
+                      null &&
+                  event.docChanges[a].doc.get("idEmisor") != null) {
+                try {
+                  if (event.docChanges[a].doc.get("nombreEmisor") !=
+                      Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                          .nombreEmisor) {
+                    Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                            .nombreEmisor =
+                        event.docChanges[a].doc.get("nombreEmisor");
+                  }
+                  if (event.docs[a].get("imagenEmisor") !=
+                      Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                          .imagenEmisor) {
+                    Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                            .imagenEmisor =
+                        event.docChanges[a].doc.get("imagenEmisor");
+                  }
+                  if (event.docChanges[a].doc.get("solicitudRevelada") !=
+                      Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                          .solicitudRevelada) {
+                    Solicitudes.instancia.listaSolicitudesConversacion[indice]
+                            .setSolicitudRevelada =
+                        event.docChanges[a].doc.get("solicitudRevelada");
+                  }
+                } on Exception {
+                  /// aqui se devuelven los creditos gastados
+                }
+
+                Solicitudes.instancia.notifyListeners();
               }
-              if (event.docs[a].get("imagenEmisor") !=
-                  Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                      .imagenEmisor) {
-                Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                    .imagenEmisor = event.docChanges[a].doc.get("imagenEmisor");
-              }
-              if (event.docChanges[a].doc.get("solicitudRevelada") !=
-                  Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                      .solicitudRevelada) {
-                Solicitudes.instancia.listaSolicitudesConversacion[indice]
-                        .setSolicitudRevelada =
-                    event.docChanges[a].doc.get("solicitudRevelada");
-              }
-              Solicitudes.instancia.notifyListeners();
-              }
-              
             }
 
             if (!coincidencias) {
-               if(event.docChanges[a].doc.get("nombreEmisor")!=null&&event.docChanges[a].doc.get("imagenEmisor")!=null&&event.docChanges[a].doc.get("solicitudRevelada")!=null){
-    SolicitudConversacion solicitud = new SolicitudConversacion.crear(
-                  fechaSolicitud:
-                      event.docChanges[a].doc.get("tiemmpo").toDate(),
-                  idEmisor: event.docChanges[a].doc.get("idEmisor"),
-                  nombreEmisor: event.docChanges[a].doc.get("nombreEmisor"),
-                  idDestino: event.docChanges[a].doc.get("idDestino"),
-                  fechaCaducidadSolicitud:
-                      event.docChanges[a].doc.get("caducidad").toDate(),
-                  imagenEmisor: event.docChanges[a].doc.get("imagenEmisor"),
-                  solicitudRevelada:
-                      event.docChanges[a].doc.get("solicitudRevelada"),
-                  calificacion: event.docChanges[a].doc.get("calificacion"),
-                  idSolicitudConversacion:
-                      event.docChanges[a].doc.get("idSolicitudConversacion"));
-              // Solicitudes.instancia.listaSolicitudesConversacion.add(solicitud);
-              Solicitudes.instancia.listaSolicitudesConversacion
-                  .insert(0, solicitud);
-              if (WidgetSolicitudConversacion
-                      .llaveListaSolicitudes.currentState !=
-                  null) {
-                WidgetSolicitudConversacion.llaveListaSolicitudes.currentState
-                    .insertItem(0);
+              if (event.docChanges[a].doc.get("nombreEmisor") != null &&
+                  event.docChanges[a].doc.get("imagenEmisor") != null &&
+                  event.docChanges[a].doc.get("solicitudRevelada") != null &&
+                  event.docChanges[a].doc.get("tiemmpo") != null &&
+                  event.docChanges[a].doc.get("idDestino") != null &&
+                  event.docChanges[a].doc.get("caducidad") != null &&
+                  event.docChanges[a].doc.get("calificacion") != null &&
+                  event.docChanges[a].doc.get("idSolicitudConversacion") !=
+                      null &&
+                  event.docChanges[a].doc.get("idEmisor") != null) {
+                try {
+                  SolicitudConversacion solicitud = new SolicitudConversacion
+                          .crear(
+                      fechaSolicitud:
+                          event.docChanges[a].doc.get("tiemmpo").toDate(),
+                      idEmisor: event.docChanges[a].doc.get("idEmisor"),
+                      nombreEmisor: event.docChanges[a].doc.get("nombreEmisor"),
+                      idDestino: event.docChanges[a].doc.get("idDestino"),
+                      fechaCaducidadSolicitud:
+                          event.docChanges[a].doc.get("caducidad").toDate(),
+                      imagenEmisor: event.docChanges[a].doc.get("imagenEmisor"),
+                      solicitudRevelada:
+                          event.docChanges[a].doc.get("solicitudRevelada"),
+                      calificacion: event.docChanges[a].doc.get("calificacion"),
+                      idSolicitudConversacion: event.docChanges[a].doc
+                          .get("idSolicitudConversacion"));
+
+                  Solicitudes.instancia.listaSolicitudesConversacion
+                      .insert(0, solicitud);
+                  if (WidgetSolicitudConversacion
+                          .llaveListaSolicitudes.currentState !=
+                      null) {
+                    WidgetSolicitudConversacion
+                        .llaveListaSolicitudes.currentState
+                        .insertItem(0);
+                  }
+                  Solicitudes.instancia.notifyListeners();
+                  Usuario.esteUsuario.notifyListeners();
+
+                  if (BaseAplicacion.notificadorEstadoAplicacion?.index == 2) {
+                    ControladorNotificacion.instancia
+                        .mostrarNotificacionNuevaSolicitud();
+                  }
+                  if (BaseAplicacion.notificadorEstadoAplicacion?.index != 0) {
+                    if (BaseAplicacion.claveBase.currentContext != null) {
+                      ControladorNotificacion.instancia
+                          .notificacionSolicitudAplicacionAbierta(
+                        BaseAplicacion.claveBase.currentContext,
+                      );
+                    }
+                  }
+                } on Exception {
+                  /// se devuelven los creditos
+
+                }
               }
-              Solicitudes.instancia.notifyListeners();
-               }
-          
             }
           }
           if (event.docChanges[a].type == DocumentChangeType.removed) {
             String idSolicitudEliminar =
                 event.docChanges[a].doc.get("idSolicitudConversacion");
-                if(idSolicitudEliminar!=null){
-for (int z = 0;
-                z < Solicitudes.instancia.listaSolicitudesConversacion.length;
-                z++) {
-              if (Solicitudes.instancia.listaSolicitudesConversacion[z]
-                      .idSolicitudConversacion ==
-                  idSolicitudEliminar) {
-                if (WidgetSolicitudConversacion
-                        .llaveListaSolicitudes.currentState !=
-                    null) {
-                  Solicitudes.instancia.listaSolicitudesConversacion[z]
-                      .solicitudVisible = false;
-                  Solicitudes.instancia.listaSolicitudesConversacion[z]
-                      .notificarEliminacion
-                      .notifyListeners();
-                }
-                if (WidgetSolicitudConversacion
-                        .llaveListaSolicitudes.currentState ==
-                    null) {
-                  int indiceSolicitudEliminar = Solicitudes
-                      .instancia.listaSolicitudesConversacion
-                      .indexWhere((valor) =>
-                          valor.idSolicitudConversacion == idSolicitudEliminar);
-                  if (indiceSolicitudEliminar >= 0) {
-                    Solicitudes.instancia.listaSolicitudesConversacion
-                        .removeAt(indiceSolicitudEliminar);
+            if (idSolicitudEliminar != null) {
+              for (int z = 0;
+                  z < Solicitudes.instancia.listaSolicitudesConversacion.length;
+                  z++) {
+                if (Solicitudes.instancia.listaSolicitudesConversacion[z]
+                        .idSolicitudConversacion ==
+                    idSolicitudEliminar) {
+                  if (WidgetSolicitudConversacion
+                          .llaveListaSolicitudes.currentState !=
+                      null) {
+                    Solicitudes.instancia.listaSolicitudesConversacion[z]
+                        .solicitudVisible = false;
+                    Solicitudes.instancia.listaSolicitudesConversacion[z]
+                        .notificarEliminacion
+                        .notifyListeners();
+                  }
+                  if (WidgetSolicitudConversacion
+                          .llaveListaSolicitudes.currentState ==
+                      null) {
+                    int indiceSolicitudEliminar = Solicitudes
+                        .instancia.listaSolicitudesConversacion
+                        .indexWhere((valor) =>
+                            valor.idSolicitudConversacion ==
+                            idSolicitudEliminar);
+                    if (indiceSolicitudEliminar >= 0) {
+                      Solicitudes.instancia.listaSolicitudesConversacion
+                          .removeAt(indiceSolicitudEliminar);
+                    }
                   }
                 }
               }
             }
-                }
-            
           }
         }
       }
     });
-  }
-
-  void revelarSolicitud() {
-    FirebaseFirestore referenciaValoraciones = FirebaseFirestore.instance;
-    referenciaValoraciones
-        .collection("solicitudes conversaciones")
-        .doc(this.idSolicitudConversacion)
-        .update({"solicitudRevelada": true});
   }
 
   void eliminarSolicitudConversacion(String idSolicitud) {
@@ -390,6 +432,7 @@ for (int z = 0;
     mensajeInicial["Tipo Mensaje"] = "Texto";
 
     Map<String, dynamic> estadoConexionUsuario = Map();
+
     estadoConexionUsuario["Escribiendo"] = false;
     estadoConexionUsuario["Conectado"] = false;
     estadoConexionUsuario["IdConversacion"] = idConversacion;
@@ -532,7 +575,7 @@ class _WidgetSolicitudConversacionState
         return SizeTransition(
           sizeFactor: animation,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(20),
             child: Container(
                 height: ScreenUtil().setHeight(400),
                 decoration: BoxDecoration(
@@ -559,7 +602,9 @@ class _WidgetSolicitudConversacionState
                               child: Center(
                                   child: GestureDetector(
                                 onTap: () async {
-                                  if (Citas.estaConectado == true) {
+                                  if (EstadoConexionInternet
+                                          .estadoConexion.conexion ==
+                                      EstadoConexion.conectado) {
                                     if (Usuario.esteUsuario.creditosUsuario >=
                                         200) {
                                       solicitud.estadoRevelacion =
@@ -626,7 +671,7 @@ class _WidgetSolicitudConversacionState
                                                 solicitud.segundosRestantes <=
                                                         3600
                                                     ? Colors.red
-                                                    : Colors.black,
+                                                    : Colors.deepPurple,
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(1)),
                                           ),
@@ -818,7 +863,6 @@ class _WidgetSolicitudConversacionState
                           : Text(" ")),
                 ),
                 Container(child: Text("¿Aceptar solicitud de chat?")),
-            
               ],
             ),
           ),

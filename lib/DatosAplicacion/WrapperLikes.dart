@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/TiempoAplicacion.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -19,13 +21,13 @@ class DatosPerfiles {
   String imagen;
   double valoracion;
   bool verificado;
-  List<Widget> carrete = new List();
+  List<Widget> carrete =  [];
   bool visible=true;
-  List<Map<String, dynamic>> linksHistorias = new List();
+  List<Map<String, dynamic>> linksHistorias =  [];
   FirebaseFirestore baseDatosRef;
   Map<String, dynamic> datosValoracion = new Map();
   
-  void crearDatosValoracion() {
+  Future<void> crearDatosValoracion() async{
     imagenAdquirida = false;
     if (Usuario.esteUsuario.imagenUrl1["Imagen"] != null &&
         imagenAdquirida == false) {
@@ -66,12 +68,12 @@ class DatosPerfiles {
     datosValoracion["Valoracion"] = valoracion;
     datosValoracion["Mensaje"] = this.mensaje;
     datosValoracion["Time"] = DateTime.now();
-    datosValoracion["caducidad"]=DateTime.now().add(Duration(days: 1));
+    datosValoracion["caducidad"]=TiempoAplicacion.tiempoAplicacion.marcaTiempoAplicacion.add(Duration(days: 1));
     datosValoracion["idDestino"] = idUsuario;
     datosValoracion["revelada"] = false;
     datosValoracion["id valoracion"] = idValor;
     datosValoracion["visible"]=visible;
-    _enviarValoracion(idValor);
+    await _enviarValoracion(idValor);
   }
 
   DatosPerfiles();
@@ -90,14 +92,18 @@ class DatosPerfiles {
       @required this.nombreusuaio,
       @required this.linksHistorias,
       @required this.idUsuario});
-  void _enviarValoracion(String idvalor) async {
+     
+  Future<void> _enviarValoracion(String idvalor) async {
+    if(EstadoConexionInternet.estadoConexion.conexion!=EstadoConexion.conectado){
+      throw Exception("No hay conexion");
+    }
     baseDatosRef = FirebaseFirestore.instance;
     if(valoracion>=5){
 
-    await baseDatosRef.collection("valoraciones").doc(idvalor).set(datosValoracion);
+    await baseDatosRef.collection("valoraciones").doc(idvalor).set(datosValoracion).onError((error, stackTrace) =>  throw Exception("Error al calificar usuario: $error"));
     }
     if(valoracion<5){
-      await baseDatosRef.collection("valoraciones negativas").doc(idvalor).set(datosValoracion);
+      await baseDatosRef.collection("valoraciones negativas").doc(idvalor).set(datosValoracion).onError((error, stackTrace) => throw Exception("Error al calificar usuario:  $error"));
     }
     
   }

@@ -1,11 +1,16 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+
+import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
 import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/GeneradorCodigos.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/ListaConversaciones.dart';
 import 'package:citasnuevo/InterfazUsuario/Conversaciones/PantallaConversacion.dart';
 import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
+import 'package:citasnuevo/base_app.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
@@ -19,15 +24,228 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-enum EstadosListaMensajes{
-  listaVacia,cargandoLista,listaCargada
+enum EstadoCargaMesajesAdicionales { cargando, cargados, error, noCargados,noQuedanMensajes }
+
+List<Mensajes> insertarHoras(List<Mensajes> datos) {
+  List<Mensajes> lista = datos;
+  if (lista != null) {
+    lista.sort(
+        (b, c) => b.horaMensajeFormatoDate.compareTo(c.horaMensajeFormatoDate));
+  }
+
+  DateTime cacheTiempo = lista[0].horaMensajeFormatoDate;
+  int cacheDia = lista[0].horaMensajeFormatoDate.day;
+  Mensajes horaSeparador;
+
+  horaSeparador = Mensajes.separadorHora(
+    horaMensaje: lista[0].horaMensaje,
+    horaMensajeFormatoDate: cacheTiempo,
+    idEmisor: lista[0].idEmisor,
+  );
+  lista.insert(0, horaSeparador);
+  for (int i = 0; i < lista.length; i++) {
+    if (cacheDia != lista[i].horaMensajeFormatoDate.day) {
+      horaSeparador = Mensajes.separadorHora(
+        horaMensajeFormatoDate: lista[i].horaMensajeFormatoDate,
+        horaMensaje: lista[i].horaMensaje,
+        idEmisor: lista[i].idEmisor,
+      );
+
+      cacheTiempo = lista[i].horaMensajeFormatoDate;
+      cacheDia = lista[i].horaMensajeFormatoDate.day;
+      lista.insert(i, horaSeparador);
+    }
+    //  lista[i].horaMensajeFormatoDate=null;
+  }
+
+  return lista;
 }
 
+List<Mensajes> procesarMensajes(Map<String, dynamic> datos) {
+  List<Map<dynamic, dynamic>> dato = datos["Mensajes"];
+  String nombre = datos["nombre"];
+  String idUsuario=datos["idUsuario"];
+  double dimension=datos["ancho"];
 
+  List<Mensajes> temp = [];
+  dato = dato.reversed.toList();
+  if (dato != null) {
+    if (dato.length > 0) {
+      for (int a = 0; a < dato.length; a++) {
+        if (dato[a][("idMensaje")] != null &&
+            dato[a]["Tipo Mensaje"] != null &&
+            dato[a]["respuesta"] != null &&
+            dato[a]["mensajeRespuesta"] != null &&
+            dato[a]["mensajeLeidoRemitente"] != null &&
+            dato[a]["Nombre emisor"] != null &&
+            dato[a]["idConversacion"] != null &&
+            dato[a]["mensajeLeido"] != null &&
+            dato[a]["identificadorUnicoMensaje"] != null &&
+            dato[a]["idEmisor"] != null &&
+            dato[a]["Hora mensaje"] != null &&
+            dato[a]["Mensaje"] != null) {
+          if (dato[a]["Tipo Mensaje"] == "Texto" ||
+              dato[a]["Tipo Mensaje"] == "Imagen" ||
+              dato[a]["Tipo Mensaje"] == "Gif") {
+            Mensajes mensaje = new Mensajes(
+              respuestaMensaje: dato[a]["mensajeRespuesta"],
+              respuesta: dato[a]["respuesta"],
+              mensajeLeido: dato[a]["mensajeLeido"],
+              nombreEmisor: dato[a]["Nombre emisor"],
+              identificadorUnicoMensaje: dato[a]["identificadorUnicoMensaje"],
+              idEmisor: dato[a]["idEmisor"],
+              idConversacion: dato[a]["idConversacion"],
+              mensajeLeidoRemitente: dato[a]["mensajeLeidoRemitente"],
+              mensaje: dato[a]["Mensaje"],
+              idMensaje: dato[a]["idMensaje"],
+              horaMensajeFormatoDate: DateTime.fromMillisecondsSinceEpoch(
+                  (dato[a]["Hora mensaje"])),
+              horaMensaje:
+                  ("${DateTime.fromMillisecondsSinceEpoch((dato[a]["Hora mensaje"])).hour}:${DateTime.fromMillisecondsSinceEpoch((dato[a]["Hora mensaje"])).minute}"),
+              tipoMensaje: dato[a]["Tipo Mensaje"],
+            );
+            temp.insert(0, mensaje);
+          }
+        }
+      }
+      if (temp.length > 0) {
+        temp = insertarHoras(temp);
+        temp = temp.reversed.toList();
+      }
 
+      for (int v = 0; v < temp.length; v++) {
+        if (temp[v].tipoMensaje != "SeparadorHora") {
+          if (temp[v].respuesta) {
+            if (temp[v].respuestaMensaje["tipoMensaje"] == "Texto") {
+              temp[v].widgetRespuesta = Container(
+                color: temp[v].respuestaMensaje["idEmisorMensaje"] ==
+                       idUsuario
+                    ? Colors.blue
+                    : Colors.green,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    temp[v].respuestaMensaje["idEmisorMensaje"] ==
+                           idUsuario
+                        ? Text("Yo")
+                        : Text(nombre),
+                    Text(temp[v].respuestaMensaje["mensaje"])
+                  ],
+                ),
+              );
+            }
+            if (temp[v].respuestaMensaje["tipoMensaje"] == "Imagen") {
+              temp[v].widgetRespuesta = Container(
+                color: temp[v].respuestaMensaje["idEmisorMensaje"] ==
+                   idUsuario
+                    ? Colors.blue
+                    : Colors.green,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    temp[v].respuestaMensaje["idEmisorMensaje"] ==
+                           idUsuario
+                        ? Text("Yo")
+                        : Text(nombre),
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(
+                              temp[v].respuestaMensaje["mensaje"],
+                              scale: 1,
+                            )),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Colors.transparent,
+                      ),
+                      height: dimension,
+                      width: dimension,
+                    )
+                  ],
+                ),
+              );
+            }
+            if (temp[v].respuestaMensaje["tipoMensaje"] == "Gif") {
+              temp[v].widgetRespuesta = Container(
+                color: temp[v].respuestaMensaje["idEmisorMensaje"] ==
+                        idUsuario
+                    ? Colors.blue
+                    : Colors.green,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    temp[v].respuestaMensaje["idEmisorMensaje"] ==
+                        idUsuario
+                        ? Text("Yo")
+                        : Text(nombre),
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(
+                                temp[v].respuestaMensaje["mensaje"],
+                                scale: 1,
+                                headers: {'accept': 'image/*'})),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Colors.transparent,
+                      ),
+                      height: dimension,
+                      width: dimension,
+                    )
+                  ],
+                ),
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+  return temp;
+}
 
-class TituloChat extends StatefulWidget {
-  List<Mensajes> listadeMensajes = new List();
+enum EstadosListaMensajes { listaVacia, cargandoLista, listaCargada }
+
+class PuenteVentanaChat extends InheritedWidget {
+  final List<Mensajes> listaMensajes;
+  final Widget child;
+  final Key key;
+  final String estadoConversacion;
+  final bool estadoConexion;
+  final EstadoCargaMesajesAdicionales estadoCargaMensajesAdicionales;
+  final bool todosLosMensajesCargados;
+
+  PuenteVentanaChat(
+      {@required this.key,
+      @required this.todosLosMensajesCargados,
+      @required this.estadoCargaMensajesAdicionales,
+      @required this.listaMensajes,
+      @required this.child,
+      @required this.estadoConexion,
+      @required this.estadoConversacion})
+      : super(key: key, child: child);
+
+  static PuenteVentanaChat of(BuildContext context) {
+    final PuenteVentanaChat result =
+        context.dependOnInheritedWidgetOfExactType<PuenteVentanaChat>();
+    return result;
+  }
+
+  @override
+  bool updateShouldNotify(PuenteVentanaChat oldWidget) =>
+      (oldWidget.listaMensajes?.length != this.listaMensajes?.length ||
+          oldWidget.estadoConexion != this.estadoConexion ||
+          oldWidget.estadoConversacion != this.estadoConversacion ||
+          oldWidget.estadoCargaMensajesAdicionales !=
+              this.estadoCargaMensajesAdicionales);
+}
+
+// ignore: must_be_immutable
+class TituloChat extends StatefulWidget with ChangeNotifier {
+  List<Mensajes> listadeMensajes = [];
   String idRemitente;
   String idConversacion;
   String estadoConversacion;
@@ -35,15 +253,19 @@ class TituloChat extends StatefulWidget {
   String imagen;
   String nombre;
   PantallaConversacion pantalla;
-  bool pulsado=false;
-  EstadosListaMensajes estado=EstadosListaMensajes.listaVacia;
+  bool todosLosMensajesCargados=false;
+  EstadoCargaMesajesAdicionales cargaMensajesAdicionales =
+      EstadoCargaMesajesAdicionales.noCargados;
 
-  int mensajesSinLeer=0;
+  bool pulsado = false;
+  EstadosListaMensajes estado = EstadosListaMensajes.listaVacia;
+
+  int mensajesSinLeer = 0;
 
   Map<String, dynamic> ultimoMensaje = new Map();
   String mensajeId;
-  FirebaseFirestore baseDatosRef = FirebaseFirestore.instance;
   Conversacion conversacion;
+
 
   TituloChat(
       {@required this.conversacion,
@@ -63,408 +285,194 @@ class TituloChat extends StatefulWidget {
   Future<List<Mensajes>> obtenerMensajes(
       String identificadorMensajes, String rutaRemitente) async {
     List<Mensajes> temp = new List();
-      this.estado=EstadosListaMensajes.cargandoLista;
-      Conversacion.conversaciones.notifyListeners();
-  
-    
-
-
+    this.estado = EstadosListaMensajes.cargandoLista;
+    Conversacion.conversaciones.notifyListeners();
 
     if (!this.conversacion.grupo) {
-      await baseDatosRef
+      await Conversacion.baseDatosRef
           .collection("usuarios")
           .doc(Usuario.esteUsuario.idUsuario)
           .collection("mensajes")
           .where("idMensaje", isEqualTo: identificadorMensajes)
-          .limit(100)
+          .limit(5)
           .get()
           .then((dato) async {
-            if(dato!=null){
+        if (dato != null) {
+          Map<String, dynamic> datosProcesar = new Map();
+          List<Map<String, dynamic>> lista = [];
+          for (int i = 0; i < dato.docs.length; i++) {
+            lista.add(dato.docs[i].data());
+            DateTime fechaTemp = (lista[i]["Hora mensaje"]).toDate();
 
-        if (dato.docs.length > 0) {
-          print("${dato.docs.length} mensajes para el en firebase");
-          print(rutaRemitente);
-          print(identificadorMensajes);
-    
-          for (int a = 0; a < dato.docs.length; a++) {
-             if( dato.docs[a].get("idMensaje")!=null&&dato.docs[a].get("Tipo Mensaje")!=null&&dato.docs[a].get("respuesta")!=null&&dato.docs[a].get("mensajeRespuesta")!=null&&
-                  dato.docs[a].get("mensajeLeidoRemitente")!=null&&dato.docs[a].get("Nombre emisor")!=null&&dato.docs[a].get("idConversacion")!=null&&dato.docs[a].get("mensajeLeido")!=null&&
-                  dato.docs[a].get("identificadorUnicoMensaje")!=null&&dato.docs[a].get("idEmisor")!=null&&dato.docs[a].get("Hora mensaje")!=null&&dato.docs[a].get("Mensaje")!=null
-                  ){
-                                if (dato.docs[a].get("Tipo Mensaje") == "Texto" ||
-                dato.docs[a].get("Tipo Mensaje") == "Imagen" ||
-                dato.docs[a].get("Tipo Mensaje") == "Gif") {
-              Mensajes mensaje = new Mensajes(
-               
-                respuestaMensaje: dato.docs[a].get("mensajeRespuesta"),
-                respuesta:dato.docs[a].get("respuesta") ,
-                mensajeLeido: dato.docs[a].get("mensajeLeido"),
-                nombreEmisor: dato.docs[a].get("Nombre emisor"),
-                identificadorUnicoMensaje:
-                    dato.docs[a].get("identificadorUnicoMensaje"),
-                idEmisor: dato.docs[a].get("idEmisor"),
-                idConversacion: dato.docs[a].get("idConversacion"),
-                mensajeLeidoRemitente:
-                    dato.docs[a].get("mensajeLeidoRemitente"),
-                mensaje: dato.docs[a].get("Mensaje"),
-                idMensaje: dato.docs[a].get("idMensaje"),
-                horaMensaje: (dato.docs[a].get("Hora mensaje")).toDate(),
-                tipoMensaje: dato.docs[a].get("Tipo Mensaje"),
-              );
-              temp = List.from(temp)..add(mensaje);
-            }
-            if (dato.docs[a].get("Tipo Mensaje") == "Audio") {
-              Mensajes mensaje = new Mensajes.audio(
-             respuesta:dato.docs[a].get("respuesta") ,
-                duracionMensaje: dato.docs[a].get("duracion"),
-                mensajeLeido: dato.docs[a].get("mensajeLeido"),
-                respuestaMensaje: dato.docs[a].get("mensajeRespuesta"),
-                idConversacion: dato.docs[a].get("idConversacion"),
-                nombreEmisor: dato.docs[a].get("Nombre emisor"),
-                idEmisor: dato.docs[a].get("idEmisor"),
-                mensajeLeidoRemitente:
-                    dato.docs[a].get("mensajeLeidoRemitente"),
-                identificadorUnicoMensaje:
-                    dato.docs[a].get("identificadorUnicoMensaje"),
-                mensaje: dato.docs[a].get("Mensaje"),
-                idMensaje: dato.docs[a].get("idMensaje"),
-                horaMensaje: (dato.docs[a].get("Hora mensaje")).toDate(),
-                tipoMensaje: dato.docs[a].get("Tipo Mensaje"),
-              );
-
-              temp = List.from(temp)..add(mensaje);
-            }
-
-                  }
- 
-          
-
+            lista[i]["Hora mensaje"] = fechaTemp.millisecondsSinceEpoch;
+            print(lista[i]["Hora mensaje"] = fechaTemp.millisecondsSinceEpoch);
           }
-        }}
-      }).catchError((onError){
-        print("Error al abrir conversacion");
-          this.estado=EstadosListaMensajes.listaVacia;
-          Conversacion.conversaciones.notifyListeners();
-        ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(ConversacionesLikes.claveListaConversaciones.currentContext);
+
+          datosProcesar["Mensajes"] = lista;
+          datosProcesar["nombre"] = nombre;
+          Conversacion.conversaciones.cargarConversacion = false;
+
+          temp = await compute(procesarMensajes, datosProcesar)
+              .catchError((error) {
+            print(error.toString());
+            this.estado = EstadosListaMensajes.listaVacia;
+            Conversacion.conversaciones.cargarConversacion = true;
+
+            Conversacion.conversaciones.notifyListeners();
+            ManejadorErroresAplicacion.erroresInstancia
+                .mostrarNoSePuedeAbrirConversacion(ConversacionesLikes
+                    .claveListaConversaciones.currentContext);
+            //  throw ExcepcionesConversaciones("Error en isolate");
+          });
+        }
+      }).catchError((onError) {
+        print(onError);
+        this.estado = EstadosListaMensajes.listaVacia;
+        Conversacion.conversaciones.notifyListeners();
+        Conversacion.conversaciones.cargarConversacion = true;
+
+        ManejadorErroresAplicacion.erroresInstancia
+            .mostrarNoSePuedeAbrirConversacion(
+                ConversacionesLikes.claveListaConversaciones.currentContext);
       });
     }
 
-    if (temp.length > 0) {
-      temp = insertarHoras(temp);
-    }
-
-    for(int v=0;v<temp.length;v++){
-      if(temp[v].tipoMensaje!="SeparadorHora"){
- if(temp[v].respuesta){
-        if(temp[v].respuestaMensaje["tipoMensaje"]=="Texto"){
-
-          temp[v].widgetRespuesta=Container(
-            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-               mainAxisAlignment: MainAxisAlignment.start,children: [
-              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
-             
-              Text(temp[v].respuestaMensaje["mensaje"])
-
-            ],),
-          );
-        }
-         if(temp[v].respuestaMensaje["tipoMensaje"]=="Imagen"){
-
-          temp[v].widgetRespuesta=Container(
-            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-               mainAxisAlignment: MainAxisAlignment.start,children: [
-              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
-            
-              Container(
-                                      decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(temp[v].respuestaMensaje["mensaje"],
-                    scale: 1,
-               )),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.transparent,
-                  ),
-                                 height: 500.w,width: 500.w,)
-
-            ],),
-          );
-        }
-          if(temp[v].respuestaMensaje["tipoMensaje"]=="Gif"){
-
-          temp[v].widgetRespuesta=Container(
-            
-            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
-    
-              Container(
-                                      decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(temp[v].respuestaMensaje["mensaje"],
-                    scale: 1,
-                      headers: {'accept': 'image/*'})
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.transparent,
-                  ),
-                                 height: 700.w,width: 700.w,) 
-
-            ],),
-          );
-        }
-                  if(temp[v].respuestaMensaje["tipoMensaje"]=="Audio"){
-                     Mensajes mensajeRespuestaAudio;
-                         for(int z=0;z<Conversacion.conversaciones.listaDeConversaciones.length;z++ ){
-        if(Conversacion.conversaciones.listaDeConversaciones[z].idMensajes==temp[v].idMensaje){
-          for(int i=0;i<Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes.length;i++){
-            if(temp[v].respuestaMensaje["idMensaje"]==Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i].identificadorUnicoMensaje){
-              mensajeRespuestaAudio=Conversacion.conversaciones.listaDeConversaciones[z].ventanaChat.listadeMensajes[i];
-
-            }
-          }
-        }
-      }
-
-          temp[v].widgetRespuesta=Container(
-            color: temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Colors.blue:Colors.green,
-            child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-              temp[v].respuestaMensaje["idEmisorMensaje"]==Usuario.esteUsuario.idUsuario?Text("Yo"):Text(nombre),
-           
-              Container(
-                    decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(3),
-                            topRight: Radius.circular(3),
-                            bottomLeft: Radius.circular(3))),
-                    child: Row(
-                      children: <Widget>[
-                        Flexible(
-                          fit: FlexFit.tight,
-                          flex: 3,
-                          child: Container(
-                            child: Center(
-                              child: FlatButton(
-                                onPressed: () {
-                                  mensajeRespuestaAudio.reproducirAudio();
-                                },
-                                child: Center(
-                                    child: Icon(
-                                  Icons.play_arrow,
-                                  size: ScreenUtil().setSp(100),
-                                )),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          fit: FlexFit.tight,
-                          flex: 11,
-                          child: Container(
-                            child: Stack(alignment: Alignment.center, children: <
-                                Widget>[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15.0, right: 15),
-                                child: LinearPercentIndicator(
-                                  lineHeight: ScreenUtil().setHeight(70),
-                                  percent: mensajeRespuestaAudio.posicion,
-                                ),
-                              ),
-                              SliderTheme(
-                                data: SliderThemeData(
-                                  thumbColor: Colors.transparent,
-                                  activeTickMarkColor: Colors.transparent,
-                                  activeTrackColor: Colors.transparent,
-                                  disabledActiveTickMarkColor: Colors.transparent,
-                                  disabledActiveTrackColor: Colors.transparent,
-                                  disabledInactiveTickMarkColor:
-                                      Colors.transparent,
-                                  disabledInactiveTrackColor: Colors.transparent,
-                                  disabledThumbColor: Colors.transparent,
-                                  inactiveTickMarkColor: Colors.transparent,
-                                  inactiveTrackColor: Colors.transparent,
-                                  overlappingShapeStrokeColor: Colors.transparent,
-                                  overlayColor: Colors.transparent,
-                                  valueIndicatorColor: Colors.transparent,
-                                ),
-                                child: Slider(
-                                  value: mensajeRespuestaAudio.posicion,
-                                  max: mensajeRespuestaAudio.duracionMensaje.toDouble(),
-                                  min: 0,
-                                  onChanged: (val) {
-                                    mensajeRespuestaAudio.posicionAudio(val);
-                                  },
-                                ),
-                              ),
-                            ]),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-
-            ],),
-          );
-        }
-        
-        
-      }
-      }
-     
-
-    }
-    this.estado=EstadosListaMensajes.listaCargada;
+    this.estado = EstadosListaMensajes.listaCargada;
+    Conversacion.conversaciones.cargarConversacion = true;
 
     return temp;
   }
 
-  List<Mensajes> insertarHoras(List<Mensajes> datos) {
-    List<Mensajes> lista = datos;
-    if (lista != null) {
-      print("ordenado");
-      lista.sort((b, c) => b.horaMensaje.compareTo(c.horaMensaje));
+  Future<EstadoCargaMesajesAdicionales> obtenerMasMensajes(
+      String identificadorMensajes, String rutaRemitente) async {
+        EstadoCargaMesajesAdicionales estadoOperacion;
+    List<Mensajes> temp = [];
+    Conversacion.conversaciones.notifyListeners();
+    String idUltimoMensaje = listadeMensajes
+        .lastWhere((element) => element.identificadorUnicoMensaje != null)
+        .identificadorUnicoMensaje;
+
+
+        
+     await Conversacion.baseDatosRef
+        .collection("usuarios")
+        .doc(Usuario.esteUsuario.idUsuario)
+        .collection("mensajes")
+        .doc(idUltimoMensaje)
+        .get().then((value) async {
+              if (this.cargaMensajesAdicionales != EstadoCargaMesajesAdicionales.error&&value.data()!=null) {
+      await Conversacion.baseDatosRef
+          .collection("usuarios")
+          .doc(Usuario.esteUsuario.idUsuario)
+          .collection("mensajes")
+          .orderBy("Hora mensaje", descending: true)
+          .where("idMensaje", isEqualTo: identificadorMensajes)
+          .startAfterDocument(value)
+          .limit(15)
+          .get()
+          .then((dato) async {
+        if (dato != null) {
+          Map<String, dynamic> datosProcesar = new Map();
+          List<Map<String, dynamic>> lista = [];
+          for (int i = 0; i < dato.docs.length; i++) {
+            lista.add(dato.docs[i].data());
+            DateTime fechaTemp = (lista[i]["Hora mensaje"]).toDate();
+
+            lista[i]["Hora mensaje"] = fechaTemp.millisecondsSinceEpoch;
+          }
+          datosProcesar["idUsuario"]=Usuario.esteUsuario.idUsuario;
+          datosProcesar["Mensajes"] = lista;
+          datosProcesar["nombre"] = nombre;
+          datosProcesar["ancho"]=500.w;
+        
+          if (lista.length > 0) {
+            temp = await compute(procesarMensajes, datosProcesar)
+                .catchError((error) {
+              print(error.toString());
+              this.estado = EstadosListaMensajes.listaVacia;
+              Conversacion.conversaciones.cargarConversacion = true;
+
+              Conversacion.conversaciones.notifyListeners();
+            
+            });
+          
+         
+
+          this.listadeMensajes.addAll(temp);
+          this.cargaMensajesAdicionales =
+              EstadoCargaMesajesAdicionales.cargados;
+             estadoOperacion=  EstadoCargaMesajesAdicionales.cargados;
+          Conversacion.conversaciones.notifyListeners();}
+
+           else{
+            estadoOperacion=EstadoCargaMesajesAdicionales.noQuedanMensajes;
+          }
+        }
+      }).catchError((onError) {
+        this.estado = EstadosListaMensajes.listaVacia;
+        Conversacion.conversaciones.notifyListeners();
+        Conversacion.conversaciones.cargarConversacion = true;
+
+      });
+    } else {
+          estadoOperacion= EstadoCargaMesajesAdicionales.error;
     }
 
-    DateTime cacheTiempo = lista[0].horaMensaje;
-    int cacheDia = lista[0].horaMensaje.day;
-    Mensajes horaSeparador;
 
-    horaSeparador = Mensajes.separadorHora(
-      horaMensaje: cacheTiempo,
-      idEmisor: lista[0].idEmisor,
-    );
-    lista.insert(0, horaSeparador);
-    for (int i = 0; i < lista.length; i++) {
-      if (cacheDia != lista[i].horaMensaje.day) {
-        horaSeparador = Mensajes.separadorHora(
-          horaMensaje: lista[i].horaMensaje,
-          idEmisor: lista[i].idEmisor,
-        );
 
-        cacheTiempo = lista[i].horaMensaje;
-        cacheDia = lista[i].horaMensaje.day;
-        lista.insert(i, horaSeparador);
-      }
-    }
-    return lista;
+          
+        })
+        .onError((error,stackTrace) {
+
+      this.cargaMensajesAdicionales = EstadoCargaMesajesAdicionales.error;
+      estadoOperacion= EstadoCargaMesajesAdicionales.error;
+    });
+
+
+   
+print("casa");
+    return estadoOperacion;
   }
 
-  String crearCodigo() {
-    List<String> letras = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z"
-    ];
-    List<String> numero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    var random = Random();
-    int primeraLetra = random.nextInt(26);
-    String codigo_final = letras[primeraLetra];
 
-    for (int i = 0; i <= 20; i++) {
-      int selector_aleatorio_num_letra = random.nextInt(20);
-      int aleatorio_letra = random.nextInt(27);
-      int aleatorio_numero = random.nextInt(9);
-      if (selector_aleatorio_num_letra <= 2) {
-        selector_aleatorio_num_letra = 2;
-      }
-      if (selector_aleatorio_num_letra % 2 == 0) {
-        codigo_final = "${codigo_final}${(numero[aleatorio_numero])}";
-      }
-      if (aleatorio_letra % 3 == 0) {
-        int mayuscula = random.nextInt(9);
-        if (selector_aleatorio_num_letra <= 2) {
-          int suerte = random.nextInt(2);
-          suerte == 0
-              ? selector_aleatorio_num_letra = 3
-              : selector_aleatorio_num_letra = 2;
-        }
-        if (mayuscula % 2 == 0) {
-          codigo_final =
-              "${codigo_final}${(letras[aleatorio_letra]).toUpperCase()}";
-        }
-        if (mayuscula % 3 == 0) {
-          codigo_final =
-              "${codigo_final}${(letras[aleatorio_letra]).toLowerCase()}";
-        }
-      }
-    }
-    return codigo_final;
-  }
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
     return TituloChatState(imagen, nombre, ultimoMensaje);
   }
-
-  void enviarMensaje(
-    String mensajeTexto,
-    String idMensaje,
-    bool respuesta,
-    Map<String,String>respuestaEnMensaje
-  ) async {
-    WriteBatch escrituraMensajes = baseDatosRef.batch();
-    String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
-    DocumentReference direccionMensajes = baseDatosRef
+   void todosLosmensajesCargados(bool cargados){
+this.todosLosMensajesCargados=cargados;
+   }
+  void enviarMensaje(String mensajeTexto, String idMensaje, bool respuesta,
+      Map<String, String> respuestaEnMensaje) async {
+    WriteBatch escrituraMensajes = Conversacion.baseDatosRef.batch();
+    String idMensajeUnico = GeneradorCodigos.instancia.crearCodigo();
+    DocumentReference direccionMensajes = Conversacion.baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
         .collection("mensajes")
         .doc(idMensajeUnico);
-    DocumentReference direccionMensajesUsuario = baseDatosRef
+    DocumentReference direccionMensajesUsuario = Conversacion.baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("mensajes")
         .doc(idMensajeUnico);
-    DocumentReference referenciaConversacionRemitente = baseDatosRef
+    DocumentReference referenciaConversacionRemitente = Conversacion
+        .baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
         .collection("conversaciones")
         .doc(idConversacion);
-    DocumentReference referenciaConversacionUsuario = baseDatosRef
+    DocumentReference referenciaConversacionUsuario = Conversacion.baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("conversaciones")
         .doc(idConversacion);
 
-    if (!this.conversacion.grupo) {
-      if(Citas.estaConectado==true){
-    if (mensajeTexto != null) {
+    if (EstadoConexionInternet.estadoConexion.conexion ==
+        EstadoConexion.conectado) {
+      if (mensajeTexto != null) {
         Map<String, dynamic> mensaje = Map();
         DateTime horaMensaje = DateTime.now();
         mensaje["Hora mensaje"] = horaMensaje;
@@ -477,8 +485,8 @@ class TituloChat extends StatefulWidget {
         mensaje["identificadorUnicoMensaje"] = idMensajeUnico;
         mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
         mensaje["Tipo Mensaje"] = "Texto";
-        mensaje["mensajeRespuesta"]=respuestaEnMensaje;
-        mensaje["respuesta"]=respuesta;
+        mensaje["mensajeRespuesta"] = respuestaEnMensaje;
+        mensaje["respuesta"] = respuesta;
 
         escrituraMensajes.update(referenciaConversacionRemitente, {
           "cantidadMensajesSinLeer": FieldValue.increment(1),
@@ -499,47 +507,44 @@ class TituloChat extends StatefulWidget {
         escrituraMensajes.set(direccionMensajesUsuario, mensaje);
         await escrituraMensajes.commit();
       }
-      }
-
-      
-  
     }
 
-    if(Citas.estaConectado==false){
-        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
-ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
-        }
-        
+    if (EstadoConexionInternet.estadoConexion.conexion !=
+        EstadoConexion.conectado) {
+      if (PantallaConversacion.llavePantallaConversacion.currentContext !=
+          null) {
+        ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(
+            PantallaConversacion.llavePantallaConversacion.currentContext);
       }
-
+    }
   }
 
-  void enviarMensajeAudio(
-      Uint8List audio, String idMensaje, int duracion,bool respuesta,
-    Map<String,String>respuestaEnMensaje) async {
+  void enviarMensajeAudio(Uint8List audio, String idMensaje, int duracion,
+      bool respuesta, Map<String, String> respuestaEnMensaje) async {
     FirebaseStorage storage = FirebaseStorage.instance;
     StorageReference reference = storage.ref();
-    String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
-    String ruta = "${idRemitente}/Perfil/NotasVoz/${crearCodigo()}.aac";
+    String idMensajeUnico = GeneradorCodigos.instancia.crearCodigo();
+    String ruta = "${idRemitente}/Perfil/NotasVoz/${GeneradorCodigos.instancia.crearCodigo()}.aac";
     StorageReference referenciaArchivo = reference.child(ruta);
-    WriteBatch escrituraMensajes = baseDatosRef.batch();
-    DocumentReference direccionMensajes = baseDatosRef
+    WriteBatch escrituraMensajes = Conversacion.baseDatosRef.batch();
+    DocumentReference direccionMensajes = Conversacion.baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
         .collection("mensajes")
         .doc(idMensajeUnico);
 
-    DocumentReference direccionMensajesUsuario = baseDatosRef
+    DocumentReference direccionMensajesUsuario = Conversacion.baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("mensajes")
         .doc(idMensajeUnico);
-    DocumentReference referenciaConversacionRemitente = baseDatosRef
+    DocumentReference referenciaConversacionRemitente = Conversacion
+        .baseDatosRef
         .collection("usuarios")
         .doc(idRemitente)
         .collection("conversaciones")
         .doc(idConversacion);
-    DocumentReference referenciaConversacionUsuario = baseDatosRef
+    DocumentReference referenciaConversacionUsuario = Conversacion.baseDatosRef
         .collection("usuarios")
         .doc(Usuario.esteUsuario.idUsuario)
         .collection("conversaciones")
@@ -561,11 +566,11 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
       mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
       mensaje["duracion"] = duracion;
       mensaje["Tipo Mensaje"] = "Audio";
-      mensaje["mensajeRespuesta"]=respuestaEnMensaje;
-      mensaje["respuesta"]=respuesta;
+      mensaje["mensajeRespuesta"] = respuestaEnMensaje;
+      mensaje["respuesta"] = respuesta;
       print(idRemitente);
       if (this.conversacion.grupo) {
-        await baseDatosRef
+        await Conversacion.baseDatosRef
             .collection("grupos directo")
             .doc(this.conversacion.idConversacion)
             .collection("mensajes")
@@ -573,64 +578,68 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
             .set(mensaje);
       }
 
-      if(Citas.estaConectado==true){
-      if (!this.conversacion.grupo) {
-        escrituraMensajes.update(referenciaConversacionRemitente, {
-          "cantidadMensajesSinLeer": FieldValue.increment(1),
-          "ultimoMensaje": {
-            "mensaje": mensaje["Mensaje"],
-            "tipoMensaje": "audio",
-            "duracion": duracion
-          }
-        });
-        escrituraMensajes.update(referenciaConversacionUsuario, {
-          "ultimoMensaje": {
-            "mensaje": mensaje["Mensaje"],
-            "tipoMensaje": "audio",
-            "duracion": duracion
-          }
-        });
-        escrituraMensajes.set(direccionMensajes, mensaje);
-        escrituraMensajes.set(direccionMensajesUsuario, mensaje);
-        await escrituraMensajes.commit();
-      }
-      }
-      if(Citas.estaConectado==false){
-        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
-ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
+      if (EstadoConexionInternet.estadoConexion.conexion ==
+          EstadoConexion.conectado) {
+        if (!this.conversacion.grupo) {
+          escrituraMensajes.update(referenciaConversacionRemitente, {
+            "cantidadMensajesSinLeer": FieldValue.increment(1),
+            "ultimoMensaje": {
+              "mensaje": mensaje["Mensaje"],
+              "tipoMensaje": "audio",
+              "duracion": duracion
+            }
+          });
+          escrituraMensajes.update(referenciaConversacionUsuario, {
+            "ultimoMensaje": {
+              "mensaje": mensaje["Mensaje"],
+              "tipoMensaje": "audio",
+              "duracion": duracion
+            }
+          });
+          escrituraMensajes.set(direccionMensajes, mensaje);
+          escrituraMensajes.set(direccionMensajesUsuario, mensaje);
+          await escrituraMensajes.commit();
         }
-        
       }
-
+      if (EstadoConexionInternet.estadoConexion.conexion !=
+          EstadoConexion.conectado) {
+        if (PantallaConversacion.llavePantallaConversacion.currentContext !=
+            null) {
+          ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(
+              PantallaConversacion.llavePantallaConversacion.currentContext);
+        }
+      }
     }
   }
 
-  void enviarMensajeImagen(File imagen, String idMensaje,bool respuesta,
-    Map<String,String>respuestaEnMensaje) async {
+  void enviarMensajeImagen(File imagen, String idMensaje, bool respuesta,
+      Map<String, String> respuestaEnMensaje) async {
     if (imagen != null) {
       FirebaseStorage storage = FirebaseStorage.instance;
-      String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
+      String idMensajeUnico = GeneradorCodigos.instancia.crearCodigo();
       StorageReference reference = storage.ref();
       String ruta =
-          "${idRemitente}/Perfil/ImagenesConversaciones/${crearCodigo()}.jpg";
+          "${idRemitente}/Perfil/ImagenesConversaciones/${GeneradorCodigos.instancia.crearCodigo()}.jpg";
       StorageReference referenciaArchivo = reference.child(ruta);
-      WriteBatch escrituraMensajes = baseDatosRef.batch();
-      DocumentReference direccionMensajes = baseDatosRef
+      WriteBatch escrituraMensajes = Conversacion.baseDatosRef.batch();
+      DocumentReference direccionMensajes = Conversacion.baseDatosRef
           .collection("usuarios")
           .doc(idRemitente)
           .collection("mensajes")
           .doc(idMensajeUnico);
-      DocumentReference direccionMensajesUsuario = baseDatosRef
+      DocumentReference direccionMensajesUsuario = Conversacion.baseDatosRef
           .collection("usuarios")
           .doc(Usuario.esteUsuario.idUsuario)
           .collection("mensajes")
           .doc(idMensajeUnico);
-      DocumentReference referenciaConversacionRemitente = baseDatosRef
+      DocumentReference referenciaConversacionRemitente = Conversacion
+          .baseDatosRef
           .collection("usuarios")
           .doc(idRemitente)
           .collection("conversaciones")
           .doc(idConversacion);
-      DocumentReference referenciaConversacionUsuario = baseDatosRef
+      DocumentReference referenciaConversacionUsuario = Conversacion
+          .baseDatosRef
           .collection("usuarios")
           .doc(Usuario.esteUsuario.idUsuario)
           .collection("conversaciones")
@@ -651,25 +660,21 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
         mensaje["Nombre emisor"] = Usuario.esteUsuario.nombre;
         mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
         mensaje["Tipo Mensaje"] = "Imagen";
-          mensaje["mensajeRespuesta"]=respuestaEnMensaje;
-      mensaje["respuesta"]=respuesta;
-      
-        
-        print(idRemitente);
-        if (conversacion.grupo) {
-          await baseDatosRef
-              .collection("grupos directo")
-              .doc(idRemitente)
-              .collection("mensajes")
-              .doc()
-              .set(mensaje)
-              .then((value) {
-            print("ImagenEnviada");
-          });
-        }
+        mensaje["mensajeRespuesta"] = respuestaEnMensaje;
+        mensaje["respuesta"] = respuesta;
 
-if(Citas.estaConectado==true){
-          if (!conversacion.grupo) {
+        await Conversacion.baseDatosRef
+            .collection("grupos directo")
+            .doc(idRemitente)
+            .collection("mensajes")
+            .doc()
+            .set(mensaje)
+            .then((value) {
+          print("ImagenEnviada");
+        });
+
+        if (EstadoConexionInternet.estadoConexion.conexion ==
+            EstadoConexion.conectado) {
           escrituraMensajes.update(referenciaConversacionRemitente, {
             "cantidadMensajesSinLeer": FieldValue.increment(1),
             "ultimoMensaje": {
@@ -691,48 +696,48 @@ if(Citas.estaConectado==true){
           await escrituraMensajes.commit();
         }
 
-}
-
- if(Citas.estaConectado==false){
-        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
-ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
-        }}
-
-
-        
-
-        
+        if (EstadoConexionInternet.estadoConexion.conexion !=
+            EstadoConexion.conectado) {
+          if (PantallaConversacion.llavePantallaConversacion.currentContext !=
+              null) {
+            ManejadorErroresAplicacion.erroresInstancia
+                .mostrarErrorEnvioMensaje(PantallaConversacion
+                    .llavePantallaConversacion.currentContext);
+          }
+        }
       }
     }
   }
 
-  void enviarMensajeImagenGif(String urlImagen, String idMensaje,bool respuesta,
-    Map<String,String>respuestaEnMensaje) async {
+  void enviarMensajeImagenGif(String urlImagen, String idMensaje,
+      bool respuesta, Map<String, String> respuestaEnMensaje) async {
     http.get(urlImagen).then((value) async {
       if (urlImagen != null) {
         FirebaseStorage storage = FirebaseStorage.instance;
-        String idMensajeUnico =  GeneradorCodigos.instancia.crearCodigo();
+        String idMensajeUnico = GeneradorCodigos.instancia.crearCodigo();
         StorageReference reference = storage.ref();
         String ruta =
-            "$idRemitente/Perfil/ImagenesConversaciones/${crearCodigo()}.gif";
+            "$idRemitente/Perfil/ImagenesConversaciones/${GeneradorCodigos.instancia.crearCodigo()}.gif";
         StorageReference referenciaArchivo = reference.child(ruta);
-        WriteBatch escrituraMensajes = baseDatosRef.batch();
-        DocumentReference direccionMensajes = baseDatosRef
+        WriteBatch escrituraMensajes = Conversacion.baseDatosRef.batch();
+        DocumentReference direccionMensajes = Conversacion.baseDatosRef
             .collection("usuarios")
             .doc(idRemitente)
             .collection("mensajes")
             .doc(idMensajeUnico);
-        DocumentReference direccionMensajesUsuario = baseDatosRef
+        DocumentReference direccionMensajesUsuario = Conversacion.baseDatosRef
             .collection("usuarios")
             .doc(Usuario.esteUsuario.idUsuario)
             .collection("mensajes")
             .doc(idMensajeUnico);
-        DocumentReference referenciaConversacionRemitente = baseDatosRef
+        DocumentReference referenciaConversacionRemitente = Conversacion
+            .baseDatosRef
             .collection("usuarios")
             .doc(idRemitente)
             .collection("conversaciones")
             .doc(idConversacion);
-        DocumentReference referenciaConversacionUsuario = baseDatosRef
+        DocumentReference referenciaConversacionUsuario = Conversacion
+            .baseDatosRef
             .collection("usuarios")
             .doc(Usuario.esteUsuario.idUsuario)
             .collection("conversaciones")
@@ -751,22 +756,22 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
           mensaje["Nombre emisor"] = Usuario.esteUsuario.nombre;
           mensaje["idEmisor"] = Usuario.esteUsuario.idUsuario;
           mensaje["Tipo Mensaje"] = "Gif";
-           mensaje["mensajeRespuesta"]=respuestaEnMensaje;
-      mensaje["respuesta"]=respuesta;
+          mensaje["mensajeRespuesta"] = respuestaEnMensaje;
+          mensaje["respuesta"] = respuesta;
           print(idRemitente);
-          if (conversacion.grupo) {
-            await baseDatosRef
-                .collection("grupos directo")
-                .doc(idRemitente)
-                .collection("mensajes")
-                .doc()
-                .set(mensaje)
-                .then((value) {
-              print("ImagenEnviada");
-            });
-          }
-          if(Citas.estaConectado==true){
-                    if (!conversacion.grupo) {
+
+          await Conversacion.baseDatosRef
+              .collection("grupos directo")
+              .doc(idRemitente)
+              .collection("mensajes")
+              .doc()
+              .set(mensaje)
+              .then((value) {
+            print("ImagenEnviada");
+          });
+
+          if (EstadoConexionInternet.estadoConexion.conexion ==
+              EstadoConexion.conectado) {
             escrituraMensajes.update(referenciaConversacionRemitente, {
               "cantidadMensajesSinLeer": FieldValue.increment(1),
               "ultimoMensaje": {
@@ -788,15 +793,15 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
             await escrituraMensajes.commit();
           }
 
+          if (EstadoConexionInternet.estadoConexion.conexion !=
+              EstadoConexion.conectado) {
+            if (PantallaConversacion.llavePantallaConversacion.currentContext !=
+                null) {
+              ManejadorErroresAplicacion.erroresInstancia
+                  .mostrarErrorEnvioMensaje(PantallaConversacion
+                      .llavePantallaConversacion.currentContext);
+            }
           }
-
-          if(Citas.estaConectado==false){
-        if(PantallaConversacion.llavePantallaConversacion.currentContext!=null){
-ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaConversacion.llavePantallaConversacion.currentContext);
-        }
-        
-      }
-  
         }
       }
     });
@@ -811,7 +816,7 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
       estadoConexionUsuario["Conectado"] = true;
       estadoConexionUsuario["IdConversacion"] = conversacion.idConversacion;
       estadoConexionUsuario["Hora Conexion"] = DateTime.now();
-      await baseDatosRef
+      await Conversacion.baseDatosRef
           .collection("usuarios")
           .doc(idRemitente)
           .collection("estados conversacion")
@@ -825,7 +830,7 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
       estadoConexionUsuario["Conectado"] = true;
       estadoConexionUsuario["IdConversacion"] = conversacion.idConversacion;
       estadoConexionUsuario["Hora Conexion"] = DateTime.now();
-      await baseDatosRef
+      await Conversacion.baseDatosRef
           .collection("usuarios")
           .doc(idRemitente)
           .collection("estados conversacion")
@@ -838,6 +843,7 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarErrorEnvioMensaje(PantallaCon
 class TituloChatState extends State<TituloChat> {
   String imagen;
   String nombre;
+  Key llave;
   Map<String, dynamic> ultimoMensaje = Map();
 
   int cantidadMensajesSinLeer = 0;
@@ -858,8 +864,6 @@ class TituloChatState extends State<TituloChat> {
   bool estadoConexionUsuario() {
     return widget.estadoConexion;
   }
-
-
 
   void dejarMensajeLeidoRemitente() async {
     FirebaseFirestore referenciaBaseDatos = FirebaseFirestore.instance;
@@ -894,8 +898,6 @@ class TituloChatState extends State<TituloChat> {
     }
   }
 
-  
-
   String mostrarDuracion(int duracion) {
     Duration duracionMensajeVoz = new Duration(milliseconds: duracion);
     String dosDigitos(int n) => n.toString().padLeft(2, "0");
@@ -908,12 +910,14 @@ class TituloChatState extends State<TituloChat> {
 
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
+        key: llave,
         value: Conversacion.conversaciones,
         child: Consumer<Conversacion>(
           builder: (BuildContext context, conversacion, Widget child) {
-            
-         cantidadMensajesSinLeer=   widget.mensajesSinLeer  ;
+            cantidadMensajesSinLeer = widget.mensajesSinLeer;
             widget.pantalla = PantallaConversacion(
+              todosLosMensajesCargados: widget.todosLosmensajesCargados,
+              obtenerMasMensajesConversacion: widget.obtenerMasMensajes,
               estadoConexion: estadoConexionUsuario,
               enviarMensajeImagenGif: widget.enviarMensajeImagenGif,
               idConversacion: widget.idConversacion,
@@ -936,44 +940,87 @@ class TituloChatState extends State<TituloChat> {
               padding: const EdgeInsets.all(4.0),
               child: FlatButton(
                 onPressed: () async {
-
-                  if (widget.listadeMensajes == null&&Citas.estaConectado==true&&Conversaciones.enPantallaConversacion==true) {
+                  if (widget.listadeMensajes == null &&
+                      EstadoConexionInternet.estadoConexion.conexion ==
+                          EstadoConexion.conectado &&
+                      Conversaciones.enPantallaConversacion == true) {
                     widget.listadeMensajes = await widget.obtenerMensajes(
                         widget.mensajeId, widget.idRemitente);
+                    setState(() {});
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => widget.pantalla));
-                  }   if (widget.listadeMensajes != null&&Conversaciones.enPantallaConversacion==true) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => widget.pantalla));
-
+                            builder: (contexto) => PuenteVentanaChat(
+                           todosLosMensajesCargados:   widget.todosLosMensajesCargados,
+                            estadoCargaMensajesAdicionales:  widget.cargaMensajesAdicionales,
+                                  estadoConexion: widget.estadoConexion,
+                                  estadoConversacion: widget.estadoConversacion,
+                                  key: llave,
+                                  child: widget.pantalla,
+                                  listaMensajes: widget.listadeMensajes,
+                                )));
                   }
 
-                    if (widget.listadeMensajes == null&&Citas.estaConectado==false){
-ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(ConversacionesLikes.claveListaConversaciones.currentContext);
+                  if (widget.listadeMensajes != null &&
+                      Conversaciones.enPantallaConversacion == true) {
+                    if (Conversacion.conversaciones.cargarConversacion ==
+                        true) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (contexto) => PuenteVentanaChat(
+                                                           todosLosMensajesCargados:   widget.todosLosMensajesCargados,
+
+                                   estadoCargaMensajesAdicionales:  widget.cargaMensajesAdicionales,
+                                    estadoConexion: widget.estadoConexion,
+                                    estadoConversacion:
+                                        widget.estadoConversacion,
+                                    key: llave,
+                                    child: widget.pantalla,
+                                    listaMensajes: widget.listadeMensajes,
+                                  )));
+                    } else {
+                      if (BaseAplicacion.claveBase?.currentContext != null) {
+                        ControladorNotificacion.instancia
+                            .mostrarNotificacionCargaConversacionDebeEsperar(
+                                BaseAplicacion.claveBase.currentContext);
+                      }
                     }
+                  }
+
+                  if (widget.listadeMensajes == null &&
+                      EstadoConexionInternet.estadoConexion.conexion !=
+                          EstadoConexion.conectado) {
+                    print(EstadoConexionInternet.estadoConexion.conexion);
+                    ManejadorErroresAplicacion.erroresInstancia
+                        .mostrarNoSePuedeAbrirConversacion(ConversacionesLikes
+                            .claveListaConversaciones.currentContext);
+                  }
                 },
                 child: Container(
-                    height: ScreenUtil().setHeight(250),
+                    height: ScreenUtil().setHeight(220),
+                    width: ScreenUtil().setWidth(1000),
                     decoration: BoxDecoration(
-                      color: widget.mensajesSinLeer>0?Colors.purple[100]:Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: widget.mensajesSinLeer > 0
+                          ? Colors.purple[100]
+                          : Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Stack(
-                        
                         children: [
-                     
                           Row(
                             children: <Widget>[
                               Container(
                                 height: 200.h,
                                 width: 200.h,
                                 decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: widget.estadoConexion
+                                          ? Colors.greenAccent[400]
+                                          : Colors.transparent,
+                                      width: 10.h),
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
                                       image: NetworkImage(
@@ -989,7 +1036,8 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       mainAxisSize: MainAxisSize.max,
@@ -997,54 +1045,26 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                                         Flexible(
                                           flex: 5,
                                           fit: FlexFit.tight,
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Container(
-                                                    height:
-                                                        ScreenUtil().setHeight(100),
-                                                    child: nombre == null
-                                                        ? Text("")
-                                                        : Text(
-                                                           widget.nombre,
-                                                            overflow:
-                                                                TextOverflow.ellipsis,
-                                                            style: TextStyle(
-                                                                fontSize: ScreenUtil()
-                                                                    .setSp(40),
-                                                                fontWeight:
-                                                                    FontWeight.bold),
-                                                          )),
-                                              ),
-                                              widget.estadoConexion
-                                                  ? Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Container(
-                                                        height: 50.w,
-                                                        width: ScreenUtil()
-                                                            .setWidth(50),
-                                                        decoration: BoxDecoration(
-                                                            shape: BoxShape.circle,
-                                                            color: Colors.green,
-                                                            border: Border.all(
-                                                                color: Colors.white,
-                                                                width: ScreenUtil()
-                                                                    .setWidth(5))),
-                                                      ),
-                                                    )
-                                                  : Container()
-                                            ],
-                                          ),
+                                          child: Container(
+                                              child: nombre == null
+                                                  ? Text("")
+                                                  : Text(
+                                                      widget.nombre,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                          fontSize: ScreenUtil()
+                                                              .setSp(40),
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )),
                                         ),
                                         Flexible(
                                           flex: 5,
                                           fit: FlexFit.tight,
-                                          child: Container(
-                                              child: widget.estadoConversacion ==
+                                          child: SizedBox(
+                                              child: widget
+                                                          .estadoConversacion ==
                                                       "Escribiendo"
                                                   ? Text(
                                                       "Escribiendo.....",
@@ -1056,7 +1076,8 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                                                           fontWeight:
                                                               cantidadMensajesSinLeer >
                                                                       0
-                                                                  ? FontWeight.bold
+                                                                  ? FontWeight
+                                                                      .bold
                                                                   : FontWeight
                                                                       .normal),
                                                     )
@@ -1065,27 +1086,36 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                                                       : widget.ultimoMensaje[
                                                                   "tipoMensaje"] ==
                                                               "texto"
-                                                          ? Text(widget.ultimoMensaje[
-                                                                          "mensaje"] ==
-                                                                      null ||
-                                                                  widget.ultimoMensaje[
-                                                                          "mensaje"] ==
-                                                                      "null"
-                                                              ? ""
-                                                              : widget.ultimoMensaje[
-                                                                  "mensaje"],overflow: TextOverflow.ellipsis,)
+                                                          ? Text(
+                                                              widget.ultimoMensaje[
+                                                                              "mensaje"] ==
+                                                                          null ||
+                                                                      widget.ultimoMensaje[
+                                                                              "mensaje"] ==
+                                                                          "null"
+                                                                  ? ""
+                                                                  : widget.ultimoMensaje[
+                                                                      "mensaje"],
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 1,
+                                                            )
                                                           : widget.ultimoMensaje[
                                                                       "tipoMensaje"] ==
                                                                   "audio"
                                                               ? Row(children: [
-                                                                  Icon(Icons.mic,
+                                                                  Icon(
+                                                                      Icons.mic,
                                                                       color: Colors
                                                                           .black),
                                                                   Text(mostrarDuracion(
                                                                       widget.ultimoMensaje[
                                                                           "duracion"]))
                                                                 ])
-                                                              : widget.ultimoMensaje["tipoMensaje"] == "imagen"
+                                                              : widget.ultimoMensaje[
+                                                                          "tipoMensaje"] ==
+                                                                      "imagen"
                                                                   ? Row(
                                                                       children: [
                                                                         Icon(Icons
@@ -1094,13 +1124,13 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                                                                             "Imagen")
                                                                       ],
                                                                     )
-                                                                  : widget.ultimoMensaje["tipoMensaje"] == "gif"
+                                                                  : widget.ultimoMensaje[
+                                                                              "tipoMensaje"] ==
+                                                                          "gif"
                                                                       ? Row(
                                                                           children: [
-                                                                            Icon(Icons
-                                                                                .image),
-                                                                            Text(
-                                                                                "Gif")
+                                                                            Icon(Icons.image),
+                                                                            Text("Gif")
                                                                           ],
                                                                         )
                                                                       : Container()),
@@ -1125,11 +1155,7 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                                               ? Colors.purple
                                               : Colors.transparent),
                                       child: Center(
-                                        child:
-                                        
-                                        
-                                        
-                                         Text(
+                                        child: Text(
                                           "$cantidadMensajesSinLeer",
                                           style: TextStyle(
                                               color: Colors.white,
@@ -1142,28 +1168,33 @@ ManejadorErroresAplicacion.erroresInstancia.mostrarNoSePuedeAbrirConversacion(Co
                               )
                             ],
                           ),
-                           widget.estado==EstadosListaMensajes.cargandoLista? Container
-                          (
-
-                               decoration: BoxDecoration(
-                      color: Color.fromRGBO(20, 20, 20, 100),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                            height: 250.h,
-                            
-                            
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-
-
-                              Text("Cargando conversación...",style:GoogleFonts.lato(color: Colors.white)),
-                              Container(height: 120.h,width: 120.h,
-                                  child: CircularProgressIndicator(),
-                                  )
-
-                            ],),):Container(height: 0,width: 0,)
-                       
+                          widget.estado == EstadosListaMensajes.cargandoLista
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.deepPurple,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  height: 250.h,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text("Cargando conversación...",
+                                          style: GoogleFonts.lato(
+                                              color: Colors.white)),
+                                      Container(
+                                        height: 120.h,
+                                        width: 120.h,
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    ],
+                                  ),
+                                )
+                              : Container(
+                                  height: 0,
+                                  width: 0,
+                                )
                         ],
                       ),
                     )),

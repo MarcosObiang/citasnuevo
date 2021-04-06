@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:citasnuevo/DatosAplicacion/ControladorCreditos.dart';
+import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
 
 import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
+import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/EstadoConexion.dart';
+import 'package:citasnuevo/DatosAplicacion/WrapperLikes.dart';
 import 'package:citasnuevo/InterfazUsuario/Actividades/Pantalla_Actividades.dart';
 import 'package:citasnuevo/InterfazUsuario/WidgetError.dart';
 import 'package:flash/flash.dart';
@@ -12,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart' as xd;
+import 'package:loading_indicator/loading_indicator.dart';
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -33,8 +37,8 @@ class ListaDeValoraciones extends StatefulWidget {
 
 class ListaDeValoracionesState extends State<ListaDeValoraciones>
     with SingleTickerProviderStateMixin {
-  AnimationController controladorAnimacionPocoTiempo;
-  Animation animacionPocoTiempo;
+  Animation animacionCreditos;
+  AnimationController controladorAnimacionCreditos;
 
   Widget barraExito() {
     return ChangeNotifierProvider.value(
@@ -42,7 +46,7 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
         child: Consumer<Valoracion>(
           builder: (context, myType, child) {
             return Container(
-              decoration: BoxDecoration(color: Colors.white),
+              decoration: BoxDecoration(color: Colors.deepPurple),
               height: ScreenUtil().setHeight(100),
               child: Container(
                   child: Container(
@@ -64,14 +68,14 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                                 Text(
                                   "Visitas   ",
                                   style: TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       fontSize: ScreenUtil().setSp(40),
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   "${Valoracion.instanciar.visitasTotales}",
                                   style: TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       fontSize: ScreenUtil().setSp(40),
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -119,34 +123,38 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
   }
 
   static void notifiacionValoracionRevelada(BuildContext context) {
-      showFlash(
-    duration: Duration(seconds: 3),
-    context: context,builder: (context,controller){
-    return Flash.dialog(
-      controller: controller,
-      alignment: Alignment.topCenter,
-      borderColor: Colors.white,
-      borderRadius:  BorderRadius.all(Radius.circular(10)),
-      backgroundColor: Colors.deepPurple,
-      margin: EdgeInsets.only(top:150.h),
-
-      child: Container(
-        width: ScreenUtil().setWidth(900),
-        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
-
-
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text("Valoracion revelada",style: GoogleFonts.lato(fontSize: 55.sp,color:Colors.white),),
-             Icon(Icons.check_circle,color:Colors.green)
-            ],
-          ),
-        ),
-      ),);
-  });
+    showFlash(
+        duration: Duration(seconds: 3),
+        context: context,
+        builder: (context, controller) {
+          return Flash.dialog(
+            controller: controller,
+            alignment: Alignment.topCenter,
+            borderColor: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            backgroundColor: Colors.deepPurple,
+            margin: EdgeInsets.only(top: 150.h),
+            child: Container(
+              width: ScreenUtil().setWidth(900),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      "Valoracion revelada",
+                      style: GoogleFonts.lato(
+                          fontSize: 55.sp, color: Colors.white),
+                    ),
+                    Icon(Icons.check_circle, color: Colors.green)
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -158,6 +166,7 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
         child: Consumer<Valoracion>(
           builder: (context, myType, child) {
             return Scaffold(
+              backgroundColor: Colors.deepPurple,
               appBar: AppBar(
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,7 +178,7 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                         Text("${Usuario.esteUsuario.creditosUsuario}"),
                         Icon(
                           xd.LineAwesomeIcons.coins,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ],
                     ),
@@ -187,19 +196,27 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                     flex: 8,
                     fit: FlexFit.loose,
                     child: Container(
-                      child: AnimatedList(
-                        key: ListaDeValoraciones.llaveListaValoraciones,
-                        initialItemCount:
-                            Valoracion.instanciar.listaDeValoraciones.length,
-                        itemBuilder:
-                            (BuildContext context, int indice, animation) {
-                          return buildSlideTransition(
-                              context,
-                              animation,
-                              indice,
-                              Valoracion
-                                  .instanciar.listaDeValoraciones[indice]);
-                        },
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30))),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: AnimatedList(
+                          key: ListaDeValoraciones.llaveListaValoraciones,
+                          initialItemCount:
+                              Valoracion.instanciar.listaDeValoraciones.length,
+                          itemBuilder:
+                              (BuildContext context, int indice, animation) {
+                            return buildSlideTransition(
+                                context,
+                                animation,
+                                indice,
+                                Valoracion
+                                    .instanciar.listaDeValoraciones[indice]);
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -241,7 +258,15 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                       children: [
                         Row(
                           children: [
-                            fotoSolicitud(valoracion),
+                            Flexible(
+                              flex: 4,
+                              fit: FlexFit.tight,
+                              child: GestureDetector(
+                                  onTap: () {
+                                    mostrarPerfilRemitente(context, valoracion);
+                                  },
+                                  child: fotoSolicitud(valoracion)),
+                            ),
                             cuadroOpcionesSolicitud(valoracion, indice),
                           ],
                         ),
@@ -255,7 +280,9 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                                 child: Center(
                                     child: GestureDetector(
                                   onTap: () async {
-                                    if (Citas.estaConectado) {
+                                    if (EstadoConexionInternet
+                                            .estadoConexion.conexion ==
+                                        EstadoConexion.conectado) {
                                       if (Usuario.esteUsuario.creditosUsuario <
                                           200) {
                                         ManejadorErroresAplicacion
@@ -344,25 +371,110 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
         });
   }
 
+  void mostrarPerfilRemitente(
+      BuildContext context, Valoracion valoracion) async {
+    DatosPerfiles perfilRemitente = valoracion.perfilRemitente;
+
+    showDialog(
+        useRootNavigator: false,
+        useSafeArea: true,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            if (perfilRemitente == null) {
+              for (int i = 0;
+                  i < Valoracion.instanciar.listaDeValoraciones.length;
+                  i++) {
+                if (valoracion.idValoracion ==
+                    Valoracion.instanciar.listaDeValoraciones[i].idValoracion) {
+                  Perfiles.cargarIsolatePerfilDeterminado(valoracion.idEmisor)
+                      .then((value) {
+                    perfilRemitente = value.first;
+                    Valoracion.instanciar.listaDeValoraciones[i]
+                        .perfilRemitente = value.first;
+
+                    setState(() {});
+                  });
+                }
+              }
+            }
+
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    height: ScreenUtil.screenHeight,
+                    width: ScreenUtil.screenWidth,
+                    child: perfilRemitente != null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                                Expanded(
+                                  child: ListView(
+                                    children: perfilRemitente.carrete,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: IconButton(
+                                    color: Colors.red,
+                                    icon: Icon(Icons.cancel),
+                                    iconSize: 160.sp,
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                )
+                              ])
+                        : Container(
+                            height: 50.h,
+                            width: 50.h,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                LoadingIndicator(
+                                  colors: [
+                                    Colors.white,
+                                    Colors.purple,
+                                    Colors.red
+                                  ],
+                                  indicatorType: Indicator.ballScaleMultiple,
+                                ),
+                                Text("Por favor, espere",
+                                    style: GoogleFonts.lato(
+                                        color: Colors.white, fontSize: 60.sp)),
+                              ],
+                            )),
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            );
+          });
+        });
+  }
+
   Flexible botonRevelarValoracion() {
     return Flexible(
       fit: FlexFit.tight,
       flex: 2,
       child: Container(
-        color: Colors.greenAccent[700],
+        color: Colors.deepPurple[900],
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             Text(
               "Ver",
-              style: TextStyle(fontSize: 60.sp, color: Colors.white),
+              style: TextStyle(fontSize: 50.sp, color: Colors.white),
             ),
             Row(
               children: [
                 Text(
                   "${ControladorCreditos.precioValoracion}",
-                  style: GoogleFonts.lato(color: Colors.white, fontSize: 60.sp),
+                  style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
                 ),
                 Icon(
                   xd.LineAwesomeIcons.coins,
@@ -446,10 +558,12 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                     fit: FlexFit.tight,
                     child: Container(
                       height: limites.maxHeight,
-                      decoration: BoxDecoration(color: Colors.green),
+                      decoration: BoxDecoration(color: Colors.deepPurple),
                       child: FlatButton(
                           onPressed: () {
-                            if (Citas.estaConectado) {
+                            if (EstadoConexionInternet
+                                    .estadoConexion.conexion ==
+                                EstadoConexion.conectado) {
                               aceptarSolicitud(
                                   indice,
                                   valoracion.mensaje,
@@ -479,7 +593,9 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
                       height: limites.maxHeight,
                       child: FlatButton(
                           onPressed: () {
-                            if (Citas.estaConectado) {
+                            if (EstadoConexionInternet
+                                    .estadoConexion.conexion ==
+                                EstadoConexion.conectado) {
                               eliimnarSolicitud(
                                   indice,
                                   Valoracion.instanciar
@@ -511,84 +627,74 @@ class ListaDeValoracionesState extends State<ListaDeValoraciones>
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Container(
-                      child: valoracion.nombreEmisor != null
-                          ? Text(
-                              "${valoracion.nombreEmisor}",
-                              style: TextStyle(
-                                  fontSize: ScreenUtil().setSp(40),
-                                  fontWeight: FontWeight.bold),
-                            )
-                          : Text(" ")),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Container(
+                    child: valoracion.nombreEmisor != null
+                        ? Text(
+                            "${valoracion.nombreEmisor}",
+                            style: TextStyle(
+                              
+                                fontWeight: FontWeight.bold),
+                          )
+                        : Text(" ")),
+              ),
+              Flexible(
+                fit: FlexFit.tight,
+                flex: 6,
+                child: Container(
+                  height: ScreenUtil().setHeight(40),
+                  child: valoracion.valoracionRevelada
+                      ? LinearPercentIndicator(
+                          linearStrokeCap: LinearStrokeCap.roundAll,
+                          //  progressColor: Colors.deepPurple,
+                          percent: valoracion.valoracion / 10,
+                          animationDuration: 300,
+                          lineHeight: ScreenUtil().setHeight(60),
+                          linearGradient: LinearGradient(colors: [
+                            Colors.deepPurple,
+                            Colors.deepPurple[900]
+                          ]),
+                          center: Text(
+                            "${(valoracion.valoracion).toStringAsFixed(1)}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: ScreenUtil()
+                                    .setSp(40, allowFontScalingSelf: true),
+                                color: Colors.white),
+                          ),
+                        )
+                      : Container(),
                 ),
-                Flexible(
-                  fit: FlexFit.tight,
-                  flex: 5,
-                  child: Container(
-                    height: ScreenUtil().setHeight(50),
-                    child: Center(
-                      child: valoracion.valoracionRevelada
-                          ? LinearPercentIndicator(
-                              linearStrokeCap: LinearStrokeCap.butt,
-                              //  progressColor: Colors.deepPurple,
-                              percent: valoracion.valoracion / 10,
-                              animationDuration: 300,
-                              lineHeight: ScreenUtil().setHeight(60),
-                              linearGradient: LinearGradient(colors: [
-                                Colors.pink,
-                                Colors.pinkAccent[100]
-                              ]),
-                              center: Text(
-                                "${(valoracion.valoracion).toStringAsFixed(1)}",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ScreenUtil()
-                                        .setSp(40, allowFontScalingSelf: true),
-                                    color: Colors.white),
-                              ),
-                            )
-                          : Container(),
-                    ),
-                  ),
+              ),
+              Flexible(
+                fit: FlexFit.tight,
+                flex: 4,
+                child: Container(
+                  child: Center(
+                      child: Text(
+                    "¿Enviar solicitud de chat?",
+                    style: GoogleFonts.lato(fontSize: 40.sp),
+                    overflow: TextOverflow.clip,
+                  )),
                 ),
-                Flexible(
-                  fit: FlexFit.tight,
-                  flex: 5,
-                  child: Container(
-                    child: Center(
-                        child: Text(
-                      "¿Enviar solicitud de chat?",
-                      style: GoogleFonts.lato(fontSize: 45.sp),
-                      overflow: TextOverflow.clip,
-                    )),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Flexible fotoSolicitud(Valoracion valoracion) {
-    return Flexible(
-      flex: 4,
-      fit: FlexFit.tight,
-      child: Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: NetworkImage(valoracion.imagenEmisor),
-                fit: BoxFit.cover)),
-      ),
+  Widget fotoSolicitud(Valoracion valoracion) {
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: NetworkImage(valoracion.imagenEmisor), fit: BoxFit.cover)),
     );
   }
 

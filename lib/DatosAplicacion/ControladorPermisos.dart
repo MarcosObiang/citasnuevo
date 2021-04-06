@@ -87,14 +87,14 @@ class ControladorPermisos with ChangeNotifier {
     await  Permission.location.request().then((value) {
       statusPermisoAlmacenamiento=value;
         if (value.isDenied) {
-          this.setPermisoUbicacion = false;
+          this.setPermisoAlmacenamiento = false;
           tienePermiso = EstadosPermisos.permisoDenegado;
         }
       });
     }
 
     if (statusPermisoAlmacenamiento.isDenied) {
-      Permission.storage.request().then((value) {
+  await    Permission.storage.request().then((value) {
         statusPermisoAlmacenamiento=value;
         if (value.isDenied) {
           tienePermiso = EstadosPermisos.permisoDenegado;
@@ -103,7 +103,7 @@ class ControladorPermisos with ChangeNotifier {
       });
     }
     if (statusPermisoAlmacenamiento.isPermanentlyDenied) {
-      Permission.storage.request().then((value) {
+  await    Permission.storage.request().then((value) {
          statusPermisoAlmacenamiento=value;
         if (value.isPermanentlyDenied) {
           tienePermiso = EstadosPermisos.permisoDenegadoPermanente;
@@ -129,14 +129,14 @@ class ControladorPermisos with ChangeNotifier {
     await  Permission.location.request().then((value) {
       statusPermisoCamara=value;
         if (value.isDenied) {
-          this.setPermisoUbicacion = false;
+          this.setPermisoCamara = false;
           tienePermiso = EstadosPermisos.permisoDenegado;
         }
       });
     }
 
     if (statusPermisoCamara.isDenied) {
-      Permission.camera.request().then((value) {
+ await     Permission.camera.request().then((value) {
         if (value.isDenied) {
           statusPermisoCamara=value;
           tienePermiso = EstadosPermisos.permisoDenegado;
@@ -145,7 +145,7 @@ class ControladorPermisos with ChangeNotifier {
       });
     }
     if (statusPermisoCamara.isPermanentlyDenied) {
-      Permission.camera.request().then((value) {
+await      Permission.camera.request().then((value) {
             statusPermisoCamara=value;
         if (value.isPermanentlyDenied) {
           tienePermiso = EstadosPermisos.permisoDenegadoPermanente;
@@ -172,14 +172,14 @@ class ControladorPermisos with ChangeNotifier {
     await  Permission.location.request().then((value) {
       statusPermisoMicrofono=value;
         if (value.isDenied) {
-          this.setPermisoUbicacion = false;
+          this.setPermisoMicrofono = false;
           tienePermiso = EstadosPermisos.permisoDenegado;
         }
       });
     }
 
     if (statusPermisoMicrofono.isDenied) {
-      Permission.microphone.request().then((value) {
+  await    Permission.microphone.request().then((value) {
             statusPermisoMicrofono=value;
         if (value.isDenied) {
           tienePermiso = EstadosPermisos.permisoDenegado;
@@ -188,7 +188,7 @@ class ControladorPermisos with ChangeNotifier {
       });
     }
     if (statusPermisoMicrofono.isPermanentlyDenied) {
-      Permission.microphone.request().then((value) {
+ await     Permission.microphone.request().then((value) {
         statusPermisoMicrofono=value;
         if (value.isDenied) {
           tienePermiso = EstadosPermisos.permisoDenegadoPermanente;

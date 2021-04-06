@@ -198,8 +198,8 @@ class Pantalla_Actividades extends State<PantallaPrincipal>
               builder: (BuildContext context, Usuario usuario, Widget child) {
                 return Scaffold(
                   resizeToAvoidBottomInset: false,
-                  resizeToAvoidBottomPadding: false,
-                  backgroundColor: Colors.white,
+                 
+                  backgroundColor: Colors.deepPurple,
                   body: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -211,12 +211,7 @@ class Pantalla_Actividades extends State<PantallaPrincipal>
                               BoxConstraints limites) {
                             return Container(
                               height: limites.biggest.height,
-                              child: Perfiles.perfilesCitas.listaPerfiles==null?Center(
-                                child: Container(
-                                  height: ScreenUtil().setHeight(150),
-                                  width: ScreenUtil().setWidth(150),
-                                  child: CircularProgressIndicator()),
-                              ):getTabBarView(limites),
+                              child:getTabBarView(limites),
                             );
                           },
                         ),
@@ -306,34 +301,19 @@ class CitasState extends State<Citas> with AutomaticKeepAliveClientMixin{
                 color: Colors.deepPurple,
                 ),
               height: ScreenUtil().setHeight(2000),
-              child: Stack(alignment: AlignmentDirectional.center, children: <
-                  Widget>[
-                   Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Container(child: CircularProgressIndicator()),
-                            Text(
-                              "Cargando",
-                              style: TextStyle(color: Colors.white),
-                            )
-                          ],
-                        ),
-                      ),
-                     Container(
-                      height: widget.limites.biggest.height,
-                      width: widget.limites.biggest.width,
-                      color: Colors.deepPurple,
-                      child:
-                       LayoutBuilder(
-                        builder: (BuildContext context,
-                            BoxConstraints espacioPerfiles) {
-                          return PerfilesGenteCitas(
-                              limites: espacioPerfiles);
-                        },
-                      ),
+              child: Container(
+               height: widget.limites.biggest.height,
+               width: widget.limites.biggest.width,
+               color: Colors.deepPurple,
+               child:
+                LayoutBuilder(
+                 builder: (BuildContext context,
+                     BoxConstraints espacioPerfiles) {
+                   return PerfilesGenteCitas(
+                       limites: espacioPerfiles);
+                 },
+               ),
                     ),
-              ]),
             ),
           );
         },

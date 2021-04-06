@@ -16,10 +16,6 @@ import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-
-
-
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:drag_and_drop_gridview/devdrag.dart';
 
@@ -29,7 +25,6 @@ class BotonEditarPerfil extends StatefulWidget {
 }
 
 class _BotonEditarPerfilState extends State<BotonEditarPerfil> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -150,17 +145,14 @@ class BotonesTiendaAplicacion extends StatefulWidget {
 }
 
 class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion>
-    with SingleTickerProviderStateMixin {
+   {
   TabController controladorTabuladorPrecions;
 
   @override
   void initState() {
     // TODO: implement initState
-    
 
-    controladorTabuladorPrecions =
-        new TabController(initialIndex: 0, length: 2, vsync: this);
-
+ 
 
     super.initState();
   }
@@ -168,138 +160,98 @@ class _BotonesTiendaAplicacionState extends State<BotonesTiendaAplicacion>
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        Flexible(
-          flex: 1,
-          fit: FlexFit.tight,
-          child: TabBar(
-            labelColor: Colors.red,
-            controller: controladorTabuladorPrecions,
-            tabs: [Text("Tarjeta"), Text("Google Pay")],
-          ),
-        ),
-        Flexible(
+     
+   children:[     Flexible(
           flex: 15,
           fit: FlexFit.tight,
           child:
-              TabBarView(controller: controladorTabuladorPrecions, children: [
-            Column(
-              children: [
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Colors.deepPurple[900],
-                      ),
-                      height: 100.h,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            "Hotty Premium",
-                            style: GoogleFonts.lemon(
-                                fontSize: 60.sp, color: Colors.white),
-                          ),
-                          Row(
-                            children: [
-                              Text("${8.99}",
+              Column(
+                children: [
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          color: Colors.deepPurple[900],
+                        ),
+                        height: 100.h,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Monedas infinitas",
                                   style: GoogleFonts.lemon(
-                                      fontSize: 40.sp, color: Colors.white)),
-                              Icon(
-                                Icons.euro,
-                                color: Colors.white,
-                              )
-                            ],
-                          )
-                        ],
+                                      fontSize: 60.sp, color: Colors.white),
+                                ),
+                                     Text(
+                                  "Hotty Premium",
+                                  style: GoogleFonts.lemon(
+                                     color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              decoration: BoxDecoration(shape:BoxShape.circle,color:Colors.red),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text("${9.99} ",
+                                            style: GoogleFonts.lemon(
+                                                fontSize: 40.sp, color: Colors.white)),
+                                        Icon(
+                                          Icons.euro,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    ),
+                                       Text(
+                                      " mes",
+                                      style: GoogleFonts.lemon(
+                                         color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Flexible(
-                  fit: FlexFit.tight,
-                  flex: 5,
-                  child: Container(
-                      width: ScreenUtil.screenWidth,
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1.5 / 1,
-                        children: [
-                          botonComprasCreditos(0.99, 1000, 1),
-                          botonComprasCreditos(1.99, 2000, 1),
-                          botonComprasCreditos(1.99, 3500, 1),
-                          botonComprasCreditos(2.99, 5000, 1),
-                        ],
-                      )),
-                )
-              ],
-            ),
-            Column(
-              children: [
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 8,
                     child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Colors.deepPurple[900],
-                      ),
-                      height: 100.h,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            "Hotty Premium",
-                            style: GoogleFonts.lemon(
-                                fontSize: 60.sp, color: Colors.white),
-                          ),
-                          Row(
-                            children: [
-                              Text("${9.99}",
-                                  style: GoogleFonts.lemon(
-                                      fontSize: 40.sp, color: Colors.white)),
-                              Icon(
-                                Icons.euro,
-                                color: Colors.white,
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Flexible(
-                  fit: FlexFit.tight,
-                  flex: 5,
-                  child: Container(
-                      width: ScreenUtil.screenWidth,
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1.5 / 1,
-                        children: [
-                          botonComprasCreditos(0.99, 1000, 1),
-                          botonComprasCreditos(1.99, 2000, 1),
-                          botonComprasCreditos(2.99, 3500, 1),
-                          botonComprasCreditos(3.99, 5000, 1),
-                        ],
-                      )),
-                )
-              ],
-            ),
-          ]),
+                        width: ScreenUtil.screenWidth,
+                        child: GridView.count(
+                          crossAxisCount: 2,
+                          childAspectRatio: 1.5 / 1,
+                          children: [
+                            botonComprasCreditos(0.99, 1000, 1),
+                            botonComprasCreditos(1.99, 2000, 1),
+                            botonComprasCreditos(2.99, 3500, 1),
+                            botonComprasCreditos(3.99, 5000, 1),
+                          ],
+                        )),
+                  )
+                ],
+              ),
         ),
       ],
     );
   }
 
- 
   Padding botonComprasCreditos(
       double precioPaqueteCreditos, int cantidadCreditos, int orden) {
     return Padding(
@@ -459,8 +411,8 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-       // Usuario.esteUsuario.editarPerfilUsuario(Usuario.esteUsuario.idUsuario);
-        print("saliendo");
+        // Usuario.esteUsuario.editarPerfilUsuario(Usuario.esteUsuario.idUsuario);
+    
         return true;
       },
       child: ChangeNotifierProvider.value(
@@ -471,7 +423,7 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
                 child: SafeArea(
                   child: Scaffold(
                     resizeToAvoidBottomInset: true,
-                    resizeToAvoidBottomPadding: true,
+               
                     appBar: AppBar(
                       title: Text("Edita tu perfil"),
                     ),
@@ -556,8 +508,6 @@ class _PantallaEdicionPerfilState extends State<PantallaEdicionPerfil> {
                                 Divider(height: 80.h),
                                 Text(
                                     "*Presiona y arrastra para cambiar el orden de las imagenes*"),
-                             
-                       
                                 EditorDescripcion(),
                                 Container(
                                     height: 1000.h,
@@ -586,20 +536,20 @@ class ListaDeCaracteristicasUsuarioEditar extends StatefulWidget {
 
 class _ListaDeCaracteristicasUsuarioEditarState
     extends State<ListaDeCaracteristicasUsuarioEditar> {
-      ScrollController controladorScroll= new ScrollController(keepScrollOffset: true);
-      
+  ScrollController controladorScroll =
+      new ScrollController(keepScrollOffset: true);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Scrollbar(
-        
           isAlwaysShown: true,
-controller: controladorScroll,
+          controller: controladorScroll,
           thickness: 20.w,
           child: Padding(
-            padding: const EdgeInsets.only(left:8.0,right:15),
+            padding: const EdgeInsets.only(left: 8.0, right: 15),
             child: ListView(
               children: <Widget>[
                 /*Text("Trabajo y Formacion"),
@@ -863,9 +813,9 @@ class FotosPerfilState extends State<FotosPerfil> {
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
-        )).catchError((error){
-          print(error);
-        });
+        )).catchError((error) {
+      print(error);
+    });
     if (imagenRecortada != null) {}
 
     this.setState(() {
@@ -896,7 +846,9 @@ class FotosPerfilState extends State<FotosPerfil> {
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           minimumAspectRatio: 1.0,
-        )).catchError((error){print(error);});
+        )).catchError((error) {
+      print(error);
+    });
     if (imagenRecortada != null) {}
 
     this.setState(() {
@@ -1004,7 +956,6 @@ class _EditorDescripcionState extends State<EditorDescripcion> {
         controller: controladorEditorDescripcion,
         textInputAction: TextInputAction.done,
         decoration: InputDecoration(
-
             labelText: "Descripcion",
             floatingLabelBehavior: FloatingLabelBehavior.always),
         onChanged: (val) {
@@ -1333,7 +1284,7 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
                     fit: FlexFit.tight,
                     child: Text("Orientacion sexual")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(
                       Usuario.esteUsuario.getOrientacionSexual == 0
@@ -1347,9 +1298,8 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
   }
 
   void modificarAtributo(BuildContext context) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
       builder: (context) {
         return Provider<Usuario>(
           create: (_) => Usuario.esteUsuario,
@@ -1376,121 +1326,146 @@ class _EditorOrientacionSexualState extends State<EditorOrientacionSexual> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 50.0, right: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Container(
-                  child: Row(
-                children: <Widget>[
-                  Icon(LineAwesomeIcons.venus_mars),
-                  Text(
-                    "Orientacion Sexual",
-                    style: TextStyle(fontSize: ScreenUtil().setSp(60)),
-                  ),
-                ],
-              )),
-              FlatButton(
-                  onPressed: () {
-                    Usuario.esteUsuario.setPreferenciaSexual = 0;
+        Flexible(
+           flex: 2,
+          fit: FlexFit.tight,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                    child: Row(
+                  children: <Widget>[
+                    Icon(LineAwesomeIcons.venus_mars),
+                    Text(
+                      "Orientacion Sexual",
+                      style: TextStyle(fontSize: ScreenUtil().setSp(60)),
+                    ),
+                  ],
+                )),
+                FlatButton(
+                    onPressed: () {
+                      Usuario.esteUsuario.setPreferenciaSexual = 0;
 
-                    Navigator.pop(context);
-                  },
-                  child: Row(
-                    children: <Widget>[
-                      Icon(
-                        Icons.cancel,
-                        color: Colors.red,
-                      ),
-                      Text("Eliminar", style: TextStyle(color: Colors.red))
-                    ],
-                  )),
+                      Navigator.pop(context);
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.cancel,
+                          color: Colors.red,
+                        ),
+                        Text("Eliminar", style: TextStyle(color: Colors.red))
+                      ],
+                    )),
+              ],
+            ),
+          ),
+        ),
+        Flexible(
+          flex: 9,
+          fit: FlexFit.tight,
+          child: ListView(
+            children: [
+              CheckboxListTile(
+                  title: Text("Heterosexual"),
+                  value: hetero,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 1;
+                    mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Gay"),
+                  value: gay,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 2;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Lesbiana"),
+                  value: lesbiana,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 3;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Bisexual"),
+                  value: bisexual,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 4;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Asexual"),
+                  value: asexual,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 5;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Demisexual"),
+                  value: demisexual,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 6;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Queer"),
+                  value: queer,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 7;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Pansexual"),
+                  value: pansexual,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 8;
+                     mostrarValor();
+                  }),
+              CheckboxListTile(
+                  title: Text("Preguntame"),
+                  value: pregunatme,
+                  onChanged: (valor) {
+                    Usuario.esteUsuario.setOrientacionSexual = 9;
+                    mostrarValor();
+                  }),
             ],
           ),
         ),
-        CheckboxListTile(
-            title: Text("Heterosexual"),
-            value: hetero,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 1;
-            }),
-        CheckboxListTile(
-            title: Text("Gay"),
-            value: gay,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 2;
-            }),
-        CheckboxListTile(
-            title: Text("Lesbiana"),
-            value: lesbiana,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 3;
-            }),
-        CheckboxListTile(
-            title: Text("Bisexual"),
-            value: bisexual,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 4;
-            }),
-        CheckboxListTile(
-            title: Text("Asexual"),
-            value: asexual,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 5;
-            }),
-        CheckboxListTile(
-            title: Text("Demisexual"),
-            value: demisexual,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 6;
-            }),
-        CheckboxListTile(
-            title: Text("Queer"),
-            value: queer,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 7;
-            }),
-        CheckboxListTile(
-            title: Text("Pansexual"),
-            value: pansexual,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 8;
-            }),
-        CheckboxListTile(
-            title: Text("Preguntame"),
-            value: pregunatme,
-            onChanged: (valor) {
-              Usuario.esteUsuario.setOrientacionSexual = 9;
-            }),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-              child: FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    "Cancelar",
-                    style: TextStyle(color: Colors.red),
-                  )),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.all(Radius.circular(3)),
+        Flexible(
+           flex: 2,
+          fit: FlexFit.tight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Container(
+                child: FlatButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "Cancelar",
+                      style: TextStyle(color: Colors.red),
+                    )),
               ),
-              child: FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    "Aceptar",
-                    style: TextStyle(color: Colors.white),
-                  )),
-            )
-          ],
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.all(Radius.circular(3)),
+                ),
+                child: FlatButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "Aceptar",
+                      style: TextStyle(color: Colors.white),
+                    )),
+              )
+            ],
+          ),
         )
       ],
     );
@@ -1505,21 +1480,21 @@ class EditorComplexion extends StatefulWidget {
 class _EditorComplexionState extends State<EditorComplexion> {
   String valorMostrar;
   void valorUsuario() {
-    if (Usuario.esteUsuario.complexion == 0) {}
-    if (Usuario.esteUsuario.complexion == 1) {
+    if (Usuario.esteUsuario.getComplexion == 0) {}
+    if (Usuario.esteUsuario.getComplexion == 1) {
       valorMostrar = "Normal";
     }
-    if (Usuario.esteUsuario.complexion == 2) {
+    if (Usuario.esteUsuario.getComplexion == 2) {
       valorMostrar = "Atletica";
     }
-    if (Usuario.esteUsuario.complexion == 3) {
+    if (Usuario.esteUsuario.getComplexion == 3) {
       valorMostrar = "Musculosa";
     }
 
-    if (Usuario.esteUsuario.complexion == 4) {
+    if (Usuario.esteUsuario.getComplexion == 4) {
       valorMostrar = "Talla grande";
     }
-    if (Usuario.esteUsuario.complexion == 5) {
+    if (Usuario.esteUsuario.getComplexion == 5) {
       valorMostrar = "Delgada";
     }
   }
@@ -1531,7 +1506,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
       padding: const EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
       child: Container(
           decoration: BoxDecoration(
-              color: Usuario.esteUsuario.complexion == 0
+              color: Usuario.esteUsuario.getComplexion == 0
                   ? Colors.white
                   : Colors.green,
               borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -1549,7 +1524,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                 Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Text(Usuario.esteUsuario.complexion == 0
+                    child: Text(Usuario.esteUsuario.getComplexion == 0
                         ? "Responder"
                         : "$valorMostrar"))
               ],
@@ -1566,7 +1541,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
     bool tallaGrande = false;
     bool delgada = false;
 
-    if (Usuario.esteUsuario.complexion == 0) {
+    if (Usuario.esteUsuario.getComplexion == 0) {
       atletico = false;
       normal = false;
       kiloDeMas = false;
@@ -1574,39 +1549,39 @@ class _EditorComplexionState extends State<EditorComplexion> {
       tallaGrande = false;
       delgada = false;
     }
-    if (Usuario.esteUsuario.complexion == 1) {
+    if (Usuario.esteUsuario.getComplexion == 1) {
       normal = true;
     }
-    if (Usuario.esteUsuario.complexion == 2) {
+    if (Usuario.esteUsuario.getComplexion == 2) {
       atletico = true;
     }
-    if (Usuario.esteUsuario.complexion == 3) {
+    if (Usuario.esteUsuario.getComplexion == 3) {
       musculosa = true;
     }
 
-    if (Usuario.esteUsuario.complexion == 4) {
+    if (Usuario.esteUsuario.getComplexion == 4) {
       tallaGrande = true;
     }
-    if (Usuario.esteUsuario.complexion == 5) {
+    if (Usuario.esteUsuario.getComplexion == 5) {
       delgada = true;
     }
 
-    showModalBottomSheet(
-        isScrollControlled: true,
+    showDialog(
+       
         context: context,
         builder: (context) {
-          return SafeArea(
-            child: Provider<Usuario>(
-              create: (_) => Usuario.esteUsuario,
-              builder: (context, child) {
-                return ChangeNotifierProvider.value(
-                  value: Usuario.esteUsuario,
-                  child: cuerpo(context, normal, atletico, kiloDeMas, musculosa,
+          return 
+               StatefulBuilder(builder: (context,child){
+                return   ChangeNotifierProvider.value(
+                  value:Usuario.esteUsuario,
+                  child: Material(
+                    child: cuerpo(context, normal, atletico, kiloDeMas, musculosa,
                       tallaGrande, delgada),
+                  ),
                 );
-              },
-            ),
-          );
+              },);
+          
+          
         });
   }
 
@@ -1636,8 +1611,9 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       )),
                       FlatButton(
                           onPressed: () {
-                            Usuario.esteUsuario.complexion = 0;
-                            Usuario.esteUsuario.notifyListeners();
+                            Usuario.esteUsuario.setComplexion = 0;
+
+                            setState(() {});
                             Navigator.pop(context);
                           },
                           child: Row(
@@ -1658,15 +1634,17 @@ class _EditorComplexionState extends State<EditorComplexion> {
                     title: Text("Normal"),
                     onChanged: (bool value) {
                       normal = value;
-                      Usuario.esteUsuario.notifyListeners();
+
                       atletico = false;
-                      print(Usuario.esteUsuario.complexion);
 
                       kiloDeMas = false;
                       musculosa = false;
                       tallaGrande = false;
                       delgada = false;
-                      Usuario.esteUsuario.complexion = 1;
+                      Usuario.esteUsuario.setComplexion = 1;
+                      setState(() {
+                                              
+                                            });
                     }),
                 CheckboxListTile(
                     value: atletico,
@@ -1679,8 +1657,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       musculosa = false;
                       tallaGrande = false;
                       delgada = false;
-                      Usuario.esteUsuario.complexion = 2;
-                      Usuario.esteUsuario.notifyListeners();
+                      Usuario.esteUsuario.setComplexion = 2;
                     }),
                 CheckboxListTile(
                     value: musculosa,
@@ -1693,8 +1670,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
 
                       tallaGrande = false;
                       delgada = false;
-                      Usuario.esteUsuario.complexion = 3;
-                      Usuario.esteUsuario.notifyListeners();
+                      Usuario.esteUsuario.setComplexion = 3;
                     }),
                 CheckboxListTile(
                     value: tallaGrande,
@@ -1707,8 +1683,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       musculosa = false;
 
                       delgada = false;
-                      Usuario.esteUsuario.complexion = 4;
-                      Usuario.esteUsuario.notifyListeners();
+                      Usuario.esteUsuario.setComplexion = 4;
                     }),
                 CheckboxListTile(
                     value: delgada,
@@ -1720,9 +1695,7 @@ class _EditorComplexionState extends State<EditorComplexion> {
                       kiloDeMas = false;
                       musculosa = false;
                       tallaGrande = false;
-                      Usuario.esteUsuario.complexion = 5;
-
-                      Usuario.esteUsuario.notifyListeners();
+                      Usuario.esteUsuario.setComplexion = 5;
                     }),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1806,7 +1779,7 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
                     child: Icon(LineAwesomeIcons.beer)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Alcohol")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.alcohol == 0
                         ? "Responder"
@@ -1844,19 +1817,23 @@ class _EditorAlcoholState extends State<EditorAlcohol> {
       enContraDeLaBebida = true;
     }
 
-    showModalBottomSheet(
+    showDialog(
         context: context,
         builder: (context) {
-          return Provider<Usuario>(
-            create: (_) => Usuario.esteUsuario,
-            child: ChangeNotifierProvider.value(
+          return StatefulBuilder(
+            builder: (context,child){
+              return   ChangeNotifierProvider.value(
               value: Usuario.esteUsuario,
-              child: Container(
-                height: ScreenUtil.screenHeight / 7,
-                child: cuerpo(
-                    context, sociedad, noBebo, beboMucho, enContraDeLaBebida),
+              child: Material(
+                child: Container(
+                  height: ScreenUtil.screenHeight / 7,
+                  child: cuerpo(
+                      context, sociedad, noBebo, beboMucho, enContraDeLaBebida),
+                ),
               ),
-            ),
+            );
+            },
+      
           );
         });
   }
@@ -2037,7 +2014,7 @@ class _EditorTabacoState extends State<EditorTabaco> {
                     child: Icon(LineAwesomeIcons.smoking)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Tabaco")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.tabaco == 0
                         ? "Responder"
@@ -2075,18 +2052,22 @@ class _EditorTabacoState extends State<EditorTabaco> {
       odioTabaco = true;
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Provider<Usuario>(
-          create: (_) => Usuario.esteUsuario,
-          child: ChangeNotifierProvider.value(
+        return StatefulBuilder(
+      builder:(context,child){
+        return  ChangeNotifierProvider.value(
             value: Usuario.esteUsuario,
-            child: Container(
-              height: ScreenUtil.screenHeight / 7,
-              child: cuerpo(context, fumo, noFumo, fumoSociedad, odioTabaco),
+            child: Material(
+              child: Container(
+                height: ScreenUtil.screenHeight / 7,
+                child: cuerpo(context, fumo, noFumo, fumoSociedad, odioTabaco),
+              ),
             ),
-          ),
+          );
+      }
+         
         );
       },
     );
@@ -2268,7 +2249,7 @@ class _EditorMascotasState extends State<EditorMascotas> {
                     child: Icon(LineAwesomeIcons.dog)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Mascotas")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.mascotas == 0
                         ? "Responder"
@@ -2306,149 +2287,165 @@ class _EditorMascotasState extends State<EditorMascotas> {
       meGustaria = true;
     }
 
-    showModalBottomSheet(
-      isScrollControlled: true,
+    showDialog(
+     
       context: context,
       builder: (context) {
-        return Provider<Usuario>(
-          create: (_) => Usuario.esteUsuario,
-          child: ChangeNotifierProvider.value(
+        return StatefulBuilder(
+       builder: (context,child){
+return ChangeNotifierProvider.value(
               value: Usuario.esteUsuario,
-              child: Consumer<Usuario>(
-                builder: (context, myType, child) {
-                  return Container(
-                    height: ScreenUtil.screenHeight / 4,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Icon(LineAwesomeIcons.dog),
-                                  Text(
-                                    "Mascotas",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    Usuario.esteUsuario.mascotas = null;
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
-                        CheckboxListTile(
-                            value: perro,
-                            title: Text("Perro"),
-                            onChanged: (bool value) {
-                              perro = value;
-                              gato = false;
-
-                              nunca = false;
-
-                              meGustaria = false;
-
-                              Usuario.esteUsuario.mascotas = 1;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: gato,
-                            title: Text("Gato"),
-                            onChanged: (bool value) {
-                              gato = value;
-
-                              perro = false;
-                              nunca = false;
-
-                              meGustaria = false;
-
-                              Usuario.esteUsuario.mascotas = 2;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: nunca,
-                            title: Text("No tengo"),
-                            onChanged: (bool value) {
-                              nunca = value;
-                              perro = false;
-                              gato = false;
-
-                              meGustaria = false;
-
-                              Usuario.esteUsuario.mascotas = 3;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: meGustaria,
-                            title: Text("Me Gustaria"),
-                            onChanged: (bool value) {
-                              meGustaria = value;
-                              perro = false;
-                              gato = false;
-
-                              nunca = false;
-
-                              Usuario.esteUsuario.mascotas = 4;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                },
-              )),
+              child: Material(
+                child:  cuerpo(context, perro, gato, nunca, meGustaria),
+                
+              ));
+       }
         );
       },
     );
+  }
+
+  Widget cuerpo(BuildContext context, bool perro, bool gato, bool nunca, bool meGustaria) {
+    return Consumer<Usuario>(
+      builder: (context, myType, child) {
+        return  Container(
+                  height: ScreenUtil.screenHeight / 4,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 50.0, right: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                                child: Row(
+                              children: <Widget>[
+                                Icon(LineAwesomeIcons.dog),
+                                Text(
+                                  "Mascotas",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(60)),
+                                ),
+                              ],
+                            )),
+                            FlatButton(
+                                onPressed: () {
+                                  Usuario.esteUsuario.mascotas = null;
+                                  Usuario.esteUsuario.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
+                                    Text("Borrar",
+                                        style: TextStyle(color: Colors.red))
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                      CheckboxListTile(
+                          value: perro,
+                          title: Text("Perro"),
+                          onChanged: (bool value) {
+                            perro = value;
+                            gato = false;
+
+                            nunca = false;
+
+                            meGustaria = false;
+
+                            Usuario.esteUsuario.mascotas = 1;
+                            Usuario.esteUsuario.notifyListeners();
+                            setState(() {
+                                                          
+                                                        });
+                          }),
+                      CheckboxListTile(
+                          value: gato,
+                          title: Text("Gato"),
+                          onChanged: (bool value) {
+                            gato = value;
+
+                            perro = false;
+                            nunca = false;
+
+                            meGustaria = false;
+
+                            Usuario.esteUsuario.mascotas = 2;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: nunca,
+                          title: Text("No tengo"),
+                          onChanged: (bool value) {
+                            nunca = value;
+                            perro = false;
+                            gato = false;
+
+                            meGustaria = false;
+
+                            Usuario.esteUsuario.mascotas = 3;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: meGustaria,
+                          title: Text("Me Gustaria"),
+                          onChanged: (bool value) {
+                            meGustaria = value;
+                            perro = false;
+                            gato = false;
+
+                            nunca = false;
+
+                            Usuario.esteUsuario.mascotas = 4;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(3)),
+                            ),
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Usuario.esteUsuario.notifyListeners();
+                                },
+                                child: Text(
+                                  "Aceptar",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ) ;
+      },
+    );
+    
+    
+    
+    
+    
   }
 }
 
@@ -2497,7 +2494,7 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
                     child: Icon(LineAwesomeIcons.heart)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Busco")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.busco == 0
                         ? "Responder"
@@ -2534,145 +2531,151 @@ class _EditorObjetivoRelacionesState extends State<EditorObjetivoRelaciones> {
       noLoSe = true;
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Provider<Usuario>(
-          create: (_) => Usuario.esteUsuario,
-          child: ChangeNotifierProvider.value(
+        return StatefulBuilder(
+          builder: (context,child){
+return  ChangeNotifierProvider.value(
               value: Usuario.esteUsuario,
-              child: Consumer<Usuario>(
-                builder: (context, myType, child) {
-                  return Container(
-                    height: ScreenUtil.screenHeight / 7,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Icon(LineAwesomeIcons.heart),
-                                  Text(
-                                    "Busco",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    Usuario.esteUsuario.busco = 0;
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
-                        CheckboxListTile(
-                            value: relacionSeria,
-                            title: Text("Relacion seria"),
-                            onChanged: (bool value) {
-                              relacionSeria = value;
-                              loQueSurja = false;
-                              noLoSe = false;
-                              casual = false;
-
-                              Usuario.esteUsuario.busco = 1;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: loQueSurja,
-                            title: Text("Lo que surja"),
-                            onChanged: (bool value) {
-                              loQueSurja = value;
-                              noLoSe = false;
-                              relacionSeria = false;
-                              casual = false;
-
-                              Usuario.esteUsuario.busco = 2;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: casual,
-                            title: Text("Algo casual"),
-                            onChanged: (bool value) {
-                              casual = value;
-                              relacionSeria = false;
-                              loQueSurja = false;
-
-                              noLoSe = false;
-
-                              Usuario.esteUsuario.busco = 3;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: noLoSe,
-                            title: Text("No lo se"),
-                            onChanged: (bool value) {
-                              noLoSe = value;
-
-                              relacionSeria = false;
-                              loQueSurja = false;
-
-                              casual = false;
-
-                              Usuario.esteUsuario.busco = 4;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                },
-              )),
+              child: Material(child: newMethod(relacionSeria, loQueSurja, noLoSe, casual)));
+          },
+      
         );
       },
     );
+  }
+
+  Consumer<Usuario> newMethod(bool relacionSeria, bool loQueSurja, bool noLoSe, bool casual) {
+    return Consumer<Usuario>(
+              builder: (context, myType, child) {
+                return Container(
+                  height: ScreenUtil.screenHeight / 7,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 50.0, right: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                                child: Row(
+                              children: <Widget>[
+                                Icon(LineAwesomeIcons.heart),
+                                Text(
+                                  "Busco",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(60)),
+                                ),
+                              ],
+                            )),
+                            FlatButton(
+                                onPressed: () {
+                                  Usuario.esteUsuario.busco = 0;
+                                  Usuario.esteUsuario.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
+                                    Text("Borrar",
+                                        style: TextStyle(color: Colors.red))
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                      CheckboxListTile(
+                          value: relacionSeria,
+                          title: Text("Relacion seria"),
+                          onChanged: (bool value) {
+                            relacionSeria = value;
+                            loQueSurja = false;
+                            noLoSe = false;
+                            casual = false;
+
+                            Usuario.esteUsuario.busco = 1;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: loQueSurja,
+                          title: Text("Lo que surja"),
+                          onChanged: (bool value) {
+                            loQueSurja = value;
+                            noLoSe = false;
+                            relacionSeria = false;
+                            casual = false;
+
+                            Usuario.esteUsuario.busco = 2;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: casual,
+                          title: Text("Algo casual"),
+                          onChanged: (bool value) {
+                            casual = value;
+                            relacionSeria = false;
+                            loQueSurja = false;
+
+                            noLoSe = false;
+
+                            Usuario.esteUsuario.busco = 3;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: noLoSe,
+                          title: Text("No lo se"),
+                          onChanged: (bool value) {
+                            noLoSe = value;
+
+                            relacionSeria = false;
+                            loQueSurja = false;
+
+                            casual = false;
+
+                            Usuario.esteUsuario.busco = 4;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(3)),
+                            ),
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Usuario.esteUsuario.notifyListeners();
+                                },
+                                child: Text(
+                                  "Aceptar",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
   }
 }
 
@@ -2716,7 +2719,7 @@ class _EditorHijosState extends State<EditorHijos> {
                     child: Icon(LineAwesomeIcons.baby)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Hijos")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.hijos == 0
                         ? "Responder"
@@ -2747,129 +2750,135 @@ class _EditorHijosState extends State<EditorHijos> {
       tengoHijos = true;
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Provider<Usuario>(
-          create: (_) => Usuario.esteUsuario,
-          child: ChangeNotifierProvider.value(
+        return StatefulBuilder(
+         builder:(context,child){
+           return ChangeNotifierProvider.value(
               value: Usuario.esteUsuario,
-              child: Consumer<Usuario>(
-                builder: (context, myType, child) {
-                  return Container(
-                    height: ScreenUtil.screenHeight / 7,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Icon(LineAwesomeIcons.baby),
-                                  Text(
-                                    "Busco",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    Usuario.esteUsuario.hijos = 0;
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
-                        CheckboxListTile(
-                            value: sihijos,
-                            title: Text("Algun dia"),
-                            onChanged: (bool value) {
-                              sihijos = value;
-                              nohijos = false;
-
-                              tengoHijos = false;
-
-                              Usuario.esteUsuario.hijos = 1;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: nohijos,
-                            title: Text("Nunca"),
-                            onChanged: (bool value) {
-                              nohijos = value;
-
-                              sihijos = false;
-                              tengoHijos = false;
-
-                              Usuario.esteUsuario.hijos = 2;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: tengoHijos,
-                            title: Text("Tengo hijo(s)"),
-                            onChanged: (bool value) {
-                              tengoHijos = value;
-                              sihijos = false;
-                              nohijos = false;
-
-                              Usuario.esteUsuario.hijos = 3;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                },
-              )),
+              child: Material(child: newMethod(sihijos, nohijos, tengoHijos)));
+         },
+          
         );
       },
     );
+  }
+
+  Consumer<Usuario> newMethod(bool sihijos, bool nohijos, bool tengoHijos) {
+    return Consumer<Usuario>(
+              builder: (context, myType, child) {
+                return Container(
+                  height: ScreenUtil.screenHeight / 7,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 50.0, right: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                                child: Row(
+                              children: <Widget>[
+                                Icon(LineAwesomeIcons.baby),
+                                Text(
+                                  "Busco",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(60)),
+                                ),
+                              ],
+                            )),
+                            FlatButton(
+                                onPressed: () {
+                                  Usuario.esteUsuario.hijos = 0;
+                                  Usuario.esteUsuario.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
+                                    Text("Borrar",
+                                        style: TextStyle(color: Colors.red))
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                      CheckboxListTile(
+                          value: sihijos,
+                          title: Text("Algun dia"),
+                          onChanged: (bool value) {
+                            sihijos = value;
+                            nohijos = false;
+
+                            tengoHijos = false;
+
+                            Usuario.esteUsuario.hijos = 1;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: nohijos,
+                          title: Text("Nunca"),
+                          onChanged: (bool value) {
+                            nohijos = value;
+
+                            sihijos = false;
+                            tengoHijos = false;
+
+                            Usuario.esteUsuario.hijos = 2;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: tengoHijos,
+                          title: Text("Tengo hijo(s)"),
+                          onChanged: (bool value) {
+                            tengoHijos = value;
+                            sihijos = false;
+                            nohijos = false;
+
+                            Usuario.esteUsuario.hijos = 3;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(3)),
+                            ),
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Usuario.esteUsuario.notifyListeners();
+                                },
+                                child: Text(
+                                  "Aceptar",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
   }
 }
 
@@ -2918,7 +2927,7 @@ class _EditorPoliticaState extends State<EditorPolitica> {
                     child: Icon(LineAwesomeIcons.landmark)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Politica")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.politica == 0
                         ? "Responder"
@@ -2954,142 +2963,149 @@ class _EditorPoliticaState extends State<EditorPolitica> {
       apolitico = true;
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Provider<Usuario>(
-            create: (_) => Usuario.esteUsuario,
-            child: ChangeNotifierProvider.value(
+        return StatefulBuilder(
+           builder:(context,child){
+             return  ChangeNotifierProvider.value(
               value: Usuario.esteUsuario,
-              child: Consumer<Usuario>(
-                builder: (context, myType, child) {
-                  return Container(
-                    height: ScreenUtil.screenHeight / 7,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Icon(LineAwesomeIcons.landmark),
-                                  Text(
-                                    "Politica",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    Usuario.esteUsuario.politica = 0;
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
-                        CheckboxListTile(
-                            value: derechas,
-                            title: Text("De Derechas"),
-                            onChanged: (bool value) {
-                              derechas = value;
-                              izquierdas = false;
-                              apolitico = false;
-                              centro = false;
-
-                              Usuario.esteUsuario.politica = 1;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: izquierdas,
-                            title: Text("De Izquierdas"),
-                            onChanged: (bool value) {
-                              izquierdas = value;
-                              apolitico = false;
-                              derechas = false;
-                              centro = false;
-
-                              Usuario.esteUsuario.politica = 2;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: centro,
-                            title: Text("De centro"),
-                            onChanged: (bool value) {
-                              centro = value;
-                              derechas = false;
-                              izquierdas = false;
-                              apolitico = false;
-
-                              Usuario.esteUsuario.politica = 3;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: apolitico,
-                            title: Text("Apolitico"),
-                            onChanged: (bool value) {
-                              apolitico = value;
-                              derechas = false;
-                              izquierdas = false;
-                              centro = false;
-
-                              Usuario.esteUsuario.politica = 4;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ));
+              child: Material(child: newMethod(derechas, izquierdas, apolitico, centro)),
+            );
+           
+           }
+          );
       },
     );
+  }
+
+  Consumer<Usuario> newMethod(bool derechas, bool izquierdas, bool apolitico, bool centro) {
+    return Consumer<Usuario>(
+              builder: (context, myType, child) {
+                return Container(
+                  height: ScreenUtil.screenHeight / 7,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 50.0, right: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                                child: Row(
+                              children: <Widget>[
+                                Icon(LineAwesomeIcons.landmark),
+                                Text(
+                                  "Politica",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(60)),
+                                ),
+                              ],
+                            )),
+                            FlatButton(
+                                onPressed: () {
+                                  Usuario.esteUsuario.politica = 0;
+                                  Usuario.esteUsuario.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
+                                    Text("Borrar",
+                                        style: TextStyle(color: Colors.red))
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                      CheckboxListTile(
+                          value: derechas,
+                          title: Text("De Derechas"),
+                          onChanged: (bool value) {
+                            derechas = value;
+                            izquierdas = false;
+                            apolitico = false;
+                            centro = false;
+
+                            Usuario.esteUsuario.politica = 1;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: izquierdas,
+                          title: Text("De Izquierdas"),
+                          onChanged: (bool value) {
+                            izquierdas = value;
+                            apolitico = false;
+                            derechas = false;
+                            centro = false;
+
+                            Usuario.esteUsuario.politica = 2;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: centro,
+                          title: Text("De centro"),
+                          onChanged: (bool value) {
+                            centro = value;
+                            derechas = false;
+                            izquierdas = false;
+                            apolitico = false;
+
+                            Usuario.esteUsuario.politica = 3;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: apolitico,
+                          title: Text("Apolitico"),
+                          onChanged: (bool value) {
+                            apolitico = value;
+                            derechas = false;
+                            izquierdas = false;
+                            centro = false;
+
+                            Usuario.esteUsuario.politica = 4;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(3)),
+                            ),
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Usuario.esteUsuario.notifyListeners();
+                                },
+                                child: Text(
+                                  "Aceptar",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
   }
 }
 
@@ -3117,7 +3133,7 @@ class _ModificadorReligionState extends State<ModificadorReligion> {
                     child: Icon(LineAwesomeIcons.church)),
                 Flexible(flex: 10, fit: FlexFit.tight, child: Text("Religion")),
                 Flexible(
-                    flex: 4,
+                    flex: 6,
                     fit: FlexFit.tight,
                     child: Text(Usuario.esteUsuario.religion == 0
                         ? "Responder"
@@ -3203,129 +3219,135 @@ class _EditorVivirConState extends State<EditorVivirCon> {
       vivirAmigos = true;
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Provider<Usuario>(
-          create: (_) => Usuario.esteUsuario,
-          child: ChangeNotifierProvider.value(
+        return StatefulBuilder(
+          builder:(context,child){
+            return ChangeNotifierProvider.value(
               value: Usuario.esteUsuario,
-              child: Consumer<Usuario>(
-                builder: (context, myType, child) {
-                  return Container(
-                    height: ScreenUtil.screenHeight / 7,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                  child: Row(
-                                children: <Widget>[
-                                  Icon(LineAwesomeIcons.baby),
-                                  Text(
-                                    "Vivo con",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(60)),
-                                  ),
-                                ],
-                              )),
-                              FlatButton(
-                                  onPressed: () {
-                                    Usuario.esteUsuario.vivoCon = 0;
-                                    Usuario.esteUsuario.notifyListeners();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Colors.red,
-                                      ),
-                                      Text("Borrar",
-                                          style: TextStyle(color: Colors.red))
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        ),
-                        CheckboxListTile(
-                            value: vivirSolo,
-                            title: Text("Solo"),
-                            onChanged: (bool value) {
-                              vivirSolo = value;
-                              vivirPadres = false;
-
-                              vivirAmigos = false;
-
-                              Usuario.esteUsuario.vivoCon = 1;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: vivirPadres,
-                            title: Text("Con mis padres"),
-                            onChanged: (bool value) {
-                              vivirPadres = value;
-
-                              vivirSolo = false;
-                              vivirAmigos = false;
-
-                              Usuario.esteUsuario.vivoCon = 2;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        CheckboxListTile(
-                            value: vivirAmigos,
-                            title: Text("Con amigos"),
-                            onChanged: (bool value) {
-                              vivirAmigos = value;
-                              vivirSolo = false;
-                              vivirPadres = false;
-
-                              Usuario.esteUsuario.vivoCon = 3;
-                              Usuario.esteUsuario.notifyListeners();
-                            }),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Container(
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Cancelar",
-                                    style: TextStyle(color: Colors.red),
-                                  )),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(3)),
-                              ),
-                              child: FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Usuario.esteUsuario.notifyListeners();
-                                  },
-                                  child: Text(
-                                    "Aceptar",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                },
-              )),
+              child: Material(child: newMethod(vivirSolo, vivirPadres, vivirAmigos)));
+          }
+         
         );
       },
     );
+  }
+
+  Consumer<Usuario> newMethod(bool vivirSolo, bool vivirPadres, bool vivirAmigos) {
+    return Consumer<Usuario>(
+              builder: (context, myType, child) {
+                return Container(
+                  height: ScreenUtil.screenHeight / 7,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 50.0, right: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                                child: Row(
+                              children: <Widget>[
+                                Icon(LineAwesomeIcons.baby),
+                                Text(
+                                  "Vivo con",
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(60)),
+                                ),
+                              ],
+                            )),
+                            FlatButton(
+                                onPressed: () {
+                                  Usuario.esteUsuario.vivoCon = 0;
+                                  Usuario.esteUsuario.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
+                                    Text("Borrar",
+                                        style: TextStyle(color: Colors.red))
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                      CheckboxListTile(
+                          value: vivirSolo,
+                          title: Text("Solo"),
+                          onChanged: (bool value) {
+                            vivirSolo = value;
+                            vivirPadres = false;
+
+                            vivirAmigos = false;
+
+                            Usuario.esteUsuario.vivoCon = 1;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: vivirPadres,
+                          title: Text("Con mis padres"),
+                          onChanged: (bool value) {
+                            vivirPadres = value;
+
+                            vivirSolo = false;
+                            vivirAmigos = false;
+
+                            Usuario.esteUsuario.vivoCon = 2;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      CheckboxListTile(
+                          value: vivirAmigos,
+                          title: Text("Con amigos"),
+                          onChanged: (bool value) {
+                            vivirAmigos = value;
+                            vivirSolo = false;
+                            vivirPadres = false;
+
+                            Usuario.esteUsuario.vivoCon = 3;
+                            Usuario.esteUsuario.notifyListeners();
+                          }),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(3)),
+                            ),
+                            child: FlatButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Usuario.esteUsuario.notifyListeners();
+                                },
+                                child: Text(
+                                  "Aceptar",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
   }
 }
 

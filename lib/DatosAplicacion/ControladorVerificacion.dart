@@ -72,7 +72,7 @@ Usuario.esteUsuario.imagenUrl6["Imagen"],
 }).then((valor){
 print(valor.data);
 }).catchError((error){
-  print("Est es el error: $error");
+  print("Este es el error: $error");
 });
 
 

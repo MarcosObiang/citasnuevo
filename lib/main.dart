@@ -40,11 +40,20 @@ Future<void> main() async {
         LimpiadorMemoria.iniciarMemoria();
           
          
+         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  statusBarColor: Colors.deepPurple
+));
+         
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+  
+  
       .then((_) => runApp(MaterialApp(
+        color: Colors.black,
+        
 
-        theme: ThemeData(primaryColor: Colors.red),
+        theme: ThemeData(primaryColor: Colors.deepPurple),
         debugShowCheckedModeBanner: false,
            routes: {
              "/PantallaInicio":(_)=>PantallaDeInicio()
@@ -52,7 +61,7 @@ Future<void> main() async {
             home: MultiProvider(providers: [
               ChangeNotifierProvider(create: (_) => Usuario()),
               ChangeNotifierProvider(create: (_) => Perfiles()),
-              ChangeNotifierProvider(create: (_) => ControladorLocalizacion.instancia),
+              ChangeNotifierProvider(create: (_) => ControladorAjustes.instancia),
               ChangeNotifierProvider(create: (_) => Valoracion.instanciar),
               ChangeNotifierProvider(create: (_) => Conversacion.instancia(),
               ),
