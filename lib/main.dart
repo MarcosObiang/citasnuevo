@@ -1,79 +1,107 @@
-
-import 'package:citasnuevo/DatosAplicacion/ControladorLocalizacion.dart';
-import 'package:citasnuevo/DatosAplicacion/ControladorNotificaciones.dart';
-import 'package:citasnuevo/DatosAplicacion/UtilidadesAplicacion/liberadorMemoria.dart';
+import 'package:citasnuevo/core/firebase_services/firebase_app.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/presentation/Routes.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/profileWidget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
-
-import 'package:citasnuevo/DatosAplicacion/PerfilesUsuarios.dart';
-import 'package:citasnuevo/DatosAplicacion/Usuario.dart';
-import 'package:citasnuevo/PrimeraPantalla.dart';
-import 'package:citasnuevo/InterfazUsuario/Actividades/pantalla_actividades_elements.dart';
-import 'package:citasnuevo/DatosAplicacion/ControladorConversacion.dart';
-import 'DatosAplicacion/Valoraciones.dart';
-import 'base_app.dart';
-
-FirebaseApp app;
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  
-  
-  ControladorNotificacion.instancia.inicializarNotificaciones();
-  
-
-
-  app = await Firebase.initializeApp(
-     
+  await Firebase.initializeApp(
       options: FirebaseOptions(
+          apiKey: "AIzaSyBm3rwlrV7qshSIgASobNLoeb5RgdwwSMI",
+          appId: "1:151798284057:android:2f9b0eec10be91eb5e8f88",
+          messagingSenderId: "",
+          projectId: "hotty-189c7"));
 
-       projectId: "citas-46a84",
-          appId: "1:912262965304:android:6a20f31e4ab32f9bf81ecd",
-          apiKey: "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc",
-          databaseURL: "https://citas-46a84.firebaseio.com/",
-          messagingSenderId: "912262965304"));
-        LimpiadorMemoria.iniciarMemoria();
-          
-         
-         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-  statusBarColor: Colors.deepPurple
-));
-         
-
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-  
-  
-      .then((_) => runApp(MaterialApp(
-        color: Colors.black,
-        
-
-        theme: ThemeData(primaryColor: Colors.deepPurple),
-        debugShowCheckedModeBanner: false,
-           routes: {
-             "/PantallaInicio":(_)=>PantallaDeInicio()
-           },
-            home: MultiProvider(providers: [
-              ChangeNotifierProvider(create: (_) => Usuario()),
-              ChangeNotifierProvider(create: (_) => Perfiles()),
-              ChangeNotifierProvider(create: (_) => ControladorAjustes.instancia),
-              ChangeNotifierProvider(create: (_) => Valoracion.instanciar),
-              ChangeNotifierProvider(create: (_) => Conversacion.instancia(),
-              ),
-            ], child: PantallaDeInicio()),
-             navigatorObservers: [routeObserver],
-          )));
+  Dependencies.startAuth();
+  Dependencies.startUtilDependencies();
+  runApp(ProviderScope(child: MaterialApp(home: Start())));
 }
 
-class start extends StatefulWidget {
+class Start extends ConsumerStatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return BaseAplicacion();
+  ConsumerState<ConsumerStatefulWidget> createState() => _StartState();
+  static bool done = false;
+}
+
+class _StartState extends ConsumerState<Start> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(Dependencies.userDataContainerProvider);
+    ref.read(Dependencies.userDataContainerNotifier).checkSignedInUser();
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    final authState =
+        ref.watch(Dependencies.userDataContainerProvider).authState;
+    if (authState == AuthState.succes && Start.done == false) {
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        Navigator.push(context, GoToRoute(page: HomeAppScreen()));
+      });
+      Start.done = true;
+    }
+    return ScreenUtilInit(
+          designSize: Size(1080, 1920),
+          builder: () {
+            return  Material(
+              child: SafeArea(
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Hotty",
+                          style: GoogleFonts.roboto(
+                              color: Colors.black, fontSize: 90.sp),
+                        ),
+                        if (authState == AuthState.signingIn) ...[
+                          LoadingIndicator(
+                            indicatorType: Indicator.ballPulse,
+                            colors: [Colors.red, Colors.orange, Colors.green],
+                          ),
+                        ],
+                        if (authState == AuthState.error) ...[
+                          Text(
+                            "Error",
+                            style: GoogleFonts.lato(
+                                color: Colors.black, fontSize: 50.sp),
+                          ),
+                        ],
+                        if (authState == AuthState.succes) ...[
+                          Text("Dentro"),
+                        ],
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref
+                                  .read(Dependencies.userDataContainerProvider)
+                                  .signInWithGoogle();
+                            },
+                            child: const Text("Iniciar sesion"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            )
+            ;
+          })
+    ;
   }
 }
+
+

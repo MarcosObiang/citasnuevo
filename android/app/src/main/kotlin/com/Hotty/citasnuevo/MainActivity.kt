@@ -1,4 +1,4 @@
-package com.Hotty.citasnuevo
+package com.hotty.citas
 
 import io.flutter.embedding.android.FlutterActivity
 

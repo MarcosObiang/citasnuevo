@@ -51,7 +51,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         GlobalDataContainer.userId = userData["userId"];
         return AuthResponseEntity.succes();
       } else {
-        return AuthResponseEntity.error();
+        return AuthResponseEntity.notSignedIn();
       }
     } catch (e) {
       throw e;

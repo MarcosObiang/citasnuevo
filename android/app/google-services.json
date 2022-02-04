@@ -1,71 +1,66 @@
 {
   "project_info": {
-    "project_number": "912262965304",
-    "firebase_url": "https://citas-46a84.firebaseio.com",
-    "project_id": "citas-46a84",
-    "storage_bucket": "citas-46a84.appspot.com"
+    "project_number": "151798284057",
+    "firebase_url": "https://hotty-189c7-default-rtdb.firebaseio.com",
+    "project_id": "hotty-189c7",
+    "storage_bucket": "hotty-189c7.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:912262965304:android:6a20f31e4ab32f9bf81ecd",
+        "mobilesdk_app_id": "1:151798284057:android:2f9b0eec10be91eb5e8f88",
         "android_client_info": {
-          "package_name": "com.Hotty.citasnuevo"
+          "package_name": "com.hotty.citas"
         }
       },
       "oauth_client": [
         {
-          "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:912262965304:android:d56900e27f33762bf81ecd",
-        "android_client_info": {
-          "package_name": "com.example.citasnuevo"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "912262965304-faoo5rl58en731cf43382cmniepo3smu.apps.googleusercontent.com",
+          "client_id": "151798284057-5qv9m33makp1qm9d4fbjsm7e4p9vtobq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.citasnuevo",
+            "package_name": "com.hotty.citas",
+            "certificate_hash": "f6acceb9d3ca8ad27c927d837e431f76127b3da1"
+          }
+        },
+        {
+          "client_id": "151798284057-8ce8vt1hjbkvffqvfhlf05u96in9n9mu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hotty.citas",
+            "certificate_hash": "98720d71b9dca4588fea62200a9ad71e2c2a265c"
+          }
+        },
+        {
+          "client_id": "151798284057-q5rps82ah1pcci5bpnobh4eqd9vc6vq3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hotty.citas",
             "certificate_hash": "8c9f217794ef06fd5e2af0d4e6aa5e4fba72b2d8"
           }
         },
         {
-          "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
+          "client_id": "151798284057-vnapp8kaht0fa1sg467tfblsnsvtb3mr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hotty.citas",
+            "certificate_hash": "b24a10f9ca0851388a22ae27c5457006b7cfc01f"
+          }
+        },
+        {
+          "client_id": "151798284057-rmmnupmnh7al9aesccan84htpld6do5t.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBdm1Z9JMh_MSErVg6MgvrmuPtPbxC_Eqc"
+          "current_key": "AIzaSyBm3rwlrV7qshSIgASobNLoeb5RgdwwSMI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "912262965304-9umbmqbup3ukr4hf7uu975n9i0jsurr9.apps.googleusercontent.com",
+              "client_id": "151798284057-rmmnupmnh7al9aesccan84htpld6do5t.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
