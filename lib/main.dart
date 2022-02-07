@@ -1,3 +1,4 @@
+import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
 import 'package:citasnuevo/core/firebase_services/firebase_app.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
@@ -13,6 +14,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+GlobalKey startKey = new GlobalKey();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -22,7 +25,9 @@ void main() async {
           messagingSenderId: "",
           projectId: "hotty-189c7"));
 
-  Dependencies.startAuth();
+  await Dependencies.startAuth();
+  await Dependencies.startDependencies();
+
   Dependencies.startUtilDependencies();
   runApp(ProviderScope(child: MaterialApp(home: Start())));
 }
@@ -54,54 +59,45 @@ class _StartState extends ConsumerState<Start> {
       Start.done = true;
     }
     return ScreenUtilInit(
-          designSize: Size(1080, 1920),
-          builder: () {
-            return  Material(
-              child: SafeArea(
-                  child: Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Hotty",
-                          style: GoogleFonts.roboto(
-                              color: Colors.black, fontSize: 90.sp),
-                        ),
-                        if (authState == AuthState.signingIn) ...[
-                          LoadingIndicator(
-                            indicatorType: Indicator.ballPulse,
-                            colors: [Colors.red, Colors.orange, Colors.green],
-                          ),
-                        ],
-                        if (authState == AuthState.error) ...[
-                          Text(
-                            "Error",
-                            style: GoogleFonts.lato(
-                                color: Colors.black, fontSize: 50.sp),
-                          ),
-                        ],
-                        if (authState == AuthState.succes) ...[
-                          Text("Dentro"),
-                        ],
-                        Center(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              ref
-                                  .read(Dependencies.userDataContainerProvider)
-                                  .signInWithGoogle();
-                            },
-                            child: const Text("Iniciar sesion"),
-                          ),
-                        ),
-                      ],
+        designSize: Size(1080, 1920),
+        builder: () {
+          return Material(
+            key: startKey,
+            child: SafeArea(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Hotty",
+                      style: GoogleFonts.roboto(
+                          color: Colors.black, fontSize: 90.sp),
                     ),
-                  ),
+                    if (authState == AuthState.signingIn) ...[
+                      LoadingIndicator(
+                        indicatorType: Indicator.ballPulse,
+                        colors: [Colors.red, Colors.orange, Colors.green],
+                      ),
+                    ],
+                    if (authState == AuthState.error) ...[],
+                    if (authState == AuthState.succes) ...[
+                      Text("Dentro"),
+                    ],
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ref
+                              .read(Dependencies.userDataContainerProvider)
+                              .signInWithGoogle();
+                        },
+                        child: const Text("Iniciar sesion"),
+                      ),
+                    ),
+                  ],
                 ),
-            )
-            ;
-          })
-    ;
+              ),
+            ),
+          );
+        });
   }
 }
-
-

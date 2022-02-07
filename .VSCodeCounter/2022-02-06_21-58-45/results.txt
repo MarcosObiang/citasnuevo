@@ -1,0 +1,137 @@
+Date : 2022-02-06 21:58:45
+Directory : d:\Proyecto\citasnuevo
+Total : 57 files,  6882 codes, 146 comments, 295 blanks, all 7323 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JSON       |          5 |      4,782 |          0 |          4 |      4,786 |
+| Dart       |         37 |      1,895 |         79 |        225 |      2,199 |
+| XML        |          6 |         87 |         23 |          8 |        118 |
+| YAML       |          1 |         71 |         44 |         39 |        154 |
+| Markdown   |          2 |         13 |          0 |          9 |         22 |
+| Groovy     |          2 |         13 |          0 |          5 |         18 |
+| Swift      |          1 |         12 |          0 |          2 |         14 |
+| Properties |          1 |          4 |          0 |          1 |          5 |
+| Ini        |          1 |          4 |          0 |          1 |          5 |
+| C++        |          1 |          1 |          0 |          1 |          2 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                     | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                        |         57 |      6,882 |        146 |        295 |      7,323 |
+| FuncionesNubeFirebase                                                                                    |          3 |      4,637 |          0 |          2 |      4,639 |
+| android                                                                                                  |          8 |         47 |         21 |         13 |         81 |
+| android\app                                                                                              |          4 |         26 |         21 |          6 |         53 |
+| android\app\src                                                                                          |          4 |         26 |         21 |          6 |         53 |
+| android\app\src\main                                                                                     |          4 |         26 |         21 |          6 |         53 |
+| android\app\src\main\res                                                                                 |          4 |         26 |         21 |          6 |         53 |
+| android\app\src\main\res\drawable                                                                        |          1 |          4 |          7 |          2 |         13 |
+| android\app\src\main\res\values                                                                          |          2 |         14 |         14 |          4 |         32 |
+| android\app\src\main\res\xml                                                                             |          1 |          8 |          0 |          0 |          8 |
+| ios                                                                                                      |          7 |        222 |          2 |          9 |        233 |
+| ios\Runner                                                                                               |          7 |        222 |          2 |          9 |        233 |
+| ios\Runner\Assets.xcassets                                                                               |          3 |        148 |          0 |          4 |        152 |
+| ios\Runner\Assets.xcassets\AppIcon.appiconset                                                            |          1 |        122 |          0 |          1 |        123 |
+| ios\Runner\Assets.xcassets\LaunchImage.imageset                                                          |          2 |         26 |          0 |          3 |         29 |
+| ios\Runner\Base.lproj                                                                                    |          2 |         61 |          2 |          2 |         65 |
+| lib                                                                                                      |         36 |      1,881 |         69 |        218 |      2,168 |
+| lib\core                                                                                                 |         11 |        400 |         28 |         62 |        490 |
+| lib\core\common                                                                                          |          2 |         90 |          1 |         17 |        108 |
+| lib\core\common\common_widgets.dart                                                                      |          1 |         17 |          0 |          7 |         24 |
+| lib\core\dependencies                                                                                    |          3 |        140 |         13 |         19 |        172 |
+| lib\core\dependencies\error                                                                              |          2 |         69 |         11 |         10 |         90 |
+| lib\core\firebase_services                                                                               |          2 |         84 |         13 |          7 |        104 |
+| lib\core\params_types                                                                                    |          1 |         29 |          1 |         10 |         40 |
+| lib\core\platform                                                                                        |          1 |         51 |          0 |          9 |         60 |
+| lib\core\usecases                                                                                        |          1 |          4 |          0 |          0 |          4 |
+| lib\data                                                                                                 |          5 |        461 |         24 |         51 |        536 |
+| lib\data\daraSources                                                                                     |          3 |        268 |         23 |         36 |        327 |
+| lib\data\daraSources\HomeDataSource                                                                      |          1 |        157 |         23 |         18 |        198 |
+| lib\data\daraSources\authDataSources                                                                     |          1 |         70 |          0 |         10 |         80 |
+| lib\data\daraSources\principalDataSource                                                                 |          1 |         41 |          0 |          8 |         49 |
+| lib\data\repositoryImpl                                                                                  |          2 |        193 |          1 |         15 |        209 |
+| lib\data\repositoryImpl\authRepoImpl                                                                     |          1 |         57 |          1 |          3 |         61 |
+| lib\data\repositoryImpl\homeScreenRepoImpl.dart                                                          |          1 |        136 |          0 |         12 |        148 |
+| lib\domain                                                                                               |          8 |        181 |          2 |         17 |        200 |
+| lib\domain\controller                                                                                    |          1 |         41 |          0 |          4 |         45 |
+| lib\domain\entities                                                                                      |          3 |         59 |          0 |          4 |         63 |
+| lib\domain\repository                                                                                    |          2 |         19 |          0 |          1 |         20 |
+| lib\domain\repository\authRepo                                                                           |          1 |          8 |          0 |          0 |          8 |
+| lib\domain\repository\homeScreenRepo                                                                     |          1 |         11 |          0 |          1 |         12 |
+| lib\domain\usecases                                                                                      |          2 |         62 |          2 |          8 |         72 |
+| lib\domain\usecases\HomeScreenUseCases                                                                   |          1 |         40 |          2 |          7 |         49 |
+| lib\domain\usecases\authUseCases                                                                         |          1 |         22 |          0 |          1 |         23 |
+| lib\presentation                                                                                         |         11 |        744 |         15 |         79 |        838 |
+| lib\presentation\homeScreenPresentation                                                                  |          7 |        627 |          6 |         62 |        695 |
+| lib\presentation\homeScreenPresentation\Screens                                                          |          2 |        190 |          1 |         14 |        205 |
+| lib\presentation\homeScreenPresentation\Widgets                                                          |          4 |        327 |          2 |         32 |        361 |
+| test                                                                                                     |          1 |         14 |         10 |          7 |         31 |
++----------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                 | language   | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\database.rules.json                                         | JSON       |          6 |          0 |          0 |          6 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\firestore.indexes.json                                      | JSON       |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\package-lock.json                                           | JSON       |      4,627 |          0 |          1 |      4,628 |
+| d:\Proyecto\citasnuevo\README.md                                                                         | Markdown   |         10 |          0 |          7 |         17 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\drawable\launch_background.xml                           | XML        |          4 |          7 |          2 |         13 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\values\strings.xml                                       | XML        |          5 |          5 |          3 |         13 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\values\styles.xml                                        | XML        |          9 |          9 |          1 |         19 |
+| d:\Proyecto\citasnuevo\android\app\src\main\res\xml\network_security_config.xml                          | XML        |          8 |          0 |          0 |          8 |
+| d:\Proyecto\citasnuevo\android\desktop.ini                                                               | Ini        |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\android\gradle.properties                                                         | Properties |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\android\settings.gradle                                                           | Groovy     |         12 |          0 |          4 |         16 |
+| d:\Proyecto\citasnuevo\android\settings_aar.gradle                                                       | Groovy     |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\ios\Runner\AppDelegate.swift                                                      | Swift      |         12 |          0 |          2 |         14 |
+| d:\Proyecto\citasnuevo\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json                       | JSON       |        122 |          0 |          1 |        123 |
+| d:\Proyecto\citasnuevo\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json                     | JSON       |         23 |          0 |          1 |         24 |
+| d:\Proyecto\citasnuevo\ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md                         | Markdown   |          3 |          0 |          2 |          5 |
+| d:\Proyecto\citasnuevo\ios\Runner\Base.lproj\LaunchScreen.storyboard                                     | XML        |         36 |          1 |          1 |         38 |
+| d:\Proyecto\citasnuevo\ios\Runner\Base.lproj\Main.storyboard                                             | XML        |         25 |          1 |          1 |         27 |
+| d:\Proyecto\citasnuevo\ios\Runner\Runner-Bridging-Header.h                                               | C++        |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\lib\core\common\common_widgets.dart\errorWidget.dart                              | Dart       |         17 |          0 |          7 |         24 |
+| d:\Proyecto\citasnuevo\lib\core\common\profileCharacteristics.dart                                       | Dart       |         73 |          1 |         10 |         84 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\dependencyCreator.dart                                      | Dart       |         71 |          2 |          9 |         82 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\error\Exceptions.dart                                       | Dart       |         35 |          0 |          7 |         42 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\error\Failure.dart                                          | Dart       |         34 |         11 |          3 |         48 |
+| d:\Proyecto\citasnuevo\lib\core\firebase_services\firebase_app.dart                                      | Dart       |          7 |          0 |          0 |          7 |
+| d:\Proyecto\citasnuevo\lib\core\firebase_services\firebase_auth.dart                                     | Dart       |         77 |         13 |          7 |         97 |
+| d:\Proyecto\citasnuevo\lib\core\globalData.dart                                                          | Dart       |          2 |          0 |          0 |          2 |
+| d:\Proyecto\citasnuevo\lib\core\params_types\params_and_types.dart                                       | Dart       |         29 |          1 |         10 |         40 |
+| d:\Proyecto\citasnuevo\lib\core\platform\networkInfo.dart                                                | Dart       |         51 |          0 |          9 |         60 |
+| d:\Proyecto\citasnuevo\lib\core\usecases\usecases.dart                                                   | Dart       |          4 |          0 |          0 |          4 |
+| d:\Proyecto\citasnuevo\lib\data\daraSources\HomeDataSource\homeScreenDataSources.dart                    | Dart       |        157 |         23 |         18 |        198 |
+| d:\Proyecto\citasnuevo\lib\data\daraSources\authDataSources\authDataSourceImpl.dart                      | Dart       |         70 |          0 |         10 |         80 |
+| d:\Proyecto\citasnuevo\lib\data\daraSources\principalDataSource\principalDataSource.dart                 | Dart       |         41 |          0 |          8 |         49 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\authRepoImpl\authRepoImpl.dart                            | Dart       |         57 |          1 |          3 |         61 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\homeScreenRepoImpl.dart\homeScreenRepoImpl.dart           | Dart       |        136 |          0 |         12 |        148 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\homeScreenController.dart                                   | Dart       |         41 |          0 |          4 |         45 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\AuthScreenEntity.dart                                         | Dart       |         16 |          0 |          0 |         16 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ProfileCharacteristicsEntity.dart                             | Dart       |         13 |          0 |          3 |         16 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ProfileEntity.dart                                            | Dart       |         30 |          0 |          1 |         31 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\authRepo\authRepo.dart                                      | Dart       |          8 |          0 |          0 |          8 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\homeScreenRepo\homeScreenRepo.dart                          | Dart       |         11 |          0 |          1 |         12 |
+| d:\Proyecto\citasnuevo\lib\domain\usecases\HomeScreenUseCases\homeScreenUseCases.dart                    | Dart       |         40 |          2 |          7 |         49 |
+| d:\Proyecto\citasnuevo\lib\domain\usecases\authUseCases\authUseCases.dart                                | Dart       |         22 |          0 |          1 |         23 |
+| d:\Proyecto\citasnuevo\lib\main.dart                                                                     | Dart       |         95 |          0 |          9 |        104 |
+| d:\Proyecto\citasnuevo\lib\presentation\auth.dart                                                        | Dart       |         75 |          7 |         14 |         96 |
+| d:\Proyecto\citasnuevo\lib\presentation\authScreen.dart                                                  | Dart       |         11 |          0 |          2 |         13 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Screens\HomeScreen.dart                   | Dart       |         71 |          1 |          6 |         78 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Screens\ReportScreen.dart                 | Dart       |        119 |          0 |          8 |        127 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\ProfileCharacteristicsWidget.dart | Dart       |         68 |          0 |         11 |         79 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\ProfileDescription.dart           | Dart       |         18 |          0 |          2 |         20 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\ProfilePicture.dart               | Dart       |         21 |          0 |          2 |         23 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\profileWidget.dart                | Dart       |        220 |          2 |         17 |        239 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\homeScrenPresentation.dart                | Dart       |        110 |          3 |         16 |        129 |
+| d:\Proyecto\citasnuevo\lib\presentation\presentationDef.dart                                             | Dart       |          4 |          2 |          1 |          7 |
+| d:\Proyecto\citasnuevo\lib\presentation\routes.dart                                                      | Dart       |         27 |          0 |          0 |         27 |
+| d:\Proyecto\citasnuevo\pubspec.yaml                                                                      | YAML       |         71 |         44 |         39 |        154 |
+| d:\Proyecto\citasnuevo\test\widget_test.dart                                                             | Dart       |         14 |         10 |          7 |         31 |
+| Total                                                                                                    |            |      6,882 |        146 |        295 |      7,323 |
++----------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

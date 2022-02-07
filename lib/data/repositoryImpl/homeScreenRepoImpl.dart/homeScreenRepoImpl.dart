@@ -115,7 +115,7 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
     } catch (e) {
       if (e is RatingProfilesException) {
         return Left(RatingProfilesFailure());
-      } else if (e == NetworkException) {
+      } else if (e is NetworkException) {
         return Left(NetworkFailure());
       } else {
         return Left(ServerFailure());

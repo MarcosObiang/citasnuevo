@@ -16,7 +16,8 @@ class _HomeAppScreenState extends ConsumerState<HomeAppScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Dependencies.startDependencies();
+ 
+
   }
 
   @override
@@ -37,7 +38,6 @@ class _HomeAppScreenState extends ConsumerState<HomeAppScreen> {
                   AnimatedList(
                       scrollDirection: Axis.horizontal,
                       physics: NeverScrollableScrollPhysics(),
-
                       initialItemCount: data.profilesList.length,
                       key: HomeAppScreen.profilesKey,
                       itemBuilder: (BuildContext context, int index,

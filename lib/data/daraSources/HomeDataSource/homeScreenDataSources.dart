@@ -119,7 +119,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
               .getProfileImageMap(dataSourceStreamData)["hash"]
         });
       } catch (e) {
-        RatingProfilesException();
+        RatingProfilesException(message: 'PROFILE_RATING_FAILED');
       }
     } else {
       throw NetworkException();
@@ -131,38 +131,22 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       {required String idReporter,
       required String idUserReported,
       required String reportDetails}) async {
-    try {
-      if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
         await reportUser.call({
           "idDenunciado": idUserReported,
           "idDenunciante": idReporter,
           "detalles": reportDetails
         });
         return true;
-      } else {
-        throw NetworkException();
+      } catch (e) {
+        throw ReportException(message: e.toString());
       }
-    } catch (e) {
-      throw ReportException(message: e.toString());
     }
-  }
-}
+    else{
+      throw NetworkException();
 
-class FetchProfilesException implements Exception {
-  String message;
-  FetchProfilesException({
-    required this.message,
-  }) {
-    print(message);
-  }
-}
-
-class ReportException implements Exception {
-  String message;
-  ReportException({
-    required this.message,
-  }) {
-    print(message);
+    }
   }
 }
 

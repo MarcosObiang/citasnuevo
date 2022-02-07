@@ -18,11 +18,12 @@ import 'package:citasnuevo/core/platform/networkInfo.dart';
 class Dependencies {
   static late final ChangeNotifierProvider<AuthScreenPresentation>
       userDataContainerProvider;
-  static late final StateProvider<AuthScreenPresentation> userDataContainerNotifier;
+  static late final StateProvider<AuthScreenPresentation>
+      userDataContainerNotifier;
   static late final ChangeNotifierProvider<HomeScreenPresentation>
       homeScreenProvider;
   static late final StateProvider<HomeScreenPresentation> homeScreenNotifier;
-  static void startAuth() async {
+  static Future<void> startAuth() async {
     AuthDataSource externalUserDataSourceContract = AuthDataSourceImpl();
     // ignore: unused_local_variable
     NetworkInfoContract networkInfoContract = NetworkInfoImpl();
@@ -32,18 +33,26 @@ class Dependencies {
         LogInUseCase(authStateRepository: _userContractRepository);
     CheckSignedInUserUseCase checkSignedInUserUseCase =
         CheckSignedInUserUseCase(authStateRepository: _userContractRepository);
-    userDataContainerProvider =
-        ChangeNotifierProvider<AuthScreenPresentation>((ref) => AuthScreenPresentation(
-              logInUseCase: useCaseGetUserPublic,
-              checkSignedInUserUseCase: checkSignedInUserUseCase,
-            ));
+
+    AuthScreenPresentation authScreenPresentation = AuthScreenPresentation(
+      logInUseCase: useCaseGetUserPublic,
+      checkSignedInUserUseCase: checkSignedInUserUseCase,
+    );
+
+    await authScreenPresentation.checkSignedInUser();
+
+    userDataContainerProvider = ChangeNotifierProvider<AuthScreenPresentation>(
+        (ref) => authScreenPresentation);
     userDataContainerNotifier = StateProvider<AuthScreenPresentation>((ref) {
       return ref.read(userDataContainerProvider);
     });
   }
-  static void startDependencies() {
+
+  static Future<void> startDependencies() async {
     ApplicationDataSource applicationDataSource =
         ApplicationDataSource(userId: GlobalDataContainer.userId);
+
+    await applicationDataSource.initializeMainDataSource();
     HomeScreenDataSource homeScreenDataSource =
         HomeScreenDataSourceImpl(source: applicationDataSource);
     HomeScreenRepository homeScreenRepository =
@@ -52,17 +61,21 @@ class Dependencies {
         HomeScreenController(homeScreenRepository: homeScreenRepository);
     FetchProfilesUseCases fetchProfilesUseCases =
         FetchProfilesUseCases(controller: homeScreenController);
-        RateProfileUseCases rateProfileUseCases =
+    RateProfileUseCases rateProfileUseCases =
         RateProfileUseCases(controller: homeScreenController);
-        ReportUserUseCase reportUserUseCase= ReportUserUseCase(controller: homeScreenController);
+    ReportUserUseCase reportUserUseCase =
+        ReportUserUseCase(controller: homeScreenController);
     homeScreenProvider = ChangeNotifierProvider<HomeScreenPresentation>((ref) =>
-        HomeScreenPresentation(fetchProfilesUseCases: fetchProfilesUseCases,rateProfileUseCases:rateProfileUseCases,reportUserUseCase:reportUserUseCase ));
+        HomeScreenPresentation(
+            fetchProfilesUseCases: fetchProfilesUseCases,
+            rateProfileUseCases: rateProfileUseCases,
+            reportUserUseCase: reportUserUseCase));
     homeScreenNotifier = StateProvider<HomeScreenPresentation>(
         (ref) => ref.read(homeScreenProvider));
   }
-    static void startUtilDependencies(){
-      // ignore: unused_local_variable
-      GetProfileImage getProfileImage= new GetProfileImage();
-    }
+
+  static void startUtilDependencies() {
+    // ignore: unused_local_variable
+    GetProfileImage getProfileImage = new GetProfileImage();
   }
-  
+}

@@ -1,5 +1,8 @@
+import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
+import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
@@ -19,7 +22,9 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
     required this.reportUserUseCase,
     required this.fetchProfilesUseCases,
     required this.rateProfileUseCases,
-  });
+  }) {
+    getProfiles();
+  }
   get profileListState => this._profileListState;
   set profileListState(profileState) {
     _profileListState = profileState;
@@ -42,6 +47,9 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
 
     result.fold((fail) {
       reportSendidnState = ReportSendingState.error;
+      if (fail is NetworkFailure) {
+        showNetworkErrorWidget(startKey.currentContext);
+      }
     }, (succes) {
       reportSendidnState = ReportSendingState.sended;
     });
@@ -50,6 +58,7 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
   void sendReaction(
       double reactionValue, int listIndex, BoxConstraints constraints) async {
     Profile removedProfile = profilesList.removeAt(listIndex);
+
     HomeAppScreen.profilesKey.currentState?.removeItem(
         listIndex,
         (context, animation) => ProfileWidget(
@@ -61,7 +70,9 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
     var result = await rateProfileUseCases.call(
         RatingParams(rating: reactionValue, profileId: removedProfile.id));
     result.fold((failure) {
-      //Show error
+      if (failure is NetworkFailure) {
+        showNetworkErrorWidget(startKey.currentContext);
+      }
     }, (succes) {
       //do Nothing
     });
@@ -78,6 +89,9 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
 
     fetchedList.fold((fail) {
       profileListState = ProfileListState.error;
+      if (fail is NetworkFailure) {
+        showNetworkErrorWidget(startKey.currentContext);
+      }
     }, (list) {
       for (int i = 0; i < list.length; i++) {
         profilesList.insert(i, list[i]);
@@ -87,13 +101,30 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
     });
   }
 
-  @override
-  void showErrorDialog(String errorLog) {
-    // TODO: implement showErrorDialog
+  void showErrorDialogs(
+      {required String errorName,
+      required String errorMessage,
+      required BuildContext context}) {
+    showDialog(context: context, builder: (context) => NetwortErrorWidget());
   }
+
   @override
   void showLoadingDialog() {
     profileListState = ProfileListState.loading;
     // TODO: implement showLoadingDialog
+  }
+
+  @override
+  void showErrorDialog(
+      {required String errorLog,
+      required String errorName,
+      required BuildContext context}) {
+    // TODO: implement showErrorDialog
+  }
+
+  void showNetworkErrorWidget(BuildContext? context) {
+    if (context != null) {
+      showDialog(context: context, builder: (context) => NetwortErrorWidget());
+    }
   }
 }
