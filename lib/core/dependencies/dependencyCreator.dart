@@ -4,13 +4,12 @@ import 'package:citasnuevo/data/daraSources/authDataSources/authDataSourceImpl.d
 import 'package:citasnuevo/data/daraSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/data/repositoryImpl/authRepoImpl/authRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/homeScreenRepoImpl.dart/homeScreenRepoImpl.dart';
+import 'package:citasnuevo/domain/controller/authScreenController.dart';
 import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
-import 'package:citasnuevo/domain/usecases/HomeScreenUseCases/homeScreenUseCases.dart';
-import 'package:citasnuevo/domain/usecases/authUseCases/authUseCases.dart';
 import 'package:citasnuevo/presentation/HomeScreenPresentation/homeScrenPresentation.dart';
-import 'package:citasnuevo/presentation/auth.dart';
+import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -27,16 +26,14 @@ class Dependencies {
     AuthDataSource externalUserDataSourceContract = AuthDataSourceImpl();
     // ignore: unused_local_variable
     NetworkInfoContract networkInfoContract = NetworkInfoImpl();
-    AuthStateRepository _userContractRepository =
-        AuthStateRepositoryImpl(authDataSource: externalUserDataSourceContract);
-    LogInUseCase useCaseGetUserPublic =
-        LogInUseCase(authStateRepository: _userContractRepository);
-    CheckSignedInUserUseCase checkSignedInUserUseCase =
-        CheckSignedInUserUseCase(authStateRepository: _userContractRepository);
+    AuthRepository _userContractRepository =
+        AuthRepositoryImpl(authDataSource: externalUserDataSourceContract);
 
-    AuthScreenPresentation authScreenPresentation = AuthScreenPresentation(
-      logInUseCase: useCaseGetUserPublic,
-      checkSignedInUserUseCase: checkSignedInUserUseCase,
+       AuthScreenController authScreenController= AuthScreenController(authRepository: _userContractRepository);
+
+
+    AuthScreenPresentation authScreenPresentation = AuthScreenPresentation(authScreenController: authScreenController
+    
     );
 
     await authScreenPresentation.checkSignedInUser();
@@ -59,17 +56,9 @@ class Dependencies {
         HomeScreenRepositoryImpl(homeScreenDataSource: homeScreenDataSource);
     HomeScreenController homeScreenController =
         HomeScreenController(homeScreenRepository: homeScreenRepository);
-    FetchProfilesUseCases fetchProfilesUseCases =
-        FetchProfilesUseCases(controller: homeScreenController);
-    RateProfileUseCases rateProfileUseCases =
-        RateProfileUseCases(controller: homeScreenController);
-    ReportUserUseCase reportUserUseCase =
-        ReportUserUseCase(controller: homeScreenController);
+  
     homeScreenProvider = ChangeNotifierProvider<HomeScreenPresentation>((ref) =>
-        HomeScreenPresentation(
-            fetchProfilesUseCases: fetchProfilesUseCases,
-            rateProfileUseCases: rateProfileUseCases,
-            reportUserUseCase: reportUserUseCase));
+        HomeScreenPresentation( homeScreenController:homeScreenController));
     homeScreenNotifier = StateProvider<HomeScreenPresentation>(
         (ref) => ref.read(homeScreenProvider));
   }

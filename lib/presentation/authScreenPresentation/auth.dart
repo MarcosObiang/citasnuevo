@@ -1,18 +1,22 @@
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/domain/usecases/authUseCases/authUseCases.dart';
-import 'package:citasnuevo/main.dart';
-import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:flutter/material.dart';
 
-import '../core/common/common_widgets.dart/errorWidget.dart';
+import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/domain/controller/authScreenController.dart';
+import 'package:citasnuevo/main.dart';
+import 'package:citasnuevo/presentation/presentationDef.dart';
+
+import '../../core/common/common_widgets.dart/errorWidget.dart';
 
 class AuthScreenPresentation extends ChangeNotifier implements Presentation {
   AuthState _authState = AuthState.notSignedIn;
-  LogInUseCase logInUseCase;
-  CheckSignedInUserUseCase checkSignedInUserUseCase;
+  AuthScreenController authScreenController;
+
   AuthState get authState => _authState;
   late Failure failuretype;
+  AuthScreenPresentation({
+    required this.authScreenController,
+  });
   set authState(AuthState authState) {
     this._authState = authState;
 
@@ -21,23 +25,19 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
     });
   }
 
-  AuthScreenPresentation(
-      {required this.logInUseCase, required this.checkSignedInUserUseCase});
 
   ///This method will be called by Flutter´s initState method on the splash screen to check if there is any current user logged in the app
   ///
   ///
   Future<void> checkSignedInUser() async {
     authState = AuthState.signingIn;
-    var data = await checkSignedInUserUseCase
-        .call(const LoginParams(loginType: LoginType.google));
+    var data = await authScreenController
+        .checkIfUserIsAlreadySignedUp();
 
     data.fold((failure) {
       failuretype = failure;
 
-      if (failuretype is NetworkFailure) {
-      
-      }
+      if (failuretype is NetworkFailure) {}
 
       authState = AuthState.error;
     }, (authResponseEnity) {
@@ -51,14 +51,11 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
   void signInWithGoogle() async {
     authState = AuthState.signingIn;
     var authSate1 =
-        await logInUseCase.call(const LoginParams(loginType: LoginType.google));
+        await authScreenController.signInWithGoogleAccount();
     authSate1.fold((failure) {
       failuretype = failure;
       if (failuretype is NetworkFailure) {
-        showErrorDialog(
-            errorLog: "errorLog",
-            errorName: "errorName",
-            context: startKey.currentContext as BuildContext);
+        showNetworkError();
       }
       authState = AuthState.error;
     }, (authResponseEntity) {

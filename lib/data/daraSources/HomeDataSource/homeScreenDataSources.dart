@@ -28,8 +28,6 @@ abstract class HomeScreenDataSource implements DataSource {
   Future<void> sendRating(
       {required double ratingValue, required String idProfileRated});
 
-  void subscribeToDataSourceStream();
-
   Future<bool> sendReport(
       {required String idReporter,
       required String idUserReported,
@@ -49,10 +47,10 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   HomeScreenDataSourceImpl({
     required this.source,
   }) {
-    subscribeToDataSourceStream();
+    subscribeToMainDataSource();
   }
 
-  /// Fetch profiles from the backend, make sure to call [subscribeToDataSourceStream] first in the same object
+  /// Fetch profiles from the backend, make sure to call [subscribeToMainDataSource] first in the same object
   ///
   /// where you are going to call the [fetchProfiles] function
   ///
@@ -96,7 +94,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   }
 
   @override
-  void subscribeToDataSourceStream() {
+  void subscribeToMainDataSource() {
     dataSourceStreamData = source.getData;
     source.dataStream.stream.listen((event) {
       dataSourceStreamData = event;
@@ -142,10 +140,8 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       } catch (e) {
         throw ReportException(message: e.toString());
       }
-    }
-    else{
+    } else {
       throw NetworkException();
-
     }
   }
 }

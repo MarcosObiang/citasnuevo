@@ -1,22 +1,19 @@
-import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
-import 'package:citasnuevo/core/firebase_services/firebase_app.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
+import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/profileWidget.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 
 GlobalKey startKey = new GlobalKey();
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
       options: FirebaseOptions(
@@ -29,7 +26,9 @@ void main() async {
   await Dependencies.startDependencies();
 
   Dependencies.startUtilDependencies();
-  runApp(ProviderScope(child: MaterialApp(home: Start())));
+  runApp(ProviderScope(child: MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: Start())));
 }
 
 class Start extends ConsumerStatefulWidget {
@@ -61,43 +60,7 @@ class _StartState extends ConsumerState<Start> {
     return ScreenUtilInit(
         designSize: Size(1080, 1920),
         builder: () {
-          return Material(
-            key: startKey,
-            child: SafeArea(
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Hotty",
-                      style: GoogleFonts.roboto(
-                          color: Colors.black, fontSize: 90.sp),
-                    ),
-                    if (authState == AuthState.signingIn) ...[
-                      LoadingIndicator(
-                        indicatorType: Indicator.ballPulse,
-                        colors: [Colors.red, Colors.orange, Colors.green],
-                      ),
-                    ],
-                    if (authState == AuthState.error) ...[],
-                    if (authState == AuthState.succes) ...[
-                      Text("Dentro"),
-                    ],
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ref
-                              .read(Dependencies.userDataContainerProvider)
-                              .signInWithGoogle();
-                        },
-                        child: const Text("Iniciar sesion"),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+          return AuthScreen();
         });
   }
 }

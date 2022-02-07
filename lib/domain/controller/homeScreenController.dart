@@ -7,7 +7,7 @@ class HomeScreenController {
   List<Profile> profilesList = [];
   HomeScreenRepository homeScreenRepository;
   HomeScreenController({required this.homeScreenRepository});
-  Future<Either<Failure, List<Profile>>> fetchProfileList() async {
+  Future<Either<Failure, void>> fetchProfileList() async {
     bool succes = false;
     Failure failure = ServerFailure();
     var response = await homeScreenRepository.fetchProfiles();
@@ -23,6 +23,12 @@ class HomeScreenController {
     } else {
       return Left(failure);
     }
+  }
+
+  get getProfilesList => this.profilesList;
+
+  Profile removeProfileFromList({required int profileIndex}) {
+    return profilesList.removeAt(profileIndex);
   }
 
   Future<Either<Failure, void>> sendRating(

@@ -34,11 +34,11 @@ class _HomeAppScreenState extends ConsumerState<HomeAppScreen> {
             width: constraints.maxWidth,
             child: Stack(
               children: [
-                if (data.profilesList.length > 0) ...[
+                if (data.homeScreenController.profilesList.length > 0) ...[
                   AnimatedList(
                       scrollDirection: Axis.horizontal,
                       physics: NeverScrollableScrollPhysics(),
-                      initialItemCount: data.profilesList.length,
+                      initialItemCount: data.homeScreenController.profilesList.length,
                       key: HomeAppScreen.profilesKey,
                       itemBuilder: (BuildContext context, int index,
                           Animation<double> animation) {
@@ -46,12 +46,12 @@ class _HomeAppScreenState extends ConsumerState<HomeAppScreen> {
                             opacity: animation,
                             child: ProfileWidget(
                               boxConstraints: constraints,
-                              profile: data.profilesList[index],
+                              profile: data.homeScreenController.profilesList[index],
                               listIndex: index,
                             ));
                       })
                 ],
-                if (data.profilesList.length == 0) ...[
+                if (data.homeScreenController.profilesList.length  == 0) ...[
                   Container(
                       height: constraints.maxHeight,
                       width: constraints.maxWidth,
@@ -61,12 +61,7 @@ class _HomeAppScreenState extends ConsumerState<HomeAppScreen> {
                               indicatorType: Indicator.audioEqualizer)
                           : Container()),
                 ],
-                ElevatedButton(
-                  onPressed: () {
-                    ref.read(Dependencies.homeScreenProvider).getProfiles();
-                  },
-                  child: Text("SolicitarPerfiles"),
-                ),
+             
               ],
             ),
           );

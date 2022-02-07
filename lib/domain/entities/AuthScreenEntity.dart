@@ -1,5 +1,4 @@
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/presentation/AuthScreen.dart';
 class AuthResponseEntity {
   AuthState authState = AuthState.notSignedIn;
   AuthResponseEntity.succes() {

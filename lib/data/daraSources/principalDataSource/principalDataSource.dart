@@ -8,7 +8,7 @@ class ApplicationDataSource {
   String userId;
   StreamController<Map<String, dynamic>> dataStream =
       new StreamController.broadcast();
-  ApplicationDataSource({required this.userId}) {}
+  ApplicationDataSource({required this.userId});
 
   Future<void> initializeMainDataSource() async {
     await getDataFromDb();
@@ -45,4 +45,5 @@ class ApplicationDataSource {
 
 abstract class DataSource {
   late ApplicationDataSource source;
+  void subscribeToMainDataSource();
 }

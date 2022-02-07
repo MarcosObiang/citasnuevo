@@ -1,17 +1,15 @@
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/data/daraSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 
-class AuthStateRepositoryImpl implements AuthStateRepository {
+class AuthRepositoryImpl implements AuthRepository {
   final AuthDataSource authDataSource;
-  AuthStateRepositoryImpl({
+  AuthRepositoryImpl({
     required this.authDataSource,
   });
   @override
@@ -35,7 +33,6 @@ class AuthStateRepositoryImpl implements AuthStateRepository {
   }
   @override
   Future<Either<Failure, AuthResponseEntity>> logOut() {
-    // TODO: implement logOut
     throw UnimplementedError();
   }
   @override
