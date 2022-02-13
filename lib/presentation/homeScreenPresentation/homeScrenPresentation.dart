@@ -112,7 +112,6 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
   @override
   void showLoadingDialog() {
     profileListState = ProfileListState.loading;
-    // TODO: implement showLoadingDialog
   }
 
   @override
@@ -120,7 +119,6 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
       {required String errorLog,
       required String errorName,
       required BuildContext context}) {
-    // TODO: implement showErrorDialog
   }
 
   void showNetworkErrorWidget(BuildContext? context) {

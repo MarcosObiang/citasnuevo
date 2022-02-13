@@ -11,14 +11,14 @@ import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresenta
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:octo_image/octo_image.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
-class ProfileWidget extends ConsumerStatefulWidget {
+class ProfileWidget extends StatefulWidget {
   final BoxConstraints boxConstraints;
   int listIndex;
 
@@ -28,11 +28,14 @@ class ProfileWidget extends ConsumerStatefulWidget {
       {required this.profile,
       required this.boxConstraints,
       required this.listIndex});
+
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ProfileWidgetState();
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+return _ProfileWidgetState();  }
 }
 
-class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
+class _ProfileWidgetState extends State<ProfileWidget> {
   bool isRating = false;
   List<Widget> widgetList = [];
   double ratingValue = 5;
@@ -56,18 +59,26 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: widget.boxConstraints.maxHeight,
-        width: widget.boxConstraints.maxWidth,
-        child: Stack(
-          children: [
-            ListView(children: widgetList),
-            profileInfo(
-                name: widget.profile.name, age: widget.profile.age.toString()),
-            if (isRating) ...[ratingScreen()],
-            reactionSlider()
-          ],
-        ));
+
+    return ChangeNotifierProvider.value(
+      value: Dependencies.homeScreenPresentation,
+      child: Consumer<HomeScreenPresentation>(
+        builder: (BuildContext context,HomeScreenPresentation homeScreenPresentation,Widget? child) {
+          return Container(
+              height: widget.boxConstraints.maxHeight,
+              width: widget.boxConstraints.maxWidth,
+              child: Stack(
+                children: [
+                  ListView(children: widgetList),
+                  profileInfo(
+                      name: widget.profile.name, age: widget.profile.age.toString()),
+                  if (isRating) ...[ratingScreen()],
+                  reactionSlider(homeScreenPresentation)
+                ],
+              ));
+        }
+      ),
+    );
   }
 
   Widget profileInfo({required String name, required String age}) {
@@ -131,7 +142,7 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
     );
   }
 
-  Widget reactionSlider() {
+  Widget reactionSlider(HomeScreenPresentation homeScreenPresentation) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -180,7 +191,7 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
                 if (this.mounted == true) {
                   setState(() {
                     ratingValue = valor;
-                    sendReaction(ratingValue);
+                    sendReaction(ratingValue,homeScreenPresentation);
                   });
                 }
               },
@@ -193,11 +204,9 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
     );
   }
 
-  void sendReaction(double ratingValue) {
+  void sendReaction(double ratingValue,HomeScreenPresentation homeScreenPresentation) {
     try {
-      ref
-          .read(Dependencies.homeScreenProvider)
-          .sendReaction(ratingValue, widget.listIndex, widget.boxConstraints);
+    homeScreenPresentation.sendReaction(ratingValue, widget.listIndex, widget.boxConstraints);
     } catch (e) {}
   }
 

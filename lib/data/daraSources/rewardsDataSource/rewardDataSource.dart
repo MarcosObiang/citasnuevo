@@ -1,3 +1,4 @@
+import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/data/daraSources/principalDataSource/principalDataSource.dart';
@@ -6,11 +7,11 @@ import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import '../../../core/dependencies/error/Failure.dart';
 
 abstract class RewardDataSource implements DataSource {
-  /// Called first to create the [Rewards] object an initialize the object data
+  /// Called first to create the [Rewards] object and initialize it
   Future<Either<Failure, Rewards>> getRewardObject();
 
   /// Used for get a link so the user can share it and get rewarded with coins
-  Future<Either<Failure, bool>> getDynamicLink();
+  Future<Either<Failure, String>> getDynamicLink();
 
   /// Used to claim a daily reward after spending all of the coins 24 h before
   Future<Either<Failure, bool>> getDailyReward();
@@ -20,6 +21,10 @@ abstract class RewardDataSource implements DataSource {
 
   /// Used to get the shared link reward after the link is shared
   Future<Either<Failure, bool>> getLinkSharedReward();
+
+  ///Use to get real time updates from the data source
+  ///
+
 }
 
 class RewardDataSourceImpl implements RewardDataSource {
@@ -31,26 +36,37 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<Either<Failure, bool>> getDailyReward() {
-    // TODO: implement getDailyReward
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<Failure, bool>> getDynamicLink() {
-    // TODO: implement getDynamicLink
+  Future<Either<Failure, String>> getDynamicLink() {
     throw UnimplementedError();
   }
 
   @override
   Future<Either<Failure, bool>> getLinkSharedReward() {
-    // TODO: implement getLinkSharedReward
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<Failure, Rewards>> getRewardObject() {
-    // TODO: implement getRewardObject
-    throw UnimplementedError();
+  Future<Either<Failure, Rewards>> getRewardObject() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      Map dataSource = source.getData;
+      try {
+        Rewards rewards = new Rewards(
+            timeUntilDailyReward: dataSource["siguienteRecompensa"],
+            welcomeRewardRigth: dataSource["primeraRecompensa"],
+            rewardForShareRigth: false,
+            rewardForVerificationRigth: false,
+            dailyRewardRigth: dataSource["esperandoRecompensa"]);
+        return Right(rewards);
+      } catch (e) {
+        return Left(RewardFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
@@ -61,6 +77,9 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   void subscribeToMainDataSource() {
-    // TODO: implement subscribeToMainDataSource
+    source.dataStream.stream.listen((event) {});
   }
+
+  @override
+  late var dataConverter;
 }

@@ -1,2 +1,2 @@
  class GlobalDataContainer{
-  static late String userId;}
+  static  String? userId;}

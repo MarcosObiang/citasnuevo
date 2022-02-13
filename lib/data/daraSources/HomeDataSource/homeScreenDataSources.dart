@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/data/Mappers/ConverterDefinition.dart';
+import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:citasnuevo/data/daraSources/principalDataSource/principalDataSource.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -144,6 +146,9 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       throw NetworkException();
     }
   }
+
+  @override
+  late DataSourceConverter dataConverter;
 }
 
 class GetProfileImage {

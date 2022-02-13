@@ -1,27 +1,29 @@
 import 'package:citasnuevo/core/globalData.dart';
+import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:citasnuevo/data/daraSources/HomeDataSource/homeScreenDataSources.dart';
 import 'package:citasnuevo/data/daraSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/data/daraSources/principalDataSource/principalDataSource.dart';
+import 'package:citasnuevo/data/daraSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/data/repositoryImpl/authRepoImpl/authRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/homeScreenRepoImpl.dart/homeScreenRepoImpl.dart';
+import 'package:citasnuevo/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart';
 import 'package:citasnuevo/domain/controller/authScreenController.dart';
 import 'package:citasnuevo/domain/controller/homeScreenController.dart';
+import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
-import 'package:citasnuevo/presentation/HomeScreenPresentation/homeScrenPresentation.dart';
+import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
+import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentation.dart';
 
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
 class Dependencies {
-  static late final ChangeNotifierProvider<AuthScreenPresentation>
-      userDataContainerProvider;
-  static late final StateProvider<AuthScreenPresentation>
-      userDataContainerNotifier;
-  static late final ChangeNotifierProvider<HomeScreenPresentation>
-      homeScreenProvider;
-  static late final StateProvider<HomeScreenPresentation> homeScreenNotifier;
+  static late final ReactionPresentation reactionPresentation;
+  static late final HomeScreenPresentation homeScreenPresentation;
+  static late final AuthScreenPresentation authScreenPresentation;
+
   static Future<void> startAuth() async {
     AuthDataSource externalUserDataSourceContract = AuthDataSourceImpl();
     // ignore: unused_local_variable
@@ -29,25 +31,18 @@ class Dependencies {
     AuthRepository _userContractRepository =
         AuthRepositoryImpl(authDataSource: externalUserDataSourceContract);
 
-       AuthScreenController authScreenController= AuthScreenController(authRepository: _userContractRepository);
+    AuthScreenController authScreenController =
+        AuthScreenController(authRepository: _userContractRepository);
 
-
-    AuthScreenPresentation authScreenPresentation = AuthScreenPresentation(authScreenController: authScreenController
-    
-    );
+    authScreenPresentation =
+        AuthScreenPresentation(authScreenController: authScreenController);
 
     await authScreenPresentation.checkSignedInUser();
-
-    userDataContainerProvider = ChangeNotifierProvider<AuthScreenPresentation>(
-        (ref) => authScreenPresentation);
-    userDataContainerNotifier = StateProvider<AuthScreenPresentation>((ref) {
-      return ref.read(userDataContainerProvider);
-    });
   }
 
   static Future<void> startDependencies() async {
     ApplicationDataSource applicationDataSource =
-        ApplicationDataSource(userId: GlobalDataContainer.userId);
+        ApplicationDataSource(userId: GlobalDataContainer.userId as String);
 
     await applicationDataSource.initializeMainDataSource();
     HomeScreenDataSource homeScreenDataSource =
@@ -56,11 +51,19 @@ class Dependencies {
         HomeScreenRepositoryImpl(homeScreenDataSource: homeScreenDataSource);
     HomeScreenController homeScreenController =
         HomeScreenController(homeScreenRepository: homeScreenRepository);
-  
-    homeScreenProvider = ChangeNotifierProvider<HomeScreenPresentation>((ref) =>
-        HomeScreenPresentation( homeScreenController:homeScreenController));
-    homeScreenNotifier = StateProvider<HomeScreenPresentation>(
-        (ref) => ref.read(homeScreenProvider));
+    homeScreenPresentation =
+        HomeScreenPresentation(homeScreenController: homeScreenController);
+    ReactionConverter reactionConverter = new ReactionConverter();
+
+    ReactionDataSource reactionDataSource = ReactionDataSourceImpl(
+        source: applicationDataSource, dataConverter: reactionConverter);
+    ReactionRepository reactionRepository =
+        ReactionRepositoryImpl(reactionDataSource: reactionDataSource);
+    ReactionsController reactionsController =
+        ReactionsController(reactionRepository: reactionRepository);
+
+    reactionPresentation =
+        new ReactionPresentation(reactionsController: reactionsController);
   }
 
   static void startUtilDependencies() {

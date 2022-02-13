@@ -11,36 +11,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/foundation.dart';
-
-class HomeScreenRepositoryImpl implements HomeScreenRepository {
-  @override
-  HomeScreenDataSource homeScreenDataSource;
-  HomeScreenRepositoryImpl({
-    required this.homeScreenDataSource,
-  });
-  @override
-  Future<Either<Failure, List<Profile>>> fetchProfiles() async {
-    try {
-      var profileData = await homeScreenDataSource.fetchProfiles();
-      var profilesList = await compute(
-        mapToProfile,
-        (profileData),
-      );
-      return Right(profilesList);
-    } catch (e) {
-      print(e);
-      if (e is NetworkException) {
-        return Left(NetworkFailure());
-      } else if (e is FetchProfilesException) {
-        return Left(FetchUserFailure());
-      } else {
-        return Left(GenericModuleFailure());
-      }
-    }
-  }
-
-  @override
-  List<Profile> mapToProfile(Map<dynamic, dynamic> data) {
+  List<Profile> mapToProfileOut(Map<dynamic, dynamic> data) {
     List<Profile> profilesList = [];
     List<Map<dynamic, dynamic>> profilesFromBackend = data["profilesList"];
     Map userCharacteristicsData = data["userCharacteristicsData"];
@@ -68,6 +39,76 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
           bio: profilesFromBackend[i]["Descripcion"]));
     }
     return profilesList;
+  }
+    List<ProfileCharacteristics> characteristicsParser(
+      {required Map profileData, required Map userData}) {
+    List<ProfileCharacteristics> characteristicsList = [];
+
+    profileData.keys.forEach((characteristicKey) {
+      if (characteristicKey != "orientacionSexual" &&
+          characteristicKey != "Altura" &&
+          characteristicKey != "Vegetariano") {
+        IconData? iconData = kProfileCharacteristics_Icons.firstWhere(
+            (iconElement) =>
+                iconElement.containsKey(characteristicKey))[characteristicKey];
+        List<Map<String, String>>? characteristicDataList =
+            kProfileCharacteristics_ES.firstWhere((characteristicDataElement) =>
+                characteristicDataElement
+                    .containsKey(characteristicKey))[characteristicKey];
+
+        int index = profileData[characteristicKey];
+
+        String? characteristicData =
+            characteristicDataList?[profileData[characteristicKey]]
+                .values
+                .toList()[index];
+        characteristicsList.add(ProfileCharacteristics(
+            sameAsUser:
+                profileData[characteristicKey] == userData[characteristicKey]
+                    ? true
+                    : false,
+            characteristicValue: characteristicData as String,
+            characteristicIndex: profileData[characteristicKey],
+            iconData: iconData as IconData));
+      }
+    });
+    return characteristicsList;
+  }
+
+class HomeScreenRepositoryImpl implements HomeScreenRepository {
+  @override
+  HomeScreenDataSource homeScreenDataSource;
+  HomeScreenRepositoryImpl({
+    required this.homeScreenDataSource,
+  });
+  @override
+  Future<Either<Failure, List<Profile>>> fetchProfiles() async {
+    try {
+      Map<dynamic, dynamic> profileData =
+          await homeScreenDataSource.fetchProfiles();
+
+
+      List<Profile> profilesList = await compute(
+        mapToProfileOut,
+        (profileData),
+      );
+      return Right(profilesList);
+    } catch (e, s) {
+      print(e);
+      print(s);
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else if (e is FetchProfilesException) {
+        return Left(FetchUserFailure());
+      } else {
+        return Left(GenericModuleFailure());
+      }
+    }
+  }
+
+  @override
+  List<Profile> mapToProfile(Map<dynamic, dynamic> data) {
+  return mapToProfileOut(data);
   }
 
   List<ProfileCharacteristics> characteristicsParser(

@@ -1,71 +1,89 @@
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/NavigationBar.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/profileWidget.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:provider/provider.dart';
 
-class HomeAppScreen extends ConsumerStatefulWidget {
+class HomeAppScreen extends StatefulWidget {
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
+
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomeAppScreenState();
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _HomeAppScreenState();
+  }
 }
 
-class _HomeAppScreenState extends ConsumerState<HomeAppScreen> {
+class _HomeAppScreenState extends State<HomeAppScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
- 
-
   }
 
   @override
   Widget build(BuildContext context) {
-    var data = ref.watch(Dependencies.homeScreenProvider);
-    return Material(
-      color: Colors.lightBlue,
-      child: SafeArea(
-        child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          return Container(
-            color: Colors.black,
-            height: constraints.maxHeight,
-            width: constraints.maxWidth,
-            child: Stack(
-              children: [
-                if (data.homeScreenController.profilesList.length > 0) ...[
-                  AnimatedList(
-                      scrollDirection: Axis.horizontal,
-                      physics: NeverScrollableScrollPhysics(),
-                      initialItemCount: data.homeScreenController.profilesList.length,
-                      key: HomeAppScreen.profilesKey,
-                      itemBuilder: (BuildContext context, int index,
-                          Animation<double> animation) {
-                        return FadeTransition(
-                            opacity: animation,
-                            child: ProfileWidget(
-                              boxConstraints: constraints,
-                              profile: data.homeScreenController.profilesList[index],
-                              listIndex: index,
-                            ));
-                      })
-                ],
-                if (data.homeScreenController.profilesList.length  == 0) ...[
-                  Container(
+    return ChangeNotifierProvider.value(
+      value: Dependencies.homeScreenPresentation,
+      child: Consumer<HomeScreenPresentation>(
+        builder: (BuildContext context,HomeScreenPresentation homeScreenPresentation,Widget? child) {
+          return Material(
+            color: Colors.lightBlue,
+            child: SafeArea(
+              child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                return Stack(
+                  children: [
+                    Container(
+                      color: Colors.black,
                       height: constraints.maxHeight,
                       width: constraints.maxWidth,
-                      color: Colors.deepPurple,
-                      child: data.profileListState == ProfileListState.loading
-                          ? LoadingIndicator(
-                              indicatorType: Indicator.audioEqualizer)
-                          : Container()),
-                ],
-             
-              ],
+                      child: Stack(
+                        children: [
+                          if (homeScreenPresentation.homeScreenController.profilesList.length > 0) ...[
+                            AnimatedList(
+                                scrollDirection: Axis.horizontal,
+                                physics: NeverScrollableScrollPhysics(),
+                                initialItemCount:
+                                    homeScreenPresentation.homeScreenController.profilesList.length,
+                                key: HomeAppScreen.profilesKey,
+                                itemBuilder: (BuildContext context, int index,
+                                    Animation<double> animation) {
+                                  return FadeTransition(
+                                      opacity: animation,
+                                      child: ProfileWidget(
+                                        boxConstraints: constraints,
+                                        profile: homeScreenPresentation
+                                            .homeScreenController.profilesList[index],
+                                        listIndex: index,
+                                      ));
+                                })
+                          ],
+                          if (homeScreenPresentation.homeScreenController.profilesList.length == 0) ...[
+                            Container(
+                                height: constraints.maxHeight,
+                                width: constraints.maxWidth,
+                                color: Colors.deepPurple,
+                                child:
+                                    homeScreenPresentation.profileListState == ProfileListState.loading
+                                        ? LoadingIndicator(
+                                            indicatorType: Indicator.audioEqualizer)
+                                        : Container()),
+                          ],
+    
+                          ElevatedButton(onPressed: ()=> homeScreenPresentation.getProfiles(), child: Text("Start"))
+                        ],
+                      ),
+                    ),
+                    HomeNavigationBar()
+                  ],
+                );
+              }),
             ),
           );
-        }),
+        }
       ),
     );
   }

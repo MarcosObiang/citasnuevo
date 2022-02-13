@@ -31,6 +31,15 @@ class FetchProfilesException implements Exception {
   }
 }
 
+class ReactionException implements Exception {
+  String message;
+  ReactionException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
 class ReportException implements Exception {
   String message;
   ReportException({

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:citasnuevo/data/Mappers/ConverterDefinition.dart';
+import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -21,7 +23,7 @@ class ApplicationDataSource {
     dataStream.add(this._data);
   }
 
-  get getData {
+  Map<String, dynamic> get getData {
     return this._data;
   }
 
@@ -43,7 +45,14 @@ class ApplicationDataSource {
   }
 }
 
-abstract class DataSource {
+abstract class DataSource<T> {
+  /// Subscribe to the source to get the data from the backend
   late ApplicationDataSource source;
+
+  ///Must be called before any method in the class so get the data needed
+  ///
+  ///from the source
   void subscribeToMainDataSource();
+
+  late DataSourceConverter<T> dataConverter;
 }

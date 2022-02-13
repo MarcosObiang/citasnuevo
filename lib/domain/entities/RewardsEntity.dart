@@ -15,13 +15,18 @@ class Rewards {
   bool rewardForVerificationRigth;
 
   ///Link to share with friends to earn extra coins, start value is ["NO_LINK_AVAILABLE"]
+  ///
+  
 
   String dynamicLink="NO_LINK_AVAILABLE";
+/// The user has the right for daily reward
+  bool dailyRewardRigth;
   Rewards({
     required this.timeUntilDailyReward,
     required this.welcomeRewardRigth,
     required this.rewardForShareRigth,
     required this.rewardForVerificationRigth,
+    required this.dailyRewardRigth,
   });
 
 
