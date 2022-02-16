@@ -1,6 +1,8 @@
 import 'dart:async';
 
 enum ReactionRevealigState { notRevealed, revealed, revealing, error }
+enum ReactionAceptingState { done, inProcess, notAccepted, error }
+enum ReactionDeclineState { done, inProcess, notDeclined, error }
 
 class Reaction {
   int age;
@@ -13,7 +15,25 @@ class Reaction {
   String imageUrl;
   String name;
   String idReaction;
+  String senderId;
   ReactionRevealigState reactionRevealigState;
+  ReactionAceptingState reactionAceptingState =
+      ReactionAceptingState.notAccepted;
+  ReactionDeclineState reactionDeclineState = ReactionDeclineState.notDeclined;
+  get getReactionAceptingState => this.reactionAceptingState;
+
+  set setReactionAceptingState(reactionAceptingState) {
+    this.reactionAceptingState = reactionAceptingState;
+    reactionRevealedStateStream.add(this.reactionAceptingState);
+  }
+
+  get getReactionDeclineState => this.reactionDeclineState;
+
+  set setReactionDeclineState(reactionDeclineState) {
+    this.reactionDeclineState = reactionDeclineState;
+    reactionRevealedStateStream.add(this.reactionDeclineState);
+  }
+
   get getAge => this.age;
 
   set setAge(age) => this.age = age;
@@ -67,9 +87,8 @@ class Reaction {
       reactionRevealedStateStream.add(this.reactionRevealigState);
     }
   }
-  // ignore: close_sinks
 
-  StreamController<ReactionRevealigState> reactionRevealedStateStream =
+  StreamController<dynamic> reactionRevealedStateStream =
       new StreamController.broadcast();
   StreamController<int> secondsRemainingStream =
       new StreamController.broadcast();
@@ -78,6 +97,7 @@ class Reaction {
 
   Reaction(
       {required this.age,
+      required this.senderId,
       required this.reactionExpirationDateInSeconds,
       required this.reactioValue,
       required this.imageHash,

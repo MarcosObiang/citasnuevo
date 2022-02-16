@@ -53,10 +53,9 @@ class Dependencies {
         HomeScreenController(homeScreenRepository: homeScreenRepository);
     homeScreenPresentation =
         HomeScreenPresentation(homeScreenController: homeScreenController);
-    ReactionConverter reactionConverter = new ReactionConverter();
 
     ReactionDataSource reactionDataSource = ReactionDataSourceImpl(
-        source: applicationDataSource, dataConverter: reactionConverter);
+        source: applicationDataSource,);
     ReactionRepository reactionRepository =
         ReactionRepositoryImpl(reactionDataSource: reactionDataSource);
     ReactionsController reactionsController =

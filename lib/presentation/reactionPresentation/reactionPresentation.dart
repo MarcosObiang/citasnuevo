@@ -1,12 +1,15 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison
 
+import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
+import 'package:flutter/material.dart';
 
 enum ReactionListState { ready, empty, error }
 
@@ -56,6 +59,44 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
     }
   }
 
+  void acceptReaction(
+      {required String reactionId, required String reactionSenderId}) async {
+    var result = await reactionsController.acceptReaction(
+        reactionId: reactionId, reactionSenderId: reactionSenderId);
+
+    result.fold((failure) {
+      if (failure is NetworkFailure) {
+        showNetworkErrorDialog(
+            context: ReactionScreen.reactionsListKey.currentContext);
+      }
+      if (failure is ReactionFailure) {
+        showErrorDialog(
+            content: "Error al intentar realizar la operacion",
+            context: ReactionScreen.reactionsListKey.currentContext,
+            title: "Error");
+      }
+    }, (r) {});
+  }
+
+  void rejectReaction({required String reactionId}) async {
+    var result = await reactionsController.rejectReaction(
+      reactionId: reactionId,
+    );
+
+    result.fold((failure) {
+      if (failure is NetworkFailure) {
+        showNetworkErrorDialog(
+            context: ReactionScreen.reactionsListKey.currentContext);
+      }
+      if (failure is ReactionFailure) {
+        showErrorDialog(
+            content: "Error al intentar realizar la operacion",
+            context: ReactionScreen.reactionsListKey.currentContext,
+            title: "Error");
+      }
+    }, (r) {});
+  }
+
   void initializeExpiredReactionsStream() {
     reactionsController.streamIdExpiredReactions.stream.listen((event) {
       int index = event["index"];
@@ -86,12 +127,15 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
 
       setReactionListState = ReactionListState.ready;
       reactionsController.getReactions.stream.listen((event) {
-        if (ReactionScreen.reactionsListKey.currentContext != null &&
-            ReactionScreen.reactionsListKey.currentState != null) {
-          ReactionScreen.reactionsListKey.currentState?.insertItem(0);
-          WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-            notifyListeners();
-          });
+        bool isModified = event["modified"];
+        if (isModified == false) {
+          if (ReactionScreen.reactionsListKey.currentContext != null &&
+              ReactionScreen.reactionsListKey.currentState != null) {
+            ReactionScreen.reactionsListKey.currentState?.insertItem(0);
+            WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+              notifyListeners();
+            });
+          }
         }
       });
 
@@ -103,19 +147,43 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
     required this.reactionsController,
   });
 
-  void reactionRevealed() {
-    for (int i = 0; i < reactionsController.reactions.length; i++) {
-      reactionsController.reactions[i].setReactionRevealigState =
-        ReactionRevealigState.revealed;
-    }
+  void reactionRevealed({required String reactionId}) async {
+    var result =
+        await reactionsController.revealReaction(reactionId: reactionId);
+         result.fold((failure) {
+      if (failure is NetworkFailure) {
+        showNetworkErrorDialog(
+            context: ReactionScreen.reactionsListKey.currentContext);
+      }
+      if (failure is ReactionFailure) {
+        showErrorDialog(
+            content: "Error al intentar realizar la operacion",
+            context: ReactionScreen.reactionsListKey.currentContext,
+            title: "Error");
+      }
+    }, (r) {});
   }
 
   @override
   void showErrorDialog(
-      {required String errorLog,
-      required String errorName,
-      required BuildContext context}) {}
+      {required String title,
+      required String content,
+      required BuildContext? context}) {
+    if (context != null) {
+      showDialog(
+          context: context,
+          builder: (context) =>
+              GenericErrorDialog(title: title, content: content));
+    }
+  }
 
   @override
   void showLoadingDialog() {}
+
+  @override
+  void showNetworkErrorDialog({required BuildContext? context}) {
+    if (context != null) {
+      showDialog(context: context, builder: (context) => NetwortErrorWidget());
+    }
+  }
 }

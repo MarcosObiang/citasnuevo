@@ -5,7 +5,6 @@ import 'package:citasnuevo/domain/repository/reactionRepository/reactionReposito
 import 'package:dartz/dartz.dart';
 
 import '../../core/dependencies/error/Failure.dart';
-// ignore: close_sinks
 
 class ReactionsController {
   List<Reaction> reactions = [];
@@ -84,5 +83,66 @@ class ReactionsController {
       reactionsAverage = event["reactionsAverage"];
       coins = event["coins"];
     });
+  }
+
+  Future<Either<Failure, void>> revealReaction(
+      {required String reactionId}) async {
+    return await reactionRepository.revealReaction(reactionId: reactionId);
+  }
+
+  Future<Either<Failure, bool>> acceptReaction(
+      {required String reactionId, required String reactionSenderId}) async {
+    for (int i = 0; i < reactions.length; i++) {
+      if (reactions[i].idReaction == reactionId) {
+        reactions[i].setReactionAceptingState = ReactionAceptingState.inProcess;
+      }
+    }
+
+    Either<Failure, bool> result = await reactionRepository.acceptReaction(
+        reactionId: reactionId, reactionSenderId: reactionSenderId);
+
+    result.fold((l) {
+      for (int i = 0; i < reactions.length; i++) {
+        if (reactions[i].idReaction == reactionId) {
+          reactions[i].setReactionAceptingState = ReactionAceptingState.error;
+        }
+      }
+    }, (r) {
+      for (int i = 0; i < reactions.length; i++) {
+        if (reactions[i].idReaction == reactionId) {
+          reactions[i].setReactionAceptingState = ReactionAceptingState.done;
+          Reaction reaction = reactions.removeAt(i);
+
+          streamExpiredReactions.add({"index": i, "reaction": reaction});
+        }
+      }
+    });
+
+    return result;
+  }
+
+  Future<Either<Failure, bool>> rejectReaction(
+      {required String reactionId}) async {
+    Either<Failure, bool> result =
+        await reactionRepository.rejectReaction(reactionId: reactionId);
+
+    result.fold((l) {}, (r) {
+      for (int i = 0; i < reactions.length; i++) {
+        if (reactions[i].idReaction == reactionId) {
+          reactions[i].setReactionAceptingState = ReactionAceptingState.done;
+
+          Reaction reaction = reactions.removeAt(i);
+
+          streamExpiredReactions.add({"index": i, "reaction": reaction});
+        }
+      }
+    });
+    return result;
+  }
+
+  void closeStreams() {
+    expiredReactionsListener.close();
+    streamExpiredReactions.close();
+    streamRevealedReactionId.close();
   }
 }

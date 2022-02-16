@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:dartz/dartz.dart';
@@ -17,7 +18,7 @@ class ReactionRepositoryImpl implements ReactionRepository {
   StreamController<Map> get additionalDataStream =>
       this.reactionDataSource.additionalDataSender;
   @override
-  StreamController<Map<String,dynamic>> get reactionListener =>
+  StreamController<Map<String, dynamic>> get reactionListener =>
       this.reactionDataSource.reactionListener;
 
   Either<Failure, Map> getAdditionalValues() {
@@ -34,6 +35,58 @@ class ReactionRepositoryImpl implements ReactionRepository {
         return Left(NetworkFailure());
       } else {
         return Left(ReactionFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> revealReaction(
+      {required String reactionId}) async {
+    try {
+      await reactionDataSource.revealReaction(reactionId);
+      return Right(Void);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else if (e is ReactionException) {
+        return Left(ReactionFailure());
+      } else {
+        return Left(GenericModuleFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> acceptReaction(
+      {required String reactionId, required String reactionSenderId}) async {
+    try {
+      await reactionDataSource.acceptReaction(
+          reactionId: reactionId, reactionSenderId: reactionSenderId);
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else if (e is ReactionException) {
+        return Left(ReactionFailure());
+      } else {
+        return Left(GenericModuleFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> rejectReaction(
+      {required String reactionId}) async {
+    try {
+      await reactionDataSource.rejectReaction(reactionId: reactionId);
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else if (e is ReactionException) {
+        return Left(ReactionFailure());
+      } else {
+        return Left(GenericModuleFailure());
       }
     }
   }

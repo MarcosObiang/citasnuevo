@@ -31,7 +31,7 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
   }
 
   /// Call this method to report any user profile the user may think it violates the norms of the comunity
-  /// 
+  ///
 
   void sendReport(
       {required String idReporter,
@@ -46,7 +46,12 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
     result.fold((fail) {
       reportSendidnState = ReportSendingState.error;
       if (fail is NetworkFailure) {
-        showNetworkErrorWidget(startKey.currentContext);
+        showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+        showErrorDialog(
+            title: "Error",
+            content: "Error enviar denuncia",
+            context: startKey.currentContext);
       }
     }, (succes) {
       reportSendidnState = ReportSendingState.sended;
@@ -77,10 +82,14 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
         ratingValue: reactionValue, idProfileRated: removedProfile.id);
     result.fold((failure) {
       if (failure is NetworkFailure) {
-        showNetworkErrorWidget(startKey.currentContext);
+        showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+        showErrorDialog(
+            title: "Error",
+            content: "Error enviar reaccion",
+            context: startKey.currentContext);
       }
-    }, (succes) {
-    });
+    }, (succes) {});
   }
 
   void getProfiles() async {
@@ -91,7 +100,13 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
     fetchedList.fold((fail) {
       profileListState = ProfileListState.error;
       if (fail is NetworkFailure) {
-        showNetworkErrorWidget(startKey.currentContext);
+        showNetworkErrorDialog(context: startKey.currentContext);
+      }
+      else {
+        showErrorDialog(
+            title: "Error",
+            content: "Error al cargar perfiles",
+            context: startKey.currentContext);
       }
     }, (succes) {
       for (int a = 0; a < homeScreenController.profilesList.length; a++) {
@@ -115,15 +130,24 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
   }
 
   @override
-  void showErrorDialog(
-      {required String errorLog,
-      required String errorName,
-      required BuildContext context}) {
-  }
-
-  void showNetworkErrorWidget(BuildContext? context) {
+  void showNetworkErrorDialog({required BuildContext? context}) {
     if (context != null) {
       showDialog(context: context, builder: (context) => NetwortErrorWidget());
+    }
+  }
+
+  @override
+  void showErrorDialog(
+      {required String title,
+      required String content,
+      required BuildContext? context}) {
+    if (context != null) {
+      showDialog(
+          context: context,
+          builder: (context) => GenericErrorDialog(
+                content: content,
+                title: title,
+              ));
     }
   }
 }

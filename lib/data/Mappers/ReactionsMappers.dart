@@ -3,9 +3,8 @@ import 'dart:convert';
 import 'package:citasnuevo/data/Mappers/ConverterDefinition.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 
-class ReactionConverter implements DataSourceConverter<Reaction> {
-  @override
-  Reaction fromMap(Map data) {
+class ReactionConverter {
+  static Reaction fromMap(Map data) {
     bool revealed = data["revelada"];
 
     if (revealed) {
@@ -15,7 +14,8 @@ class ReactionConverter implements DataSourceConverter<Reaction> {
           reactioValue: data["Valoracion"],
           imageHash: data["hash"],
           imageUrl: data["Imagen Usuario"],
-          name: data["Nombre Usuario"],
+          name: data["Nombe emisor"],
+          senderId: data["Id emisor"],
           idReaction: data["id valoracion"],
           reactionRevealigState: revealed
               ? ReactionRevealigState.revealed
@@ -24,6 +24,7 @@ class ReactionConverter implements DataSourceConverter<Reaction> {
       return Reaction(
           age: 20,
           reactionExpirationDateInSeconds: data["caducidad"],
+          senderId: data["idEmisor"],
           reactioValue: 0,
           imageHash: "NOT_AVAILABLE",
           imageUrl: "NOT_AVAILABLE",
@@ -35,8 +36,7 @@ class ReactionConverter implements DataSourceConverter<Reaction> {
     }
   }
 
-  @override
-  Map<String, dynamic> toMap(Reaction data) {
+  static Map<String, dynamic> toMap(Reaction data) {
     throw UnimplementedError();
   }
 }

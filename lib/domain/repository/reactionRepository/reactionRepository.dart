@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/data/daraSources/reactionDataSources/reactionDataSource.dart';
-import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class ReactionRepository {
@@ -23,4 +22,10 @@ abstract class ReactionRepository {
 
   ///Get first addidional values (gems and reaction average)
   Either<Failure, Map> getAdditionalValues();
+
+  Future<Either<Failure, void>> revealReaction({required String reactionId});
+
+  Future<Either<Failure,bool>>acceptReaction({required String reactionId,required String reactionSenderId,});
+
+  Future<Either<Failure,bool>> rejectReaction({required String reactionId});
 }

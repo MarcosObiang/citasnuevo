@@ -33,8 +33,10 @@ class FetchProfilesException implements Exception {
 
 class ReactionException implements Exception {
   String message;
+  StackTrace stackTrace;
   ReactionException({
     required this.message,
+    required this.stackTrace
   }) {
     print(message);
   }

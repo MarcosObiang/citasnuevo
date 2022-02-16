@@ -54,5 +54,4 @@ abstract class DataSource<T> {
   ///from the source
   void subscribeToMainDataSource();
 
-  late DataSourceConverter<T> dataConverter;
 }

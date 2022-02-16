@@ -2,9 +2,7 @@ import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:citasnuevo/core/firebase_services/firebase_app.dart';
 import 'package:citasnuevo/core/globalData.dart';
-import 'package:citasnuevo/core/platform/networkInfo.dart';
 
 abstract class AuthenticationContract {
   Future<Map<String, dynamic>> logUserFromGoogle();

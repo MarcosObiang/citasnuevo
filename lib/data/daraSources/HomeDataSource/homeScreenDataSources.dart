@@ -147,8 +147,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
     }
   }
 
-  @override
-  late DataSourceConverter dataConverter;
+
 }
 
 class GetProfileImage {

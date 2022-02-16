@@ -25,14 +25,12 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
     });
   }
 
-
   ///This method will be called by Flutter´s initState method on the splash screen to check if there is any current user logged in the app
   ///
   ///
   Future<void> checkSignedInUser() async {
     authState = AuthState.signingIn;
-    var data = await authScreenController
-        .checkIfUserIsAlreadySignedUp();
+    var data = await authScreenController.checkIfUserIsAlreadySignedUp();
 
     data.fold((failure) {
       failuretype = failure;
@@ -50,8 +48,7 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
   ///
   void signInWithGoogle() async {
     authState = AuthState.signingIn;
-    var authSate1 =
-        await authScreenController.signInWithGoogleAccount();
+    var authSate1 = await authScreenController.signInWithGoogleAccount();
     authSate1.fold((failure) {
       failuretype = failure;
       if (failuretype is NetworkFailure) {
@@ -65,16 +62,24 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
 
   @override
   void showLoadingDialog() {
-    // TODO: implement showLoadingDialog
   }
 
   @override
   void showErrorDialog(
-      {required String errorLog,
-      required String errorName,
-      required BuildContext context}) {
-    showDialog(context: context, builder: (context) => NetwortErrorWidget());
+      {required String title,
+      required String content,
+      required BuildContext? context}) {
+    if (context != null) {
+      showDialog(context: context, builder: (context) => NetwortErrorWidget());
+    }
   }
 
   void showNetworkError() {}
+
+  @override
+  void showNetworkErrorDialog({required BuildContext? context}) {
+    if (context != null) {
+      showDialog(context: context, builder: (context) => NetwortErrorWidget());
+    }
+  }
 }

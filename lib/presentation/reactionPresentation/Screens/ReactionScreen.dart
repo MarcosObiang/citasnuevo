@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentation.dart';
@@ -9,6 +10,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
 
 class ReactionScreen extends StatefulWidget {
@@ -136,6 +139,8 @@ class _ReactionCardState extends State<ReactionCard>
   RevealingAnimationState revealingAnimationState =
       RevealingAnimationState.notTurning;
 
+  bool processing = false;
+
   @override
   void initState() {
     super.initState();
@@ -185,25 +190,53 @@ class _ReactionCardState extends State<ReactionCard>
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<ReactionRevealigState>(
+    return StreamBuilder<dynamic>(
         stream: widget.reaction.reactionRevealedStateStream.stream,
         initialData: widget.reaction.reactionRevealigState,
-        builder:
-            (BuildContext context, AsyncSnapshot<ReactionRevealigState> data) {
-          if (widget.reaction.reactionRevealigState ==
-                  ReactionRevealigState.revealed &&
-              showCard == false) {
-            if (_revealingAnimation.isCompleted ||
-                _revealingAnimation.isDismissed) {
-              WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-                _revealingAnimation.reset();
-                _revealingAnimation.forward();
-                showCard = true;
+        builder: (BuildContext context, AsyncSnapshot<dynamic> data) {
+          if (data.data is ReactionRevealigState) {
+            if (widget.reaction.reactionRevealigState ==
+                    ReactionRevealigState.revealed &&
+                showCard == false) {
+              if (_revealingAnimation.isCompleted ||
+                  _revealingAnimation.isDismissed) {
+                WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+                  _revealingAnimation.reset();
+                  _revealingAnimation.forward();
+                  showCard = true;
+                  setState(() {});
+                });
+              }
+            }
+          }
+          if (data.data is ReactionAceptingState) {
+            ReactionAceptingState reactionAceptingState = data.data;
+            if (reactionAceptingState == ReactionAceptingState.inProcess) {
+              processing = true;
+              WidgetsBinding.instance?.addPostFrameCallback((data) {
+                setState(() {});
+              });
+            } else {
+              processing = false;
+              WidgetsBinding.instance?.addPostFrameCallback((data) {
                 setState(() {});
               });
             }
+          }
+          if (data.data is ReactionDeclineState) {
+            ReactionDeclineState reactionDeclineState = data.data;
 
-            print("dodsjad");
+            if (reactionDeclineState == ReactionDeclineState.inProcess) {
+              processing = true;
+              WidgetsBinding.instance?.addPostFrameCallback((data) {
+                setState(() {});
+              });
+            } else {
+              processing = false;
+              WidgetsBinding.instance?.addPostFrameCallback((data) {
+                setState(() {});
+              });
+            }
           }
 
           return AnimatedBuilder(
@@ -228,9 +261,7 @@ class _ReactionCardState extends State<ReactionCard>
                             width: widget.boxConstraints.biggest.width,
                             child: _revealingRotationValue < (pi / 2)
                                 ? reactionCounter()
-                                : Container(
-                                    child: Text("Reveladaaaaaa"),
-                                  )),
+                                : revealedSide(widget.reaction)),
                       );
                     }),
                   ),
@@ -239,16 +270,49 @@ class _ReactionCardState extends State<ReactionCard>
         });
   }
 
+  Widget profileInfo({required String name, required String age}) {
+    return Container(
+        height: kBottomNavigationBarHeight * 1.5,
+        width: ReactionScreen.boxConstraints.maxWidth,
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: [Colors.black54, Colors.transparent],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter)),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style:
+                        GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+                  ),
+                  Text(
+                    age,
+                    style:
+                        GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+                  )
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [],
+              )
+            ],
+          ),
+        ));
+  }
+
   StreamBuilder<int> reactionCounter() {
     return StreamBuilder(
       stream: widget.reaction.secondsRemainingStream.stream,
       initialData: widget.reaction.secondsUntilExpiration,
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        if (widget.reaction.reactionRevealigState ==
-            ReactionRevealigState.notRevealed) {
-          print("revelando indice${widget.index}");
-        }
-
         return Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -261,12 +325,83 @@ class _ReactionCardState extends State<ReactionCard>
             ),
             ElevatedButton(
                 onPressed: () {
-                  Dependencies.reactionPresentation.reactionRevealed();
+                  Dependencies.reactionPresentation
+                      .reactionRevealed(reactionId: widget.reaction.idReaction);
                 },
                 child: Text("Revelar"))
           ],
         ));
       },
+    );
+  }
+
+  Transform revealedSide(Reaction reaction) {
+    return Transform(
+      transform: Matrix4.identity()..rotateY(pi),
+      alignment: FractionalOffset.center,
+      child: Stack(
+        children: [
+          Container(
+              width: widget.boxConstraints.maxWidth,
+              child: OctoImage(
+                fadeInDuration: Duration(milliseconds: 50),
+                fit: BoxFit.cover,
+                image: CachedNetworkImageProvider(reaction.imageUrl),
+                placeholderBuilder: OctoPlaceholder.blurHash(reaction.imageHash,
+                    fit: BoxFit.cover),
+              )),
+          profileInfo(name: reaction.name, age: 20.toString()),
+          revealedSideButtons(),
+          processing == true
+              ? Container(
+                  width: widget.boxConstraints.maxWidth,
+                  color: Colors.black,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Un momento",
+                          style: GoogleFonts.lato(
+                              color: Colors.white,
+                              fontSize: 50.sp,
+                              letterSpacing: 20.w),
+                        ),
+                        Container(
+                            height: 200.h,
+                            child: LoadingIndicator(
+                                indicatorType: Indicator.ballPulse)),
+                      ],
+                    ),
+                  ),
+                )
+              : Container()
+        ],
+      ),
+    );
+  }
+
+  Align revealedSideButtons() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                Dependencies.reactionPresentation.acceptReaction(
+                    reactionId: widget.reaction.idReaction,
+                    reactionSenderId: widget.reaction.senderId);
+              },
+              child: Text("Aceptar")),
+          ElevatedButton(
+              onPressed: () {
+                Dependencies.reactionPresentation
+                    .rejectReaction(reactionId: widget.reaction.idReaction);
+              },
+              child: Text("Rechazar"))
+        ],
+      ),
     );
   }
 }
