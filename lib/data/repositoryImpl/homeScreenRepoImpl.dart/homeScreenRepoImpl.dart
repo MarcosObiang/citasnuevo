@@ -1,15 +1,12 @@
 import 'dart:ffi';
 
-import 'package:citasnuevo/core/common/profileCharacteristics.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/data/Mappers/ProfilesMapper.dart';
 import 'package:citasnuevo/data/daraSources/HomeDataSource/homeScreenDataSources.dart';
-import 'package:citasnuevo/domain/entities/ProfileCharacteristicsEntity.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -31,9 +28,8 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
         (profileData),
       );
       return Right(profilesList);
-    } catch (e, s) {
-      print(e);
-      print(s);
+    } catch (e) {
+
       if (e is NetworkException) {
         return Left(NetworkFailure());
       } else if (e is FetchProfilesException) {
@@ -66,25 +62,4 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, bool>> sendReport(
-      {required String reporterId,
-      required String userReportedId,
-      required String reportDetails}) async {
-    try {
-      await homeScreenDataSource.sendReport(
-          idReporter: reporterId,
-          idUserReported: userReportedId,
-          reportDetails: reportDetails);
-      return Right(true);
-    } catch (e) {
-      if (e is NetworkException) {
-        return Left(NetworkFailure());
-      } else if (e is ReportException) {
-        return Left(ReportFailure());
-      } else {
-        return Left(ReportFailure());
-      }
-    }
-  }
 }

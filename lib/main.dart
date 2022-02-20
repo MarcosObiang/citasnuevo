@@ -30,6 +30,8 @@ void main() async {
 
   Dependencies.startUtilDependencies();
   runApp(MultiProvider(providers: [
+     Provider(create: (_) => Dependencies.chatPresentation),
+    Provider(create: (_) => Dependencies.homeReportScreenPresentation),
     Provider(create: (_) => Dependencies.authScreenPresentation),
     Provider(create: (_) => Dependencies.homeScreenPresentation),
     Provider(create: (_) => Dependencies.reactionPresentation)
@@ -51,7 +53,8 @@ class _StartState extends State<Start> {
     super.initState();
     Dependencies.authScreenPresentation.checkSignedInUser();
 
-    Dependencies.reactionPresentation.initializeReactionsListener();
+  Dependencies.reactionPresentation.initializeReactionsListener();
+  Dependencies.chatPresentation.initializeChatListener();
     //  ref.read(Dependencies.reactionProvider).initializeDataReciever();
   }
 

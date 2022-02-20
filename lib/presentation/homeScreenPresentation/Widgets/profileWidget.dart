@@ -3,7 +3,7 @@ import 'package:citasnuevo/core/common/profileCharacteristics.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/domain/entities/ProfileCharacteristicsEntity.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/ReportScreen.dart';
+import 'package:citasnuevo/presentation/homeReportScreenPresentation/ReportScreen.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/ProfileCharacteristicsWidget.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/ProfileDescription.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/ProfilePicture.dart';

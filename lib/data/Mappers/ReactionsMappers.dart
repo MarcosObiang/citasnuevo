@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:citasnuevo/data/Mappers/ConverterDefinition.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 
 class ReactionConverter {

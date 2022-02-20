@@ -6,6 +6,5 @@ abstract class HomeScreenRepository{
   late HomeScreenDataSource homeScreenDataSource;
   Future<Either<Failure,List<Profile>>> fetchProfiles();
   Future<Either<Failure,void>> sendRating( {required double ratingValue, required String idProfileRated});
-  Future<Either<Failure,bool>> sendReport({required String reporterId,required String userReportedId,required String reportDetails});
   
   }

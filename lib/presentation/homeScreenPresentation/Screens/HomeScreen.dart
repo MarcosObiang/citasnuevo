@@ -6,6 +6,7 @@ import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresenta
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
 class HomeAppScreen extends StatefulWidget {
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
@@ -27,64 +28,70 @@ class _HomeAppScreenState extends State<HomeAppScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: Dependencies.homeScreenPresentation,
-      child: Consumer<HomeScreenPresentation>(
-        builder: (BuildContext context,HomeScreenPresentation homeScreenPresentation,Widget? child) {
-          return Material(
-            color: Colors.lightBlue,
-            child: SafeArea(
-              child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                return Stack(
-                  children: [
-                    Container(
-                      color: Colors.black,
-                      height: constraints.maxHeight,
-                      width: constraints.maxWidth,
-                      child: Stack(
-                        children: [
-                          if (homeScreenPresentation.homeScreenController.profilesList.length > 0) ...[
-                            AnimatedList(
-                                scrollDirection: Axis.horizontal,
-                                physics: NeverScrollableScrollPhysics(),
-                                initialItemCount:
-                                    homeScreenPresentation.homeScreenController.profilesList.length,
-                                key: HomeAppScreen.profilesKey,
-                                itemBuilder: (BuildContext context, int index,
-                                    Animation<double> animation) {
-                                  return FadeTransition(
-                                      opacity: animation,
-                                      child: ProfileWidget(
-                                        boxConstraints: constraints,
-                                        profile: homeScreenPresentation
-                                            .homeScreenController.profilesList[index],
-                                        listIndex: index,
-                                      ));
-                                })
-                          ],
-                          if (homeScreenPresentation.homeScreenController.profilesList.length == 0) ...[
-                            Container(
-                                height: constraints.maxHeight,
-                                width: constraints.maxWidth,
-                                color: Colors.deepPurple,
-                                child:
-                                    homeScreenPresentation.profileListState == ProfileListState.loading
-                                        ? LoadingIndicator(
-                                            indicatorType: Indicator.audioEqualizer)
-                                        : Container()),
-                          ],
-    
-                          ElevatedButton(onPressed: ()=> homeScreenPresentation.getProfiles(), child: Text("Start"))
+      child: Consumer<HomeScreenPresentation>(builder: (BuildContext context,
+          HomeScreenPresentation homeScreenPresentation, Widget? child) {
+        return Material(
+          color: Colors.lightBlue,
+          child: SafeArea(
+            child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+              return Stack(
+                children: [
+                  Container(
+                    color: Colors.black,
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth,
+                    child: Stack(
+                      children: [
+                        if (homeScreenPresentation
+                                .homeScreenController.profilesList.length >
+                            0) ...[
+                          AnimatedList(
+                              scrollDirection: Axis.horizontal,
+                              physics: NeverScrollableScrollPhysics(),
+                              initialItemCount: homeScreenPresentation
+                                  .homeScreenController.profilesList.length,
+                              key: HomeAppScreen.profilesKey,
+                              itemBuilder: (BuildContext context, int index,
+                                  Animation<double> animation) {
+                                return FadeTransition(
+                                    opacity: animation,
+                                    child: ProfileWidget(
+                                      boxConstraints: constraints,
+                                      profile: homeScreenPresentation
+                                          .homeScreenController
+                                          .profilesList[index],
+                                      listIndex: index,
+                                    ));
+                              })
                         ],
-                      ),
+                        if (homeScreenPresentation
+                                .homeScreenController.profilesList.length ==
+                            0) ...[
+                          Container(
+                              height: constraints.maxHeight,
+                              width: constraints.maxWidth,
+                              color: Colors.deepPurple,
+                              child: homeScreenPresentation.profileListState ==
+                                      ProfileListState.loading
+                                  ? LoadingIndicator(
+                                      indicatorType: Indicator.audioEqualizer)
+                                  : Container()),
+                        ],
+                        ElevatedButton(
+                            onPressed: () =>
+                                homeScreenPresentation.getProfiles(),
+                            child: Text("Start"))
+                      ],
                     ),
-                    HomeNavigationBar()
-                  ],
-                );
-              }),
-            ),
-          );
-        }
-      ),
+                  ),
+                  HomeNavigationBar()
+                ],
+              );
+            }),
+          ),
+        );
+      }),
     );
   }
 }

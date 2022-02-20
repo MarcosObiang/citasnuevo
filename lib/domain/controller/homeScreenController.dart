@@ -38,13 +38,4 @@ class HomeScreenController {
         ratingValue: ratingValue, idProfileRated: idProfileRated);
   }
 
-  Future<Either<Failure, bool>> sendUserReport(
-      {required String idUserReported,
-      required String idReporter,
-      required String reportDetails}) async {
-    return await homeScreenRepository.sendReport(
-        reporterId: idReporter,
-        userReportedId: idUserReported,
-        reportDetails: reportDetails);
-  }
 }

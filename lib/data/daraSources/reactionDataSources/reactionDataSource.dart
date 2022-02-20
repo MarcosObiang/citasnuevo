@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:async/async.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
-import 'package:citasnuevo/data/Mappers/ConverterDefinition.dart';
-import 'package:citasnuevo/data/Mappers/ProfilesMapper.dart';
+
 import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:citasnuevo/data/daraSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
@@ -118,16 +117,28 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       try {
         HttpsCallable callToRevealReactionFunction =
             FirebaseFunctions.instance.httpsCallable("quitarCreditosUsuario");
+            await Dependencies.advertisingServices.requestConsentInfoUpdate();
 
-        HttpsCallableResult result = await callToRevealReactionFunction.call({
-          "idValoracion": reactionId,
-          "idUsuario": userID,
-          "primeraSolicitud": false
+        await Dependencies.advertisingServices.showInterstitial();
+
+        Dependencies.advertisingServices.advertismentStateStream.stream
+            .listen((event) async {
+          if (event) {
+            HttpsCallableResult result = await callToRevealReactionFunction
+                .call({
+              "idValoracion": reactionId,
+              "idUsuario": userID,
+              "primeraSolicitud": false
+            });
+
+            if (result.data["estado"] != "correcto") {
+              throw Exception(["NOT_ALLOWED"]);
+            }
+          }
+          else{
+            throw Exception(["AD_INCOMPLETE"]);
+          }
         });
-
-        if (result.data["estado"] != "correcto") {
-          throw Exception(["NOT_ALLOWED"]);
-        }
       } catch (e, S) {
         throw ReactionException(message: e.toString(), stackTrace: S);
       }

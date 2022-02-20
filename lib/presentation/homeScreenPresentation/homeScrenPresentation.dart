@@ -12,7 +12,6 @@ import 'package:citasnuevo/presentation/presentationDef.dart';
 
 class HomeScreenPresentation extends ChangeNotifier implements Presentation {
   ProfileListState _profileListState = ProfileListState.empty;
-  ReportSendingState _reportSendingState = ReportSendingState.notSended;
   HomeScreenController homeScreenController;
 
   HomeScreenPresentation({required this.homeScreenController}) {
@@ -24,39 +23,9 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
     notifyListeners();
   }
 
-  get reportSendidnState => this._reportSendingState;
-  set reportSendidnState(reportSendidnState) {
-    _reportSendingState = reportSendidnState;
-    notifyListeners();
-  }
 
-  /// Call this method to report any user profile the user may think it violates the norms of the comunity
-  ///
 
-  void sendReport(
-      {required String idReporter,
-      required String idUserReported,
-      required String reportDetails}) async {
-    reportSendidnState = ReportSendingState.sending;
-    var result = await homeScreenController.sendUserReport(
-        idReporter: idReporter,
-        reportDetails: reportDetails,
-        idUserReported: idUserReported);
 
-    result.fold((fail) {
-      reportSendidnState = ReportSendingState.error;
-      if (fail is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
-      } else {
-        showErrorDialog(
-            title: "Error",
-            content: "Error enviar denuncia",
-            context: startKey.currentContext);
-      }
-    }, (succes) {
-      reportSendidnState = ReportSendingState.sended;
-    });
-  }
 
   ///Call this method from widgets to send a reaction to a user
 

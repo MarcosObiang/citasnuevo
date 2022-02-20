@@ -29,12 +29,9 @@ abstract class HomeScreenDataSource implements DataSource {
 
   Future<void> sendRating(
       {required double ratingValue, required String idProfileRated});
-
-  Future<bool> sendReport(
-      {required String idReporter,
-      required String idUserReported,
-      required String reportDetails});
 }
+
+
 
 class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   @override
@@ -146,8 +143,6 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       throw NetworkException();
     }
   }
-
-
 }
 
 class GetProfileImage {

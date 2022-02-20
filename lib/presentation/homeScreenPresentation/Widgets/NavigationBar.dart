@@ -1,3 +1,4 @@
+import 'package:citasnuevo/presentation/chatPresentation/chatScreen.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ class HomeNavigationBar extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _NavigationBarState();
   }
 
@@ -26,7 +26,7 @@ class _NavigationBarState extends State<HomeNavigationBar> {
     return botonesLateralesCitas(context);
   }
 
-  Container button({required Icon icon}) {
+  Container reactionsButton({required Icon icon}) {
     return Container(
       height: 150.h,
       width: 150.w,
@@ -43,6 +43,24 @@ class _NavigationBarState extends State<HomeNavigationBar> {
           )),
     );
   }
+    Container chatButton({required Icon icon}) {
+    return Container(
+      height: 150.h,
+      width: 150.w,
+      decoration: BoxDecoration(
+          gradient: RadialGradient(
+              focalRadius: 50.h, colors: [Colors.black, Colors.transparent]),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: GestureDetector(
+          onTap: () {
+            Navigator.push(context, GoToRoute(page: ChatScreen()));
+          },
+          child: Container(
+            child: icon,
+          )),
+    );
+  }
+
 
   Align botonesLateralesCitas(BuildContext context) {
     return Align(
@@ -57,15 +75,9 @@ class _NavigationBarState extends State<HomeNavigationBar> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.end,
-            children: List.generate(
-                1,
-                (index) => button(
-                        icon: Icon(
-                      LineAwesomeIcons.heart_1,
-                      color: Colors.white,
-                      size: 80.sp,
-                    )))),
+            children:[reactionsButton(icon: Icon(LineAwesomeIcons.heart,color: Colors.white,)),chatButton(icon: Icon(Icons.chat_bubble,color: Colors.white,))]),
       ),
     );
   }
+
 }

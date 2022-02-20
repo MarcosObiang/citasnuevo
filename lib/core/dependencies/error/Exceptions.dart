@@ -50,3 +50,11 @@ class ReportException implements Exception {
     print(message);
   }
 }
+class ChatException implements Exception {
+  String message;
+  ChatException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}

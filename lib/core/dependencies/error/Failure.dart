@@ -60,3 +60,7 @@ class ReactionFailure extends Failure {
   @override
   List<Object?> get props => throw UnimplementedError();
 }
+class ChatFailure extends Failure {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}
