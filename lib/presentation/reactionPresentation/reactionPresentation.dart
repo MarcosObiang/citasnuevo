@@ -1,17 +1,15 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison
 
 import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:flutter/material.dart';
 
-enum ReactionListState { ready, empty, error }
+enum ReactionListState { loading, ready, empty, error }
 
 class ReactionPresentation extends ChangeNotifier implements Presentation {
   int _coins = 0;
@@ -111,6 +109,10 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
                 index: index,
                 animation: animation),
             duration: Duration(milliseconds: 300));
+
+        if (reactionsController.reactions.length == 0) {
+          setReactionListState = ReactionListState.empty;
+        }
         WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
           notifyListeners();
         });
@@ -125,16 +127,15 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
     }, (succes) {
       initializeExpiredReactionsStream();
 
-      setReactionListState = ReactionListState.ready;
       reactionsController.getReactions.stream.listen((event) {
         bool isModified = event["modified"];
         if (isModified == false) {
+          setReactionListState = ReactionListState.ready;
+
           if (ReactionScreen.reactionsListKey.currentContext != null &&
               ReactionScreen.reactionsListKey.currentState != null) {
             ReactionScreen.reactionsListKey.currentState?.insertItem(0);
-            WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-              notifyListeners();
-            });
+            WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {});
           }
         }
       });
@@ -150,7 +151,7 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
   void reactionRevealed({required String reactionId}) async {
     var result =
         await reactionsController.revealReaction(reactionId: reactionId);
-         result.fold((failure) {
+    result.fold((failure) {
       if (failure is NetworkFailure) {
         showNetworkErrorDialog(
             context: ReactionScreen.reactionsListKey.currentContext);

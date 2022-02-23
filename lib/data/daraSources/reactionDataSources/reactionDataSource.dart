@@ -63,7 +63,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         instance
             .collection("valoraciones")
             .where("Time", isGreaterThanOrEqualTo: queryDate)
-            .where("idDestino", isEqualTo: "VFXR80UHWMX2Qc1ZIelXZbVjlrD3")
+            .where("idDestino", isEqualTo: userID)
             .snapshots()
             .listen((dato) {
           dato.docChanges.forEach((element) {
@@ -71,12 +71,20 @@ class ReactionDataSourceImpl implements ReactionDataSource {
               Reaction reaction = ReactionConverter.fromMap(
                   element.doc.data() as Map<String, dynamic>);
 
-              reactionListener.add({"modified": false, "reaction": reaction});
+              reactionListener.add({
+                "modified": false,
+                "reaction": reaction,
+                "dataLength": dato.docChanges.length
+              });
             }
             if (element.type == DocumentChangeType.modified) {
               Reaction reaction = ReactionConverter.fromMap(
                   element.doc.data() as Map<String, dynamic>);
-              reactionListener.add({"modified": true, "reaction": reaction});
+              reactionListener.add({
+                "modified": true,
+                "reaction": reaction,
+                "dataLength": dato.docChanges.length
+              });
             }
           });
         });
@@ -113,17 +121,22 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   Future<void> revealReaction(String reactionId) async {
+    late StreamSubscription<bool> adsStreamSubscription;
+
+    int cero = 0;
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         HttpsCallable callToRevealReactionFunction =
             FirebaseFunctions.instance.httpsCallable("quitarCreditosUsuario");
-            await Dependencies.advertisingServices.requestConsentInfoUpdate();
 
         await Dependencies.advertisingServices.showInterstitial();
 
-        Dependencies.advertisingServices.advertismentStateStream.stream
+        adsStreamSubscription = Dependencies
+            .advertisingServices.advertismentStateStream.stream
             .listen((event) async {
           if (event) {
+            cero += 1;
+            print(cero);
             HttpsCallableResult result = await callToRevealReactionFunction
                 .call({
               "idValoracion": reactionId,
@@ -132,14 +145,22 @@ class ReactionDataSourceImpl implements ReactionDataSource {
             });
 
             if (result.data["estado"] != "correcto") {
+              adsStreamSubscription.cancel();
+
               throw Exception(["NOT_ALLOWED"]);
             }
-          }
-          else{
+            if (result.data["estado"] == "correcto") {
+              adsStreamSubscription.cancel();
+            }
+          } else {
+            adsStreamSubscription.cancel();
+
             throw Exception(["AD_INCOMPLETE"]);
           }
         });
       } catch (e, S) {
+        adsStreamSubscription.cancel();
+
         throw ReactionException(message: e.toString(), stackTrace: S);
       }
     } else {

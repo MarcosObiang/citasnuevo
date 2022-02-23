@@ -55,4 +55,39 @@ class ChatRepoImpl implements ChatRepository {
       }
     }
   }
+
+  @override
+  StreamController<Map<String, dynamic>> get getMessageStream =>
+      chatDataSource.messageStream;
+
+  @override
+  Future<Either<Failure, bool>> initializeMessageListener() async {
+    try {
+       chatDataSource.listenToMessages();
+
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(ChatFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> setMessagesOnSeen(
+      {required List<String> data}) async {
+    try {
+      bool value = await chatDataSource.messagesSeen(data: data);
+
+      return Right(value);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(ChatFailure());
+      }
+    }
+  }
 }

@@ -13,6 +13,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 GlobalKey startKey = new GlobalKey();
+final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +37,9 @@ void main() async {
     Provider(create: (_) => Dependencies.authScreenPresentation),
     Provider(create: (_) => Dependencies.homeScreenPresentation),
     Provider(create: (_) => Dependencies.reactionPresentation)
-  ], child: MaterialApp(debugShowCheckedModeBanner: false, home: Start())));
+  ], child: MaterialApp(
+    navigatorObservers: [routeObserver],
+    debugShowCheckedModeBanner: false, home: Start())));
 }
 
 class Start extends StatefulWidget {
@@ -53,8 +57,10 @@ class _StartState extends State<Start> {
     super.initState();
     Dependencies.authScreenPresentation.checkSignedInUser();
 
-  Dependencies.reactionPresentation.initializeReactionsListener();
-  Dependencies.chatPresentation.initializeChatListener();
+ Dependencies.reactionPresentation.initializeReactionsListener();
+ Dependencies.chatPresentation.initializeChatListener();
+  Dependencies.chatPresentation.initializeMessageListener();
+
     //  ref.read(Dependencies.reactionProvider).initializeDataReciever();
   }
 

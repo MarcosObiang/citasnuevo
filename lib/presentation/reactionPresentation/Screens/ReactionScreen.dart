@@ -80,9 +80,8 @@ class _ReactionScreenState extends State<ReactionScreen> {
                     return Container(
                         height: constraints.biggest.height,
                         width: constraints.biggest.width,
-                        child: reactionPresentation
-                                    .reactionsController.reactions.length >
-                                0
+                        child: reactionPresentation.getReactionListState ==
+                                ReactionListState.ready
                             ? AnimatedList(
                                 key: ReactionScreen.reactionsListKey,
                                 initialItemCount: reactionPresentation
@@ -100,7 +99,41 @@ class _ReactionScreenState extends State<ReactionScreen> {
                                         animation: animation),
                                   );
                                 })
-                            : Container());
+                            : reactionPresentation.getReactionListState ==
+                                    ReactionListState.loading
+                                ? Container(
+                                    height: 300.h,
+                                    width: 300.h,
+                                    child: Column(
+                                      children: [
+                                        LoadingIndicator(
+                                            indicatorType:
+                                                Indicator.ballRotate),
+                                        Text("Cargando")
+                                      ],
+                                    ),
+                                  )
+                                : reactionPresentation.getReactionListState ==
+                                        ReactionListState.error
+                                    ? Container(
+                                        height: 300.h,
+                                        width: 300.h,
+                                        child: Column(
+                                          children: [
+                                            ElevatedButton(
+                                                onPressed: () {
+                                                  reactionPresentation
+                                                      .initializeReactionsListener();
+                                                },
+                                                child: Text("Cargar de nuevo")),
+                                            Text("Error")
+                                          ],
+                                        ),
+                                      )
+                                    : Container(
+                                        child:
+                                            Center(child: Text("Lista vacia")),
+                                      ));
                   }),
                 ),
               ],
