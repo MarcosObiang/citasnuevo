@@ -8,13 +8,15 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../core/dependencies/error/Failure.dart';
+import '../entities/ProfileEntity.dart';
 
 class ChatController {
   ChatRepository chatRepository;
   List<Chat> chatList = [];
-  int chatRemovedIndex=-1;
+  int chatRemovedIndex = -1;
   bool anyChatOpen = false;
   String lastChatToRecieveMessageId = "NOT_AVAILABLE";
+  String chatOpenId = "";
   ChatController({
     required this.chatRepository,
   });
@@ -54,16 +56,14 @@ class ChatController {
       List<Chat> chatListFromStream = event["chatList"];
 
       if (isRemoved == false && isModified == false) {
-
-        chatList.insertAll(0,chatListFromStream);
+        chatList.insertAll(0, chatListFromStream);
       }
 
       if (isRemoved) {
-
         for (int a = 0; a < chatList.length; a++) {
-          if (chatList[a].chatId == chatListFromStream.first.chatId){
+          if (chatList[a].chatId == chatListFromStream.first.chatId) {
             chatList.removeAt(a);
-            chatRemovedIndex=a;
+            chatRemovedIndex = a;
             break;
           }
         }
@@ -149,6 +149,59 @@ class ChatController {
         }
       }
     }
+  }
+
+  Future<Either<Failure, Profile>> getUserProfile(
+      {required String profileId}) async {
+    Either<Failure, Profile> result =
+        await chatRepository.getUserProfile(profileId: profileId);
+
+    result.fold((l) {}, (r) {
+      for (int i = 0; i < chatList.length; i++) {
+        if (profileId == chatList[i].remitentId) {
+          chatList[i].senderProfile = r;
+        }
+      }
+    });
+
+    return result;
+  }
+
+  Future<Either<Failure, List<Message>>> loadMoreMessages(
+      {required String chatId, required String lastMessageId}) async {
+    late Either<Failure, List<Message>> result;
+
+    if (chatList.isNotEmpty == true) {
+      for (int i = 0; i < chatList.length; i++) {
+        if (chatList[i].chatId == chatId) {
+          chatList[i].additionalMessagesLoadState =
+              AdditionalMessagesLoadState.LOADING;
+          result = await chatRepository.loadMoreMessages(
+              chatId: chatId, lastMessageId: lastMessageId);
+
+          result.fold((l) {
+            chatList[i].additionalMessagesLoadState =
+                AdditionalMessagesLoadState.ERROR;
+            return Left(l);
+          }, (r) {
+            if (r.isEmpty) {
+              chatList[i].additionalMessagesLoadState =
+                  AdditionalMessagesLoadState.NO_MORE_MESSAGES;
+            } else {
+              chatList[i].additionalMessagesLoadState =
+                  AdditionalMessagesLoadState.READY;
+              chatList[i].messagesList.addAll(r);
+            }
+
+            return Right(r);
+          });
+        }
+      }
+    }
+    if (chatList.isNotEmpty == false) {
+      return Left(ChatFailure());
+    }
+    return result;
   }
 
   Future<Either<Failure, bool>> sendMessage(

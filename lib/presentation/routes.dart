@@ -9,19 +9,18 @@ class GoToRoute extends PageRouteBuilder {
             Animation<double> secondaryAnimation,
           ) =>
               page,
-          transitionDuration: Duration(milliseconds: 200),
-          reverseTransitionDuration: Duration(milliseconds: 200),
+          transitionDuration: Duration(milliseconds: 100),
+          reverseTransitionDuration: Duration(milliseconds: 100),
           transitionsBuilder: (
             BuildContext context,
             Animation<double> animation,
             Animation<double> secondaryAnimation,
             Widget child,
           ) =>
-              SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: Offset.zero,
-            ).animate(animation),
+              FadeTransition(
+
+                opacity: animation,
+          
             child: child,
           ),
         );}

@@ -61,6 +61,7 @@ class _HomeAppScreenState extends State<HomeAppScreen> {
                                       profile: homeScreenPresentation
                                           .homeScreenController
                                           .profilesList[index],
+                                          needRatingWidget: true,
                                       listIndex: index,
                                     ));
                               })

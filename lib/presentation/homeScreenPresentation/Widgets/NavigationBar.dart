@@ -1,4 +1,4 @@
-import 'package:citasnuevo/presentation/chatPresentation/chatScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:flutter/material.dart';

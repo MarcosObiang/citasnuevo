@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
-import 'package:citasnuevo/presentation/chatPresentation/chatScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTile.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:citasnuevo/domain/controller/chatController.dart';
@@ -86,6 +90,32 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
     });
   }
 
+  void loadMoreMessages(
+      {required String chatId, required String lastMessageId}) async {
+    notifyListeners();
+
+    Either<Failure, List<Message>> result = await chatController
+        .loadMoreMessages(chatId: chatId, lastMessageId: lastMessageId);
+    result.fold((l) {
+      notifyListeners();
+    }, (r) {
+      notifyListeners();
+
+      if (chatController.chatOpenId == chatId) {
+        for (int i = 0; i < chatController.chatList.length; i++) {
+          if (chatController.chatList[i].chatId == chatId) {
+            for (int a = 0;
+                a < r.length && chatController.chatOpenId == chatId;
+                a++) {
+              ChatMessagesScreen.chatMessageScreenState.currentState
+                  ?.insertItem(0, duration: Duration(milliseconds: 200));
+            }
+          }
+        }
+      }
+    });
+  }
+
   void initializeChatStream() {
     chatController.getChatStream.stream.listen((event) {
       bool isModified = event["modified"];
@@ -127,6 +157,12 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
   void closeStreams() {
     updateMessageListNotification.close();
     chatDeletedNotification.close();
+  }
+
+  void getChatRemitentProfile({required String profileId})async{
+        var result = await chatController.getUserProfile(profileId: profileId);
+    result.fold((failure) {}, (succes) {});
+
   }
 
   void sendMessage(

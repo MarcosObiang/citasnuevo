@@ -40,6 +40,7 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
               profile: removedProfile,
               boxConstraints: constraints,
               listIndex: listIndex,
+              needRatingWidget: true,
             ),
         duration: Duration(milliseconds: 300));
 

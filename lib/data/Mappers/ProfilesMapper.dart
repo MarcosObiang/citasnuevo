@@ -29,7 +29,7 @@ class ProfileMapper {
           profileImage5: profilesFromBackend[i]["IMAGENPERFIL5"],
           profileImage6: profilesFromBackend[i]["IMAGENPERFIL6"],
           verified: false,
-          distance: profilesFromBackend[i]["distancia"],
+          distance: 30,
           profileCharacteristics: characteristicsCoparationResults,
           bio: profilesFromBackend[i]["Descripcion"]));
     }

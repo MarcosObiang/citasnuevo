@@ -8,12 +8,15 @@ import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/data/Mappers/ChatConverter.dart';
 import 'package:citasnuevo/data/Mappers/MessajeConverter.dart';
+import 'package:citasnuevo/data/Mappers/ProfilesMapper.dart';
 import 'package:citasnuevo/data/daraSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
+
+import '../../../domain/entities/ProfileEntity.dart';
 
 abstract class ChatDataSource implements DataSource {
   late StreamSubscription<QuerySnapshot<Object?>> chatListener;
@@ -29,6 +32,10 @@ abstract class ChatDataSource implements DataSource {
       {required Map<String, dynamic> message,
       required String messageNotificationToken,
       required String remitentId});
+
+  Future<dynamic> loadMoreMessages(
+      {required String chatId, required String lastMessageId});
+  Future<Profile> getUserProfile({required String profileId});
 //void sendMessages()
 
 }
@@ -271,6 +278,69 @@ class ChatDatsSourceImpl implements ChatDataSource {
         }
 
         return true;
+      } catch (e) {
+        throw ChatException(message: e.toString());
+      }
+    } else {
+      throw NetworkException();
+    }
+  }
+
+  @override
+  Future<List<Message>> loadMoreMessages(
+      {required String chatId, required String lastMessageId}) async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+      List<Message> messagesList = [];
+
+      try {
+        DocumentSnapshot lastMessage = await firestoreInstance
+            .collection("mensajes")
+            .doc(lastMessageId)
+            .get();
+
+        QuerySnapshot<Map<String, dynamic>> messages = await firestoreInstance
+            .collection("mensajes")
+            .where("idConversacion", isEqualTo: chatId)
+            .orderBy("horaMensaje", descending: true)
+            .startAfterDocument(lastMessage)
+            .limit(10)
+            .get();
+        messages.docs.forEach((element) {
+          messagesList.add(MessageConverter.fromMap(element));
+        });
+
+        return messagesList;
+      } catch (e) {
+        throw ChatException(message: e.toString());
+      }
+    } else {
+      throw NetworkException();
+    }
+  }
+
+  @override
+  Future<Profile> getUserProfile({required String profileId}) async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        HttpsCallable solicitarUsuarioDeterminado = FirebaseFunctions.instance
+            .httpsCallable("solicitarUsuarioDeterminado");
+        List<Map<dynamic, dynamic>> profilesCache = [];
+
+        HttpsCallableResult httpsCallableResult =
+            await solicitarUsuarioDeterminado.call({"id": profileId});
+        if (httpsCallableResult.data["estado"] == "correcto") {
+          Object? objectT= httpsCallableResult.data["datos"];
+            profilesCache.add(objectT as Map<dynamic, dynamic>);
+
+
+          return ProfileMapper.fromMap({
+            "profilesList": [profilesCache.first],
+            "userCharacteristicsData": source.getData["filtros usuario"]
+          }).first;
+        } else {
+          throw ChatException(message: "PROFILE_COULD_NOT_BE_FETCHED");
+        }
       } catch (e) {
         throw ChatException(message: e.toString());
       }

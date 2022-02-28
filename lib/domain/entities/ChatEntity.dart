@@ -3,6 +3,18 @@ import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 
 import 'ProfileEntity.dart';
 
+/// At the start the app only loads the 10 most recent messages per [Chat].
+///
+/// When the user wats to load earlier messages, the process is going to have 4 states
+enum AdditionalMessagesLoadState {
+  READY,
+  LOADING,
+  ERROR,
+  NOT_LOADED_YET,
+  NO_MORE_MESSAGES,
+  INACTIVE
+}
+
 class Chat {
   int unreadMessages;
   bool matchCreated;
@@ -16,6 +28,11 @@ class Chat {
   Message? lastMessage;
   Profile? senderProfile;
   List<Message> messagesList = [];
+  AdditionalMessagesLoadState additionalMessagesLoadState =
+      AdditionalMessagesLoadState.NOT_LOADED_YET;
+
+
+
 
   Chat({
     required this.unreadMessages,
@@ -29,10 +46,22 @@ class Chat {
     required this.notificationToken,
   });
 
+  Future<AdditionalMessagesLoadState> stateTimer(
+      AdditionalMessagesLoadState newState) async {
+    late AdditionalMessagesLoadState newState2;
+    newState2 = newState;
+
+    await Future.delayed(Duration(milliseconds: 500))
+        .then((value) {});
+
+    return newState2;
+  }
+
   // ignore: unused_element
   void calculateUnreadMessages() {
     for (int i = 0; i < messagesList.length; i++) {
-      if (messagesList[i].read == false&&messagesList[i].senderId!=GlobalDataContainer.userId) {
+      if (messagesList[i].read == false &&
+          messagesList[i].senderId != GlobalDataContainer.userId) {
         unreadMessages = unreadMessages + 1;
       }
       if (messagesList[i].read == true) {

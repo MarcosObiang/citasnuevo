@@ -3,6 +3,7 @@ import 'dart:ffi';
 
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/data/Mappers/MessajeConverter.dart';
+import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
@@ -63,7 +64,7 @@ class ChatRepoImpl implements ChatRepository {
   @override
   Future<Either<Failure, bool>> initializeMessageListener() async {
     try {
-       chatDataSource.listenToMessages();
+      chatDataSource.listenToMessages();
 
       return Right(true);
     } catch (e) {
@@ -80,6 +81,39 @@ class ChatRepoImpl implements ChatRepository {
       {required List<String> data}) async {
     try {
       bool value = await chatDataSource.messagesSeen(data: data);
+
+      return Right(value);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(ChatFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Message>>> loadMoreMessages(
+      {required String chatId, required String lastMessageId}) async {
+    try {
+      List<Message> value = await chatDataSource.loadMoreMessages(
+          chatId: chatId, lastMessageId: lastMessageId);
+
+      return Right(value);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(ChatFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Profile>> getUserProfile(
+      {required String profileId}) async {
+    try {
+      Profile value = await chatDataSource.getUserProfile(profileId: profileId);
 
       return Right(value);
     } catch (e) {

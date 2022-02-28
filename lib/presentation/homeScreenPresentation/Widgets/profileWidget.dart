@@ -21,11 +21,13 @@ import 'package:provider/provider.dart';
 class ProfileWidget extends StatefulWidget {
   final BoxConstraints boxConstraints;
   int listIndex;
+  bool needRatingWidget;
 
   Profile profile;
   List<Map<dynamic, dynamic>> images = [];
   ProfileWidget(
       {required this.profile,
+      required this.needRatingWidget,
       required this.boxConstraints,
       required this.listIndex});
 
@@ -73,7 +75,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   profileInfo(
                       name: widget.profile.name, age: widget.profile.age.toString()),
                   if (isRating) ...[ratingScreen()],
-                  reactionSlider(homeScreenPresentation)
+              widget.needRatingWidget?    reactionSlider(homeScreenPresentation):Container()
                 ],
               ));
         }

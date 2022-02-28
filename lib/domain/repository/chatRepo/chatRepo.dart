@@ -5,11 +5,15 @@ import 'package:citasnuevo/data/daraSources/chatDataSource/chatDataSource.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:dartz/dartz.dart';
 
+import '../../entities/ProfileEntity.dart';
+
 abstract class ChatRepository {
   late ChatDataSource chatDataSource;
   Future<Either<Failure, bool>> initializeChatListener();
   Future<Either<Failure, bool>> initializeMessageListener();
   Future<Either<Failure, bool>> setMessagesOnSeen({required List<String> data});
+  Future<Either<Failure,List<Message>>>loadMoreMessages({required String chatId,required String lastMessageId});
+  Future<Either<Failure, Profile>> getUserProfile({required String profileId});
 
   Future<Either<Failure, bool>> sendMessages(
       {required Message message,
