@@ -13,7 +13,13 @@ abstract class ChatRepository {
   Future<Either<Failure, bool>> initializeMessageListener();
   Future<Either<Failure, bool>> setMessagesOnSeen({required List<String> data});
   Future<Either<Failure,List<Message>>>loadMoreMessages({required String chatId,required String lastMessageId});
-  Future<Either<Failure, Profile>> getUserProfile({required String profileId});
+  Future<Either<Failure, Profile>> getUserProfile({required String profileId,required String chatId});
+  Either<Failure,bool> clearData();
+   Future<Either<Failure, bool>> deleteChat(
+      {required String remitent1,
+      required String remitent2,
+      required String reportDetails,
+      required String chatId});
 
   Future<Either<Failure, bool>> sendMessages(
       {required Message message,

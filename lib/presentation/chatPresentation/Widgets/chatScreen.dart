@@ -1,7 +1,11 @@
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatMessage.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatReportScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
-import 'package:citasnuevo/presentation/chatPresentation/chatProfileDetailScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatProfileDetailScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,6 +19,7 @@ import '../../../core/globalData.dart';
 import '../../../domain/entities/ChatEntity.dart';
 import '../../../domain/entities/MessageEntity.dart';
 
+// ignore: must_be_immutable
 class ChatMessagesScreen extends StatefulWidget {
   String chatId;
   String remitentId;
@@ -43,8 +48,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   int lastListLength = 0;
   bool chatdeleted = false;
   bool showForceScrollDownButton = false;
-  late Animation<double> loadMoreMessagesDialogAnimation;
-  late AnimationController loadMoreMessagesDialogAnimationController;
+  late String lastMessageId;
 
   ScrollController controller = new ScrollController();
   FocusNode focusNode = new FocusNode();
@@ -60,6 +64,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   @override
   void initState() {
     super.initState();
+    lastMessageId = kNotAvailable;
     controller.addListener(() {
       if (controller.positions.isNotEmpty) {
         if (controller.position.pixels >
@@ -84,13 +89,6 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
     chatLitIndex = getIndex(chatId: widget.chatId);
     Dependencies.chatPresentation.setMessagesOnSeen(chatId: widget.chatId);
     Dependencies.chatPresentation.chatController.chatOpenId = widget.chatId;
-    loadMoreMessagesDialogAnimationController = new AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 200),
-        debugLabel: "loadMoreMessagesDialog");
-
-    loadMoreMessagesDialogAnimation = Tween<double>(begin: 0, end: 100.h)
-        .animate(loadMoreMessagesDialogAnimationController);
   }
 
   @override
@@ -100,9 +98,10 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
 
   @override
   void dispose() {
+    lastMessageId = kNotAvailable;
+
     Dependencies.chatPresentation.setAnyChatOpen = false;
     Dependencies.chatPresentation.chatController.chatOpenId = "";
-    loadMoreMessagesDialogAnimationController.dispose();
     super.dispose();
   }
 
@@ -126,39 +125,13 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
     return index;
   }
 
-  void showLoadMessageDialog(
-      {required AdditionalMessagesLoadState
-          additionalMessagesLoadState}) async {
-    print(loadMoreMessagesDialogAnimationController.status);
-
-    if (additionalMessagesLoadState == AdditionalMessagesLoadState.LOADING &&
-        loadMoreMessagesDialogAnimationController.status ==
-            AnimationStatus.dismissed) {
-      loadMoreMessagesDialogAnimationController.forward();
-    }
-    if (additionalMessagesLoadState == AdditionalMessagesLoadState.READY &&
-        loadMoreMessagesDialogAnimationController.status ==
-            AnimationStatus.completed) {
-      await Future.delayed(Duration(milliseconds: 300));
-      loadMoreMessagesDialogAnimationController.reverse();
-    }
-    if (additionalMessagesLoadState == AdditionalMessagesLoadState.ERROR &&
-        loadMoreMessagesDialogAnimationController.status ==
-            AnimationStatus.completed) {
-      await Future.delayed(Duration(milliseconds: 300));
-      loadMoreMessagesDialogAnimationController.reverse();
-    }
-    if (additionalMessagesLoadState ==
-            AdditionalMessagesLoadState.NO_MORE_MESSAGES &&
-        loadMoreMessagesDialogAnimationController.status ==
-            AnimationStatus.completed) {
-      await Future.delayed(Duration(milliseconds: 300));
-      loadMoreMessagesDialogAnimationController.reverse();
-    }
-  }
-
   void showChatOptions(BuildContext context) {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
     showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20))),
         context: context,
         builder: (context) {
           return Center(
@@ -166,10 +139,12 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
               children: [
                 ListTile(
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.push(
                         context,
                         GoToRoute(
                             page: ChatProfileDetailsScreen(
+                                chatId: widget.chatId,
                                 remitentId: widget.remitentId)));
                   },
                   leading: Icon(Icons.person),
@@ -177,19 +152,26 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                   subtitle: Text("Pulsa para ver el perfil"),
                 ),
                 ListTile(
-                  leading: Icon(Icons.delete),
-                  title: Text("Eliminar conversacion"),
-                  subtitle: Text("Pulsa para eliminar la conversacion"),
-                ),
+                    leading: Icon(Icons.delete),
+                    title: Text("Eliminar conversacion"),
+                    subtitle: Text("Pulsa para eliminar la conversacion"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      showDeleteChatDialog();
+                    }),
                 ListTile(
-                  leading: Icon(Icons.block),
-                  title: Text("Eliminar y bloquear"),
-                  subtitle: Text(
-                      "Elimina la conversacion y bloquea a ${widget.remitentName}"),
-                ),
-                ListTile(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        GoToRoute(
+                            page: ReportChatScreen(
+                          chatId: widget.chatId,
+                          remitent: widget.remitentId,
+                        )));
+                  },
                   leading: Icon(Icons.report),
-                  title: Text("Denuciar a ${widget.remitentName}"),
+                  title: Text("Eliminar y denuciar a ${widget.remitentName}"),
                   subtitle:
                       Text("Pulsa para denunciar a ${widget.remitentName}"),
                 )
@@ -216,27 +198,29 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                     ? Scaffold(
                         appBar: chatScreenAppBAr(),
                         resizeToAvoidBottomInset: true,
-                        body: StreamBuilder(
-                            initialData: "",
+                        body: StreamBuilder<Message>(
+                            initialData: null,
                             stream: Dependencies.chatPresentation
                                 .updateMessageListNotification.stream,
                             builder: (BuildContext context,
-                                AsyncSnapshot<String> data) {
-                              if (data.data == widget.chatId) {
-                                ChatMessagesScreen
-                                    .chatMessageScreenState.currentState
-                                    ?.insertItem(0);
+                                AsyncSnapshot<Message> data) {
+                              if (data.data?.chatId == widget.chatId) {
+                                if (lastMessageId != data.data?.messageId
+                                    ) {
+                                  ChatMessagesScreen
+                                      .chatMessageScreenState.currentState
+                                      ?.insertItem(0);
+
+                                  lastMessageId =
+                                      data.data?.messageId as String;
+                                  Dependencies.chatPresentation
+                                      .setMessagesOnSeen(chatId: widget.chatId);
+                                }
                               }
                               return Consumer<ChatPresentation>(builder:
                                   (BuildContext context,
                                       ChatPresentation chatPresentation,
                                       Widget? child) {
-                                showLoadMessageDialog(
-                                    additionalMessagesLoadState:
-                                        chatPresentation
-                                            .chatController
-                                            .chatList[chatLitIndex]
-                                            .additionalMessagesLoadState);
                                 return LayoutBuilder(
                                     builder: (context, constraints) {
                                   return Container(
@@ -248,112 +232,21 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                                       child: Column(
                                         children: [
                                           Container(
-                                            height: constraints.biggest.height -
-                                                (kBottomNavigationBarHeight *
-                                                    1.75),
-                                            width: constraints.biggest.width,
-                                            child:
-                                                chatPresentation
-                                                            .chatController
-                                                            .chatList[
-                                                                chatLitIndex]
-                                                            .messagesList
-                                                            .length >
-                                                        0
-                                                    ? Stack(
-                                                        children: [
-                                                          AnimatedList(
-                                                              key: ChatMessagesScreen
-                                                                  .chatMessageScreenState,
-                                                              reverse: true,
-                                                              controller:
-                                                                  controller,
-                                                              initialItemCount:
-                                                                  chatPresentation
-                                                                      .chatController
-                                                                      .chatList[
-                                                                          chatLitIndex]
-                                                                      .messagesList
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index,
-                                                                      animation) {
-                                                                return TextMessage(
-                                                                    message: chatPresentation
-                                                                        .chatController
-                                                                        .chatList[
-                                                                            chatLitIndex]
-                                                                        .messagesList[index],
-                                                                    animation: animation);
-                                                              }),
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .topCenter,
-                                                            child: NotificationListener<
-                                                                ScrollUpdateNotification>(
-                                                              onNotification:
-                                                                  (value) {
-                                                                print("object");
-                                                                return true;
-                                                              },
-                                                              child:
-                                                                  AnimatedBuilder(
-                                                                      animation:
-                                                                          loadMoreMessagesDialogAnimation,
-                                                                      builder:
-                                                                          (context,
-                                                                              child) {
-                                                                        return Container(
-                                                                          width: constraints
-                                                                              .biggest
-                                                                              .width,
-                                                                          height:
-                                                                              loadMoreMessagesDialogAnimation.value,
-                                                                          color: Color.fromARGB(
-                                                                              115,
-                                                                              244,
-                                                                              67,
-                                                                              54),
-                                                                          child:
-                                                                              Center(
-                                                                            child:
-                                                                                Text(chatPresentation.chatController.chatList[chatLitIndex].additionalMessagesLoadState.name),
-                                                                          ),
-                                                                        );
-                                                                      }),
-                                                            ),
-                                                          ),
-                                                          showForceScrollDownButton
-                                                              ? Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      right:
-                                                                          30),
-                                                                  child: Align(
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .bottomRight,
-                                                                    child:
-                                                                        GestureDetector(
-                                                                      onTap: () =>
-                                                                          forceScrollDown(),
-                                                                      child: Container(
-                                                                          child: Center(
-                                                                            child:
-                                                                                Icon(Icons.arrow_downward),
-                                                                          ),
-                                                                          height: 150.w,
-                                                                          width: 150.w,
-                                                                          decoration: BoxDecoration(shape: BoxShape.circle, color: Color.fromARGB(97, 233, 30, 98))),
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              : Container()
-                                                        ],
-                                                      )
-                                                    : Container(),
-                                          ),
+                                              height: constraints
+                                                      .biggest.height -
+                                                  (kBottomNavigationBarHeight *
+                                                      1.75),
+                                              width: constraints.biggest.width,
+                                              child: Stack(
+                                                children: [
+                                                  messageList(chatPresentation),
+                                                  RepaintBoundary(
+                                                    child: showForceScrollDownButton
+                                                        ? forceScrollDownButton()
+                                                        : Container(),
+                                                  )
+                                                ],
+                                              )),
                                           messageSenderBar(constraints)
                                         ],
                                       ),
@@ -363,49 +256,97 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                               });
                             }),
                       )
-                    : Material(
-                        child: Container(
-                        color: Colors.black,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Lo sentimos,el remitente ha borrado la conversacion",
-                                  style: GoogleFonts.lato(
-                                      color: Colors.white, fontSize: 50.sp),
-                                ),
-                                ElevatedButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text("Atras"))
-                              ],
-                            ),
-                          ),
-                        ),
-                      )));
+                    : chatDeletedDialog(context));
           }),
     );
+  }
+
+  Material chatDeletedDialog(BuildContext context) {
+    return Material(
+        child: Container(
+      color: Colors.black,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Lo sentimos,el remitente ha borrado la conversacion",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+              ),
+              ElevatedButton(
+                  onPressed: () => Navigator.pop(context), child: Text("Atras"))
+            ],
+          ),
+        ),
+      ),
+    ));
+  }
+
+  Padding forceScrollDownButton() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 30),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: GestureDetector(
+          onTap: () => forceScrollDown(),
+          child: Container(
+              child: Center(
+                child: Icon(Icons.arrow_downward),
+              ),
+              height: 150.w,
+              width: 150.w,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color.fromARGB(97, 233, 30, 98))),
+        ),
+      ),
+    );
+  }
+
+  AnimatedList messageList(ChatPresentation chatPresentation) {
+    return AnimatedList(
+        physics: BouncingScrollPhysics(),
+        key: ChatMessagesScreen.chatMessageScreenState,
+        reverse: true,
+        controller: controller,
+        initialItemCount: chatPresentation
+            .chatController.chatList[chatLitIndex].messagesList.length,
+        itemBuilder: (context, index, animation) {
+          return TextMessage(
+              message: chatPresentation
+                  .chatController.chatList[chatLitIndex].messagesList[index],
+              animation: animation);
+        });
   }
 
   AppBar chatScreenAppBAr() {
     return AppBar(
         title: Row(
           children: [
-            Container(
-                height: 100.w,
-                width: 100.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: OctoImage(
-                  fadeInDuration: Duration(milliseconds: 50),
-                  fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(widget.imageUrl),
-                  placeholderBuilder: OctoPlaceholder.blurHash(widget.imageHash,
-                      fit: BoxFit.cover),
-                )),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                  context,
+                  GoToRoute(
+                      page: ChatProfileDetailsScreen(
+                          chatId: widget.chatId,
+                          remitentId: widget.remitentId))),
+              child: Container(
+                  height: 100.w,
+                  width: 100.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: OctoImage(
+                    fadeInDuration: Duration(milliseconds: 50),
+                    fit: BoxFit.cover,
+                    image: CachedNetworkImageProvider(widget.imageUrl),
+                    placeholderBuilder: OctoPlaceholder.blurHash(
+                        widget.imageHash,
+                        fit: BoxFit.cover),
+                  )),
+            ),
             Container(
                 width: 400.w,
                 child: Text(
@@ -496,5 +437,30 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
         textEditingController.text = "";
       }
     }
+  }
+
+  showDeleteChatDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Eliminar conversacion"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Dependencies.chatPresentation.deleteChat(
+                        remitent1: GlobalDataContainer.userId as String,
+                        remitent2: widget.remitentId,
+                        reportDetails: "NOT_AVAILABLE",
+                        chatId: widget.chatId);
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Si")),
+              TextButton(onPressed: () {}, child: Text("No"))
+            ],
+          );
+        });
   }
 }

@@ -5,8 +5,9 @@ import 'package:citasnuevo/domain/repository/reactionRepository/reactionReposito
 import 'package:dartz/dartz.dart';
 
 import '../../core/dependencies/error/Failure.dart';
+import 'controllerDef.dart';
 
-class ReactionsController {
+class ReactionsController implements Controller  {
   List<Reaction> reactions = [];
   double reactionsAverage = 0;
   bool listenerInitialized = false;
@@ -144,5 +145,11 @@ class ReactionsController {
     expiredReactionsListener.close();
     streamExpiredReactions.close();
     streamRevealedReactionId.close();
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 }

@@ -19,15 +19,23 @@ import 'package:flutter/foundation.dart';
 import '../../../domain/entities/ProfileEntity.dart';
 
 abstract class ChatDataSource implements DataSource {
-  late StreamSubscription<QuerySnapshot<Object?>> chatListener;
-  late StreamSubscription<QuerySnapshot<Object?>> messageListener;
+  late StreamSubscription<QuerySnapshot<Object?>> chatListenerSbscription;
+  late StreamSubscription<QuerySnapshot<Object?>> messageListenerSubscription;
+  late List<Message> messagesWithOutChat;
 
   late StreamController<dynamic> chatStream;
   late StreamController<Map<String, dynamic>> messageStream;
 
   Future<bool> messagesSeen({required List<String> data});
+  Future<bool> deleteChat(
+      {required String remitent1,
+      required String remitent2,
+      required String reportDetails,
+      required String chatId});
+
   void initializeChatListener();
   void listenToMessages();
+  bool clearData();
   Future<bool> sendMessages(
       {required Map<String, dynamic> message,
       required String messageNotificationToken,
@@ -44,14 +52,16 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   ApplicationDataSource source;
   bool isInitializerFinished = false;
-  late String userId;
+  String userId = "NOT_AVAILABLE";
+  @override
+  late List<Message> messagesWithOutChat = [];
 
   @override
   StreamController chatStream = new StreamController.broadcast();
   @override
-  late StreamSubscription<QuerySnapshot<Object?>> chatListener;
+  late StreamSubscription<QuerySnapshot<Object?>> chatListenerSbscription;
   @override
-  late StreamSubscription<QuerySnapshot<Object?>> messageListener;
+  late StreamSubscription<QuerySnapshot<Object?>> messageListenerSubscription;
   @override
   StreamController<Map<String, dynamic>> messageStream =
       new StreamController.broadcast();
@@ -65,101 +75,197 @@ class ChatDatsSourceImpl implements ChatDataSource {
     subscribeToMainDataSource();
   }
 
+  bool clearData() {
+    try {
+      closeStreams();
+      openStreams();
+      isInitializerFinished = false;
+      return true;
+    } catch (e) {
+      throw ChatException(message: e.toString());
+    }
+  }
+
+  void closeStreams() {
+    chatListenerSbscription.cancel();
+    chatStream.close();
+    messageListenerSubscription.cancel();
+    messageStream.close();
+  }
+
+  void openStreams() {
+    chatStream = new StreamController.broadcast();
+    messageStream = new StreamController.broadcast();
+  }
+
+  Future<void> processData() async {}
+
   @override
   void initializeChatListener() async {
-    FirebaseFirestore instance = FirebaseFirestore.instance;
-    List<Map<String, dynamic>> chatDataList = [];
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        FirebaseFirestore instance = FirebaseFirestore.instance;
+        List<Map<String, dynamic>> chatDataList = [];
 
-    chatListener = instance
-        .collection("usuarios")
-        .doc(userId)
-        .collection("conversaciones")
-        .orderBy("creacionConversacion", descending: true)
-        .snapshots()
-        .listen((event) async {
-      if (event.docChanges.length > 1) {
-        for (int i = 0; i < event.docChanges.length; i++) {
-          String chatId = event.docChanges[i].doc.get("idConversacion");
+        chatListenerSbscription = instance
+            .collection("usuarios")
+            .doc(userId)
+            .collection("conversaciones")
+            .orderBy("creacionConversacion", descending: true)
+            .snapshots()
+            .listen((event) async {
+          if (event.docChanges.isNotEmpty) {
+            if (event.docChanges.length > 1) {
+              for (int i = 0; i < event.docChanges.length; i++) {
+                String chatId = event.docChanges[i].doc.get("idConversacion");
 
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
-              await readMessages(chatId);
+                List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
+                    await readMessages(chatId);
 
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList = [];
-          Map<String, dynamic> chatData = {
-            "chat": event.docChanges[i].doc.data() as Map<String, dynamic>,
-            "messages": chatMessages.isNotEmpty ? chatMessages : emptyList
-          };
-          chatDataList.add(chatData);
-        }
+                List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList =
+                    [];
+                Map<String, dynamic> chatData = {
+                  "chat":
+                      event.docChanges[i].doc.data() as Map<String, dynamic>,
+                  "messages":
+                      chatMessages.isNotEmpty ? chatMessages : emptyList,
+                  "userId": GlobalDataContainer.userId,
+                };
+                chatDataList.add(chatData);
+              }
 
-        List<Chat> object = await compute(ChatConverter.fromMap, chatDataList);
+              try {
+                List<Chat> object =
+                    await compute(ChatConverter.fromMap, chatDataList);
+                chatStream.add({
+                  "modified": false,
+                  "removed": false,
+                  "chatList": object,
+                  "firstQuery": true
+                });
 
-        chatStream.add({
-          "modified": false,
-          "removed": false,
-          "chatList": object,
-          "firstQuery": true
+                isInitializerFinished = true;
+              } catch (e) {
+                chatStream.addError(ChatException(message: e.toString()));
+                clearData();
+
+                throw ChatException(message: e.toString());
+              }
+            } else {
+              try {
+                if (event.docChanges.first.type == DocumentChangeType.added) {
+                  String chatId =
+                      event.docChanges.first.doc.get("idConversacion");
+
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                      chatMessages = await readMessages(chatId);
+
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList =
+                      [];
+
+                  Map<String, dynamic> chatData = {
+                    "chat": event.docChanges.first.doc.data()
+                        as Map<String, dynamic>,
+                    "messages":
+                        chatMessages.length > 0 ? chatMessages : emptyList,
+                    "userId": GlobalDataContainer.userId,
+                  };
+                  List<Map<String, dynamic>> singleChatDataList = [];
+                  singleChatDataList.add(chatData);
+
+                  List<Chat> object = ChatConverter.fromMap(singleChatDataList);
+
+                  chatStream.add({
+                    "modified": false,
+                    "removed": false,
+                    "chatList": object,
+                    "firstQuery": true
+                  });
+
+                  isInitializerFinished = true;
+                }
+
+                if (event.docChanges.first.type == DocumentChangeType.removed) {
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                      chatMessages = [];
+                  Map<String, dynamic> chatData = {
+                    "chat": event.docChanges.first.doc.data()
+                        as Map<String, dynamic>,
+                    "messages": chatMessages,
+                    "userId": GlobalDataContainer.userId,
+                  };
+                  List<Map<String, dynamic>> singleChatDataList = [];
+                  singleChatDataList.add(chatData);
+
+                  List<Chat> object = ChatConverter.fromMap(singleChatDataList);
+                  chatStream.add({
+                    "modified": false,
+                    "removed": true,
+                    "chatList": object,
+                    "firstQuery": false
+                  });
+                }
+                if (event.docChanges.first.type ==
+                    DocumentChangeType.modified) {
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                      chatMessages = [];
+                  Map<String, dynamic> chatData = {
+                    "chat": event.docChanges.first.doc.data()
+                        as Map<String, dynamic>,
+                    "messages": chatMessages,
+                    "userId": GlobalDataContainer.userId,
+                  };
+                  List<Map<String, dynamic>> singleChatDataList = [];
+                  singleChatDataList.add(chatData);
+
+                  List<Chat> object = ChatConverter.fromMap(singleChatDataList);
+
+                  chatStream.add({
+                    "modified": true,
+                    "removed": true,
+                    "chatList": object,
+                    "firstQuery": false
+                  });
+                }
+              } catch (e) {
+                chatStream.addError(ChatException(message: e.toString()));
+                clearData();
+
+                throw ChatException(message: e.toString());
+              }
+            }
+          } else {
+            List<Chat> emptyList = [];
+            chatStream.add({
+              "modified": false,
+              "removed": false,
+              "chatList": emptyList,
+              "firstQuery": true,
+              "chatListIsEmpty": true
+            });
+          }
+        }, onError: (error) {
+          chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
+          clearData();
+
+          throw ChatException(message: "ERROR_FROM_BACKEND");
+        }, cancelOnError: true);
+
+        chatListenerSbscription.onError((_) {
+          chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
+          clearData();
+
+          throw ChatException(message: "ERROR_FROM_BACKEND");
         });
-        isInitializerFinished = true;
-      } else {
-        if (event.docChanges.first.type == DocumentChangeType.added) {
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages = [];
-          Map<String, dynamic> chatData = {
-            "chat": event.docChanges.first.doc.data() as Map<String, dynamic>,
-            "messages": chatMessages
-          };
-          List<Map<String, dynamic>> singleChatDataList = [];
-          singleChatDataList.add(chatData);
+      } catch (e) {
+        chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
+        clearData();
 
-          List<Chat> object = ChatConverter.fromMap(singleChatDataList);
-
-          chatStream.add({
-            "modified": false,
-            "removed": false,
-            "chatList": object,
-            "firstQuery": false
-          });
-
-          isInitializerFinished = true;
-        }
-
-        if (event.docChanges.first.type == DocumentChangeType.removed) {
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages = [];
-          Map<String, dynamic> chatData = {
-            "chat": event.docChanges.first.doc.data() as Map<String, dynamic>,
-            "messages": chatMessages
-          };
-          List<Map<String, dynamic>> singleChatDataList = [];
-          singleChatDataList.add(chatData);
-
-          List<Chat> object = ChatConverter.fromMap(singleChatDataList);
-          chatStream.add({
-            "modified": false,
-            "removed": true,
-            "chatList": object,
-            "firstQuery": false
-          });
-        }
-        if (event.docChanges.first.type == DocumentChangeType.modified) {
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages = [];
-          Map<String, dynamic> chatData = {
-            "chat": event.docChanges.first.doc.data() as Map<String, dynamic>,
-            "messages": chatMessages
-          };
-          List<Map<String, dynamic>> singleChatDataList = [];
-          singleChatDataList.add(chatData);
-
-          List<Chat> object = ChatConverter.fromMap(singleChatDataList);
-
-          chatStream.add({
-            "modified": true,
-            "removed": true,
-            "chatList": object,
-            "firstQuery": false
-          });
-        }
+        throw ChatException(message: e.toString());
       }
-    });
+    } else {
+      throw NetworkException();
+    }
   }
 
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> readMessages(
@@ -171,49 +277,53 @@ class ChatDatsSourceImpl implements ChatDataSource {
         .collection("mensajes")
         .where("idConversacion", isEqualTo: chatId)
         .orderBy("horaMensaje", descending: true)
-        .limit(5)
-        .get();
+        .snapshots()
+        .first;
     data.addAll(net.docs);
 
     return data;
   }
 
-  void closeStreams() {
-    chatListener.cancel();
-    chatStream.close();
-    messageListener.cancel();
-    messageStream.close();
-  }
-
   @override
   void listenToMessages() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
-      FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+      try {
+        FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
 
-      messageListener = firestoreInstance
-          .collection("mensajes")
-          .where("interlocutores", arrayContains: userId)
-          .orderBy("horaMensaje", descending: true)
-          .limit(1)
-          .snapshots()
-          .listen((event) {
-        if (isInitializerFinished) {
-          if (event.docChanges.first.type == DocumentChangeType.modified) {
-            messageStream.add({
-              "message": MessageConverter.fromMap(event.docs.first),
-              "modified": true
-            });
-          } else {
-            messageStream.add({
-              "message": MessageConverter.fromMap(event.docs.first),
-              "modified": false
-            });
+        messageListenerSubscription = firestoreInstance
+            .collection("mensajes")
+            .where("interlocutores", arrayContains: userId)
+            .orderBy("horaMensaje", descending: true)
+            .snapshots()
+            .listen((event) {
+          if (isInitializerFinished) {
+            if (event.docChanges.isNotEmpty) {
+              try {
+                if (event.docChanges.first.type ==
+                    DocumentChangeType.modified) {
+                  messageStream.add({
+                    "message": MessageConverter.fromMap(event.docs.first),
+                    "modified": true
+                  });
+                }  if (event.docChanges.first.type ==
+                    DocumentChangeType.added) {
+                  messageStream.add({
+                    "message": MessageConverter.fromMap(event.docs.first),
+                    "modified": false
+                  });
+                }
+              } catch (e) {
+                messageStream.addError(ChatException(message: e.toString()));
+                clearData();
+              }
+            }
           }
-        }
-      });
+        });
+      } catch (e) {
+        messageStream.addError(ChatException(message: e.toString()));
+        clearData();
 
-      try {} catch (e) {
-        ChatException(message: e.toString());
+        throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException();
@@ -235,12 +345,14 @@ class ChatDatsSourceImpl implements ChatDataSource {
       required String remitentId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
+        String messageId = IdGenerator.instancia.createId();
+
         FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
         Map<String, dynamic> messageData = message;
         messageData["token"] = messageNotificationToken;
         messageData["horaMensaje"] = DateTime.now().millisecondsSinceEpoch;
         messageData["mensaje"] = message["mensaje"];
-        messageData["idMensaje"] = IdGenerator.instancia.createId();
+        messageData["idMensaje"] = messageId;
         messageData["mensajeLeido"] = false;
         messageData["nombreEmisor"] = source.getData["Nombre"];
         messageData["idConversacion"] = message["idConversacion"];
@@ -254,7 +366,10 @@ class ChatDatsSourceImpl implements ChatDataSource {
         messageData["notificarEsteUsuario"] = remitentId;
         messageData["interlocutores"] = [userId, remitentId];
 
-        await firestoreInstance.collection("mensajes").doc().set(messageData);
+        await firestoreInstance
+            .collection("mensajes")
+            .doc(messageId)
+            .set(messageData);
         return true;
       } catch (e) {
         throw ChatException(message: e.toString());
@@ -304,7 +419,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
             .where("idConversacion", isEqualTo: chatId)
             .orderBy("horaMensaje", descending: true)
             .startAfterDocument(lastMessage)
-            .limit(10)
+            .limit(15)
             .get();
         messages.docs.forEach((element) {
           messagesList.add(MessageConverter.fromMap(element));
@@ -330,9 +445,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
         HttpsCallableResult httpsCallableResult =
             await solicitarUsuarioDeterminado.call({"id": profileId});
         if (httpsCallableResult.data["estado"] == "correcto") {
-          Object? objectT= httpsCallableResult.data["datos"];
-            profilesCache.add(objectT as Map<dynamic, dynamic>);
-
+          Object? objectT = httpsCallableResult.data["datos"];
+          profilesCache.add(objectT as Map<dynamic, dynamic>);
 
           return ProfileMapper.fromMap({
             "profilesList": [profilesCache.first],
@@ -347,5 +461,45 @@ class ChatDatsSourceImpl implements ChatDataSource {
     } else {
       throw NetworkException();
     }
+  }
+
+  @override
+  Future<bool> deleteChat({
+    required String remitent1,
+    required String remitent2,
+    required String reportDetails,
+    required String chatId,
+  }) async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        HttpsCallable llamarEliminarConversacion =
+            FirebaseFunctions.instance.httpsCallable("eliminarConversaciones");
+
+        HttpsCallableResult httpsCallableResult =
+            await llamarEliminarConversacion.call({
+          "idConversacion": chatId,
+          "idInterlocutor1": remitent1,
+          "idInterlocutor2": remitent2,
+          "idDenuncia": IdGenerator.instancia.createId(),
+          "detalles": reportDetails,
+        });
+
+        if (httpsCallableResult.data["estado"] == "correcto") {
+          return true;
+        } else {
+          throw ChatException(message: "CHAT_COULD_NOT_BE_DELETED");
+        }
+      } catch (e) {
+        throw ChatException(message: e.toString());
+      }
+    } else {
+      throw NetworkException();
+    }
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 }

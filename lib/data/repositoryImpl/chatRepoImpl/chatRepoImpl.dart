@@ -111,7 +111,7 @@ class ChatRepoImpl implements ChatRepository {
 
   @override
   Future<Either<Failure, Profile>> getUserProfile(
-      {required String profileId}) async {
+      {required String profileId, required String chatId}) async {
     try {
       Profile value = await chatDataSource.getUserProfile(profileId: profileId);
 
@@ -122,6 +122,39 @@ class ChatRepoImpl implements ChatRepository {
       } else {
         return Left(ChatFailure());
       }
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> deleteChat(
+      {required String remitent1,
+      required String remitent2,
+      required String reportDetails,
+      required String chatId}) async {
+    try {
+      bool value = await chatDataSource.deleteChat(
+          chatId: chatId,
+          remitent1: remitent1,
+          remitent2: remitent2,
+          reportDetails: reportDetails);
+
+      return Right(value);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(ChatFailure());
+      }
+    }
+  }
+
+  @override
+  Either<Failure, bool> clearData() {
+    try {
+      bool value = chatDataSource.clearData();
+      return Right(value);
+    } catch (e) {
+      return Left(ChatFailure());
     }
   }
 }

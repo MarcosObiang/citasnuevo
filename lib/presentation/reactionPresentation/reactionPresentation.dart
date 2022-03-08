@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 enum ReactionListState { loading, ready, empty, error }
 
-class ReactionPresentation extends ChangeNotifier implements Presentation {
+class ReactionPresentation extends ChangeNotifier implements Presentation<ReactionPresentation> {
   int _coins = 0;
   bool additionalDataRecieverIsInitialized = false;
   double _reactionsAverage = 0;
@@ -186,5 +186,21 @@ class ReactionPresentation extends ChangeNotifier implements Presentation {
     if (context != null) {
       showDialog(context: context, builder: (context) => NetwortErrorWidget());
     }
+  }
+
+  @override
+  void initialize() {
+    // TODO: implement initialize
+  }
+
+  @override
+  void restart() {
+    // TODO: implement restart
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 }

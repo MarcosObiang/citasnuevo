@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/domain/repository/chatRepo/chatRepo.dart';
@@ -10,19 +13,22 @@ import 'package:flutter/cupertino.dart';
 import '../../core/dependencies/error/Failure.dart';
 import '../entities/ProfileEntity.dart';
 
-class ChatController {
+class ChatController implements Controller {
   ChatRepository chatRepository;
   List<Chat> chatList = [];
   int chatRemovedIndex = -1;
   bool anyChatOpen = false;
   String lastChatToRecieveMessageId = "NOT_AVAILABLE";
   String chatOpenId = "";
+  late StreamSubscription<dynamic> chatListenerSubscription;
+  late StreamSubscription<dynamic> messageListenerSubscription;
+
   ChatController({
     required this.chatRepository,
   });
 
   StreamController get getChatStream => chatRepository.getChatStream;
-  StreamController<Map<String, dynamic>> get getMessageStream =>
+  StreamController<dynamic> get getMessageStream =>
       chatRepository.getMessageStream;
 
   bool get getAnyChatOpen => this.anyChatOpen;
@@ -38,6 +44,17 @@ class ChatController {
     }
   }
 
+  void clearData() {
+    chatRepository.clearData();
+    chatList.clear();
+    chatRemovedIndex = -1;
+    anyChatOpen = false;
+    lastChatToRecieveMessageId = kNotAvailable;
+    chatOpenId = "";
+    chatListenerSubscription.cancel();
+    messageListenerSubscription.cancel();
+  }
+
   Future<Either<Failure, bool>> initializeChatListener() async {
     _initializeChatListener();
     return await chatRepository.initializeChatListener();
@@ -50,35 +67,38 @@ class ChatController {
 
   @protected
   void _initializeChatListener() {
-    getChatStream.stream.listen((event) {
-      bool isModified = event["modified"];
-      bool isRemoved = event["removed"];
-      List<Chat> chatListFromStream = event["chatList"];
+    chatListenerSubscription = getChatStream.stream.listen((event) {
+      if (event is ChatException) {
+        chatListenerSubscription.cancel();
+      } else {
+        bool isModified = event["modified"];
+        bool isRemoved = event["removed"];
+        List<Chat> chatListFromStream = event["chatList"];
+        if (isRemoved == false && isModified == false) {
+          chatList.insertAll(0, chatListFromStream);
+        }
 
-      if (isRemoved == false && isModified == false) {
-        chatList.insertAll(0, chatListFromStream);
-      }
-
-      if (isRemoved) {
-        for (int a = 0; a < chatList.length; a++) {
-          if (chatList[a].chatId == chatListFromStream.first.chatId) {
-            chatList.removeAt(a);
-            chatRemovedIndex = a;
-            break;
+        if (isRemoved) {
+          for (int a = 0; a < chatList.length; a++) {
+            if (chatList[a].chatId == chatListFromStream.first.chatId) {
+              chatList.removeAt(a);
+              chatRemovedIndex = a;
+              break;
+            }
           }
         }
-      }
 
-      if (isModified) {
-        for (int a = 0; a < chatList.length; a++) {
-          if (chatList[a].chatId == chatList.first.chatId) {
-            chatList[a].remitenrPicture = chatList.first.remitenrPicture;
-            chatList[a].remitentPictureHash =
-                chatList.first.remitentPictureHash;
-            chatList[a].remitentName = chatList.first.remitentName;
-            chatList[a].notificationToken = chatList.first.notificationToken;
+        if (isModified) {
+          for (int a = 0; a < chatList.length; a++) {
+            if (chatList[a].chatId == chatList.first.chatId) {
+              chatList[a].remitenrPicture = chatList.first.remitenrPicture;
+              chatList[a].remitentPictureHash =
+                  chatList.first.remitentPictureHash;
+              chatList[a].remitentName = chatList.first.remitentName;
+              chatList[a].notificationToken = chatList.first.notificationToken;
 
-            break;
+              break;
+            }
           }
         }
       }
@@ -87,29 +107,39 @@ class ChatController {
 
   @protected
   void _initializeMessageListener() {
-    getMessageStream.stream.listen((event) {
-      for (int i = 0; i < chatList.length; i++) {
-        bool isModified = event["modified"];
-        Message message = event["message"];
-        if (chatList[i].chatId == message.chatId) {
-          if (isModified == false) {
-            if (chatList[i].chatId == message.chatId)
-              chatList[i].messagesList.insert(0, message);
-            chatList[i].unreadMessages += 1;
-            if (chatList.length > 1) {
-              lastChatToRecieveMessageId = message.chatId;
-              if (this.anyChatOpen == false) {
-                _reorderChatByLastMessageDate(chatIdToMoveUp: message.chatId);
+    messageListenerSubscription = getMessageStream.stream.listen((event) {
+      if (event is ChatException) {
+        chatListenerSubscription.cancel();
+      } else {
+        for (int i = 0; i < chatList.length; i++) {
+          bool isModified = event["modified"];
+          Message message = event["message"];
+          if (chatList[i].chatId == message.chatId) {
+            if (isModified == false) {
+              if (chatList[i].chatId == message.chatId) {
+                chatList[i].messagesList.insert(0, message);
+                if (message.senderId != GlobalDataContainer.userId) {
+                  chatList[i].unreadMessages += 1;
+                }
+              }
+
+              if (chatList.length > 1) {
+                lastChatToRecieveMessageId = message.chatId;
+                if (this.anyChatOpen == false) {
+                  _reorderChatByLastMessageDate(chatIdToMoveUp: message.chatId);
+                }
               }
             }
-          }
-          if (isModified == true) {
-            for (int a = 0; a < chatList[i].messagesList.length; a++) {
-              if (chatList[i].messagesList[a].messageId == message.messageId &&
-                  chatList[i].messagesList[a].senderId !=
-                      GlobalDataContainer.userId) {
-                chatList[i].messagesList[a].read = true;
-                chatList[i].calculateUnreadMessages();
+            if (isModified == true) {
+              for (int a = 0; a < chatList[i].messagesList.length; a++) {
+                if (chatList[i].messagesList[a].messageId ==
+                        message.messageId &&
+                    chatList[i].messagesList[a].senderId !=
+                        GlobalDataContainer.userId) {
+                  chatList[i].messagesList[a].read = true;
+                  chatList[i].calculateUnreadMessages(
+                      GlobalDataContainer.userId as String);
+                }
               }
             }
           }
@@ -128,7 +158,9 @@ class ChatController {
               chatList[i].messagesList[b].senderId !=
                   GlobalDataContainer.userId) {
             messagesIdList.add(chatList[i].messagesList[b].messageId);
-          } else {
+          }   if (chatList[i].messagesList[b].read == true &&
+              chatList[i].messagesList[b].senderId !=
+                  GlobalDataContainer.userId) {
             break;
           }
         }
@@ -152,14 +184,31 @@ class ChatController {
   }
 
   Future<Either<Failure, Profile>> getUserProfile(
-      {required String profileId}) async {
-    Either<Failure, Profile> result =
-        await chatRepository.getUserProfile(profileId: profileId);
+      {required String profileId, required String chatId}) async {
+    for (int a = 0; a < chatList.length; a++) {
+      if (chatList[a].chatId == chatId) {
+        chatList[a].senderProfileLoadingState =
+            SenderProfileLoadingState.LOADING;
+      }
+    }
+    Either<Failure, Profile> result = await chatRepository.getUserProfile(
+        profileId: profileId, chatId: chatId);
 
-    result.fold((l) {}, (r) {
+    result.fold((l) {
       for (int i = 0; i < chatList.length; i++) {
-        if (profileId == chatList[i].remitentId) {
+        if (profileId == chatList[i].remitentId &&
+            chatList[i].chatId == chatId) {
+          chatList[i].senderProfileLoadingState =
+              SenderProfileLoadingState.ERROR;
+        }
+      }
+    }, (r) {
+      for (int i = 0; i < chatList.length; i++) {
+        if (profileId == chatList[i].remitentId &&
+            chatList[i].chatId == chatId) {
           chatList[i].senderProfile = r;
+          chatList[i].senderProfileLoadingState =
+              SenderProfileLoadingState.READY;
         }
       }
     });
@@ -212,5 +261,23 @@ class ChatController {
         message: message,
         messageNotificationToken: messageNotificationToken,
         remitentId: remitentId);
+  }
+
+  Future<Either<Failure, bool>> deleteChat(
+      {required String remitent1,
+      required String remitent2,
+      required String reportDetails,
+      required String chatId}) async {
+    return await chatRepository.deleteChat(
+        remitent1: remitent1,
+        remitent2: remitent2,
+        reportDetails: reportDetails,
+        chatId: chatId);
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 }

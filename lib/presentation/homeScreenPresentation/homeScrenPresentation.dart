@@ -120,4 +120,20 @@ class HomeScreenPresentation extends ChangeNotifier implements Presentation {
               ));
     }
   }
+
+  @override
+  void initialize() {
+    // TODO: implement initialize
+  }
+
+  @override
+  void restart() {
+    // TODO: implement restart
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
+  }
 }

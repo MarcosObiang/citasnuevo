@@ -15,9 +15,18 @@ enum AdditionalMessagesLoadState {
   INACTIVE
 }
 
+enum SenderProfileLoadingState {
+  READY,
+  LOADING,
+  ERROR,
+  NOT_LOADED_YET,
+ 
+}
+
 class Chat {
   int unreadMessages;
   bool matchCreated;
+  bool isBeingDeleted=false;
   String chatId;
   String remitentId;
   String messagesId;
@@ -30,6 +39,9 @@ class Chat {
   List<Message> messagesList = [];
   AdditionalMessagesLoadState additionalMessagesLoadState =
       AdditionalMessagesLoadState.NOT_LOADED_YET;
+
+  SenderProfileLoadingState senderProfileLoadingState=SenderProfileLoadingState.NOT_LOADED_YET;
+  
 
 
 
@@ -58,10 +70,10 @@ class Chat {
   }
 
   // ignore: unused_element
-  void calculateUnreadMessages() {
+  void calculateUnreadMessages(String userId) {
     for (int i = 0; i < messagesList.length; i++) {
       if (messagesList[i].read == false &&
-          messagesList[i].senderId != GlobalDataContainer.userId) {
+          messagesList[i].senderId != userId&&messagesList[i].messageType!=MessageType.DATE) {
         unreadMessages = unreadMessages + 1;
       }
       if (messagesList[i].read == true) {

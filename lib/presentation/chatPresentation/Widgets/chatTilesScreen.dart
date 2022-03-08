@@ -1,4 +1,5 @@
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTile.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/emptyChatWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +13,7 @@ import '../chatPresentation.dart';
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
   static GlobalKey<AnimatedListState> chatListState = GlobalKey();
+  static GlobalKey<AnimatedListState> newChatListState = GlobalKey();
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -58,7 +60,37 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
     super.didPushNext();
   }
 
+  int countNewChats() {
+    int reslult = 0;
+
+    for (int i = 0;
+        i < Dependencies.chatPresentation.chatController.chatList.length;
+        i++) {
+      if (Dependencies
+          .chatPresentation.chatController.chatList[i].messagesList.isEmpty) {
+        reslult += 1;
+      }
+    }
+    return reslult;
+  }
+
+  int countChats() {
+    int reslult = 0;
+
+    for (int i = 0;
+        i < Dependencies.chatPresentation.chatController.chatList.length;
+        i++) {
+      if (Dependencies.chatPresentation.chatController.chatList[i].messagesList
+          .isNotEmpty) {
+        reslult += 1;
+      }
+    }
+    return reslult;
+  }
+
   ScrollController controller = new ScrollController();
+  ScrollController newChatListController = new ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -69,12 +101,46 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
             child: SafeArea(
                 child: Column(
           children: [
-            Flexible(
-              flex: 2,
-              fit: FlexFit.loose,
-              child: Container(),
-            ),
             if (chatPresentation.chatListState == ChatListState.ready) ...[
+              Flexible(
+                flex: 1,
+                fit: FlexFit.tight,
+                child: Container(
+                    child: Text("Conversaciones Nuevas:${countNewChats()}")),
+              ),
+              Flexible(
+                flex: 2,
+                fit: FlexFit.loose,
+                child: Column(
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      fit: FlexFit.loose,
+                      child: Container(
+                        child: AnimatedList(
+                            scrollDirection: Axis.horizontal,
+                            controller: newChatListController,
+                            key: ChatScreen.newChatListState,
+                            physics: BouncingScrollPhysics(),
+                            initialItemCount:
+                                chatPresentation.chatController.chatList.length,
+                            itemBuilder: (BuildContext context, int index,
+                                Animation<double> animation) {
+                              return chatPresentation.chatController
+                                      .chatList[index].messagesList.isEmpty
+                                  ? EmptyChatWidget(
+                                      index: index,
+                                      animation: animation,
+                                      chat: chatPresentation
+                                          .chatController.chatList[index],
+                                    )
+                                  : Container();
+                            }),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Flexible(
                 flex: 10,
                 fit: FlexFit.tight,
@@ -86,25 +152,33 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                         fit: FlexFit.tight,
                         child: Container(
                             child: Text(
-                                "Conversaciones:${chatPresentation.chatController.chatList.length}")),
+                                "Conversaciones actuales:${countChats()}")),
                       ),
                       Flexible(
                         flex: 10,
                         fit: FlexFit.tight,
                         child: Container(
                           child: AnimatedList(
+                              physics: BouncingScrollPhysics(),
                               controller: controller,
                               key: ChatScreen.chatListState,
                               initialItemCount: chatPresentation
                                   .chatController.chatList.length,
                               itemBuilder: (BuildContext context, int index,
                                   Animation<double> animation) {
-                                return ChatCard(
-                                  index: index,
-                                  chatData: chatPresentation
-                                      .chatController.chatList[index],
-                                  animationValue: animation,
-                                );
+                                return chatPresentation
+                                            .chatController
+                                            .chatList[index]
+                                            .messagesList
+                                            .isNotEmpty
+                                      
+                                    ? ChatCard(
+                                        index: index,
+                                        chatData: chatPresentation
+                                            .chatController.chatList[index],
+                                        animationValue: animation,
+                                      )
+                                    : Container();
                               }),
                         ),
                       ),
@@ -135,6 +209,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                 child: Container(
                     child: Center(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Error al cargar coversaciones",
@@ -143,8 +218,9 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                         ),
                       ),
                       ElevatedButton(
-                          onPressed: () =>
-                              chatPresentation.initializeChatListener(),
+                          onPressed: () {
+                            chatPresentation.restart();
+                          },
                           child: Text("Cargar de nuevo"))
                     ],
                   ),
@@ -158,6 +234,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                 child: Container(
                     child: Center(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                           height: 300.h,

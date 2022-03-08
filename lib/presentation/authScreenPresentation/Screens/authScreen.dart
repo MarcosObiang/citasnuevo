@@ -26,7 +26,6 @@ class _AuthScreenState extends State<AuthScreen> {
       child: Consumer<AuthScreenPresentation>(
         builder: (BuildContext context,AuthScreenPresentation authScreenPresentation,Widget? child) {
           return Material(
-            key: startKey,
             child: SafeArea(
               child: Container(
                 child: Column(
@@ -48,7 +47,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ],
                     Center(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           authScreenPresentation.signInWithGoogle();
                  
                         },

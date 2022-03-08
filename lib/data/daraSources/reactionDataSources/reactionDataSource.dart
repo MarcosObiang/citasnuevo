@@ -10,7 +10,7 @@ import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
-abstract class ReactionDataSource implements DataSource<Reaction> {
+abstract class ReactionDataSource implements DataSource {
 // ignore: close_sinks
   late StreamController<Map<String, dynamic>> reactionListener;
   // ignore: close_sinks
@@ -209,5 +209,11 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     } else {
       throw NetworkException();
     }
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 }

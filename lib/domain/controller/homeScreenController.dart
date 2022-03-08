@@ -1,9 +1,10 @@
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
 import 'package:dartz/dartz.dart';
 
-class HomeScreenController {
+class HomeScreenController implements Controller  {
   List<Profile> profilesList = [];
   HomeScreenRepository homeScreenRepository;
   HomeScreenController({required this.homeScreenRepository});
@@ -36,6 +37,12 @@ class HomeScreenController {
     profilesList.removeWhere((element) => element.id == idProfileRated);
     return await homeScreenRepository.sendRating(
         ratingValue: ratingValue, idProfileRated: idProfileRated);
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 
 }

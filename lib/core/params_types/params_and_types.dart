@@ -1,5 +1,10 @@
 import 'package:equatable/equatable.dart';
 
+
+const kNotAvailable="NOT_AVAILABLE";
+
+
+
 class Params extends Equatable {
   const Params();
   @override
@@ -7,10 +12,14 @@ class Params extends Equatable {
   List<Object> get props => [];
 }
 
+
+
 enum LoginType { facebook, google }
 enum AuthState { notSignedIn, signingIn, error, succes }
 enum ProfileListState { empty, loading, ready, error }
 enum ReportSendingState { notSended, sending, sended, error }
+enum ChatReportSendingState { notSended, sending, sended, error }
+
 
 
 class GetUserParams extends Params {

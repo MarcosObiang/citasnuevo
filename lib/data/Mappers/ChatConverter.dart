@@ -1,3 +1,4 @@
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/data/Mappers/MessajeConverter.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
@@ -5,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
 class ChatConverter {
-  static List<Chat> fromMap(List<Map<String, dynamic>> data) {
+  static List<Chat> fromMap(List<Map<String, dynamic>> data,) {
     List<Chat> chatList = [];
     List<Chat> chatListToReturn = [];
 
@@ -14,6 +15,7 @@ class ChatConverter {
       List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
           element["messages"];
       List<Message> messagesList = [];
+      String userId=element["userId"];
 
       Chat chat = new Chat(
         unreadMessages: 0,
@@ -27,11 +29,37 @@ class ChatConverter {
         notificationToken: chatData["tokenNotificacion"],
       );
 
-      chatMessages.forEach((message) {
-        messagesList.add(MessageConverter.fromMap(message));
-      });
+
+
+      for (int i = 0; i < chatMessages.length; i++) {
+        if ((chatMessages.length - i) > 1) {
+          int horaMensajeActual = chatMessages[i]["horaMensaje"];
+          int horaMensajeSiguiente = chatMessages[i + 1]["horaMensaje"];
+
+          DateTime tiempo =
+              DateTime.fromMillisecondsSinceEpoch(horaMensajeActual);
+          DateTime tiempoSiguiente =
+              DateTime.fromMillisecondsSinceEpoch(horaMensajeSiguiente);
+
+          if ((tiempo.difference(tiempoSiguiente)).inSeconds>86400) {
+            messagesList.add(MessageConverter.fromMap(chatMessages[i]));
+            messagesList.add(Message(
+                read: true,
+                isResponse: false,
+                data: "data",
+                chatId: chat.chatId,
+                senderId:"NOT_AVAILABLE",
+                messageId: "messageId",
+                messageDate: tiempoSiguiente.millisecondsSinceEpoch,
+                messageType: MessageType.DATE));
+          } else {
+            messagesList.add(MessageConverter.fromMap(chatMessages[i]));
+          }
+        }
+      }
 
       chat.messagesList.addAll(messagesList);
+      chat.calculateUnreadMessages(userId );
       chatList.add(chat);
     });
 
@@ -58,7 +86,7 @@ class ChatConverter {
           .compareTo(a.messagesList.first.messageDate));
     }
 
-    chatListToReturn.insertAll(0,chatsWithMessages);
+    chatListToReturn.insertAll(0, chatsWithMessages);
     return chatListToReturn;
   }
 }

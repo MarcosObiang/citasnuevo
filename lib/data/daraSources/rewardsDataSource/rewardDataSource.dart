@@ -71,7 +71,6 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<Either<Failure, bool>> getVerificationReward() {
-    // TODO: implement getVerificationReward
     throw UnimplementedError();
   }
 
@@ -82,4 +81,10 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   late var dataConverter;
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
+  }
 }

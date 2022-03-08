@@ -1,12 +1,13 @@
-
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:citasnuevo/domain/entities/MessageEntity.dart';
+import 'package:intl/intl.dart';
+
 import '../../../core/globalData.dart';
 
+// ignore: must_be_immutable
 class TextMessage extends StatefulWidget {
   Message message;
   Animation<double> animation;
@@ -17,6 +18,7 @@ class TextMessage extends StatefulWidget {
 }
 
 class _TextMessageState extends State<TextMessage> {
+  var dateformat = DateFormat.yMEd();
   @override
   void initState() {
     super.initState();
@@ -27,7 +29,7 @@ class _TextMessageState extends State<TextMessage> {
       messageColor = userMessagesColor;
     } else {
       paddingData =
-          EdgeInsets.only(top: 50.h, bottom: 50.h, right: 100, left: 20.w);
+          EdgeInsets.only(top: 50.h, bottom: 50.h, right: 100.w, left: 20.w);
       messageColor = remitentMessagesColor;
     }
   }
@@ -45,36 +47,45 @@ class _TextMessageState extends State<TextMessage> {
       messageColor = userMessagesColor;
     } else {
       paddingData =
-          EdgeInsets.only(top: 30.h, bottom: 30.h, right: 100, left: 20.w);
+          EdgeInsets.only(top: 30.h, bottom: 30.h, right: 100.w, left: 20.w);
       messageColor = remitentMessagesColor;
     }
     return FadeTransition(
-      opacity: widget.animation,
-      child: Padding(
-        padding: paddingData,
-        child: Container(
-          decoration: BoxDecoration(
-              color: messageColor,
-              borderRadius: BorderRadius.all(Radius.circular(10))),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-                child: widget.message.messageType == MessageType.TEXT
-                    ? Text(widget.message.data)
-                    : Container(
-                        height: 700.w,
-                        width: 700.w,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                scale: 1,
-                                image: CachedNetworkImageProvider(
-                                  widget.message.data,
+        opacity: widget.animation,
+        child: widget.message.messageType != MessageType.DATE
+            ? Padding(
+                padding: paddingData,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: messageColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                      padding: EdgeInsets.all(30.h),
+                      child: Center(
+                          child: widget.message.messageType == MessageType.TEXT
+                              ? Text(widget.message.data)
+                              : Container(
+                                  height: 700.w,
+                                  width: 700.w,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          scale: 1,
+                                          image: CachedNetworkImageProvider(
+                                            widget.message.data,
+                                          ))),
                                 ))),
-                      )),
-          ),
-        ),
-      ),
-    );
+                ),
+              )
+            : Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 250.h, bottom: 30.h),
+                  child: Container(
+                    child: Text(dateformat.format(
+                        DateTime.fromMillisecondsSinceEpoch(
+                            widget.message.messageDate))),
+                  ),
+                ),
+              ));
   }
 }

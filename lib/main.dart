@@ -1,5 +1,6 @@
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/data/daraSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
@@ -15,7 +16,6 @@ import 'package:provider/provider.dart';
 GlobalKey startKey = new GlobalKey();
 final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -26,20 +26,21 @@ void main() async {
           projectId: "hotty-189c7"));
 
   await Dependencies.startAuth();
-  if (GlobalDataContainer.userId != null) {
-    await Dependencies.startDependencies();
-  }
+  await Dependencies.authScreenPresentation.checkSignedInUser();
 
-  Dependencies.startUtilDependencies();
-  runApp(MultiProvider(providers: [
-     Provider(create: (_) => Dependencies.chatPresentation),
-    Provider(create: (_) => Dependencies.homeReportScreenPresentation),
-    Provider(create: (_) => Dependencies.authScreenPresentation),
-    Provider(create: (_) => Dependencies.homeScreenPresentation),
-    Provider(create: (_) => Dependencies.reactionPresentation)
-  ], child: MaterialApp(
-    navigatorObservers: [routeObserver],
-    debugShowCheckedModeBanner: false, home: Start())));
+
+  runApp(MultiProvider(
+      providers: [
+        Provider(create: (_) => Dependencies.chatPresentation),
+        Provider(create: (_) => Dependencies.homeReportScreenPresentation),
+        Provider(create: (_) => Dependencies.authScreenPresentation),
+        Provider(create: (_) => Dependencies.homeScreenPresentation),
+        Provider(create: (_) => Dependencies.reactionPresentation)
+      ],
+      child: MaterialApp(
+          navigatorObservers: [routeObserver],
+          debugShowCheckedModeBanner: false,
+          home: Start())));
 }
 
 class Start extends StatefulWidget {
@@ -55,13 +56,6 @@ class _StartState extends State<Start> {
   @override
   void initState() {
     super.initState();
-    Dependencies.authScreenPresentation.checkSignedInUser();
-
- Dependencies.reactionPresentation.initializeReactionsListener();
- Dependencies.chatPresentation.initializeChatListener();
-  Dependencies.chatPresentation.initializeMessageListener();
-
-    //  ref.read(Dependencies.reactionProvider).initializeDataReciever();
   }
 
   @override
@@ -73,13 +67,9 @@ class _StartState extends State<Start> {
       child: Consumer<AuthScreenPresentation>(builder: (BuildContext context,
           AuthScreenPresentation authScreenPresentation, Widget? child) {
         if (authScreenPresentation.authState == AuthState.succes &&
-            Start.done == false) {
-          WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-            Navigator.push(context, GoToRoute(page: HomeAppScreen()));
-          });
-          Start.done = true;
-        }
+            Start.done == false) {}
         return ScreenUtilInit(
+            key: startKey,
             designSize: Size(1080, 1920),
             builder: () {
               return AuthScreen();

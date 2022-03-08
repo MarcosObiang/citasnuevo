@@ -31,12 +31,16 @@ import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentatio
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
 class Dependencies {
+
+
+  
   static late final ReactionPresentation reactionPresentation;
   static late final HomeScreenPresentation homeScreenPresentation;
   static late final AuthScreenPresentation authScreenPresentation;
   static late final HomeReportScreenPresentation homeReportScreenPresentation;
   static late final AdvertisingServices advertisingServices;
   static late final ChatPresentation chatPresentation;
+  static late final ApplicationDataSource applicationDataSource;
 
   static Future<void> startAuth() async {
     AuthDataSource externalUserDataSourceContract = AuthDataSourceImpl();
@@ -51,13 +55,12 @@ class Dependencies {
     authScreenPresentation =
         AuthScreenPresentation(authScreenController: authScreenController);
 
-    await authScreenPresentation.checkSignedInUser();
   }
 
   static Future<void> startDependencies() async {
     advertisingServices = new AdvertisingServices();
     advertisingServices.adsServiceInit();
-    ApplicationDataSource applicationDataSource =
+   applicationDataSource =
         ApplicationDataSource(userId: GlobalDataContainer.userId as String);
 
     await applicationDataSource.initializeMainDataSource();
@@ -104,4 +107,16 @@ class Dependencies {
     // ignore: unused_local_variable
     GetProfileImage getProfileImage = new GetProfileImage();
   }
+  static void restartChatDependencies(){
+   ChatDataSource chatDataSource =
+        new ChatDatsSourceImpl(source: applicationDataSource);
+
+    ChatRepository chatRepository =
+        new ChatRepoImpl(chatDataSource: chatDataSource);
+    ChatController chatController =
+        new ChatController(chatRepository: chatRepository);
+    chatPresentation = new ChatPresentation(chatController: chatController);
 }
+}
+
+

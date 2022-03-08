@@ -1,10 +1,11 @@
+import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 
 import '../../core/dependencies/error/Failure.dart';
 
-class ReportController {
+class ReportController implements Controller  {
   ReportRepository reportRepository;
   ReportController({
     required this.reportRepository,
@@ -18,5 +19,11 @@ class ReportController {
         reporterId: idReporter,
         userReportedId: idUserReported,
         reportDetails: reportDetails);
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
   }
 }

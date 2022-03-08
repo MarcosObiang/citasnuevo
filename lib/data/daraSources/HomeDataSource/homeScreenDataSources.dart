@@ -143,6 +143,12 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       throw NetworkException();
     }
   }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
+  }
 }
 
 class GetProfileImage {

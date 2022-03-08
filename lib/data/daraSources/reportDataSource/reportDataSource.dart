@@ -66,4 +66,10 @@ class ReportDataSourceImpl implements ReportDataSource {
   void subscribeToMainDataSource() {
     // TODO: implement subscribeToMainDataSource
   }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
+  }
 }

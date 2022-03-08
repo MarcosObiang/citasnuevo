@@ -84,5 +84,21 @@ ReportController reportController;
     if (context != null) {
       showDialog(context: context, builder: (context) => NetwortErrorWidget());
     }  }
+
+  @override
+  void initialize() {
+    // TODO: implement initialize
+  }
+
+  @override
+  void restart() {
+    // TODO: implement restart
+  }
+
+  @override
+  bool clearModuleData() {
+    // TODO: implement clearModuleData
+    throw UnimplementedError();
+  }
   
 }

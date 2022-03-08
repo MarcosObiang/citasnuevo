@@ -1,25 +1,26 @@
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/presentation/homeReportScreenPresentation/homeReportScreenPresentation.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
+import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
-class ReportScreen extends StatefulWidget {
-  final String userId;
+class ReportChatScreen extends StatefulWidget {
+  final String chatId;
+  final String remitent;
 
-  ReportScreen(this.userId);
+  ReportChatScreen({required this.chatId, required this.remitent});
 
   @override
   State<StatefulWidget> createState() {
-    return _ReportScreenState();
+    return _ReportChatScreenState();
   }
 }
 
-class _ReportScreenState extends State<ReportScreen> {
+class _ReportChatScreenState extends State<ReportChatScreen> {
   final TextEditingController textEditingController =
       new TextEditingController();
   FocusNode focusNode = new FocusNode();
@@ -27,11 +28,9 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: Dependencies.homeReportScreenPresentation,
-      child: Consumer<HomeReportScreenPresentation>(builder:
-          (BuildContext context,
-              HomeReportScreenPresentation homeReportScreenPresentation,
-              Widget? child) {
+      value: Dependencies.chatPresentation,
+      child: Consumer<ChatPresentation>(builder: (BuildContext context,
+          ChatPresentation chatPresentation, Widget? child) {
         return SafeArea(
           child: Scaffold(
             resizeToAvoidBottomInset: true,
@@ -45,8 +44,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   Divider(
                     height: 100.h,
                   ),
-                  if (homeReportScreenPresentation.reportSendidnState ==
-                      ReportSendingState.sending) ...[
+                  if (chatPresentation.chatReportSendingState ==
+                      ChatReportSendingState.sending) ...[
                     LoadingIndicator(indicatorType: Indicator.ballScale)
                   ] else ...[
                     Text("Describenos el motivo de tu denuncia",
@@ -105,14 +104,19 @@ class _ReportScreenState extends State<ReportScreen> {
         builder: (context) {
           return AlertDialog(
             title: Text("¿Enviar denuncia?"),
+            content:
+                Text("Se enviará tu denuncia y la conversacion será eliminada"),
             actions: [
               TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    Dependencies.homeReportScreenPresentation.sendReport(
-                        idReporter: widget.userId,
-                        idUserReported: widget.userId,
-                        reportDetails: reportText);
+                     Dependencies.chatPresentation.deleteChat(
+                        remitent1: GlobalDataContainer.userId as String,
+                        remitent2: widget.remitent,
+                        reportDetails: textEditingController.text,
+                        chatId: widget.chatId);
+                    Navigator.pop(context);
+                    Navigator.pop(context);
                   },
                   child: Text("Enviar")),
               TextButton(
@@ -131,7 +135,7 @@ class _ReportScreenState extends State<ReportScreen> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            title: Text("La denuncia no puede estar vacia"),
+            title: Text("No Puede enviar una denuncia vacia"),
             actions: [
               TextButton(
                   onPressed: () {

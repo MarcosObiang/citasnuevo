@@ -10,7 +10,6 @@ class Message {
   String senderId;
   String messageId;
   MessageType messageType;
-
   Message({
     required this.read,
     required this.isResponse,
