@@ -5,7 +5,7 @@ import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/data/daraSources/reactionDataSources/reactionDataSource.dart';
+import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 
 class ReactionRepositoryImpl implements ReactionRepository {
@@ -89,5 +89,25 @@ class ReactionRepositoryImpl implements ReactionRepository {
         return Left(GenericModuleFailure());
       }
     }
+  }
+
+  @override
+  Either<Failure, bool> clearData() {
+    try {
+      reactionDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ChatFailure());
+    }
+  }
+
+  @override
+  void clearModuleData() {
+    reactionDataSource.clearModuleData();
+  }
+
+  @override
+  void initializeModuleData() {
+    reactionDataSource.initializeModuleData();
   }
 }

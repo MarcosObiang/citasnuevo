@@ -1,0 +1,131 @@
+Date : 2022-03-26 17:35:07
+Directory : d:\Proyecto\citasnuevo
+Total : 62 files,  2407 codes, 88 comments, 361 blanks, all 2856 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Dart     |         61 |      2,403 |         88 |        361 |      2,852 |
+| YAML     |          1 |          4 |          0 |          0 |          4 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                   | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                      |         62 |      2,407 |         88 |        361 |      2,856 |
+| lib                                                                                                    |         61 |      2,403 |         88 |        361 |      2,852 |
+| lib\core                                                                                               |          7 |        110 |          0 |         30 |        140 |
+| lib\core\ads_services                                                                                  |          1 |         18 |          0 |          7 |         25 |
+| lib\core\common                                                                                        |          2 |         61 |          0 |          5 |         66 |
+| lib\core\common\commonUtils                                                                            |          1 |         42 |          0 |          3 |         45 |
+| lib\core\common\common_widgets.dart                                                                    |          1 |         19 |          0 |          2 |         21 |
+| lib\core\dependencies                                                                                  |          3 |         29 |          0 |         11 |         40 |
+| lib\core\dependencies\error                                                                            |          2 |         12 |          0 |          2 |         14 |
+| lib\core\params_types                                                                                  |          1 |          2 |          0 |          7 |          9 |
+| lib\data                                                                                               |         14 |        461 |         19 |         87 |        567 |
+| lib\data\Mappers                                                                                       |          3 |         29 |          0 |          6 |         35 |
+| lib\data\dataSources                                                                                   |          7 |        317 |         19 |         68 |        404 |
+| lib\data\dataSources\HomeDataSource                                                                    |          1 |        -30 |          0 |          0 |        -30 |
+| lib\data\dataSources\chatDataSource                                                                    |          1 |        183 |          0 |         26 |        209 |
+| lib\data\dataSources\principalDataSource                                                               |          1 |         -1 |         10 |          0 |          9 |
+| lib\data\dataSources\reactionDataSources                                                               |          1 |         32 |          0 |          9 |         41 |
+| lib\data\dataSources\reportDataSource                                                                  |          1 |         10 |          2 |          3 |         15 |
+| lib\data\dataSources\rewardsDataSource                                                                 |          1 |         10 |          1 |          4 |         15 |
+| lib\data\dataSources\settingsDataSource                                                                |          1 |        113 |          6 |         26 |        145 |
+| lib\data\repositoryImpl                                                                                |          4 |        115 |          0 |         13 |        128 |
+| lib\data\repositoryImpl\chatRepoImpl                                                                   |          1 |         68 |          0 |          9 |         77 |
+| lib\data\repositoryImpl\homeScreenRepoImpl.dart                                                        |          1 |          8 |          0 |         -5 |          3 |
+| lib\data\repositoryImpl\reactionRepoImpl                                                               |          1 |         17 |          0 |          3 |         20 |
+| lib\data\repositoryImpl\settingsRepoImpl                                                               |          1 |         22 |          0 |          6 |         28 |
+| lib\domain                                                                                             |         16 |        572 |         38 |         99 |        709 |
+| lib\domain\controller                                                                                  |          7 |        507 |         25 |         71 |        603 |
+| lib\domain\entities                                                                                    |          4 |         40 |          3 |         13 |         56 |
+| lib\domain\repository                                                                                  |          5 |         25 |         10 |         15 |         50 |
+| lib\domain\repository\chatRepo                                                                         |          1 |         10 |          0 |          1 |         11 |
+| lib\domain\repository\homeScreenRepo                                                                   |          1 |          1 |          0 |          0 |          1 |
+| lib\domain\repository\reactionRepository                                                               |          1 |          2 |          0 |          3 |          5 |
+| lib\domain\repository\settingsRepository                                                               |          1 |          8 |          0 |          8 |         16 |
+| lib\presentation                                                                                       |         23 |      1,266 |         32 |        146 |      1,444 |
+| lib\presentation\authScreenPresentation                                                                |          2 |         38 |          3 |          8 |         49 |
+| lib\presentation\authScreenPresentation\Screens                                                        |          1 |         -1 |          0 |          0 |         -1 |
+| lib\presentation\chatPresentation                                                                      |          9 |        873 |          4 |         75 |        952 |
+| lib\presentation\chatPresentation\Widgets                                                              |          7 |      1,252 |          7 |         98 |      1,357 |
+| lib\presentation\homeReportScreenPresentation                                                          |          2 |         23 |          4 |         11 |         38 |
+| lib\presentation\homeScreenPresentation                                                                |          4 |         52 |          1 |          6 |         59 |
+| lib\presentation\homeScreenPresentation\Screens                                                        |          1 |          5 |          0 |          2 |          7 |
+| lib\presentation\homeScreenPresentation\Widgets                                                        |          2 |         19 |          0 |          2 |         21 |
+| lib\presentation\reactionPresentation                                                                  |          2 |         79 |          0 |          8 |         87 |
+| lib\presentation\reactionPresentation\Screens                                                          |          1 |         25 |          0 |          0 |         25 |
+| lib\presentation\settingsPresentation                                                                  |          2 |        186 |          2 |         21 |        209 |
++--------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                               | language | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| d:\Proyecto\citasnuevo\lib\core\ads_services\Ads.dart                                                  | Dart     |         18 |          0 |          7 |         25 |
+| d:\Proyecto\citasnuevo\lib\core\common\commonUtils\getUserImage.dart                                   | Dart     |         42 |          0 |          3 |         45 |
+| d:\Proyecto\citasnuevo\lib\core\common\common_widgets.dart\errorWidget.dart                            | Dart     |         19 |          0 |          2 |         21 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\dependencyCreator.dart                                    | Dart     |         17 |          0 |          9 |         26 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\error\Exceptions.dart                                     | Dart     |          8 |          0 |          1 |          9 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\error\Failure.dart                                        | Dart     |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\lib\core\params_types\params_and_types.dart                                     | Dart     |          2 |          0 |          7 |          9 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\ChatConverter.dart                                             | Dart     |         27 |          0 |          4 |         31 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\MessajeConverter.dart                                          | Dart     |          4 |          0 |          1 |          5 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\ReactionsMappers.dart                                          | Dart     |         -2 |          0 |          1 |         -1 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\HomeDataSource\homeScreenDataSources.dart                  | Dart     |        -30 |          0 |          0 |        -30 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\chatDataSource\chatDataSource.dart                         | Dart     |        183 |          0 |         26 |        209 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\principalDataSource\principalDataSource.dart               | Dart     |         -1 |         10 |          0 |          9 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\reactionDataSources\reactionDataSource.dart                | Dart     |         32 |          0 |          9 |         41 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\reportDataSource\reportDataSource.dart                     | Dart     |         10 |          2 |          3 |         15 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\rewardsDataSource\rewardDataSource.dart                    | Dart     |         10 |          1 |          4 |         15 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\settingsDataSource\settingsDataSource.dart                 | Dart     |        113 |          6 |         26 |        145 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\chatRepoImpl\chatRepoImpl.dart                          | Dart     |         68 |          0 |          9 |         77 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\homeScreenRepoImpl.dart\homeScreenRepoImpl.dart         | Dart     |          8 |          0 |         -5 |          3 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\reactionRepoImpl\reactionRepoImpl.dart                  | Dart     |         17 |          0 |          3 |         20 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\settingsRepoImpl\settingsRepoImpl.dart                  | Dart     |         22 |          0 |          6 |         28 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\SettingsController.dart                                   | Dart     |         46 |          0 |         10 |         56 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\authScreenController.dart                                 | Dart     |          8 |          2 |          2 |         12 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\chatController.dart                                       | Dart     |        230 |          8 |         21 |        259 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\controllerDef.dart                                        | Dart     |         60 |          3 |         16 |         79 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\homeScreenController.dart                                 | Dart     |          9 |          0 |          1 |         10 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\reactionsController.dart                                  | Dart     |        146 |         10 |         19 |        175 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\reportController.dart                                     | Dart     |          8 |          2 |          2 |         12 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ChatEntity.dart                                             | Dart     |         27 |          3 |         11 |         41 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\MessageEntity.dart                                          | Dart     |          2 |          0 |         -1 |          1 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ReactionEntity.dart                                         | Dart     |         -3 |          0 |          2 |         -1 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\SettingsEntity.dart                                         | Dart     |         14 |          0 |          1 |         15 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\DataManager.dart                                          | Dart     |          4 |         10 |          3 |         17 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\chatRepo\chatRepo.dart                                    | Dart     |         10 |          0 |          1 |         11 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\homeScreenRepo\homeScreenRepo.dart                        | Dart     |          1 |          0 |          0 |          1 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\reactionRepository\reactionRepository.dart                | Dart     |          2 |          0 |          3 |          5 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\settingsRepository\SettingsRepository.dart                | Dart     |          8 |          0 |          8 |         16 |
+| d:\Proyecto\citasnuevo\lib\main.dart                                                                   | Dart     |         -6 |         -1 |         -1 |         -8 |
+| d:\Proyecto\citasnuevo\lib\presentation\authScreenPresentation\Screens\authScreen.dart                 | Dart     |         -1 |          0 |          0 |         -1 |
+| d:\Proyecto\citasnuevo\lib\presentation\authScreenPresentation\auth.dart                               | Dart     |         39 |          3 |          8 |         50 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatMessage.dart                      | Dart     |         99 |          1 |         10 |        110 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatProfileDetailScreen.dart          | Dart     |        129 |          1 |         15 |        145 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatReportScreen.dart                 | Dart     |        143 |          0 |          7 |        150 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatScreen.dart                       | Dart     |        433 |          2 |         32 |        467 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatTile.dart                         | Dart     |        149 |          0 |          9 |        158 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatTilesScreen.dart                  | Dart     |        240 |          3 |         18 |        261 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\emptyChatWidget.dart                  | Dart     |         59 |          0 |          7 |         66 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\chatPresentation.dart                         | Dart     |        158 |          1 |         17 |        176 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\chatScreen.dart                               | Dart     |       -537 |         -4 |        -40 |       -581 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeReportScreenPresentation\ReportScreen.dart                 | Dart     |          9 |          0 |          0 |          9 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeReportScreenPresentation\homeReportScreenPresentation.dart | Dart     |         14 |          4 |         11 |         29 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Screens\HomeScreen.dart                 | Dart     |          5 |          0 |          2 |          7 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\NavigationBar.dart              | Dart     |         18 |          0 |          2 |         20 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\profileWidget.dart              | Dart     |          1 |          0 |          0 |          1 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\homeScrenPresentation.dart              | Dart     |         28 |          1 |          2 |         31 |
+| d:\Proyecto\citasnuevo\lib\presentation\presentationDef.dart                                           | Dart     |         18 |         18 |         15 |         51 |
+| d:\Proyecto\citasnuevo\lib\presentation\reactionPresentation\Screens\ReactionScreen.dart               | Dart     |         25 |          0 |          0 |         25 |
+| d:\Proyecto\citasnuevo\lib\presentation\reactionPresentation\reactionPresentation.dart                 | Dart     |         54 |          0 |          8 |         62 |
+| d:\Proyecto\citasnuevo\lib\presentation\routes.dart                                                    | Dart     |         -3 |          0 |          2 |         -1 |
+| d:\Proyecto\citasnuevo\lib\presentation\settingsPresentation\SettingsScreen.dart                       | Dart     |        127 |          0 |          4 |        131 |
+| d:\Proyecto\citasnuevo\lib\presentation\settingsPresentation\settingsScreenPresentation.dart           | Dart     |         59 |          2 |         17 |         78 |
+| d:\Proyecto\citasnuevo\pubspec.yaml                                                                    | YAML     |          4 |          0 |          0 |          4 |
+| Total                                                                                                  |          |      2,407 |         88 |        361 |      2,856 |
++--------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
+import 'package:citasnuevo/main.dart';
+import 'package:flutter/material.dart';
 import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
 class AdvertisingServices {
@@ -8,21 +11,42 @@ class AdvertisingServices {
   bool showAds = true;
 
   void adsServiceInit() async {
-    Appodeal.setLogLevel(Appodeal.LogLevelDebug);
-    Appodeal.setTesting(false);
-    if (Platform.isAndroid) {
-      await Appodeal.initialize(androidAdsId,
-          [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL, Appodeal.BANNER],
-          boolConsent: false);
+    bool hasConsent = false;
+    bool shoulShowConsentForm = await requestConsentInfoUpdate();
+
+    if (shoulShowConsentForm == true) {
+      try {
+        showDialog(
+            context: startKey.currentContext as BuildContext,
+            builder: (context) => AdsGenericErrorDialog(
+                  title: "Ads",
+                  content: "ads consent",
+                ));
+      } catch (e, s) {
+        print(e);
+        print(s);
+      }
     }
 
-   await  requestConsentInfoUpdate();
+    Status consentStatus = await ConsentManager.getConsentStatus();
+
+    if (consentStatus == Status.PERSONALIZED) {
+      hasConsent = true;
+    }
+
+    Appodeal.setLogLevel(Appodeal.LogLevelDebug);
+    Appodeal.setTesting(true);
+
+    if (Platform.isAndroid) {
+      await Appodeal.initialize(androidAdsId,
+          [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL],
+          boolConsent: hasConsent);
+    }
 
     Appodeal.setUseSafeArea(true);
     Appodeal.muteVideosIfCallsMuted(true);
     Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
     Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
-    Appodeal.setAutoCache(Appodeal.BANNER, true);
   }
 
   StreamController<bool> advertismentStateStream =
@@ -38,6 +62,7 @@ class AdvertisingServices {
     if (sePuedeMostrar) {
       anuncioEnCurso = await Appodeal.show(Appodeal.INTERSTITIAL);
     } else {}
+
 
     Appodeal.setInterstitialCallbacks(onInterstitialLoaded: (isPrecache) {
       print("onInterstitialLoaded");
@@ -59,25 +84,25 @@ class AdvertisingServices {
     return anuncioEnCurso;
   }
 
- Future <void> requestConsentInfoUpdate() async {
-    if (Platform.isAndroid) {
-      await ConsentManager.requestConsentInfoUpdate(androidAdsId);
-      Status consentStatus = await ConsentManager.getConsentStatus();
-      if (consentStatus == Status.UNKNOWN) {
-        ShouldShow shouldShow = await ConsentManager.shouldShowConsentDialog();
+  Future<bool> requestConsentInfoUpdate() async {
+    bool shouldShowGPDRDialog = false;
 
-        if (shouldShow == ShouldShow.TRUE) {
-           ConsentManager.loadConsentForm();
-          bool isLoaded = await ConsentManager.consentFormIsLoaded();
-          if (isLoaded) {
-         await   ConsentManager.showAsActivityConsentForm();
-          }
-        }
+    await ConsentManager.requestConsentInfoUpdate(androidAdsId);
+    Status consentStatus = await ConsentManager.getConsentStatus();
+    if (consentStatus == Status.UNKNOWN) {
+      ShouldShow shouldShow = await ConsentManager.shouldShowConsentDialog();
+
+      if (shouldShow == ShouldShow.TRUE) {
+        await ConsentManager.loadConsentForm();
+
+        shouldShowGPDRDialog = true;
+      } else {
+        shouldShowGPDRDialog = false;
       }
-
-      ConsentManager.setConsentInfoUpdateListener(
-          (onConsentInfoUpdated, consent) {
-      }, (onFailedToUpdateConsentInfo, error) => {});
+    } else {
+      shouldShowGPDRDialog = false;
     }
+
+    return shouldShowGPDRDialog;
   }
 }

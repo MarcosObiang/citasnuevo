@@ -7,7 +7,7 @@ import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/data/daraSources/chatDataSource/chatDataSource.dart';
+import 'package:citasnuevo/data/dataSources/chatDataSource/chatDataSource.dart';
 import 'package:citasnuevo/domain/repository/chatRepo/chatRepo.dart';
 
 import '../../../domain/entities/MessageEntity.dart';
@@ -151,10 +151,20 @@ class ChatRepoImpl implements ChatRepository {
   @override
   Either<Failure, bool> clearData() {
     try {
-      bool value = chatDataSource.clearData();
-      return Right(value);
+      chatDataSource.clearModuleData();
+      return Right(true);
     } catch (e) {
       return Left(ChatFailure());
     }
+  }
+
+  @override
+  void clearModuleData() {
+      chatDataSource.clearModuleData();
+  }
+
+  @override
+  void initializeModuleData() {
+      chatDataSource.initializeModuleData();
   }
 }

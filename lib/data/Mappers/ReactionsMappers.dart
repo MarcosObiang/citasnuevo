@@ -1,4 +1,5 @@
 
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 
 class ReactionConverter {
@@ -24,9 +25,9 @@ class ReactionConverter {
           reactionExpirationDateInSeconds: data["caducidad"],
           senderId: data["idEmisor"],
           reactioValue: 0,
-          imageHash: "NOT_AVAILABLE",
-          imageUrl: "NOT_AVAILABLE",
-          name: "NOT_AVAILABLE",
+          imageHash: kNotAvailable,
+          imageUrl: kNotAvailable,
+          name: kNotAvailable,
           idReaction: data["id valoracion"],
           reactionRevealigState: revealed
               ? ReactionRevealigState.revealed
@@ -34,7 +35,5 @@ class ReactionConverter {
     }
   }
 
-  static Map<String, dynamic> toMap(Reaction data) {
-    throw UnimplementedError();
-  }
+
 }

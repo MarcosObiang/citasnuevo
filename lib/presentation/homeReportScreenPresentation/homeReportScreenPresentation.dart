@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -22,6 +25,8 @@ ReportController reportController;
     _reportSendingState = reportSendidnState;
     notifyListeners();
   }
+
+
 
 
   /// Call this method to report any user profile the user may think it violates the norms of the comunity
@@ -96,9 +101,17 @@ ReportController reportController;
   }
 
   @override
-  bool clearModuleData() {
+  void clearModuleData() {
     // TODO: implement clearModuleData
-    throw UnimplementedError();
   }
-  
+
+  @override
+  void initializeModuleData() {
+    // TODO: implement initializeModuleData
+  }
+
+
+
+
+
 }

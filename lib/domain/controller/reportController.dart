@@ -22,8 +22,13 @@ class ReportController implements Controller  {
   }
 
   @override
-  bool clearModuleData() {
+  void clearModuleData() {
     // TODO: implement clearModuleData
     throw UnimplementedError();
+  }
+
+  @override
+  void initializeModuleData() {
+    // TODO: implement initializeModuleData
   }
 }

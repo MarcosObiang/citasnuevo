@@ -1,4 +1,4 @@
-import 'package:citasnuevo/data/daraSources/reportDataSource/reportDataSource.dart';
+import 'package:citasnuevo/data/dataSources/reportDataSource/reportDataSource.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../core/dependencies/error/Failure.dart';

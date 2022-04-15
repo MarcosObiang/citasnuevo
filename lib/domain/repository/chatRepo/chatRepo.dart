@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/data/daraSources/chatDataSource/chatDataSource.dart';
+import 'package:citasnuevo/data/dataSources/chatDataSource/chatDataSource.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../entities/ProfileEntity.dart';
 
-abstract class ChatRepository {
+abstract class ChatRepository implements ModuleCleaner {
   late ChatDataSource chatDataSource;
   Future<Either<Failure, bool>> initializeChatListener();
   Future<Either<Failure, bool>> initializeMessageListener();

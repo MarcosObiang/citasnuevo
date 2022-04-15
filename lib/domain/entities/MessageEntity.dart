@@ -9,9 +9,11 @@ class Message {
   String chatId;
   String senderId;
   String messageId;
+  String messageDateText;
   MessageType messageType;
   Message({
     required this.read,
+    required this.messageDateText,
     required this.isResponse,
     required this.data,
     required this.chatId,

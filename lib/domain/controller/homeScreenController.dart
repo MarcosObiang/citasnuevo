@@ -4,7 +4,7 @@ import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
 import 'package:dartz/dartz.dart';
 
-class HomeScreenController implements Controller  {
+class HomeScreenController implements Controller {
   List<Profile> profilesList = [];
   HomeScreenRepository homeScreenRepository;
   HomeScreenController({required this.homeScreenRepository});
@@ -40,9 +40,12 @@ class HomeScreenController implements Controller  {
   }
 
   @override
-  bool clearModuleData() {
-    // TODO: implement clearModuleData
-    throw UnimplementedError();
+  void clearModuleData() {
+    homeScreenRepository.clearModuleData();
   }
 
+  @override
+  void initializeModuleData() {
+    homeScreenRepository.initializeModuleData();
+  }
 }

@@ -55,9 +55,10 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
       if (GlobalDataContainer.userId != null) {
         await Dependencies.startDependencies();
 
-        Dependencies.reactionPresentation.initializeReactionsListener();
+        Dependencies.reactionPresentation.initialize();
         Dependencies.chatPresentation.initialize();
-       
+        Dependencies.homeScreenPresentation.initialize();
+        Dependencies.settingsScreenPresentation.initialize();
       }
 
       Dependencies.startUtilDependencies();
@@ -83,9 +84,10 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
       if (GlobalDataContainer.userId != null) {
         await Dependencies.startDependencies();
 
-        Dependencies.reactionPresentation.initializeReactionsListener();
+        Dependencies.reactionPresentation.initialize();
         Dependencies.chatPresentation.initialize();
-
+        Dependencies.homeScreenPresentation.initialize();
+        Dependencies.settingsScreenPresentation.initialize();
       }
 
       Dependencies.startUtilDependencies();

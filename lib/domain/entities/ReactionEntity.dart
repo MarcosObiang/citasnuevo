@@ -1,8 +1,7 @@
 import 'dart:async';
 
 enum ReactionRevealigState { notRevealed, revealed, revealing, error }
-enum ReactionAceptingState { done, inProcess, notAccepted, error }
-enum ReactionDeclineState { done, inProcess, notDeclined, error }
+enum ReactionAceptingState { done, inProcessAcepting,inProcessDeclining, notAccepted, error }
 
 class Reaction {
   int age;
@@ -19,7 +18,6 @@ class Reaction {
   ReactionRevealigState reactionRevealigState;
   ReactionAceptingState reactionAceptingState =
       ReactionAceptingState.notAccepted;
-  ReactionDeclineState reactionDeclineState = ReactionDeclineState.notDeclined;
   get getReactionAceptingState => this.reactionAceptingState;
 
   set setReactionAceptingState(reactionAceptingState) {
@@ -27,12 +25,7 @@ class Reaction {
     reactionRevealedStateStream.add(this.reactionAceptingState);
   }
 
-  get getReactionDeclineState => this.reactionDeclineState;
 
-  set setReactionDeclineState(reactionDeclineState) {
-    this.reactionDeclineState = reactionDeclineState;
-    reactionRevealedStateStream.add(this.reactionDeclineState);
-  }
 
   get getAge => this.age;
 
@@ -81,11 +74,10 @@ class Reaction {
   get getReactionRevealigState => this.reactionRevealigState;
 
   set setReactionRevealigState(reactionRevealigState) {
-    if (reactionRevealigState == ReactionRevealigState.revealed &&
-        this.reactionRevealigState != ReactionRevealigState.revealed) {
+ 
       this.reactionRevealigState = reactionRevealigState;
       reactionRevealedStateStream.add(this.reactionRevealigState);
-    }
+    
   }
 
   StreamController<dynamic> reactionRevealedStateStream =

@@ -78,12 +78,8 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
           setShowForceScrollDownButton = false;
         }
 
-        if (controller.position.pixels == controller.position.maxScrollExtent) {
-          Dependencies.chatPresentation.loadMoreMessages(
-              chatId: widget.chatId,
-              lastMessageId: Dependencies.chatPresentation.chatController
-                  .chatList[chatLitIndex].messagesList.last.messageId);
-        }
+        if (controller.position.pixels ==
+            controller.position.maxScrollExtent) {}
       }
     });
     chatLitIndex = getIndex(chatId: widget.chatId);
@@ -191,6 +187,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
           initialData: "",
           builder: (BuildContext context, AsyncSnapshot<String> data) {
             if (data.data == widget.chatId) {
+              focusNode.unfocus();
               chatdeleted = true;
             }
             return SafeArea(
@@ -205,11 +202,11 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                             builder: (BuildContext context,
                                 AsyncSnapshot<Message> data) {
                               if (data.data?.chatId == widget.chatId) {
-                                if (lastMessageId != data.data?.messageId
-                                    ) {
+                                if (lastMessageId != data.data?.messageId) {
                                   ChatMessagesScreen
                                       .chatMessageScreenState.currentState
                                       ?.insertItem(0);
+                                  print(DateTime.now().microsecondsSinceEpoch);
 
                                   lastMessageId =
                                       data.data?.messageId as String;
@@ -423,6 +420,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
       if (text.length > 0) {
         Dependencies.chatPresentation.sendMessage(
             message: new Message(
+                messageDateText: kNotAvailable,
                 read: false,
                 isResponse: false,
                 data: text,

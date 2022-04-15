@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
+import '../../settingsPresentation/SettingsScreen.dart';
+
 class HomeNavigationBar extends StatefulWidget {
   const HomeNavigationBar({Key? key}) : super(key: key);
 
@@ -61,6 +63,24 @@ class _NavigationBarState extends State<HomeNavigationBar> {
     );
   }
 
+      Container settingsButton({required Icon icon}) {
+    return Container(
+      height: 150.h,
+      width: 150.w,
+      decoration: BoxDecoration(
+          gradient: RadialGradient(
+              focalRadius: 50.h, colors: [Colors.black, Colors.transparent]),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: GestureDetector(
+          onTap: () {
+            Navigator.push(context, GoToRoute(page: SettingsScreen()));
+          },
+          child: Container(
+            child: icon,
+          )),
+    );
+  }
+
 
   Align botonesLateralesCitas(BuildContext context) {
     return Align(
@@ -75,7 +95,7 @@ class _NavigationBarState extends State<HomeNavigationBar> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.end,
-            children:[reactionsButton(icon: Icon(LineAwesomeIcons.heart,color: Colors.white,)),chatButton(icon: Icon(Icons.chat_bubble,color: Colors.white,))]),
+            children:[reactionsButton(icon: Icon(LineAwesomeIcons.heart,color: Colors.white,)),chatButton(icon: Icon(Icons.chat_bubble,color: Colors.white,)),settingsButton(icon: Icon(Icons.settings,color: Colors.white,))]),
       ),
     );
   }

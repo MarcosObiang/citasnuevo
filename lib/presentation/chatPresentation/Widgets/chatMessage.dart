@@ -19,6 +19,7 @@ class TextMessage extends StatefulWidget {
 
 class _TextMessageState extends State<TextMessage> {
   var dateformat = DateFormat.yMEd();
+
   @override
   void initState() {
     super.initState();
@@ -55,35 +56,52 @@ class _TextMessageState extends State<TextMessage> {
         child: widget.message.messageType != MessageType.DATE
             ? Padding(
                 padding: paddingData,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: messageColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                      padding: EdgeInsets.all(30.h),
-                      child: Center(
-                          child: widget.message.messageType == MessageType.TEXT
-                              ? Text(widget.message.data)
-                              : Container(
-                                  height: 700.w,
-                                  width: 700.w,
-                                  decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          scale: 1,
-                                          image: CachedNetworkImageProvider(
-                                            widget.message.data,
-                                          ))),
-                                ))),
+                child: Column(
+                  crossAxisAlignment:
+                      widget.message.senderId == GlobalDataContainer.userId
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          color: messageColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: Padding(
+                          padding: EdgeInsets.all(30.h),
+                          child: Center(
+                              child: widget.message.messageType ==
+                                      MessageType.TEXT
+                                  ? Text(widget.message.data)
+                                  : Container(
+                                      height: 700.w,
+                                      width: 700.w,
+                                      decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              fit: BoxFit.cover,
+                                              scale: 1,
+                                              image: CachedNetworkImageProvider(
+                                                widget.message.data,
+                                              ))),
+                                    ))),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(10.h),
+                      child: Container(
+                        child: Text(widget.message.messageDateText),
+                      ),
+                    ),
+                  ],
                 ),
               )
-            : Center(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 250.h, bottom: 30.h),
-                  child: Container(
-                    child: Text(dateformat.format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                            widget.message.messageDate))),
+            : Container(
+                width: ScreenUtil().screenWidth,
+                color: Colors.green,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 60.h, bottom: 30.h),
+                    child: Container(
+                      child: Text(widget.message.messageDateText),
+                    ),
                   ),
                 ),
               ));

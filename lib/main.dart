@@ -1,6 +1,6 @@
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/data/daraSources/authDataSources/authDataSourceImpl.dart';
+import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
@@ -25,17 +25,19 @@ void main() async {
           messagingSenderId: "",
           projectId: "hotty-189c7"));
 
-  await Dependencies.startAuth();
+  await Dependencies.startAuthDependencies();
   await Dependencies.authScreenPresentation.checkSignedInUser();
-
 
   runApp(MultiProvider(
       providers: [
+        Provider(create: (_) => Dependencies.settingsScreenPresentation),
         Provider(create: (_) => Dependencies.chatPresentation),
         Provider(create: (_) => Dependencies.homeReportScreenPresentation),
         Provider(create: (_) => Dependencies.authScreenPresentation),
         Provider(create: (_) => Dependencies.homeScreenPresentation),
-        Provider(create: (_) => Dependencies.reactionPresentation)
+        Provider(create: (_) => Dependencies.reactionPresentation),
+        Provider(create: (_) => Dependencies.appSettingsPresentation),
+        Provider(create: (_) => Dependencies.userSettingsPresentation)
       ],
       child: MaterialApp(
           navigatorObservers: [routeObserver],
@@ -56,6 +58,20 @@ class _StartState extends State<Start> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      Dependencies.reactionPresentation.clearModuleData();
+      Dependencies.reactionPresentation.initializeModuleData();
+    }
   }
 
   @override

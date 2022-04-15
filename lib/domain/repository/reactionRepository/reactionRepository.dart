@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/data/daraSources/reactionDataSources/reactionDataSource.dart';
+import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:dartz/dartz.dart';
 
-abstract class ReactionRepository {
+abstract class ReactionRepository implements ModuleCleaner {
   late ReactionDataSource reactionDataSource;
 
   ///Data such as gems and the average reaction on the user`s profile are streamed here
@@ -28,4 +29,8 @@ abstract class ReactionRepository {
   Future<Either<Failure,bool>>acceptReaction({required String reactionId,required String reactionSenderId,});
 
   Future<Either<Failure,bool>> rejectReaction({required String reactionId});
+
+
+    Either<Failure,bool> clearData();
+
 }

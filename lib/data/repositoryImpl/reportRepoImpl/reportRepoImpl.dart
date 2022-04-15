@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/data/daraSources/reportDataSource/reportDataSource.dart';
+import 'package:citasnuevo/data/dataSources/reportDataSource/reportDataSource.dart';
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 
 import '../../../core/dependencies/error/Exceptions.dart';

@@ -154,8 +154,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           height: 100.h,
           child: SliderTheme(
             data: SliderThemeData(
-                trackHeight: ScreenUtil().setHeight(200),
-                activeTrackColor: Colors.red,
+                trackHeight: ScreenUtil().setHeight(20),
+                activeTrackColor: Colors.blue,
                 disabledActiveTrackColor: Colors.blue,
                 disabledInactiveTrackColor: Colors.blue,
                 activeTickMarkColor: Colors.blue,
@@ -167,11 +167,10 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 valueIndicatorShape: SliderComponentShape.noOverlay,
                 thumbColor: Colors.deepPurple,
                 thumbShape: RoundSliderThumbShape(
-                  enabledThumbRadius: 100.w,
+                  enabledThumbRadius: 70.w,
                   elevation: 100.h,
-                  pressedElevation: 10.h,
                 ),
-                overlappingShapeStrokeColor: Colors.red,
+                overlappingShapeStrokeColor: Colors.blue,
                 overlayColor: Colors.pink),
             child: Slider(
               value: ratingValue,

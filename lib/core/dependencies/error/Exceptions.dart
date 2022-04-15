@@ -58,3 +58,29 @@ class ChatException implements Exception {
     print(message);
   }
 }
+
+class SettingsException implements Exception {
+  String message;
+  SettingsException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+class AppSettingsException implements Exception {
+  String message;
+  AppSettingsException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+class UserSettingsException implements Exception {
+  String message;
+  UserSettingsException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}

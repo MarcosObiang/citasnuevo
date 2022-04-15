@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTile.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/emptyChatWidget.dart';
-import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/domain/controller/chatController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
@@ -21,32 +21,45 @@ import '../../domain/entities/ChatEntity.dart';
 
 enum ChatListState { loading, ready, empty, error }
 
-class ChatPresentation extends ChangeNotifier implements Presentation {
+class ChatPresentation extends ChangeNotifier
+    implements
+        Presentation<ChatInformationSender>,
+        SouldAddData<ChatInformationSender>,
+        ShouldRemoveData<ChatInformationSender>,
+        ShouldUpdateData<ChatInformationSender>,
+        ModuleCleaner {
   ChatController chatController;
   ChatReportSendingState chatReportSendingState =
       ChatReportSendingState.notSended;
   late ChatListState chatListState = ChatListState.empty;
-  String currentOpenChat = "NOT_ AVAILABLE";
+  String currentOpenChat = kNotAvailable;
 
-  @override
-  bool clearModuleData() {
-    chatReportSendingState = ChatReportSendingState.notSended;
-    chatListState = ChatListState.empty;
-    currentOpenChat = "NOT_ AVAILABLE";
-
-    return true;
-  }
-
-  /// Via this [StreamController] we send the [Chat.chatId] wich [ChatMessagesScreen]
+  /// Via this [StreamController] we send the [Chat.chatId] to [ChatMessagesScreen]
   ///
-  /// need to be updated
+  /// if the [Chat.chatId] of the [ChatMessagesScreen] match the id we have sended via this [StreamController]
+  ///
+  /// it will mean we need to add a new message to the conversation
   StreamController<Message> updateMessageListNotification =
       new StreamController.broadcast();
+
+  /// Via this [StreamController] we send the [Chat.chatId] to [ChatMessagesScreen]
+  ///
+  /// if the chat opened in [ChatMessagesScreen] has the same [Chat.chatId]
+  ///
+  /// it will mean that the conversation has been deleted,
+  ///
+  /// so with this stream we let the user know that the chat has been deleted
   StreamController<String> chatDeletedNotification =
       new StreamController.broadcast();
 
-  late StreamSubscription chatStreamSubscription;
-  late StreamSubscription messageStreamSubscription;
+  @override
+  late StreamSubscription<ChatInformationSender> addDataSubscription;
+
+  @override
+  late StreamSubscription<ChatInformationSender> removeDataSubscription;
+
+  @override
+  late StreamSubscription<ChatInformationSender> updateSubscription;
 
   ChatPresentation({
     required this.chatController,
@@ -65,8 +78,7 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
 
   set setChatListState(ChatListState chatListStateData) {
     this.chatListState = chatListStateData;
-      notifyListeners();
-  
+    notifyListeners();
   }
 
   void setMessagesOnSeen({required String chatId}) async {
@@ -85,7 +97,9 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
         showNetworkErrorDialog(context: startKey.currentContext);
       }
     }, (succes) {
-      initializeChatStream();
+      addData();
+      removeData();
+      update();
     });
   }
 
@@ -93,130 +107,7 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
   @protected
   void initializeMessageListener() async {
     var result = await chatController.initializeMessageListener();
-    result.fold((failure) {}, (succes) {
-      _initializeMessageStream();
-    });
-  }
-
-  /// Here we start to listen the [Message] stream from the [ChatController]
-  ///
-  /// wich recieves the new [Message] that has been added to a [Chat] object ´s messageList from the [ChatController.chatList]
-  ///
-  /// Then to update the [ChatMessagesScreen]´s [AnimatedList] we send the [Chat.chatId] via [updateMessageListNotification]
-  ///
-  /// Last we add to [updateMessageListNotification] an empty string due to an unexpected behaviour where even if we send the id once the [ChatMessagesScreen]
-  ///
-  /// will listen to it twice leading to a [RangeError]
-
-  void _initializeMessageStream() {
-    messageStreamSubscription = chatController.getMessageStream.stream.listen(
-        (event) {
-          Message message = event["message"];
-
-          if (ChatMessagesScreen.chatMessageScreenState.currentState != null) {
-            updateMessageListNotification.add(message);
-          } else {
-            notifyListeners();
-          }
-        },
-        cancelOnError: false,
-        onError: (_) {
-          setChatListState = ChatListState.error;
-        });
-  }
-
-  void loadMoreMessages(
-      {required String chatId, required String lastMessageId}) async {
-    notifyListeners();
-
-    Either<Failure, List<Message>> result = await chatController
-        .loadMoreMessages(chatId: chatId, lastMessageId: lastMessageId);
-    result.fold((l) {
-      if (l is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
-      }
-      notifyListeners();
-    }, (r) {
-      notifyListeners();
-
-      if (chatController.chatOpenId == chatId) {
-        for (int i = 0; i < chatController.chatList.length; i++) {
-          if (chatController.chatList[i].chatId == chatId) {
-            for (int a = 0;
-                a < r.length && chatController.chatOpenId == chatId;
-                a++) {
-              ChatMessagesScreen.chatMessageScreenState.currentState
-                  ?.insertItem(0, duration: Duration(milliseconds: 200));
-            }
-          }
-        }
-      }
-    });
-  }
-
-  void initializeChatStream() {
-    chatStreamSubscription = chatController.getChatStream.stream.listen(
-        (event) {
-          if (event is ChatException) {
-            chatListState = ChatListState.error;
-          } else {
-            bool isModified = event["modified"];
-            bool isRemoved = event["removed"];
-            bool firstQuery = event["firstQuery"];
-            List<Chat> chatListFromStream = event["chatList"];
-            if (isRemoved == false &&
-                isModified == false &&
-                chatListFromStream.isNotEmpty &&
-                firstQuery == true) {
-              setChatListState = ChatListState.ready;
-            }
-            if (isRemoved == false &&
-                isModified == false &&
-                chatListFromStream.isNotEmpty &&
-                firstQuery == true) {
-              setChatListState = ChatListState.ready;
-              ChatScreen.chatListState.currentState?.insertItem(0);
-              ChatScreen.newChatListState.currentState?.insertItem(0);
-            }
-
-            if (chatListFromStream.isEmpty) {
-              setChatListState = ChatListState.empty;
-            }
-
-            if (isRemoved) {
-              chatDeletedNotification.add(chatListFromStream.first.chatId);
-
-              ChatScreen.newChatListState.currentState?.removeItem(
-                  chatController.chatRemovedIndex,
-                  (context, animation) => EmptyChatWidget(
-                      chat: chatListFromStream.first,
-                      animation: animation,
-                      index: chatController.chatRemovedIndex));
-
-              ChatScreen.chatListState.currentState?.removeItem(
-                  chatController.chatRemovedIndex,
-                  (context, animation) => ChatCard(
-                      chatData: chatListFromStream.first,
-                      animationValue: animation,
-                      index: chatController.chatRemovedIndex));
-
-              if (chatController.chatList.isEmpty) {
-                setChatListState = ChatListState.empty;
-              }
-            }
-
-            if (isModified) {
-              setChatListState = ChatListState.ready;
-            }
-            WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-              notifyListeners();
-            });
-          }
-        },
-        cancelOnError: false,
-        onError: (_) {
-          setChatListState = ChatListState.error;
-        });
+    result.fold((failure) {}, (succes) {});
   }
 
   void closeStreams() {
@@ -267,7 +158,10 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
       required String content,
       required BuildContext? context}) {
     if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
+      showDialog(
+          context: context,
+          builder: (context) =>
+              GenericErrorDialog(content: content, title: title));
     }
   }
 
@@ -286,15 +180,6 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
       required String remitent2,
       required String reportDetails,
       required String chatId}) async {
-    for (int i = 0; i < chatController.chatList.length; i++) {
-      if (chatController.chatList[i].chatId == chatId) {
-        chatController.chatList[i].isBeingDeleted = true;
-        notifyListeners();
-
-        break;
-      }
-    }
-
     var result = await chatController.deleteChat(
         remitent1: remitent1,
         remitent2: remitent2,
@@ -302,19 +187,14 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
         chatId: chatId);
 
     result.fold((failure) {
-      for (int i = 0; i < chatController.chatList.length; i++) {
-        if (chatController.chatList[i].chatId == chatId) {
-          chatController.chatList[i].isBeingDeleted = false;
-          notifyListeners();
-          break;
-        }
-      }
+      notifyListeners();
+
       if (failure is NetworkFailure) {
         showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         showErrorDialog(
-            title: "title",
-            content: "content",
+            title: "Error",
+            content: "Error al intentar eliminar la conversacion",
             context: startKey.currentContext);
       }
     }, (r) => null);
@@ -322,21 +202,128 @@ class ChatPresentation extends ChangeNotifier implements Presentation {
 
   @override
   void initialize() {
+    initializeModuleData();
     initializeChatListener();
     initializeMessageListener();
   }
 
   @override
   void restart() {
-    chatStreamSubscription.cancel();
-    messageStreamSubscription.cancel();
+    clearModuleData();
+    initializeModuleData();
+    initializeChatListener();
+    initializeMessageListener();
+  }
+
+  @override
+  @protected
+  void clearModuleData() {
     updateMessageListNotification.close();
+    addDataSubscription.cancel();
+    removeDataSubscription.cancel();
+    updateSubscription.cancel();
     chatDeletedNotification.close();
     updateMessageListNotification = new StreamController.broadcast();
     chatDeletedNotification = new StreamController.broadcast();
 
-    chatController.clearData();
-    initializeChatListener();
-    initializeMessageListener();
+    chatReportSendingState = ChatReportSendingState.notSended;
+    chatListState = ChatListState.empty;
+    currentOpenChat = kNotAvailable;
+    chatController.clearModuleData();
+  }
+
+  @override
+  void addData() {
+    addDataSubscription = chatController.addDataController.stream.listen(
+        (event) async{
+          if (event is ChatException) {
+            setChatListState = ChatListState.error;
+          } else {
+            bool isModified = event.isModified as bool;
+            bool isRemoved = event.isDeleted as bool;
+            bool isChat = event.isChat as bool;
+            List<Chat> chatListFromStream = event.chatList as List<Chat>;
+
+            if (isChat) {
+              if (isRemoved == false &&
+                  isModified == false &&
+                  chatListFromStream.isNotEmpty) {
+                setChatListState = ChatListState.ready;
+                ChatScreen.chatListState.currentState?.insertItem(0);
+                ChatScreen.newChatListState.currentState?.insertItem(0);
+              }
+
+              if (chatListFromStream.isEmpty) {
+                setChatListState = ChatListState.empty;
+              }
+            }
+            if (isChat == false) {
+              Message message = event.messageList?.first as Message;
+              if (ChatMessagesScreen.chatMessageScreenState.currentState !=
+                  null) {
+                if (isModified == false) {
+                  updateMessageListNotification.add(message);
+                }
+              } else {
+                notifyListeners();
+              }
+            }
+
+            WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+              notifyListeners();
+            });
+          }
+        },
+        cancelOnError: false,
+        onError: (_) {
+          setChatListState = ChatListState.error;
+        });
+  }
+
+  @override
+  void removeData() {
+    removeDataSubscription =
+        chatController.removeDataController.stream.listen((event) {
+      bool isRemoved = event.isDeleted as bool;
+      List<Chat> chatListFromStream = event.chatList as List<Chat>;
+
+      if (isRemoved) {
+        chatDeletedNotification.add(chatListFromStream.first.chatId);
+
+        ChatScreen.newChatListState.currentState?.removeItem(
+            chatController.chatRemovedIndex,
+            (context, animation) => EmptyChatWidget(
+                chat: chatListFromStream.first,
+                animation: animation,
+                index: chatController.chatRemovedIndex));
+
+        ChatScreen.chatListState.currentState?.removeItem(
+            chatController.chatRemovedIndex,
+            (context, animation) => ChatCard(
+                chatData: chatListFromStream.first,
+                animationValue: animation,
+                index: chatController.chatRemovedIndex));
+
+        if (chatController.chatList.isEmpty) {
+          setChatListState = ChatListState.empty;
+        }
+        WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+          notifyListeners();
+        });
+      }
+    });
+  }
+
+  @override
+  void update() {
+    updateSubscription =
+        chatController.updateDataController.stream.listen((event) {
+      notifyListeners();
+    });
+  }
+
+  @override
+  void initializeModuleData() {
+    chatController.initializeModuleData();
   }
 }

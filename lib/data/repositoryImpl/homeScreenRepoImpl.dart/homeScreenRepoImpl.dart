@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/data/Mappers/ProfilesMapper.dart';
-import 'package:citasnuevo/data/daraSources/HomeDataSource/homeScreenDataSources.dart';
+import 'package:citasnuevo/data/dataSources/HomeDataSource/homeScreenDataSources.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
 import 'package:dartz/dartz.dart';
@@ -22,14 +22,12 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       Map<dynamic, dynamic> profileData =
           await homeScreenDataSource.fetchProfiles();
 
-
       List<Profile> profilesList = await compute(
         ProfileMapper.fromMap,
         (profileData),
       );
       return Right(profilesList);
     } catch (e) {
-
       if (e is NetworkException) {
         return Left(NetworkFailure());
       } else if (e is FetchProfilesException) {
@@ -39,10 +37,6 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       }
     }
   }
-
-
-
-
 
   @override
   Future<Either<Failure, void>> sendRating(
@@ -62,4 +56,13 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
     }
   }
 
+  @override
+  void clearModuleData() {
+    homeScreenDataSource.clearModuleData();
+  }
+
+  @override
+  void initializeModuleData() {
+    homeScreenDataSource.initializeModuleData();
+  }
 }

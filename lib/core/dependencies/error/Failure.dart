@@ -64,3 +64,17 @@ class ChatFailure extends Failure {
   @override
   List<Object?> get props => throw UnimplementedError();
 }
+
+class SettingsFailure extends Failure {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}
+class AppSettingsFailure extends Failure {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}
+
+class UserSettingsFailure extends Failure {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}

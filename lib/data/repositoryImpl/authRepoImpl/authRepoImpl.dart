@@ -1,6 +1,6 @@
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
-import 'package:citasnuevo/data/daraSources/authDataSources/authDataSourceImpl.dart';
+import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
 import 'package:dartz/dartz.dart';

@@ -8,8 +8,12 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
+import '../../../core/ads_services/Ads.dart';
+
 class HomeAppScreen extends StatefulWidget {
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
+    static late final AdvertisingServices advertisingServices;
+
 
   @override
   State<StatefulWidget> createState() {
@@ -22,6 +26,8 @@ class _HomeAppScreenState extends State<HomeAppScreen> {
   @override
   void initState() {
     super.initState();
+     HomeAppScreen.advertisingServices = new AdvertisingServices();
+    HomeAppScreen.advertisingServices.adsServiceInit();
   }
 
   @override
