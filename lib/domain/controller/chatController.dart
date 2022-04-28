@@ -116,17 +116,31 @@ class ChatControllerImpl implements ChatController {
       } else {
         bool isModified = event["modified"];
         bool isRemoved = event["removed"];
+        bool firstQuery=event["firstQuery"];
         List<Chat> chatListFromStream = event["chatList"];
-        if (isRemoved == false && isModified == false) {
+        if (firstQuery==true) {
           chatList.insertAll(0, chatListFromStream);
           addDataController.add(ChatInformationSender(
               chatList: chatListFromStream,
               messageList: null,
-              firstQuery: false,
+              firstQuery: firstQuery,
               isModified: isModified,
               isChat: true,
               index: null,
               isDeleted: false));
+        }
+
+        if(firstQuery==false&&isRemoved==false&&isModified==false){
+          chatList.insertAll(0, chatListFromStream);
+          addDataController.add(ChatInformationSender(
+              chatList: chatListFromStream,
+              messageList: null,
+              firstQuery: firstQuery,
+              isModified: isModified,
+              isChat: true,
+              index: null,
+              isDeleted: false));
+
         }
 
         if (isRemoved) {
@@ -137,7 +151,7 @@ class ChatControllerImpl implements ChatController {
               removeDataController.add(ChatInformationSender(
                   chatList: chatListFromStream,
                   messageList: null,
-                  firstQuery: false,
+                  firstQuery: firstQuery,
                   isChat: true,
                   isModified: isModified,
                   index: null,
@@ -159,7 +173,7 @@ class ChatControllerImpl implements ChatController {
               updateDataController.add(ChatInformationSender(
                   chatList: chatListFromStream,
                   messageList: null,
-                  firstQuery: false,
+                  firstQuery: firstQuery,
                   isChat: true,
                   isModified: isModified,
                   index: null,

@@ -1,17 +1,22 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
+
 import 'package:citasnuevo/core/platform/networkInfo.dart';
+import 'package:citasnuevo/data/Mappers/SettingsMapper.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
+
 import 'package:flutter/cupertino.dart';
 
 abstract class SettingsDataSource implements DataSource {
-
-
   /// Emits any update of the user settings
   late StreamController<SettingsEntity> onUserSettingsUpdate;
+
+  Future<bool> purchaseSubscription(String offerId);
 
   ///The [userDataSubscription] will listen to any changes the [ApplicationDataSource] emits, even if it does not concern to settings variables
   ///
@@ -24,6 +29,11 @@ abstract class SettingsDataSource implements DataSource {
 class SettingsDataSourceImpl implements SettingsDataSource {
   @override
   late Map<String, dynamic> latestSettings = new Map<String, dynamic>();
+  static const idProductos = <String>{
+    "hottypremium1_mes",
+    "premiumsemanal",
+    "hotty3meses",
+  };
 
   @override
   late StreamController<SettingsEntity> onUserSettingsUpdate =
@@ -32,8 +42,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   @override
   ApplicationDataSource source;
 
-
-    @override
+  @override
   late StreamSubscription sourceStreamSubscription;
 
   SettingsDataSourceImpl({
@@ -110,6 +119,22 @@ class SettingsDataSourceImpl implements SettingsDataSource {
               .getProfileImageMap(dataFromSource)["hash"]) {
         shoulUpdate = true;
       }
+
+      if (latestSettings["subscriptionId"] != dataFromSource["idSuscripcion"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["paymentState"] !=
+          dataFromSource["estadoPagoSuscripcion"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["subscriptionExpirationTime"] !=
+          dataFromSource["caducidadSuscripcion"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["pausedModeExpirationTime"] !=
+          dataFromSource["finPausaSuscripcion"]) {
+        shoulUpdate = true;
+      }
     }
 
     return shoulUpdate;
@@ -124,21 +149,33 @@ class SettingsDataSourceImpl implements SettingsDataSource {
         .getProfileImageMap(dataFromSource)["image"];
     latestSettings["hash"] = GetProfileImage.getProfileImage
         .getProfileImageMap(dataFromSource)["hash"];
+    latestSettings["subscriptionId"] = dataFromSource["idSuscripcion"];
+    latestSettings["paymentState"] = dataFromSource["estadoPagoSuscripcion"];
+    latestSettings["subscriptionExpirationTime"] =
+        dataFromSource["caducidadSuscripcion"];
+    latestSettings["pausedModeExpirationTime"] =
+        dataFromSource["finPausaSuscripcion"];
 
-    SettingsEntity settingsEntity = SettingsEntity(
-        userName: latestSettings["name"],
-        userPicture: latestSettings["userPicture"],
-        userPictureHash: latestSettings["hash"],
-        userAge: latestSettings["age"],
-        isPremium: latestSettings["isPremium"]);
-
-    onUserSettingsUpdate.add(settingsEntity);
+    onUserSettingsUpdate.add(SettingsMapper.fromMap(latestSettings));
   }
 
   @override
-  void initializeModuleData() {
+  void initializeModuleData() async {
     subscribeToMainDataSource();
   }
 
-
+  @override
+  Future<bool> purchaseSubscription(String offerId) async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        bool result = await PurchasesServices.purchasesServices
+            .makePurchase(offerId: offerId);
+        return result;
+      } catch (e) {
+        throw SettingsException(message: e.toString());
+      }
+    } else {
+      throw NetworkException();
+    }
+  }
 }

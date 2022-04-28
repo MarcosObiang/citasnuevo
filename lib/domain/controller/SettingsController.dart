@@ -12,6 +12,7 @@ abstract class SettingsController
   late SettingsEntity settingsEntity;
   late SettingsRepository settingsRepository;
   void initialize();
+  void purchase(String productId,bool renewPurchase);
 }
 
 class SettingsControllerImpl implements SettingsController {
@@ -44,12 +45,27 @@ class SettingsControllerImpl implements SettingsController {
     updateDataController.close();
     updateDataController = new StreamController.broadcast();
     settingsRepository.clearModuleData();
-    
   }
 
   @override
   void initializeModuleData() {
     initialize();
     settingsRepository.initializeModuleData();
+  }
+
+  void purchase(String productId,bool renewPurchase) {
+    bool makePurchase = true;
+
+    settingsEntity.productInfoList.forEach((element) {
+      if (productId == element.offerId) {
+        if (element.productIsActive&&renewPurchase==false) {
+          makePurchase = false;
+        }
+      }
+    });
+
+    if (makePurchase) {
+      settingsRepository.purchase(productId);
+    }
   }
 }

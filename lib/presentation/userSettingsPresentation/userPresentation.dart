@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -23,10 +25,21 @@ class UserSettingsPresentation extends ChangeNotifier
     initialize();
   }
   late UserSettingsScreenState userSettingsScreenState;
- UserSettingsEntity get  getUserSettingsEntity => userSettingsController.userSettingsEntity;
+  late UserSettingsScreenUpdateState userSettingsScreenUpdateState =
+      UserSettingsScreenUpdateState.done;
+  UserSettingsEntity get getUserSettingsEntity =>
+      userSettingsController.userSettingsEntity;
   set setUserSettingsScreenState(
       UserSettingsScreenState userSettingsScreenState) {
     this.userSettingsScreenState = userSettingsScreenState;
+    notifyListeners();
+  }
+
+  bool saveChanges = false;
+
+  set setUserSettingsScreenUdateState(
+      UserSettingsScreenUpdateState userSettingsScreenUpdateState) {
+    this.userSettingsScreenUpdateState = userSettingsScreenUpdateState;
     notifyListeners();
   }
 
@@ -43,7 +56,8 @@ class UserSettingsPresentation extends ChangeNotifier
   void addPictureFromDevice(Uint8List uint8list, int index) {
     userSettingsController.insertImageFile(uint8list, index);
   }
-  void deletePicture(int index){
+
+  void deletePicture(int index) {
     userSettingsController.deleteImage(index);
   }
 
@@ -55,9 +69,26 @@ class UserSettingsPresentation extends ChangeNotifier
     initialize();
   }
 
+  void userSettingsUpdate() async {
+    if (saveChanges) {
+      setUserSettingsScreenUdateState = UserSettingsScreenUpdateState.loading;
 
-  void userSettingsUpdate(){
-    userSettingsController.updateSettings();
+      var result = await userSettingsController.updateSettings();
+
+      result.fold((l) {
+        if (l is NetworkFailure) {
+          showErrorDialog(
+              title: "Error",
+              content: "No se han podido guardar los cambios",
+              context: startKey.currentContext);
+          showNetworkErrorDialog(context: startKey.currentContext);
+        }
+      }, (r) {
+        setUserSettingsScreenUdateState = UserSettingsScreenUpdateState.done;
+      });
+    } else {
+      userSettingsController.revertChanges();
+    }
   }
 
   @override

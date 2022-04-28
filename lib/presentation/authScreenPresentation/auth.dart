@@ -22,7 +22,9 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
   late Failure failuretype;
   AuthScreenPresentation({
     required this.authScreenController,
-  });
+  }){
+    initialize();
+  }
   set authState(AuthState authState) {
     this._authState = authState;
 
@@ -55,10 +57,7 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
       if (GlobalDataContainer.userId != null) {
         await Dependencies.startDependencies();
 
-        Dependencies.reactionPresentation.initialize();
-        Dependencies.chatPresentation.initialize();
-        Dependencies.homeScreenPresentation.initialize();
-        Dependencies.settingsScreenPresentation.initialize();
+      
       }
 
       Dependencies.startUtilDependencies();

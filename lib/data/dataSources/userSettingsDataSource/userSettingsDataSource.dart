@@ -19,6 +19,8 @@ abstract class UserSettingsDataSource implements DataSource {
   late StreamController<UserSettingsInformationSender> listenAppSettingsUpdate;
 
   Future<bool> updateAppSettings(Map<String, dynamic> data);
+  Future<bool> revertChanges();
+
 }
 
 class UserSettingsDataSourceImpl implements UserSettingsDataSource {
@@ -185,5 +187,11 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
       listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(source.getData));
       throw NetworkException();
     }
+  }
+
+  @override
+ Future <bool> revertChanges() async{
+    listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(source.getData));
+    return true;
   }
 }

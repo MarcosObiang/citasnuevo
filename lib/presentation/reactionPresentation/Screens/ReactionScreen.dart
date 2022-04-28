@@ -1,17 +1,11 @@
-import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
-import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Widgets/RevealingCard.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
 
 class ReactionScreen extends StatefulWidget {
@@ -53,7 +47,7 @@ class _ReactionScreenState extends State<ReactionScreen> {
                       Text("Reacciones"),
                       Row(
                         children: [
-                          Text("${reactionPresentation.getCoins}"),
+                        reactionPresentation.isPremium==false?  Text("${reactionPresentation.getCoins}"):Icon(LineAwesomeIcons.infinity),
                           Icon(LineAwesomeIcons.gem)
                         ],
                       ),

@@ -30,6 +30,8 @@ abstract class ReactionController
   ///Amount of coins the user has
   late int coins;
 
+  late bool isPremium;
+
   /// Any time we add a new reaction to the [reactions]list, first we give the reaction
   ///
   /// a common reference of a stream, if a reaction expires they can use this stream
@@ -48,6 +50,9 @@ class ReactionsControllerImpl implements ReactionController {
   bool listenerInitialized = false;
   @override
   int coins = 0;
+
+  @override
+  late bool isPremium;
 
   @override
   late StreamController<ReactionInformationSender> addDataController =
@@ -139,6 +144,7 @@ class ReactionsControllerImpl implements ReactionController {
       bool isModified = event["modified"];
       Reaction reaction = event["reaction"];
       bool isDeleted = event["deleted"];
+      bool notify = event["notify"];
 
       if (isDeleted == false) {
         if (isModified == false) {
@@ -148,6 +154,8 @@ class ReactionsControllerImpl implements ReactionController {
               index: null,
               reaction: reaction,
               reactionAverage: reactionsAverage,
+              isPremium: isPremium,
+              notify: notify,
               sync: false,
               isModified: isModified,
               isDeleted: isDeleted,
@@ -180,8 +188,10 @@ class ReactionsControllerImpl implements ReactionController {
       streamExpiredReactions.add({"index": reactionIndex, "reaction": event});
       removeDataController.add(ReactionInformationSender(
           index: reactionIndex,
+          isPremium: isPremium,
           reaction: event,
           reactionAverage: this.reactionsAverage,
+          notify: false,
           sync: false,
           isModified: false,
           isDeleted: true,
@@ -198,12 +208,15 @@ class ReactionsControllerImpl implements ReactionController {
       try {
         reactionsAverage = event["reactionsAverage"];
         coins = event["coins"];
+        isPremium = event["isPremium"];
 
         updateDataController.add(ReactionInformationSender(
             reaction: null,
             reactionAverage: reactionsAverage,
             sync: false,
+            notify: false,
             isModified: null,
+            isPremium: isPremium,
             isDeleted: null,
             coins: coins,
             index: null));
@@ -274,6 +287,8 @@ class ReactionsControllerImpl implements ReactionController {
       Either<Failure, void> result;
       result = Right(Void);
       updateDataController.add(ReactionInformationSender(
+          isPremium: isPremium,
+          notify: false,
           sync: true,
           reaction: null,
           reactionAverage: reactionsAverage,
@@ -288,6 +303,8 @@ class ReactionsControllerImpl implements ReactionController {
           this.reactions[i].setReactionRevealigState =
               ReactionRevealigState.revealing;
           updateDataController.add(ReactionInformationSender(
+              isPremium: isPremium,
+              notify: false,
               sync: false,
               reaction: null,
               reactionAverage: reactionsAverage,
@@ -310,6 +327,8 @@ class ReactionsControllerImpl implements ReactionController {
                 ReactionRevealigState.notRevealed;
             updateDataController.add(ReactionInformationSender(
                 sync: false,
+                isPremium: isPremium,
+                notify: false,
                 reaction: null,
                 reactionAverage: reactionsAverage,
                 isModified: null,
@@ -340,6 +359,8 @@ class ReactionsControllerImpl implements ReactionController {
       updateDataController.add(ReactionInformationSender(
           sync: true,
           reaction: null,
+          isPremium: isPremium,
+          notify: false,
           reactionAverage: reactionsAverage,
           isModified: null,
           isDeleted: null,
@@ -354,6 +375,8 @@ class ReactionsControllerImpl implements ReactionController {
           updateDataController.add(ReactionInformationSender(
               reaction: null,
               reactionAverage: reactionsAverage,
+              isPremium: isPremium,
+              notify: false,
               isModified: null,
               sync: false,
               isDeleted: null,
@@ -373,6 +396,8 @@ class ReactionsControllerImpl implements ReactionController {
             updateDataController.add(ReactionInformationSender(
                 reaction: null,
                 reactionAverage: reactionsAverage,
+                isPremium: isPremium,
+                notify: false,
                 sync: false,
                 isModified: null,
                 isDeleted: null,
@@ -388,7 +413,9 @@ class ReactionsControllerImpl implements ReactionController {
             removeDataController.add(ReactionInformationSender(
                 sync: false,
                 reaction: reaction,
+                isPremium: isPremium,
                 reactionAverage: reactionsAverage,
+                notify: false,
                 isModified: false,
                 isDeleted: true,
                 coins: coins,
@@ -418,6 +445,8 @@ class ReactionsControllerImpl implements ReactionController {
           sync: true,
           reaction: null,
           reactionAverage: reactionsAverage,
+          isPremium: isPremium,
+          notify: false,
           isModified: null,
           isDeleted: null,
           coins: coins,
@@ -433,6 +462,8 @@ class ReactionsControllerImpl implements ReactionController {
               reactionAverage: reactionsAverage,
               sync: false,
               isModified: null,
+              isPremium: isPremium,
+              notify: false,
               isDeleted: null,
               coins: coins,
               index: null));
@@ -451,6 +482,8 @@ class ReactionsControllerImpl implements ReactionController {
             sync: false,
             isModified: null,
             isDeleted: null,
+            isPremium: isPremium,
+            notify: false,
             coins: coins,
             index: null));
       }, (r) {
@@ -465,6 +498,8 @@ class ReactionsControllerImpl implements ReactionController {
                 reactionAverage: reactionsAverage,
                 sync: false,
                 isModified: false,
+                isPremium: isPremium,
+                notify: false,
                 isDeleted: true,
                 coins: coins,
                 index: i));

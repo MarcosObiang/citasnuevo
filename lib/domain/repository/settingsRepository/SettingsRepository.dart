@@ -12,5 +12,7 @@ abstract class SettingsRepository implements ModuleCleaner{
 
   StreamController<SettingsEntity> get settingsStream;
 
+  void purchase(String productId);
+
 
 }

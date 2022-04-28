@@ -23,14 +23,18 @@ class ReactionInformationSender extends InformationSender {
   int? coins;
   int? index;
   bool sync;
+  bool isPremium;
+  bool notify;
 
   ReactionInformationSender(
       {required this.reaction,
       required this.reactionAverage,
+      required this.notify,
       required this.isModified,
       required this.isDeleted,
       required this.coins,
       required this.index,
+      required this.isPremium,
       required this.sync});
 }
 

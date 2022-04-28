@@ -24,4 +24,9 @@ class SettingsRepoImpl implements SettingsRepository {
   void initializeModuleData() {
     settingsDataSource.initializeModuleData();
   }
+
+  @override
+  void purchase(String productId) {
+    settingsDataSource.purchaseSubscription(productId);
+  }
 }

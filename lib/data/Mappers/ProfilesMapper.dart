@@ -57,7 +57,7 @@ class ProfileMapper {
         String? characteristicData =
             characteristicDataList?[profileData[characteristicKey]]
                 .values
-                .toList()[index];
+                .toList()[0];
         characteristicsList.add(ProfileCharacteristics(
             sameAsUser:
                 profileData[characteristicKey] == userData[characteristicKey]

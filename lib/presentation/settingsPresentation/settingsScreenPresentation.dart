@@ -23,6 +23,10 @@ class SettingsScreenPresentation extends ChangeNotifier
     initialize();
   }
 
+  void purchase(String productId,bool renewPurchase) {
+    settingsController.purchase(productId,renewPurchase);
+  }
+
   set setSettingsScreenState(SettingsScreenState settingsScreenState) {
     this.settingsScreenState = settingsScreenState;
     notifyListeners();

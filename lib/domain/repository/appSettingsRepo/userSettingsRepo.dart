@@ -13,4 +13,6 @@ abstract class UserSettingsRepository implements ModuleCleaner {
 
   StreamController<UserSettingsInformationSender> get appSettingsStream;
 
+  Future<Either<Failure, bool>> revertChanges();
+
 }

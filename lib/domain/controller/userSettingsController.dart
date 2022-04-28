@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
+import 'package:dartz/dartz.dart';
 
+import '../../core/dependencies/error/Failure.dart';
 import '../entities/UserSettingsEntity.dart';
 import '../repository/DataManager.dart';
 import '../repository/appSettingsRepo/userSettingsRepo.dart';
@@ -34,10 +36,17 @@ class UserSettingsController
     this.userSettingsEntity.userPicruresList[index].deleteImage();
   }
 
-  void updateSettings() async {
+  Future<Either<Failure, bool>> updateSettings() async {
     var data = await UserSettingsMapper.toMap(userSettingsEntity);
 
-    userSettingsRepository.updateSettings(data);
+    Either<Failure, bool> settings =
+        await userSettingsRepository.updateSettings(data);
+
+     settings.fold((l) {
+      revertChanges();
+    }, (r) => null);
+
+    return settings;
   }
 
   void initializeListener() async {
@@ -48,8 +57,6 @@ class UserSettingsController
           userPicruresList: event.userPicruresList);
       updateDataController.add(event);
       userSettingsEntityUpdate = userSettingsEntity;
-
-      
     }, onError: (error) {
       updateDataController.addError(error);
     });
@@ -65,5 +72,9 @@ class UserSettingsController
   void initializeModuleData() {
     userSettingsRepository.initializeModuleData();
     initializeListener();
+  }
+
+  void revertChanges()async{
+    await userSettingsRepository.revertChanges();
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
@@ -15,7 +16,9 @@ import 'package:citasnuevo/presentation/chatPresentation/Widgets/emptyChatWidget
 import 'package:citasnuevo/domain/controller/chatController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:notify_inapp/notify_inapp.dart';
 import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../domain/entities/ChatEntity.dart';
 
@@ -63,7 +66,9 @@ class ChatPresentation extends ChangeNotifier
 
   ChatPresentation({
     required this.chatController,
-  });
+  }) {
+    initialize();
+  }
 
   get anyChatOpen => chatController.getAnyChatOpen;
 
@@ -235,19 +240,24 @@ class ChatPresentation extends ChangeNotifier
   @override
   void addData() {
     addDataSubscription = chatController.addDataController.stream.listen(
-        (event) async{
+        (event) async {
           if (event is ChatException) {
             setChatListState = ChatListState.error;
           } else {
             bool isModified = event.isModified as bool;
             bool isRemoved = event.isDeleted as bool;
             bool isChat = event.isChat as bool;
+            bool isFirstQuery=event.firstQuery;
             List<Chat> chatListFromStream = event.chatList as List<Chat>;
 
             if (isChat) {
               if (isRemoved == false &&
                   isModified == false &&
                   chatListFromStream.isNotEmpty) {
+                    if(isFirstQuery==false){
+                    showInAppNewConversation();
+
+                    }
                 setChatListState = ChatListState.ready;
                 ChatScreen.chatListState.currentState?.insertItem(0);
                 ChatScreen.newChatListState.currentState?.insertItem(0);
@@ -266,6 +276,7 @@ class ChatPresentation extends ChangeNotifier
                 }
               } else {
                 notifyListeners();
+                showInAppessageNotification(message);
               }
             }
 
@@ -278,6 +289,72 @@ class ChatPresentation extends ChangeNotifier
         onError: (_) {
           setChatListState = ChatListState.error;
         });
+  }
+
+  void showInAppessageNotification(Message message) {
+    if (message.senderId != GlobalDataContainer.userId) {
+      Notify notify = Notify();
+      notify.show(
+          startKey.currentContext as BuildContext,
+          Padding(
+            padding: EdgeInsets.all(10.h),
+            child: Container(
+                height: 150.h,
+                width: ScreenUtil().screenWidth,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                child: Padding(
+                  padding: EdgeInsets.all(10.h),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Nuevo mensaje",
+                        style: GoogleFonts.lato(fontSize: 60.sp),
+                      ),
+                      Text(
+                        "Nuevo mensaje sin leer",
+                        style: GoogleFonts.lato(fontSize: 40.sp),
+                      ),
+                    ],
+                  ),
+                )),
+          ),
+          duration: 300);
+    }
+  }
+
+    void showInAppNewConversation() {
+    
+      Notify notify = Notify();
+      notify.show(
+          startKey.currentContext as BuildContext,
+          Padding(
+            padding: EdgeInsets.all(10.h),
+            child: Container(
+                height: 150.h,
+                width: ScreenUtil().screenWidth,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                child: Padding(
+                  padding: EdgeInsets.all(10.h),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Nueva conversacion",
+                        style: GoogleFonts.lato(fontSize: 60.sp),
+                      ),
+                      Text(
+                        "Tienes una nueva conversacion",
+                        style: GoogleFonts.lato(fontSize: 40.sp),
+                      ),
+                    ],
+                  ),
+                )),
+          ),
+          duration: 300);
+    
   }
 
   @override

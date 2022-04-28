@@ -24,7 +24,9 @@ class HomeScreenPresentation extends ChangeNotifier
   @override
   late StreamSubscription<HomeScreenInformationSender> updateSubscription;
 
-  HomeScreenPresentation({required this.homeScreenController});
+  HomeScreenPresentation({required this.homeScreenController}){
+    initialize();
+  }
   get profileListState => this._profileListState;
   set profileListState(profileState) {
     _profileListState = profileState;

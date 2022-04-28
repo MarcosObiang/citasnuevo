@@ -1,13 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
+import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/presentation/appSettingsPresentation/appSettingsScreen.dart';
 import 'package:citasnuevo/presentation/settingsPresentation/settingsScreenPresentation.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userSettingsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
+import 'package:purchases_flutter/models/offering_wrapper.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../Routes.dart';
 
@@ -88,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         width: 500.w,
                                         child: ElevatedButton(
                                             onPressed: () {
-                                                  Navigator.push(
+                                              Navigator.push(
                                                   context,
                                                   GoToRoute(
                                                       page:
@@ -107,6 +113,97 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         fit: FlexFit.tight,
                         child: Container(
                           color: Colors.white,
+                          child: Padding(
+                            padding: EdgeInsets.all(50.h),
+                            child: Container(
+                              width: ScreenUtil().screenWidth,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey, blurRadius: 10.h)
+                                  ],
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              child: Column(
+                                children: [
+                                  Flexible(
+                                    flex: 5,
+                                    fit: FlexFit.tight,
+                                    child: Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Text(
+                                              "Hotty Plus",
+                                              style: GoogleFonts.lato(
+                                                  color: Colors.black,
+                                                  fontSize: 90.sp),
+                                            ),
+                                            Text(
+                                              "-Monedas Infinitas",
+                                              style: GoogleFonts.lato(
+                                                  color: Colors.black,
+                                                  fontSize: 60.sp),
+                                            ),
+                                            Text(
+                                              "Revela reacciones sin parar, tú pones el límite",
+                                              style: GoogleFonts.lato(
+                                                  color: Colors.black),
+                                            ),
+                                            Text(
+                                              "-Sin anuncios",
+                                              style: GoogleFonts.lato(
+                                                  color: Colors.black,
+                                                  fontSize: 60.sp),
+                                            ),
+                                            Text(
+                                              "Disfruta de una experiencia mas fluida sin anuncios",
+                                              style: GoogleFonts.lato(
+                                                  color: Colors.black),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                      flex: 5,
+                                      fit: FlexFit.tight,
+                                      child: Container(
+                                          child: Column(
+                                        children: [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                    context,
+                                                    GoToRoute(
+                                                        page:
+                                                            SubscriptionScreen()));
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Text("Desde solo"),
+                                                  Text(
+                                                      settingsScreenPresentation
+                                                          .settingsEntity
+                                                          .weekSubscription
+                                                          .productPrice),
+                                                ],
+                                              )),
+                                        ],
+                                      )))
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       )
                     ])
@@ -139,6 +236,288 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
             );
           }),
+        ),
+      ),
+    );
+  }
+}
+
+class SubscriptionScreen extends StatefulWidget {
+  const SubscriptionScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SubscriptionScreen> createState() => _SubscriptionScreenState();
+}
+
+class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  var format = DateFormat("EEEEE, M/d/y HH:mm");
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: Dependencies.settingsScreenPresentation,
+      child: Consumer<SettingsScreenPresentation>(builder:
+          (BuildContext context,
+              SettingsScreenPresentation settingsScreenPresentation,
+              Widget? child) {
+        return SafeArea(
+          child: Material(
+            child: Container(
+              child: Column(
+                children: [
+                  AppBar(
+                    elevation: 0,
+                    title: Text("Suscripciones"),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(50.h),
+                      child: Column(
+                        children: [
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 6,
+                            child: Container(
+                                width: ScreenUtil().screenWidth,
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey,
+                                          blurRadius: 10,
+                                          spreadRadius: 10,
+                                          blurStyle: BlurStyle.outer)
+                                    ]),
+                                child: settingsScreenPresentation.settingsEntity
+                                            .activeSubscription !=
+                                        null
+                                    ? Container(
+                                        child: settingsScreenPresentation
+                                                    .settingsEntity
+                                                    .activeSubscription!
+                                                    .subscriptionState ==
+                                                SubscriptionState.ACTIVE
+                                            ? subscriptionActiveText(
+                                                settingsScreenPresentation)
+                                            : settingsScreenPresentation
+                                                        .settingsEntity
+                                                        .activeSubscription!
+                                                        .subscriptionState ==
+                                                    SubscriptionState.CANCELED
+                                                ? subscriptionCancelledText(
+                                                    settingsScreenPresentation)
+                                                : Container())
+                                    : Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "HOTTY +",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 70.sp,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Divider(
+                                            height: 50.h,
+                                            color: Colors.transparent,
+                                          ),
+                                          Text(
+                                            "-Olvidate de los anuncios",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 70.sp,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Divider(
+                                            height: 50.h,
+                                            color: Colors.transparent,
+                                          ),
+                                          Text(
+                                            "-Disfruta de una experiencia inmediata y sin anuncios",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 50.sp,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Divider(
+                                            height: 50.h,
+                                            color: Colors.transparent,
+                                          ),
+                                          Text(
+                                            "-Revela reacciones sin limites",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 70.sp,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Divider(
+                                            height: 50.h,
+                                            color: Colors.transparent,
+                                          ),
+                                          Text(
+                                            "-Monedas infinitas para no quedarte con las ganas",
+                                            style: GoogleFonts.lato(
+                                                fontSize: 50.sp,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      )),
+                          ),
+                          Flexible(
+                            fit: FlexFit.loose,
+                            flex: 5,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                subscriptionButton(
+                                  productInfo: settingsScreenPresentation
+                                      .settingsEntity.productInfoList[0],
+                                ),
+                                subscriptionButton(
+                                  productInfo: settingsScreenPresentation
+                                      .settingsEntity.productInfoList[1],
+                                ),
+                                subscriptionButton(
+                                  productInfo: settingsScreenPresentation
+                                      .settingsEntity.productInfoList[2],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Column subscriptionCancelledText(
+      SettingsScreenPresentation settingsScreenPresentation) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Suscripcion Cancelada:",
+          style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
+        ),
+        Divider(
+          height: 50.h,
+          color: Colors.transparent,
+        ),
+        Text(
+          "${settingsScreenPresentation.settingsEntity.activeSubscription!.productName}",
+          style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
+        ),
+        Divider(
+          height: 50.h,
+          color: Colors.transparent,
+        ),
+        Text(
+          "Tu suscripcion caduca el:",
+          style: GoogleFonts.lato(fontSize: 50.sp, fontWeight: FontWeight.bold),
+        ),
+        Text(
+            "${format.format(DateTime.fromMillisecondsSinceEpoch(settingsScreenPresentation.settingsEntity.activeSubscription!.subscriptionExpireTime))}"),
+        ElevatedButton(
+            onPressed: () {
+              settingsScreenPresentation.purchase(settingsScreenPresentation
+                  .settingsEntity.activeSubscription!.offerId,true);
+            },
+            child: Text("Volver a suscribirme"))
+      ],
+    );
+  }
+
+  Column subscriptionActiveText(
+      SettingsScreenPresentation settingsScreenPresentation) {
+    return Column(
+      children: [
+        Text(
+          "Suscripcion Activa:",
+          style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
+        ),
+        Divider(
+          height: 50.h,
+          color: Colors.transparent,
+        ),
+        Text(
+          "${settingsScreenPresentation.settingsEntity.activeSubscription!.productName}",
+          style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
+        ),
+        Divider(
+          height: 50.h,
+          color: Colors.transparent,
+        ),
+        Text(
+          "Proximo Pago:",
+          style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
+        ),
+        Text(
+            "${format.format(DateTime.fromMillisecondsSinceEpoch(settingsScreenPresentation.settingsEntity.activeSubscription!.subscriptionExpireTime))}"),
+      ],
+    );
+  }
+
+  Padding subscriptionButton({required ProductInfo productInfo}) {
+    var format = DateFormat("EEEEE, M/d/y HH:mm");
+    late Color buttonColor;
+    late double elevation;
+    if (productInfo.productIsActive) {
+      buttonColor = Colors.grey;
+      elevation = 0;
+    } else {
+      buttonColor = Colors.blue;
+      elevation = 10;
+    }
+    return Padding(
+      padding: EdgeInsets.only(top: 30.h, bottom: 30.h),
+      child: Container(
+        width: 900.w,
+        child: Column(
+          children: [
+            ElevatedButton(
+                style: ButtonStyle(
+                    elevation: MaterialStateProperty.all(elevation),
+                    backgroundColor: MaterialStateProperty.all(buttonColor)),
+                onPressed: () async {
+                  Dependencies.settingsScreenPresentation
+                      .purchase(productInfo.offerId,false);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(productInfo.offerId),
+                    Text(productInfo.productPrice)
+                  ],
+                )),
+            productInfo.subscriptionState == SubscriptionState.ACTIVE
+                ? Text("Suscripcion activa")
+                : Container(),
+            productInfo.subscriptionState == SubscriptionState.CANCELED
+                ? Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Color.fromARGB(255, 252, 138, 138)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Su suscripcion ha sido cancelada",
+                            style: GoogleFonts.lato(
+                                fontWeight: FontWeight.bold, fontSize: 50.sp),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Container(),
+          ],
         ),
       ),
     );

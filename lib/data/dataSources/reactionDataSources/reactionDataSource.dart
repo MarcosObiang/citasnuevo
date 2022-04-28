@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -46,12 +45,13 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   late StreamSubscription<QuerySnapshot<Map<String, dynamic>>>
       reactionSubscriptionListener;
   @override
-  @override
   ApplicationDataSource source;
   late String userID;
   late double reactionsAverage;
   late int coins;
   late Map aditionalData;
+  late bool isPremium;
+  List<String> reactionsId = [];
 
   ReactionDataSourceImpl({
     required this.source,
@@ -63,13 +63,14 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   void initializeReactionListener() async {
+    bool notifyReactions = false;
+
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         FirebaseFirestore instance = FirebaseFirestore.instance;
-        DateTime dateTime= await DateNTP.instance.getTime();
+        DateTime dateTime = await DateNTP.instance.getTime();
         int queryDate =
-           dateTime.subtract(Duration(days: 1)).millisecondsSinceEpoch ~/
-                1000;
+            dateTime.subtract(Duration(days: 1)).millisecondsSinceEpoch ~/ 1000;
         reactionSubscriptionListener = instance
             .collection("valoraciones")
             .where("Time", isGreaterThanOrEqualTo: queryDate)
@@ -86,8 +87,10 @@ class ReactionDataSourceImpl implements ReactionDataSource {
                   "modified": false,
                   "reaction": reaction,
                   "dataLength": dato.docChanges.length,
-                  "deleted": false
+                  "deleted": false,
+                  "notify": notifyReactions
                 });
+
               }
               if (element.type == DocumentChangeType.modified) {
                 Reaction reaction = ReactionConverter.fromMap(
@@ -96,7 +99,8 @@ class ReactionDataSourceImpl implements ReactionDataSource {
                   "modified": true,
                   "reaction": reaction,
                   "dataLength": dato.docChanges.length,
-                  "deleted": false
+                  "deleted": false,
+                  "notify": false
                 });
               }
 
@@ -107,8 +111,11 @@ class ReactionDataSourceImpl implements ReactionDataSource {
                   "modified": true,
                   "reaction": reaction,
                   "dataLength": dato.docChanges.length,
-                  "deleted": true
+                  "deleted": true,
+                  "notify": false
                 });
+
+      
               }
             } catch (e, s) {
               reactionListener.addError(Exception());
@@ -116,6 +123,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
               throw ReactionException(message: e.toString(), stackTrace: s);
             }
           });
+          notifyReactions = true;
         });
       } catch (e, s) {
         throw ReactionException(message: e.toString(), stackTrace: s);
@@ -127,18 +135,25 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   void subscribeToMainDataSource() {
-
     userID = source.getData["id"];
+    isPremium = source.getData["monedasInfinitas"];
     reactionsAverage = double.parse(source.getData["mediaTotal"].toString());
     coins = source.getData["creditos"];
-    additionalDataSender
-        .add({"reactionsAverage": reactionsAverage, "coins": coins});
+    additionalDataSender.add({
+      "reactionsAverage": reactionsAverage,
+      "coins": coins,
+      "isPremium": isPremium
+    });
     sourceStreamSubscription = source.dataStream.stream.listen((event) {
       reactionsAverage = double.parse(event["mediaTotal"].toString());
-      coins = source.getData["creditos"];
+      coins = event["creditos"];
+      isPremium = event["monedasInfinitas"];
 
-      additionalDataSender
-          .add({"reactionsAverage": reactionsAverage, "coins": coins});
+      additionalDataSender.add({
+        "reactionsAverage": reactionsAverage,
+        "coins": coins,
+        "isPremium": isPremium
+      });
     });
   }
 

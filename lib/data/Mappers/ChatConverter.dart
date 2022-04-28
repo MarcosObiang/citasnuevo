@@ -33,8 +33,7 @@ class ChatConverter {
       );
 
       for (int i = 0; i < chatMessages.length; i++) {
-        if (chatList.length > 1) {
-          
+        if (chatMessages.length > 1) {
           if (i + 1 < chatMessages.length) {
             int horaMensajeActual = chatMessages[i]["horaMensaje"];
 
@@ -48,7 +47,10 @@ class ChatConverter {
                     horaMensajeSiguiente,
                     isUtc: true)
                 .toLocal();
-            if (checkMessageTime(horaMensajeActual, horaMensajeSiguiente)) {
+
+            bool addMessageDate =
+                shouldAddDateMessage(horaMensajeActual, horaMensajeSiguiente);
+            if (addMessageDate == true) {
               var dateformat = DateFormat.yMEd();
               String dateText = dateformat.format(tiempo);
               messagesList.add(MessageConverter.fromMap(chatMessages[i]));
@@ -62,7 +64,8 @@ class ChatConverter {
                   messageId: "messageId",
                   messageDate: tiempoSiguiente.millisecondsSinceEpoch,
                   messageType: MessageType.DATE));
-            } else {
+            }
+            if (addMessageDate == false) {
               messagesList.add(MessageConverter.fromMap(chatMessages[i]));
             }
           } else {
@@ -126,7 +129,8 @@ class ChatConverter {
     return chatListToReturn;
   }
 
-  static bool checkMessageTime(int currentMessageTime, int lastMessageTime) {
+  static bool shouldAddDateMessage(
+      int currentMessageTime, int lastMessageTime) {
     bool addNewDateMessage = false;
 
     DateTime lastMessageDateTime =

@@ -61,6 +61,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   late StreamSubscription sourceStreamSubscription;
 
+  List<String> chatIds = [];
+
   @override
   StreamController chatStream = new StreamController.broadcast();
   @override
@@ -97,7 +99,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
             .snapshots()
             .listen((event) async {
           if (event.docChanges.isNotEmpty) {
-            if (event.docChanges.length > 1) {
+            if (event.docChanges.length > 1 && isInitializerFinished == false) {
               for (int i = 0; i < event.docChanges.length; i++) {
                 String chatId = event.docChanges[i].doc.get("idConversacion");
 
@@ -114,6 +116,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
                   "userId": GlobalDataContainer.userId,
                 };
                 chatDataList.add(chatData);
+                chatIds.add(chatId);
               }
 
               try {
@@ -132,38 +135,40 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
                 throw ChatException(message: e.toString());
               }
-            } else {
+            }
+            if (event.docChanges.length > 0 && isInitializerFinished == true) {
               try {
                 if (event.docChanges.first.type == DocumentChangeType.added) {
                   String chatId =
                       event.docChanges.first.doc.get("idConversacion");
+                  if (chatIds.contains(chatId) == false) {
+                    List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                        chatMessages = await readMessages(chatId);
 
-                  List<QueryDocumentSnapshot<Map<String, dynamic>>>
-                      chatMessages = await readMessages(chatId);
+                    List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                        emptyList = [];
 
-                  List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList =
-                      [];
+                    Map<String, dynamic> chatData = {
+                      "chat": event.docChanges.first.doc.data()
+                          as Map<String, dynamic>,
+                      "messages":
+                          chatMessages.length > 0 ? chatMessages : emptyList,
+                      "userId": GlobalDataContainer.userId,
+                    };
+                    List<Map<String, dynamic>> singleChatDataList = [];
+                    singleChatDataList.add(chatData);
 
-                  Map<String, dynamic> chatData = {
-                    "chat": event.docChanges.first.doc.data()
-                        as Map<String, dynamic>,
-                    "messages":
-                        chatMessages.length > 0 ? chatMessages : emptyList,
-                    "userId": GlobalDataContainer.userId,
-                  };
-                  List<Map<String, dynamic>> singleChatDataList = [];
-                  singleChatDataList.add(chatData);
+                    List<Chat> object =
+                        ChatConverter.fromMap(singleChatDataList);
+                    chatIds.add(chatId);
 
-                  List<Chat> object = ChatConverter.fromMap(singleChatDataList);
-
-                  chatStream.add({
-                    "modified": false,
-                    "removed": false,
-                    "chatList": object,
-                    "firstQuery": true
-                  });
-
-                  isInitializerFinished = true;
+                    chatStream.add({
+                      "modified": false,
+                      "removed": false,
+                      "chatList": object,
+                      "firstQuery": false
+                    });
+                  }
                 }
 
                 if (event.docChanges.first.type == DocumentChangeType.removed) {
@@ -179,6 +184,10 @@ class ChatDatsSourceImpl implements ChatDataSource {
                   singleChatDataList.add(chatData);
 
                   List<Chat> object = ChatConverter.fromMap(singleChatDataList);
+                  object.forEach((element) {
+                    chatIds.removeWhere((chatID) => chatID == element.chatId);
+                  });
+
                   chatStream.add({
                     "modified": false,
                     "removed": true,
@@ -203,7 +212,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
                   chatStream.add({
                     "modified": true,
-                    "removed": true,
+                    "removed": false,
                     "chatList": object,
                     "firstQuery": false
                   });
@@ -257,9 +266,6 @@ class ChatDatsSourceImpl implements ChatDataSource {
         .snapshots()
         .first;
     data.addAll(net.docs);
-  if(chatId=="HV7p3j8Vh64wjM7Dd4jX9JrI6N7"){
-      print("object");
-    }
 
     return data;
   }
@@ -269,7 +275,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
-        
+
         messageListenerSubscription = firestoreInstance
             .collection("mensajes")
             .where("interlocutores", arrayContains: userId)
@@ -326,7 +332,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         String messageId = IdGenerator.instancia.createId();
-        DateTime messageDate= await DateNTP.instance.getTime();
+        DateTime messageDate = await DateNTP.instance.getTime();
 
         FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
         Map<String, dynamic> messageData = message;
@@ -484,6 +490,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
     chatStream.close();
     messageListenerSubscription.cancel();
     messageStream.close();
+    chatIds.clear();
     chatStream = new StreamController.broadcast();
     messageStream = new StreamController.broadcast();
     sourceStreamSubscription.cancel();
@@ -494,5 +501,4 @@ class ChatDatsSourceImpl implements ChatDataSource {
   void initializeModuleData() {
     subscribeToMainDataSource();
   }
-
 }

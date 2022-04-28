@@ -1,4 +1,5 @@
 import 'package:citasnuevo/core/globalData.dart';
+import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
@@ -12,6 +13,9 @@ import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+
+import 'core/notifications/notifications_service.dart';
 
 GlobalKey startKey = new GlobalKey();
 final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
@@ -27,7 +31,8 @@ void main() async {
 
   await Dependencies.startAuthDependencies();
   await Dependencies.authScreenPresentation.checkSignedInUser();
-
+ await PurchasesServices.purchasesServices.initService();
+ NotificationService instance = new NotificationService();
   runApp(MultiProvider(
       providers: [
         Provider(create: (_) => Dependencies.settingsScreenPresentation),

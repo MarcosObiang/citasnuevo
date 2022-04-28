@@ -29,7 +29,7 @@ class UserSettingsScreen extends StatefulWidget {
 }
 
 class _UserSettingsScreenState extends State<UserSettingsScreen> {
-  ScrollController scrollController= new ScrollController();
+  ScrollController scrollController = new ScrollController();
   @override
   void initState() {
     super.initState();
@@ -49,12 +49,11 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         .userSettingsController.userSettingsEntityUpdate.userCharacteristics);
     userCharacteristicsListEditing.addAll(Dependencies.userSettingsPresentation
         .userSettingsController.userSettingsEntityUpdate.userCharacteristics);
-        
   }
 
   @override
   void dispose() {
-    //  Dependencies.userSettingsPresentation.userSettingsUpdate();
+    Dependencies.userSettingsPresentation.userSettingsUpdate();
     super.dispose();
   }
 
@@ -66,11 +65,40 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
   FocusNode focusNode = new FocusNode();
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: Dependencies.userSettingsPresentation,
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Material(
+    return WillPopScope(
+      onWillPop: () async {
+        bool exit = true;
+
+        await Future.delayed(Duration(milliseconds: 200));
+
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("¿Guardar cambios?"),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () {
+Dependencies.userSettingsPresentation.saveChanges=false;                
+        Navigator.pop(context);
+                        
+                      },
+                      child: Text("No")),
+                  ElevatedButton(
+                      onPressed: () {
+Dependencies.userSettingsPresentation.saveChanges=true;                
+                        Navigator.pop(context);
+                      },
+                      child: Text("Si")),
+                ],
+              );
+            });
+
+        return exit;
+      },
+      child: ChangeNotifierProvider.value(
+        value: Dependencies.userSettingsPresentation,
+        child: Material(
           child: SafeArea(
             child: Container(
               child: Consumer<UserSettingsPresentation>(
@@ -79,34 +107,67 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                     Widget? child) {
                   return userSettingsPresentation.userSettingsScreenState ==
                           UserSettingsScreenState.loaded
-                      ? SingleChildScrollView(
-                        controller: scrollController,
-                          reverse: true,
-                          child: Container(
-                            height: ScreenUtil.defaultSize.height + 2000.h,
-                            child: Column(
-                              children: [
-                                userPictures(),
-                                userBio(),
-                                Divider(
-                                  color: Colors.white,
-                                  height: 100.h,
+                      ? Stack(
+                          children: [
+                            SingleChildScrollView(
+                              controller: scrollController,
+                              reverse: false,
+                              child: Container(
+                                height: ScreenUtil.defaultSize.height + 2500.h,
+                                child: Column(
+                                  children: [
+                                    userPictures(),
+                                    userBio(),
+                                    Divider(
+                                      color: Colors.white,
+                                      height: 100.h,
+                                    ),
+                                    Container(
+                                      height: 2000.h,
+                                      child: ListView.builder(
+                                          itemCount:
+                                              userCharacteristicsList.length,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return profileCharacteristic(
+                                                userCharacteristicsList[index],
+                                                index);
+                                          }),
+                                    )
+                                  ],
                                 ),
-                                Container(
-                                  height: 2000.h,
-                                  child: ListView.builder(
-                                      itemCount: userCharacteristicsList.length,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return profileCharacteristic(
-                                            userCharacteristicsList[index],
-                                            index);
-                                      }),
-                                )
-                              ],
+                              ),
                             ),
-                          ),
+                            userSettingsPresentation
+                                        .userSettingsScreenUpdateState ==
+                                    UserSettingsScreenUpdateState.loading
+                                ? Container(
+                                    height: ScreenUtil().screenHeight,
+                                    color: Color.fromARGB(139, 0, 0, 0),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                              height: 300.h,
+                                              width: 300.h,
+                                              child: LoadingIndicator(
+                                                  indicatorType:
+                                                      Indicator.ballRotate)),
+                                          Text(
+                                            "Guardando cambios, porfavor espere...",
+                                            style: GoogleFonts.lato(
+                                                color: Colors.white),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Container()
+                          ],
                         )
                       : userSettingsPresentation.userSettingsScreenState ==
                               UserSettingsScreenState.error
@@ -177,26 +238,27 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
       children: [
         Text("Descripcion"),
         Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              focusNode: focusNode,
-              textInputAction: TextInputAction.done,
-              controller: textEditingController,
-              onChanged: (value) {
-                Dependencies.userSettingsPresentation.getUserSettingsEntity
-                    .userBio = value;
-              },
-              style: GoogleFonts.lato(fontSize: 45.sp),
-              decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(color: Colors.white),
-                      gapPadding: 10)),
-              maxLines: 6,
-              maxLength: 300,
-            )),
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            height: 500.h,
+            width: ScreenUtil().screenWidth,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                Dependencies.userSettingsPresentation.userSettingsController
+                    .userSettingsEntityUpdate.userBio,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+            onPressed: () =>
+                Navigator.push(context, GoToRoute(page: BioEditingScreen())),
+            icon: Icon(Icons.edit))
       ],
     );
   }
@@ -334,10 +396,11 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                     child: Container(
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: index!=0? Color.fromARGB(181, 244, 67, 54):Colors.grey),
+                            color: index != 0
+                                ? Color.fromARGB(181, 244, 67, 54)
+                                : Colors.grey),
                         height: 100.h,
                         child: IconButton(
-                           
                             onPressed: () {
                               if (index != 0) {
                                 deletePicture(index);
@@ -389,7 +452,6 @@ class _ProfileCharacteristicEditingState
     Dependencies.userSettingsPresentation.userSettingsController
         .userSettingsEntityUpdate.userCharacteristics = userCharacteristicsList;
 
-    print("okiera");
     super.dispose();
   }
 
@@ -434,6 +496,10 @@ class _ProfileCharacteristicEditingState
                                           .valuesList[indexInside]
                                           .keys
                                           .first;
+
+                                  userCharacteristicsList[index]
+                                      .characteristicValueIndex = indexInside;
+
                                   setState(() {});
                                 });
                           }),
@@ -442,6 +508,60 @@ class _ProfileCharacteristicEditingState
                 ));
               }),
         ),
+      ),
+    );
+  }
+}
+
+class BioEditingScreen extends StatefulWidget {
+  const BioEditingScreen({Key? key}) : super(key: key);
+
+  @override
+  State<BioEditingScreen> createState() => _BioEditingScreenState();
+}
+
+class _BioEditingScreenState extends State<BioEditingScreen> {
+  TextEditingController textEditingController =
+      new TextEditingController.fromValue(TextEditingValue(
+          text: Dependencies
+              .userSettingsPresentation.getUserSettingsEntity.userBio));
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Descripcion")),
+      resizeToAvoidBottomInset: true,
+      body: ChangeNotifierProvider.value(
+        value: Dependencies.userSettingsPresentation,
+        child: SafeArea(child: Consumer<UserSettingsPresentation>(
+          builder: (BuildContext context,
+              UserSettingsPresentation userSettingsPresentation,
+              Widget? child) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    height: 700.h,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: TextField(
+                      controller: textEditingController,
+                      onChanged: (value) {
+                        userSettingsPresentation.getUserSettingsEntity.userBio =
+                            value;
+                      },
+                      maxLines: 300,
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.arrow_back))
+                ],
+              ),
+            );
+          },
+        )),
       ),
     );
   }

@@ -8,12 +8,16 @@ import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
 
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Widgets/RevealingCard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:notify_inapp/notify_inapp.dart';
 
 enum RevealingAnimationState { notTurning, turned, turning }
 
@@ -33,6 +37,7 @@ class ReactionPresentation extends ChangeNotifier
   ReactionsControllerImpl reactionsController;
   bool readyToSincronize = false;
   int lastSincronizationTimeInSeconds = 0;
+  bool isPremium = false;
 
   @override
   late StreamSubscription<ReactionInformationSender> addDataSubscription;
@@ -69,6 +74,11 @@ class ReactionPresentation extends ChangeNotifier
     notifyListeners();
   }
 
+  set setIsPremium(bool isPremium) {
+    this.isPremium = isPremium;
+    notifyListeners();
+  }
+
   int get getCoins => this._coins;
   double get getAverage => this._reactionsAverage;
   ReactionListState get getReactionListState => this._reactionListState;
@@ -76,6 +86,7 @@ class ReactionPresentation extends ChangeNotifier
   void initializeValues() {
     setCoins = reactionsController.coins;
     setAverage = reactionsController.reactionsAverage;
+    setIsPremium = reactionsController.isPremium;
   }
 
   void acceptReaction(
@@ -118,7 +129,9 @@ class ReactionPresentation extends ChangeNotifier
 
   ReactionPresentation({
     required this.reactionsController,
-  });
+  }) {
+    initialize();
+  }
 
   void revealReaction({required String reactionId}) async {
     var result =
@@ -192,6 +205,9 @@ class ReactionPresentation extends ChangeNotifier
       if (event.reactionAverage != null) {
         setAverage = event.reactionAverage as double;
       }
+      if (event.isPremium != null) {
+        setIsPremium = event.isPremium;
+      }
       if (event.sync == true) {
         restart();
       }
@@ -211,6 +227,10 @@ class ReactionPresentation extends ChangeNotifier
           (event) {
             if (event.isModified == false) {
               setReactionListState = ReactionListState.ready;
+
+              if (event.notify) {
+                showInAppNotification();
+              }
 
               if (ReactionScreen.reactionsListKey.currentContext != null &&
                   ReactionScreen.reactionsListKey.currentState != null) {
@@ -261,5 +281,36 @@ class ReactionPresentation extends ChangeNotifier
   @override
   void initializeModuleData() {
     reactionsController.initializeModuleData();
+  }
+
+  void showInAppNotification() {
+    Notify notify = Notify();
+    notify.show(
+        startKey.currentContext as BuildContext,
+        Padding(
+          padding: EdgeInsets.all(10.h),
+          child: Container(
+              height: 150.h,
+              width: ScreenUtil().screenWidth,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Padding(
+                padding: EdgeInsets.all(10.h),
+                child: Column(
+                  children: [
+                    Text(
+                      "Nueva reacción",
+                      style: GoogleFonts.lato(fontSize: 60.sp),
+                    ),
+                    Text(
+                      "Tienes una nueva reacción",
+                      style: GoogleFonts.lato(fontSize: 40.sp),
+                    ),
+                  ],
+                ),
+              )),
+        ),
+        duration: 300);
   }
 }

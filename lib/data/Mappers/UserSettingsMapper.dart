@@ -2,14 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
-import 'package:http/http.dart' as http;
 
 import '../../core/common/profileCharacteristics.dart';
 import '../../domain/controller/controllerDef.dart';
@@ -51,7 +47,7 @@ class UserSettingsMapper {
               .refFromURL(userImages[i]!["Imagen"])
               .fullPath;
 
-          await FirebaseCacheManager().getSingleFile(firebaseImage);
+           FirebaseCacheManager().getSingleFile(firebaseImage);
         } else {
           list.add(UserPicture(index: i));
         }

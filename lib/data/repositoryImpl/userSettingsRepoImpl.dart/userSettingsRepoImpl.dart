@@ -47,4 +47,19 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> revertChanges() async {
+    try {
+      var datas = await appSettingsDataSource.revertChanges();
+
+      return Right(datas);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(UserSettingsFailure());
+      }
+    }
+  }
 }

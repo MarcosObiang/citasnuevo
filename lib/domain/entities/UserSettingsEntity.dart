@@ -7,8 +7,11 @@ enum UserPicutreBoxState { empty, pictureFromBytes, pictureFromNetwork }
 class UserSettingsEntity {
   List<UserPicture> userPicruresList;
   String userBio;
-  List<UserCharacteristic>userCharacteristics;
-  UserSettingsEntity({required this.userBio, required this.userPicruresList, required this.userCharacteristics});
+  List<UserCharacteristic> userCharacteristics;
+  UserSettingsEntity(
+      {required this.userBio,
+      required this.userPicruresList,
+      required this.userCharacteristics});
 }
 
 @protected
@@ -16,8 +19,10 @@ class UserPicture {
   String _pictureUrl = "vacio";
   String _pictureHash = "vacio";
   bool useFile = false;
-  late Uint8List _imageFile = Uint8List(0);
+  bool _deleteFromDatabase=false;
   int index;
+
+  late Uint8List _imageFile = Uint8List(0);
   late UserPicutreBoxState _userPicutreBoxState = UserPicutreBoxState.empty;
 
   String get getPictureUrl => _pictureUrl;
@@ -69,17 +74,14 @@ class UserCharacteristic {
   bool userHasValue;
   String characteristicName;
   String characteristicValue;
-  List<Map<String,dynamic>> valuesList;
+  List<Map<String, dynamic>> valuesList;
   IconData characteristicIcon;
-  UserCharacteristic({
-    required this.characteristicValueIndex,
-    required this.positionIndex,
-    required this.userHasValue,
-    required this.valuesList,
-    required this.characteristicName,
-    required this.characteristicValue,
-    required this.characteristicIcon
-  });
-
-
+  UserCharacteristic(
+      {required this.characteristicValueIndex,
+      required this.positionIndex,
+      required this.userHasValue,
+      required this.valuesList,
+      required this.characteristicName,
+      required this.characteristicValue,
+      required this.characteristicIcon});
 }

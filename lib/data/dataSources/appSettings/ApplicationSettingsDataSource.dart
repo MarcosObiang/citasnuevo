@@ -12,6 +12,7 @@ abstract class ApplicationSettingsDataSource implements DataSource {
       listenAppSettingsUpdate;
 
   Future<bool> updateAppSettings(Map<String, dynamic> data);
+  void revertChanges();
 }
 
 class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
@@ -88,4 +89,17 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
       throw NetworkException();
     }
   }
+
+  @override
+  void revertChanges() {
+listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
+        distance: source.getData["Ajustes"]["distanciaMaxima"],
+        maxAge: source.getData["Ajustes"]["edadFinal"],
+        minAge: source.getData["Ajustes"]["edadInicial"],
+        inCm: source.getData["Ajustes"]["enCm"],
+        inKm: source.getData["Ajustes"]["enMillas"],
+        showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
+        showWoman: source.getData["Ajustes"]["mostrarMujeres"],
+        showProfilePoints: source.getData["Ajustes"]["mostrarNotaPerfil"],
+        showProfile: source.getData["Ajustes"]["mostrarPerfil"]));  }
 }
