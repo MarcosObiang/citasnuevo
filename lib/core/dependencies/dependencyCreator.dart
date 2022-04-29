@@ -35,6 +35,7 @@ import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart'
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/presentation/appSettingsPresentation/appSettingsPresentation.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
 import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
@@ -45,99 +46,135 @@ import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentatio
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/presentation/settingsPresentation/settingsScreenPresentation.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentation.dart';
+import 'package:flutter/material.dart';
 
 class Dependencies {
-  static late final ReactionPresentation reactionPresentation;
-  static late final HomeScreenPresentation homeScreenPresentation;
-  static late final AuthScreenPresentation authScreenPresentation;
-  static late final HomeReportScreenPresentation homeReportScreenPresentation;
-  static late final ChatPresentation chatPresentation;
-  static late final ApplicationDataSource applicationDataSource;
-  static late final SettingsScreenPresentation settingsScreenPresentation;
-  static late final AppSettingsPresentation appSettingsPresentation;
-    static late final UserSettingsPresentation userSettingsPresentation;
+      static late final AdvertisingServices advertisingServices= new AdvertisingServices()..adsServiceInit();
 
+  static late final AuthScreenPresentation authScreenPresentation;
+  static late final ApplicationDataSource applicationDataSource=ApplicationDataSource(userId: GlobalDataContainer.userId as String);
+
+  static late final AuthDataSource authDataSource;
+  static late final AuthRepository authRepository;
+
+  ///HOME_SCREEN
+  ///
+  ///
+  static late final HomeScreenDataSource homeScreenDataSource =
+      HomeScreenDataSourceImpl(source: applicationDataSource);
+  static late final HomeScreenRepository homeScreenRepository =
+      HomeScreenRepositoryImpl(homeScreenDataSource: homeScreenDataSource);
+  static late final HomeScreenController homeScreenController =
+      HomeScreenController(homeScreenRepository: homeScreenRepository);
+  static late final HomeScreenPresentation homeScreenPresentation =
+      HomeScreenPresentation(homeScreenController: homeScreenController);
+
+  ///REACTIONS
+  ///
+  ///
+
+  static late final ReactionDataSource reactionDataSource =
+      ReactionDataSourceImpl(
+    source: applicationDataSource,
+  );
+  static late final ReactionRepository reactionRepository =
+      ReactionRepositoryImpl(reactionDataSource: reactionDataSource);
+  static late final ReactionsControllerImpl reactionsController =
+      ReactionsControllerImpl(reactionRepository: reactionRepository);
+
+  static late final ReactionPresentation reactionPresentation =
+      new ReactionPresentation(reactionsController: reactionsController);
+
+  ///REPORT_USER
+  ///
+  ///
+
+  static late final ReportDataSource reportDataSource =
+      new ReportDataSourceImpl(source: applicationDataSource);
+  static late final ReportRepository reportRepository =
+      new ReportRepositoryImpl(reportDataSource: reportDataSource);
+  static late final ReportController reportController =
+      new ReportController(reportRepository: reportRepository);
+  static late final homeReportScreenPresentation =
+      new HomeReportScreenPresentation(reportController: reportController);
+
+  ///CHAT
+  ///
+  ///
+
+  static late final ChatDataSource chatDataSource =
+      new ChatDatsSourceImpl(source: applicationDataSource);
+
+  static late final ChatRepository chatRepository =
+      new ChatRepoImpl(chatDataSource: chatDataSource);
+  static late final ChatControllerImpl chatController =
+      new ChatControllerImpl(chatRepository: chatRepository);
+  static late final chatPresentation =
+      new ChatPresentation(chatController: chatController);
+
+  ///SETTINGS
+  ///
+  ///
+
+  static late final SettingsDataSource settingsDataSource =
+      new SettingsDataSourceImpl(source: applicationDataSource);
+  static late final SettingsRepository settingsRepository =
+      new SettingsRepoImpl(settingsDataSource: settingsDataSource);
+  static late final SettingsController settingsController =
+      new SettingsControllerImpl(settingsRepository: settingsRepository);
+  static late final SettingsScreenPresentation settingsScreenPresentation =
+      new SettingsScreenPresentation(settingsController: settingsController);
+
+  ///APP_SETTINGS
+  ///
+  ///
+
+  static late final ApplicationSettingsDataSource
+      applicationSettingsDataSource =
+      new ApplicationDataSourceImpl(source: applicationDataSource);
+  static late final AppSettingsRepository appSettingsRepository =
+      ApplicationSettingsRepositoryImpl(
+          appSettingsDataSource: applicationSettingsDataSource);
+  static late final AppSettingsController appSettingsController =
+      AppSettingsController(appSettingsRepository: appSettingsRepository);
+  static late final AppSettingsPresentation appSettingsPresentation =
+      new AppSettingsPresentation(appSettingsController: appSettingsController);
+
+  ///USER_SETTINGS
+  ///
+  ///
+
+  static late final UserSettingsDataSource userSettingsDataSource =
+      new UserSettingsDataSourceImpl(source: applicationDataSource);
+  static late final UserSettingsRepository userSettingsRepository =
+      new UserSettingsRepoImpl(appSettingsDataSource: userSettingsDataSource);
+  static late final UserSettingsController userSettingsController =
+      new UserSettingsController(
+          userSettingsRepository: userSettingsRepository);
+  static late final UserSettingsPresentation userSettingsPresentation = new UserSettingsPresentation(
+      userSettingsController: userSettingsController);
 
   static Future<void> startAuthDependencies() async {
-    AuthDataSource externalUserDataSourceContract = AuthDataSourceImpl();
     // ignore: unused_local_variable
     NetworkInfoContract networkInfoContract = NetworkInfoImpl();
-    AuthRepository _userContractRepository =
-        AuthRepositoryImpl(authDataSource: externalUserDataSourceContract);
+
+    authDataSource = new AuthDataSourceImpl();
+    authRepository = AuthRepositoryImpl(authDataSource: authDataSource);
 
     AuthScreenController authScreenController =
-        AuthScreenController(authRepository: _userContractRepository);
+        AuthScreenController(authRepository: authRepository);
 
     authScreenPresentation =
         AuthScreenPresentation(authScreenController: authScreenController);
   }
 
-  static Future<void> startDependencies() async {
-    applicationDataSource =
-        ApplicationDataSource(userId: GlobalDataContainer.userId as String);
-
-    await applicationDataSource.initializeMainDataSource();
-    HomeScreenDataSource homeScreenDataSource =
-        HomeScreenDataSourceImpl(source: applicationDataSource);
-    HomeScreenRepository homeScreenRepository =
-        HomeScreenRepositoryImpl(homeScreenDataSource: homeScreenDataSource);
-    HomeScreenController homeScreenController =
-        HomeScreenController(homeScreenRepository: homeScreenRepository);
-    homeScreenPresentation =
-        HomeScreenPresentation(homeScreenController: homeScreenController);
-
-    ReactionDataSource reactionDataSource = ReactionDataSourceImpl(
-      source: applicationDataSource,
-    );
-    ReactionRepository reactionRepository =
-        ReactionRepositoryImpl(reactionDataSource: reactionDataSource);
-    ReactionsControllerImpl reactionsController =
-        ReactionsControllerImpl(reactionRepository: reactionRepository);
-
-    reactionPresentation =
-        new ReactionPresentation(reactionsController: reactionsController);
-
-    ReportDataSource reportDataSource =
-        new ReportDataSourceImpl(source: applicationDataSource);
-    ReportRepository reportRepository =
-        new ReportRepositoryImpl(reportDataSource: reportDataSource);
-    ReportController reportController =
-        new ReportController(reportRepository: reportRepository);
-    homeReportScreenPresentation =
-        new HomeReportScreenPresentation(reportController: reportController);
-
-    ChatDataSource chatDataSource =
-        new ChatDatsSourceImpl(source: applicationDataSource);
-
-    ChatRepository chatRepository =
-        new ChatRepoImpl(chatDataSource: chatDataSource);
-    ChatControllerImpl chatController =
-        new ChatControllerImpl(chatRepository: chatRepository);
-    chatPresentation = new ChatPresentation(chatController: chatController);
-
-    SettingsDataSource settingsDataSource =
-        new SettingsDataSourceImpl(source: applicationDataSource);
-    SettingsRepository settingsRepository =
-        new SettingsRepoImpl(settingsDataSource: settingsDataSource);
-    SettingsController settingsController =
-        new SettingsControllerImpl(settingsRepository: settingsRepository);
-    settingsScreenPresentation =
-        new SettingsScreenPresentation(settingsController: settingsController);
-    ApplicationSettingsDataSource applicationSettingsDataSource =
-        new ApplicationDataSourceImpl(source: applicationDataSource);
-    AppSettingsRepository appSettingsRepository =
-        ApplicationSettingsRepositoryImpl(
-            appSettingsDataSource: applicationSettingsDataSource);
-    AppSettingsController appSettingsController =
-        AppSettingsController(appSettingsRepository: appSettingsRepository);
-    appSettingsPresentation = new AppSettingsPresentation(
-        appSettingsController: appSettingsController);
-
-
-        UserSettingsDataSource userSettingsDataSource= new UserSettingsDataSourceImpl(source: applicationDataSource);
-        UserSettingsRepository userSettingsRepository= new UserSettingsRepoImpl(appSettingsDataSource: userSettingsDataSource);
-        UserSettingsController userSettingsController=new UserSettingsController(userSettingsRepository: userSettingsRepository);
-        userSettingsPresentation= new UserSettingsPresentation(userSettingsController: userSettingsController);
+  static Future<void> startDependencies({required bool restart}) async {
+    if (restart == false) {
+      
+    }
+    if (restart == true) {
+      restartDependencies();
+    }
   }
 
   static void startUtilDependencies() {
@@ -145,14 +182,45 @@ class Dependencies {
     GetProfileImage getProfileImage = new GetProfileImage();
   }
 
-  static void restartChatDependencies() {
-    ChatDataSource chatDataSource =
-        new ChatDatsSourceImpl(source: applicationDataSource);
+  static Future<void> clearDependencies() async {
+    reactionPresentation.clearModuleData();
+    homeScreenPresentation.clearModuleData();
+    // authScreenPresentation.clearModuleData();
+    homeReportScreenPresentation.clearModuleData();
+    chatPresentation.clearModuleData();
+    applicationDataSource.clearAppDataSource();
+    settingsScreenPresentation.clearModuleData();
+    appSettingsPresentation.clearModuleData();
+    userSettingsPresentation.clearModuleData();
+    Navigator.of(startKey.currentContext as BuildContext)
+        .popUntil((route) => route.isFirst);
+  }
 
-    ChatRepository chatRepository =
-        new ChatRepoImpl(chatDataSource: chatDataSource);
-    ChatControllerImpl chatController =
-        new ChatControllerImpl(chatRepository: chatRepository);
-    chatPresentation = new ChatPresentation(chatController: chatController);
+  static Future<void> restartDependencies() async {
+       applicationDataSource.userId=GlobalDataContainer.userId as String;
+
+    applicationDataSource.initializeMainDataSource();
+
+    reactionPresentation.initialize();
+    homeScreenPresentation.initialize();
+    // authScreenPresentation.clearModuleData();
+    homeReportScreenPresentation.initialize();
+    chatPresentation.initialize();
+    settingsScreenPresentation.initialize();
+    appSettingsPresentation.initialize();
+    userSettingsPresentation.initialize();
+  }
+ static void initializeDependencies()async{
+   applicationDataSource.userId=GlobalDataContainer.userId as String;
+        applicationDataSource.initializeMainDataSource();
+
+    reactionPresentation.initialize();
+    homeScreenPresentation.initialize();
+    // authScreenPresentation.clearModuleData();
+    homeReportScreenPresentation.initialize();
+    chatPresentation.initialize();
+    settingsScreenPresentation.initialize();
+    appSettingsPresentation.initialize();
+    userSettingsPresentation.initialize();
   }
 }

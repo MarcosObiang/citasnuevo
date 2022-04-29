@@ -67,7 +67,7 @@ class ChatPresentation extends ChangeNotifier
   ChatPresentation({
     required this.chatController,
   }) {
-    initialize();
+    
   }
 
   get anyChatOpen => chatController.getAnyChatOpen;

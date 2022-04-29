@@ -8,6 +8,7 @@ import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class AuthDataSource {
   Future<AuthResponseEntity> signInWithGoogle({required LoginParams params});
@@ -17,8 +18,6 @@ abstract class AuthDataSource {
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
-
-  
   @override
   Future<AuthResponseEntity> signInWithFacebook(
       {required LoginParams params}) async {
@@ -53,8 +52,13 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
-  Future<AuthResponseEntity> signOut() {
-    throw UnimplementedError();
+  Future<AuthResponseEntity> signOut() async {
+    try {
+      await AuthenticationImpl().logOut();
+      return AuthResponseEntity.succes();
+    } catch (e) {
+      return AuthResponseEntity.error();
+    }
   }
 
   @override

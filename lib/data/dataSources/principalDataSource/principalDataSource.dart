@@ -16,7 +16,7 @@ import 'package:flutter/cupertino.dart';
 class ApplicationDataSource {
   @protected
   Map<String, dynamic> _data = Map();
-
+  late StreamSubscription<QuerySnapshot<Map<String, dynamic>>> appSubscription;
   String userId;
   FirebaseFirestore db = FirebaseFirestore.instance;
   StreamController<Map<String, dynamic>> dataStream =
@@ -44,14 +44,18 @@ class ApplicationDataSource {
   }
 
   void listenDataFromDb() async {
-    db
+    appSubscription = db
         .collection("usuarios")
         .where("id", isEqualTo: userId)
         .snapshots()
         .listen((event) {
-          
       setData = event.docs.first.data();
     });
+  }
+
+  void clearAppDataSource() {
+    appSubscription.cancel();
+    _data.clear();
   }
 }
 

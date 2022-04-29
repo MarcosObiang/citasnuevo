@@ -41,6 +41,7 @@ class HomeScreenController implements Controller {
 
   @override
   void clearModuleData() {
+    profilesList.clear();
     homeScreenRepository.clearModuleData();
   }
 

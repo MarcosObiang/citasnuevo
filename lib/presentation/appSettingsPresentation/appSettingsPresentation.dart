@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/appSettingsController.dart';
 import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,15 +18,14 @@ enum AppSettingsScreenUpdateState { loading, loaded, error, done }
 class AppSettingsPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<ApplicationSettingsInformationSender>,
-        Presentation {
+        Presentation,
+        ModuleCleaner {
   AppSettingsController appSettingsController;
   late AppSettingsScreenState appSettingsScreenState;
   late AppSettingsScreenUpdateState appSettingsScreenUpdateState =
       AppSettingsScreenUpdateState.done;
 
-  AppSettingsPresentation({required this.appSettingsController}) {
-    initialize();
-  }
+  AppSettingsPresentation({required this.appSettingsController});
   @override
   late StreamSubscription<ApplicationSettingsInformationSender>
       updateSubscription;
@@ -112,5 +112,17 @@ class AppSettingsPresentation extends ChangeNotifier
     }, onError: (error) {
       setAppSettingsScreenState = AppSettingsScreenState.error;
     });
+  }
+
+  @override
+  void clearModuleData() {
+    setAppSettingsScreenState = AppSettingsScreenState.loading;
+    updateSubscription.cancel();
+    appSettingsController.clearModuleData();
+  }
+
+  @override
+  void initializeModuleData() {
+    // TODO: implement initializeModuleData
   }
 }

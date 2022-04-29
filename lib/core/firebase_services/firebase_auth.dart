@@ -8,9 +8,12 @@ abstract class AuthenticationContract {
   Future<Map<String, dynamic>> logUserFromGoogle();
   Future<Map<String, dynamic>> logUserFromFacebook();
   Future<Map<String, dynamic>> userAlreadySignedIn();
+  Future<Map<String, dynamic>> logOut();
 }
 
 class AuthenticationImpl implements AuthenticationContract {
+  late GoogleSignIn _googleSignIn;
+
   /// We log the user with his facebook account and we return a Map wich contains the user id and the email.
   ///
   ///
@@ -46,10 +49,11 @@ class AuthenticationImpl implements AuthenticationContract {
   ///
   @override
   Future<Map<String, dynamic>> logUserFromGoogle() async {
+    _googleSignIn = new GoogleSignIn();
     late UserCredential userCredential;
     try {
       final GoogleSignInAccount? googleSignInAccount =
-          await GoogleSignIn().signIn();
+          await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleAuth =
             await googleSignInAccount.authentication;
@@ -77,6 +81,8 @@ class AuthenticationImpl implements AuthenticationContract {
 
   @override
   Future<Map<String, dynamic>> userAlreadySignedIn() async {
+        _googleSignIn = new GoogleSignIn();
+
     FirebaseAuth? user = FirebaseAuth.instance;
 
     if (user.currentUser != null) {
@@ -89,6 +95,22 @@ class AuthenticationImpl implements AuthenticationContract {
         "userId": "unknown",
         "email": "unknown",
       };
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> logOut() async {
+    try {
+      FirebaseAuth user = FirebaseAuth.instance;
+
+      await user.signOut().then((value) async {
+        await _googleSignIn.signOut();
+      });
+
+
+      return {"status": "OK"};
+    } catch (e) {
+      throw AuthException(message: e.toString());
     }
   }
 }

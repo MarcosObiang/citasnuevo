@@ -33,6 +33,7 @@ void main() async {
   await Dependencies.authScreenPresentation.checkSignedInUser();
  await PurchasesServices.purchasesServices.initService();
  NotificationService instance = new NotificationService();
+ await instance.startBackgroundNotificationHandler();
   runApp(MultiProvider(
       providers: [
         Provider(create: (_) => Dependencies.settingsScreenPresentation),

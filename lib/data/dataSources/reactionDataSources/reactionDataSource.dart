@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -167,9 +168,9 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         HttpsCallable callToRevealReactionFunction =
             FirebaseFunctions.instance.httpsCallable("quitarCreditosUsuario");
 
-        await HomeAppScreen.advertisingServices.showInterstitial();
+        await Dependencies.advertisingServices.showInterstitial();
 
-        adsStreamSubscription = HomeAppScreen
+        adsStreamSubscription = Dependencies
             .advertisingServices.advertismentStateStream.stream
             .listen((event) async {
           if (event) {

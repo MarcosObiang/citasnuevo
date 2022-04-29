@@ -11,11 +11,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
 await Firebase.initializeApp(
-      options: FirebaseOptions(
-          apiKey: "AIzaSyBm3rwlrV7qshSIgASobNLoeb5RgdwwSMI",
-          appId: "1:151798284057:android:2f9b0eec10be91eb5e8f88",
-          messagingSenderId: "",
-          projectId: "hotty-189c7"));
+      );
   if (message.data["tipoNotificacion"] == "valoracion") {
  SystemNotifications.instance
         .showReactionNotification();
@@ -27,11 +23,11 @@ await Firebase.initializeApp(
         .showNewChatNotifications();
   }
 
- /* if (message.data["tipoNotificacion"] == "mensaje") {
+ if (message.data["tipoNotificacion"] == "mensaje") {
 
-    ControladorNotificacionesPrincipales.instancia.mostrarNotificacionMensajes(
-        "identificadorConversacion", "emisorMensaje", "tipoMensaje", "idUsuario");
-  }*/
+        SystemNotifications.instance
+        .showMessageNotification();
+  }
 
   if (message.data["tipoNotificacion"] == "recompensa") {
      SystemNotifications.instance
@@ -51,9 +47,6 @@ class NotificationService {
   static late String? notificationToken;
   static NotificationService instance = new NotificationService();
 
-  NotificationService() {
-    startBackgroundNotificationHandler();
-  }
   HttpsCallable _changeToken =
       FirebaseFunctions.instance.httpsCallable("cambioToken");
   HttpsCallable _establishToken =
@@ -61,13 +54,19 @@ class NotificationService {
   HttpsCallable _revokeToken =
       FirebaseFunctions.instance.httpsCallable("eliminarToken");
 
-  void startBackgroundNotificationHandler() async {
+  Future<void> startBackgroundNotificationHandler() async {
     notificationToken = await FirebaseMessaging.instance.getToken();
         iniciarEscuchadorSegudoPlano();
+        SystemNotifications.instance.inicializarNotificaciones();
 
   }
    void iniciarEscuchadorSegudoPlano() async {
     notificationToken = await FirebaseMessaging.instance.getToken();
+    if(notificationToken!=null){
+          changeUserToken(notificationToken as String);
+
+    }
+
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.instance.onTokenRefresh
         .asBroadcastStream()
@@ -76,6 +75,15 @@ class NotificationService {
           
       changeUserToken(event);
     });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  print('Got a message whilst in the foreground!');
+  print('Message data: ${message.data}');
+
+  if (message.notification != null) {
+    print('Message also contained a notification: ${message.notification}');
+  }
+});
   }
 
   @protected
@@ -118,6 +126,20 @@ class SystemNotifications{
    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+        void inicializarNotificaciones() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings("@mipmap/ic_launcher");
+ 
+    final MacOSInitializationSettings initializationSettingsMacOS =
+        MacOSInitializationSettings();
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: initializationSettingsAndroid,
+            macOS: initializationSettingsMacOS);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: (payload){});
+  }
+
   @protected
   void showReactionNotification() async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -129,7 +151,7 @@ class SystemNotifications{
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
-      3,
+      0,
       "Nueva valoración",
            "Tienes valoraciones sin revelar",
       platformChannelSpecifics,payload:"valoraciones"
@@ -164,7 +186,7 @@ class SystemNotifications{
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin
         .show(
-      0,
+      2,
       "Tu perfil ha sido verifiicado",
       "Has ganado 2500 creditos",
       platformChannelSpecifics,
@@ -183,9 +205,27 @@ class SystemNotifications{
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
-      4,
+      3,
       "Recompesa lista",
       "Pulsa para reclamar tu recompensa",
+      platformChannelSpecifics,payload: "recompensas"
+    );
+  }
+
+      @protected
+  void showMessageNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+            'your channel id', 'your channel name',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      4,
+      "Mensajes",
+      "Tienes nuevos mensajes",
       platformChannelSpecifics,payload: "recompensas"
     );
   }

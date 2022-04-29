@@ -25,7 +25,7 @@ class HomeScreenPresentation extends ChangeNotifier
   late StreamSubscription<HomeScreenInformationSender> updateSubscription;
 
   HomeScreenPresentation({required this.homeScreenController}){
-    initialize();
+    
   }
   get profileListState => this._profileListState;
   set profileListState(profileState) {
@@ -140,6 +140,8 @@ class HomeScreenPresentation extends ChangeNotifier
 
   @override
   void clearModuleData() {
+    profileListState=ProfileListState.empty;
+    
     homeScreenController.clearModuleData();
   }
 

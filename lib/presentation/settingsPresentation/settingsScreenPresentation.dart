@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:citasnuevo/domain/controller/SettingsController.dart';
@@ -10,7 +11,7 @@ import 'package:citasnuevo/presentation/presentationDef.dart';
 enum SettingsScreenState { loading, loaded, error }
 
 class SettingsScreenPresentation extends ChangeNotifier
-    implements ShouldUpdateData<SettingsInformationSender>, Presentation {
+    implements ShouldUpdateData<SettingsInformationSender>, Presentation,ModuleCleaner {
   SettingsController settingsController;
   late SettingsEntity settingsEntity;
   SettingsScreenState settingsScreenState = SettingsScreenState.loading;
@@ -20,7 +21,7 @@ class SettingsScreenPresentation extends ChangeNotifier
   SettingsScreenPresentation({
     required this.settingsController,
   }) {
-    initialize();
+    
   }
 
   void purchase(String productId,bool renewPurchase) {
@@ -77,5 +78,18 @@ class SettingsScreenPresentation extends ChangeNotifier
     }, onError: (error) {
       setSettingsScreenState = SettingsScreenState.error;
     });
+  }
+
+  @override
+  void clearModuleData() {
+    setSettingsScreenState = SettingsScreenState.loading;
+    updateSubscription.cancel();
+
+    settingsController.clearModuleData();
+    initialize();  }
+
+  @override
+  void initializeModuleData() {
+    // TODO: implement initializeModuleData
   }
 }

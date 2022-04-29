@@ -12,7 +12,6 @@ import '../../../core/ads_services/Ads.dart';
 
 class HomeAppScreen extends StatefulWidget {
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
-    static late final AdvertisingServices advertisingServices;
 
 
   @override
@@ -26,8 +25,6 @@ class _HomeAppScreenState extends State<HomeAppScreen> {
   @override
   void initState() {
     super.initState();
-     HomeAppScreen.advertisingServices = new AdvertisingServices();
-    HomeAppScreen.advertisingServices.adsServiceInit();
   }
 
   @override

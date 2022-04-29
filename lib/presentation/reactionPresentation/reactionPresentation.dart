@@ -130,7 +130,7 @@ class ReactionPresentation extends ChangeNotifier
   ReactionPresentation({
     required this.reactionsController,
   }) {
-    initialize();
+    
   }
 
   void revealReaction({required String reactionId}) async {

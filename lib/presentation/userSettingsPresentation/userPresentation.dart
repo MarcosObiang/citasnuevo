@@ -12,18 +12,17 @@ import 'dart:async';
 
 import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../domain/controller/controllerDef.dart';
+import '../../domain/repository/DataManager.dart';
 import '../presentationDef.dart';
 
 enum UserSettingsScreenState { loading, loaded, error }
 enum UserSettingsScreenUpdateState { loading, loaded, error, done }
 
 class UserSettingsPresentation extends ChangeNotifier
-    implements ShouldUpdateData<UserSettingsInformationSender>, Presentation {
+    implements ShouldUpdateData<UserSettingsInformationSender>, Presentation,ModuleCleaner{
   UserSettingsController userSettingsController;
 
-  UserSettingsPresentation({required this.userSettingsController}) {
-    initialize();
-  }
+  UserSettingsPresentation({required this.userSettingsController});
   late UserSettingsScreenState userSettingsScreenState;
   late UserSettingsScreenUpdateState userSettingsScreenUpdateState =
       UserSettingsScreenUpdateState.done;
@@ -125,5 +124,16 @@ class UserSettingsPresentation extends ChangeNotifier
     }, onError: (error) {
       setUserSettingsScreenState = UserSettingsScreenState.error;
     });
+  }
+
+  @override
+  void clearModuleData() {
+    setUserSettingsScreenState = UserSettingsScreenState.loading;
+    updateSubscription.cancel();
+    userSettingsController.clearModuleData();  }
+
+  @override
+  void initializeModuleData() {
+    // TODO: implement initializeModuleData
   }
 }

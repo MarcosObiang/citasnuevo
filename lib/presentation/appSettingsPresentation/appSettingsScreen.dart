@@ -268,6 +268,14 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                                     ],
                                   ),
                                 ),
+                                Container(
+                                    height: 100.h,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Dependencies.clearDependencies();
+                                      },
+                                      child: Text("Cerrar sesion"),
+                                    )),
                               ],
                             )
                           : appSettingsPresentation.appSettingsScreenState ==
