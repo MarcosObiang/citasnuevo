@@ -1,5 +1,6 @@
 import 'package:citasnuevo/core/ads_services/Ads.dart';
 import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
+import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:citasnuevo/data/dataSources/HomeDataSource/homeScreenDataSources.dart';
@@ -10,6 +11,7 @@ import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSou
 import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/data/dataSources/reportDataSource/reportDataSource.dart';
 import 'package:citasnuevo/data/dataSources/settingsDataSource/settingsDataSource.dart';
+import 'package:citasnuevo/data/dataSources/userCreatorDataSource/userCreator.DataSource.dart';
 import 'package:citasnuevo/data/dataSources/userSettingsDataSource/userSettingsDataSource.dart';
 import 'package:citasnuevo/data/repositoryImpl/appSettingsRepoImpl/appSettingsRepo.dart';
 import 'package:citasnuevo/data/repositoryImpl/authRepoImpl/authRepoImpl.dart';
@@ -18,6 +20,7 @@ import 'package:citasnuevo/data/repositoryImpl/homeScreenRepoImpl.dart/homeScree
 import 'package:citasnuevo/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/reportRepoImpl/reportRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/settingsRepoImpl/settingsRepoImpl.dart';
+import 'package:citasnuevo/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/userSettingsRepoImpl.dart/userSettingsRepoImpl.dart';
 import 'package:citasnuevo/domain/controller/SettingsController.dart';
 import 'package:citasnuevo/domain/controller/appSettingsController.dart';
@@ -26,6 +29,7 @@ import 'package:citasnuevo/domain/controller/chatController.dart';
 import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/domain/controller/reportController.dart';
+import 'package:citasnuevo/domain/controller/userCreatorController.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/userSettingsRepo.dart';
@@ -35,6 +39,7 @@ import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart'
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
+import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
 import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/presentation/appSettingsPresentation/appSettingsPresentation.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
@@ -45,16 +50,25 @@ import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentatio
 
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/presentation/settingsPresentation/settingsScreenPresentation.dart';
+import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorPresentation.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentation.dart';
 import 'package:flutter/material.dart';
 
+import '../iapPurchases/iapPurchases.dart';
+import '../notifications/notifications_service.dart';
+
 class Dependencies {
-      static late final AdvertisingServices advertisingServices= new AdvertisingServices()..adsServiceInit();
+  static late final AdvertisingServices advertisingServices =
+      new AdvertisingServices();
 
   static late final AuthScreenPresentation authScreenPresentation;
-  static late final ApplicationDataSource applicationDataSource=ApplicationDataSource(userId: GlobalDataContainer.userId as String);
+  static late final ApplicationDataSource applicationDataSource =
+      ApplicationDataSource(userId: GlobalDataContainer.userId);
 
-  static late final AuthDataSource authDataSource;
+  static late final AuthService authService = AuthServiceImpl();
+  static late final AuthDataSource authDataSource =
+      AuthDataSourceImpl(authService: authService);
+
   static late final AuthRepository authRepository;
 
   ///HOME_SCREEN
@@ -151,14 +165,29 @@ class Dependencies {
   static late final UserSettingsController userSettingsController =
       new UserSettingsController(
           userSettingsRepository: userSettingsRepository);
-  static late final UserSettingsPresentation userSettingsPresentation = new UserSettingsPresentation(
-      userSettingsController: userSettingsController);
+  static late final UserSettingsPresentation userSettingsPresentation =
+      new UserSettingsPresentation(
+          userSettingsController: userSettingsController);
+
+
+
+  static late final UserCreatorDataSource userCreatorDataSource =
+      new UserCreatorDataSourceImpl(source: applicationDataSource);
+  static late final UserCreatorRepo userCreatorRepo=
+      new UserCreatorRepoImpl(userCreatorDataSource: userCreatorDataSource);
+  static late final UserCreatorController userCreatorController=
+      new UserCreatorControllerImpl(userCreatorRepo: userCreatorRepo);
+          
+  static late final UserCreatorPresentation userCreatorPresentation =
+      new UserCreatorPresentation(
+          userCreatorController: userCreatorController);
+
+    
 
   static Future<void> startAuthDependencies() async {
     // ignore: unused_local_variable
     NetworkInfoContract networkInfoContract = NetworkInfoImpl();
 
-    authDataSource = new AuthDataSourceImpl();
     authRepository = AuthRepositoryImpl(authDataSource: authDataSource);
 
     AuthScreenController authScreenController =
@@ -169,9 +198,7 @@ class Dependencies {
   }
 
   static Future<void> startDependencies({required bool restart}) async {
-    if (restart == false) {
-      
-    }
+    if (restart == false) {}
     if (restart == true) {
       restartDependencies();
     }
@@ -197,7 +224,7 @@ class Dependencies {
   }
 
   static Future<void> restartDependencies() async {
-       applicationDataSource.userId=GlobalDataContainer.userId as String;
+    applicationDataSource.userId = GlobalDataContainer.userId;
 
     applicationDataSource.initializeMainDataSource();
 
@@ -210,17 +237,29 @@ class Dependencies {
     appSettingsPresentation.initialize();
     userSettingsPresentation.initialize();
   }
- static void initializeDependencies()async{
-   applicationDataSource.userId=GlobalDataContainer.userId as String;
-        applicationDataSource.initializeMainDataSource();
 
-    reactionPresentation.initialize();
-    homeScreenPresentation.initialize();
-    // authScreenPresentation.clearModuleData();
-    homeReportScreenPresentation.initialize();
-    chatPresentation.initialize();
-    settingsScreenPresentation.initialize();
-    appSettingsPresentation.initialize();
-    userSettingsPresentation.initialize();
+  static Future<bool> initializeDependencies() async {
+    applicationDataSource.userId = GlobalDataContainer.userId as String;
+    bool userDataExists =
+        await applicationDataSource.initializeMainDataSource();
+
+    if (userDataExists == true) {
+      reactionPresentation.initialize();
+      homeScreenPresentation.initialize();
+      // authScreenPresentation.clearModuleData();
+      homeReportScreenPresentation.initialize();
+      chatPresentation.initialize();
+      settingsScreenPresentation.initialize();
+      appSettingsPresentation.initialize();
+      userSettingsPresentation.initialize();
+      advertisingServices.adsServiceInit();
+      await PurchasesServices.purchasesServices.initService();
+      NotificationService instance = new NotificationService();
+      await instance.startBackgroundNotificationHandler();
+      return true;
+    } else {
+      userCreatorPresentation.initializeModuleData();
+      return false;
+    }
   }
 }

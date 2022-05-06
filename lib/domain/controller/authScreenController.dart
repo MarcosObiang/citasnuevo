@@ -20,6 +20,11 @@ class AuthScreenController implements Controller {
         params: const LoginParams(loginType: LoginType.google));
   }
 
+    Future<Either<Failure, AuthResponseEntity>> logOut() async {
+    return authRepository.logOut(
+        );
+  }
+
   @override
   void clearModuleData() {
     // TODO: implement clearModuleData

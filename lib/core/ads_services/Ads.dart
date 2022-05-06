@@ -9,44 +9,48 @@ import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 class AdvertisingServices {
   String androidAdsId = "b7fe6eeed91b14eb3399851c5a8b3d24eb0755e9a014fda4";
   bool showAds = true;
+  bool adsInitialized = false;
 
   void adsServiceInit() async {
-    bool hasConsent = false;
-    bool shoulShowConsentForm = await requestConsentInfoUpdate();
+    if (adsInitialized == false) {
+      bool hasConsent = false;
+      bool shoulShowConsentForm = await requestConsentInfoUpdate();
 
-    if (shoulShowConsentForm == true) {
-      try {
-        showDialog(
-            context: startKey.currentContext as BuildContext,
-            builder: (context) => AdsGenericErrorDialog(
-                  title: "Ads",
-                  content: "ads consent",
-                ));
-      } catch (e, s) {
-        print(e);
-        print(s);
+      if (shoulShowConsentForm == true) {
+        try {
+         await showDialog(
+              context: startKey.currentContext as BuildContext,
+              builder: (context) => AdsGenericErrorDialog(
+                    title: "Ads",
+                    content: "ads consent",
+                  ));
+        } catch (e, s) {
+          print(e);
+          print(s);
+        }
       }
+
+      Status consentStatus = await ConsentManager.getConsentStatus();
+
+      if (consentStatus == Status.PERSONALIZED) {
+        hasConsent = true;
+      }
+
+      Appodeal.setLogLevel(Appodeal.LogLevelDebug);
+      Appodeal.setTesting(true);
+
+      if (Platform.isAndroid) {
+        await Appodeal.initialize(
+            androidAdsId, [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL],
+            boolConsent: hasConsent);
+      }
+
+      Appodeal.setUseSafeArea(true);
+      Appodeal.muteVideosIfCallsMuted(true);
+      Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
+      Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
+      adsInitialized = true;
     }
-
-    Status consentStatus = await ConsentManager.getConsentStatus();
-
-    if (consentStatus == Status.PERSONALIZED) {
-      hasConsent = true;
-    }
-
-    Appodeal.setLogLevel(Appodeal.LogLevelDebug);
-    Appodeal.setTesting(true);
-
-    if (Platform.isAndroid) {
-      await Appodeal.initialize(androidAdsId,
-          [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL],
-          boolConsent: hasConsent);
-    }
-
-    Appodeal.setUseSafeArea(true);
-    Appodeal.muteVideosIfCallsMuted(true);
-    Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
-    Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
   }
 
   StreamController<bool> advertismentStateStream =
@@ -62,7 +66,6 @@ class AdvertisingServices {
     if (sePuedeMostrar) {
       anuncioEnCurso = await Appodeal.show(Appodeal.INTERSTITIAL);
     } else {}
-
 
     Appodeal.setInterstitialCallbacks(onInterstitialLoaded: (isPrecache) {
       print("onInterstitialLoaded");

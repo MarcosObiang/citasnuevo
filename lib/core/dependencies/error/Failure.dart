@@ -78,3 +78,9 @@ class UserSettingsFailure extends Failure {
   @override
   List<Object?> get props => throw UnimplementedError();
 }
+
+
+class UserCreatorFailure extends Failure {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}

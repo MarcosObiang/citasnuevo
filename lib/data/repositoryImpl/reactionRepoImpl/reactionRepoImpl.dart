@@ -25,19 +25,7 @@ class ReactionRepositoryImpl implements ReactionRepository {
     return Right(reactionDataSource.getAdditionalData());
   }
 
-  @override
-  Either<Failure, bool> initializeReactionListener() {
-    try {
-      reactionDataSource.initializeReactionListener();
-      return Right(true);
-    } catch (e) {
-      if (e is NetworkException) {
-        return Left(NetworkFailure());
-      } else {
-        return Left(ReactionFailure());
-      }
-    }
-  }
+
 
   @override
   Future<Either<Failure, void>> revealReaction(

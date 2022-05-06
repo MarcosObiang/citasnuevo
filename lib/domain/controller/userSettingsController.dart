@@ -20,9 +20,11 @@ class UserSettingsController
   late UserSettingsEntity userSettingsEntity;
   late UserSettingsEntity userSettingsEntityUpdate;
 
+
   @override
   late StreamController<UserSettingsInformationSender> updateDataController =
       StreamController.broadcast();
+
 
   void insertImageFile(Uint8List imageBytes, int index) {
     this

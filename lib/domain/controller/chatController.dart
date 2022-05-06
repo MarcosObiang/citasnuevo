@@ -116,9 +116,9 @@ class ChatControllerImpl implements ChatController {
       } else {
         bool isModified = event["modified"];
         bool isRemoved = event["removed"];
-        bool firstQuery=event["firstQuery"];
+        bool firstQuery = event["firstQuery"];
         List<Chat> chatListFromStream = event["chatList"];
-        if (firstQuery==true) {
+        if (firstQuery == true) {
           chatList.insertAll(0, chatListFromStream);
           addDataController.add(ChatInformationSender(
               chatList: chatListFromStream,
@@ -130,7 +130,7 @@ class ChatControllerImpl implements ChatController {
               isDeleted: false));
         }
 
-        if(firstQuery==false&&isRemoved==false&&isModified==false){
+        if (firstQuery == false && isRemoved == false && isModified == false) {
           chatList.insertAll(0, chatListFromStream);
           addDataController.add(ChatInformationSender(
               chatList: chatListFromStream,
@@ -140,7 +140,6 @@ class ChatControllerImpl implements ChatController {
               isChat: true,
               index: null,
               isDeleted: false));
-
         }
 
         if (isRemoved) {
@@ -230,7 +229,7 @@ class ChatControllerImpl implements ChatController {
                         isChat: false,
                         index: null,
                         isDeleted: false));
-                  await Future.delayed(Duration(milliseconds: 200));
+                    await Future.delayed(Duration(milliseconds: 200));
                   }
                 } else {
                   DateTime tiempo =
@@ -268,7 +267,7 @@ class ChatControllerImpl implements ChatController {
                       isChat: false,
                       index: null,
                       isDeleted: false));
-                 await Future.delayed(Duration(milliseconds: 200));
+                  await Future.delayed(Duration(milliseconds: 200));
                 }
 
                 chatList[i].messagesList.insert(0, message);

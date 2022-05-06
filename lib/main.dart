@@ -30,10 +30,8 @@ void main() async {
           projectId: "hotty-189c7"));
 
   await Dependencies.startAuthDependencies();
-  await Dependencies.authScreenPresentation.checkSignedInUser();
- await PurchasesServices.purchasesServices.initService();
- NotificationService instance = new NotificationService();
- await instance.startBackgroundNotificationHandler();
+
+  
   runApp(MultiProvider(
       providers: [
         Provider(create: (_) => Dependencies.settingsScreenPresentation),
@@ -43,7 +41,9 @@ void main() async {
         Provider(create: (_) => Dependencies.homeScreenPresentation),
         Provider(create: (_) => Dependencies.reactionPresentation),
         Provider(create: (_) => Dependencies.appSettingsPresentation),
-        Provider(create: (_) => Dependencies.userSettingsPresentation)
+        Provider(create: (_) => Dependencies.userSettingsPresentation),
+                Provider(create: (_) => Dependencies.userCreatorPresentation)
+
       ],
       child: MaterialApp(
           navigatorObservers: [routeObserver],
@@ -61,6 +61,7 @@ class Start extends StatefulWidget {
 }
 
 class _StartState extends State<Start> {
+  bool userStatcusChecked = false;
   @override
   void initState() {
     super.initState();
@@ -68,30 +69,27 @@ class _StartState extends State<Start> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      Dependencies.reactionPresentation.clearModuleData();
-      Dependencies.reactionPresentation.initializeModuleData();
-    }
-  }
+  
 
   @override
   Widget build(
     BuildContext context,
   ) {
     return ChangeNotifierProvider.value(
+      key: startKey,
       value: Dependencies.authScreenPresentation,
       child: Consumer<AuthScreenPresentation>(builder: (BuildContext context,
           AuthScreenPresentation authScreenPresentation, Widget? child) {
+        if (userStatcusChecked == false) {
+          Dependencies.authScreenPresentation.checkSignedInUser();
+          userStatcusChecked = true;
+        }
         if (authScreenPresentation.authState == AuthState.succes &&
             Start.done == false) {}
         return ScreenUtilInit(
-            key: startKey,
             designSize: Size(1080, 1920),
             builder: () {
               return AuthScreen();

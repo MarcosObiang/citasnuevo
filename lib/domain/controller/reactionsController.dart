@@ -101,10 +101,9 @@ class ReactionsControllerImpl implements ReactionController {
   late StreamSubscription expiredReactionSubscription;
   late StreamSubscription reactionSubscription;
 
-  Future<Either<Failure, bool>> initializeReactionListener() async {
+  void initializeReactionListener() async {
     initReactionStream();
     initializeExpiredTimeListener();
-    return reactionRepository.initializeReactionListener();
   }
 
   int lastSyncronizationTime = 0;
@@ -512,7 +511,10 @@ class ReactionsControllerImpl implements ReactionController {
 
   @override
   void initializeModuleData() async {
+
     reactionRepository.initializeModuleData();
+      initReactionStream();
+    initializeExpiredTimeListener();
     DateTime dateTime = await DateNTP().getTime();
     lastSyncronizationTime = dateTime.millisecondsSinceEpoch ~/ 1000;
   }

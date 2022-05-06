@@ -84,3 +84,12 @@ class UserSettingsException implements Exception {
     print(message);
   }
 }
+
+class UserCreatorException implements Exception {
+  String message;
+  UserCreatorException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}

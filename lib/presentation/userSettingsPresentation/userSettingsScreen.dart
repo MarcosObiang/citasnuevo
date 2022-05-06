@@ -79,14 +79,15 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 actions: [
                   ElevatedButton(
                       onPressed: () {
-Dependencies.userSettingsPresentation.saveChanges=false;                
-        Navigator.pop(context);
-                        
+                        Dependencies.userSettingsPresentation.saveChanges =
+                            false;
+                        Navigator.pop(context);
                       },
                       child: Text("No")),
                   ElevatedButton(
                       onPressed: () {
-Dependencies.userSettingsPresentation.saveChanges=true;                
+                        Dependencies.userSettingsPresentation.saveChanges =
+                            true;
                         Navigator.pop(context);
                       },
                       child: Text("Si")),
@@ -412,6 +413,11 @@ Dependencies.userSettingsPresentation.saveChanges=true;
           ],
         ));
   }
+
+
+
+
+
 }
 
 // ignore: must_be_immutable

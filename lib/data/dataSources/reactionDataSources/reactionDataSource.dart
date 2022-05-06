@@ -28,7 +28,6 @@ abstract class ReactionDataSource implements DataSource {
   });
 
   Future<bool> rejectReaction({required String reactionId});
-  void initializeReactionListener();
   Map<String, dynamic> getAdditionalData();
 }
 
@@ -127,7 +126,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
           notifyReactions = true;
         });
       } catch (e, s) {
-        throw ReactionException(message: e.toString(), stackTrace: s);
+        throw ReactionException(message: e. toString(), stackTrace: s);
       }
     } else {
       throw NetworkException();
@@ -156,6 +155,8 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         "isPremium": isPremium
       });
     });
+
+    initializeReactionListener();
   }
 
   @override

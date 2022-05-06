@@ -129,9 +129,7 @@ class ReactionPresentation extends ChangeNotifier
 
   ReactionPresentation({
     required this.reactionsController,
-  }) {
-    
-  }
+  });
 
   void revealReaction({required String reactionId}) async {
     var result =
@@ -219,31 +217,27 @@ class ReactionPresentation extends ChangeNotifier
 
   @override
   void addData() async {
-    var result = await reactionsController.initializeReactionListener();
-    result.fold((failure) {
-      setReactionListState = ReactionListState.error;
-    }, (succes) {
-      addDataSubscription = reactionsController.addDataController.stream.listen(
-          (event) {
-            if (event.isModified == false) {
-              setReactionListState = ReactionListState.ready;
 
-              if (event.notify) {
-                showInAppNotification();
-              }
+    addDataSubscription = reactionsController.addDataController.stream.listen(
+        (event) {
+          if (event.isModified == false) {
+            setReactionListState = ReactionListState.ready;
 
-              if (ReactionScreen.reactionsListKey.currentContext != null &&
-                  ReactionScreen.reactionsListKey.currentState != null) {
-                ReactionScreen.reactionsListKey.currentState?.insertItem(0);
-                WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {});
-              }
+            if (event.notify) {
+              showInAppNotification();
             }
-          },
-          cancelOnError: false,
-          onError: (_) {
-            setReactionListState = ReactionListState.error;
-          });
-    });
+
+            if (ReactionScreen.reactionsListKey.currentContext != null &&
+                ReactionScreen.reactionsListKey.currentState != null) {
+              ReactionScreen.reactionsListKey.currentState?.insertItem(0);
+              WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {});
+            }
+          }
+        },
+        cancelOnError: false,
+        onError: (_) {
+          setReactionListState = ReactionListState.error;
+        });
   }
 
   @override

@@ -14,12 +14,7 @@ abstract class ReactionRepository implements ModuleCleaner {
   ///Reactions are streamed here
   StreamController<Map<String, dynamic>> get reactionListener;
 
-  ///Initialize Reaction listener
-  ///
-  ///Returns [NetworkFailure] if there is a connection problem
-  ///
-  ///Returns [ReactionFailure] if any problem occurs
-  Either<Failure, bool> initializeReactionListener();
+  
 
   ///Get first addidional values (gems and reaction average)
   Either<Failure, Map> getAdditionalValues();

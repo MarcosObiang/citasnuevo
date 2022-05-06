@@ -18,7 +18,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       AuthResponseEntity authData =
           await authDataSource.signInWithGoogle(params: params);
-          
+
       return Right(authData);
     } catch (e) {
       if (e is NetworkException) {
@@ -31,10 +31,25 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     }
   }
+
   @override
-  Future<Either<Failure, AuthResponseEntity>> logOut() {
-    throw UnimplementedError();
+  Future<Either<Failure, AuthResponseEntity>> logOut() async {
+    try {
+      AuthResponseEntity authData = await authDataSource.signOut();
+
+      return Right(authData);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      }
+      if (e is AuthException) {
+        return Left(AuthFailure());
+      } else {
+        return Left(ServerFailure());
+      }
+    }
   }
+
   @override
   Future<Either<Failure, AuthResponseEntity>> checkSignedInUser() async {
     try {
@@ -55,4 +70,5 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure());
       }
     }
-  }}
+  }
+}

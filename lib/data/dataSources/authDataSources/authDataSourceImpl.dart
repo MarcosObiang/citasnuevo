@@ -18,12 +18,14 @@ abstract class AuthDataSource {
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
+  AuthService authService;
+  AuthDataSourceImpl({required this.authService});
   @override
   Future<AuthResponseEntity> signInWithFacebook(
       {required LoginParams params}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        await AuthenticationImpl().logUserFromFacebook();
+        await authService.logUserFromFacebook();
         return AuthResponseEntity.succes();
       } catch (e) {
         throw e;
@@ -39,7 +41,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         Map<String, dynamic> userData =
-            await AuthenticationImpl().logUserFromGoogle();
+            await authService.logUserFromGoogle();
         GlobalDataContainer.userId = userData["userId"];
         return AuthResponseEntity.succes();
       } catch (e, s) {
@@ -54,7 +56,7 @@ class AuthDataSourceImpl implements AuthDataSource {
   @override
   Future<AuthResponseEntity> signOut() async {
     try {
-      await AuthenticationImpl().logOut();
+      await AuthServiceImpl().logOut();
       return AuthResponseEntity.succes();
     } catch (e) {
       return AuthResponseEntity.error();
@@ -66,7 +68,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         Map<String, dynamic> userData =
-            await AuthenticationImpl().userAlreadySignedIn();
+            await authService.userAlreadySignedIn();
         if (userData["userId"] != "unknown") {
           GlobalDataContainer.userId = userData["userId"];
           return AuthResponseEntity.succes();

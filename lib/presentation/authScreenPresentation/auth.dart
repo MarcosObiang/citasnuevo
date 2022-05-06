@@ -1,6 +1,8 @@
+import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
+import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorScreen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +41,12 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
     }
   }
 
+  void goToCreateUserPage(BuildContext? context) {
+    if (context != null) {
+      Navigator.push(context, GoToRoute(page: UserCreatorScreen(userName: GlobalDataContainer.userName,)));
+    }
+  }
+
   ///This method will be called by Flutter´s initState method on the splash screen to check if there is any current user logged in the app
   ///
   ///
@@ -54,14 +62,18 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
       authState = AuthState.error;
     }, (authResponseEnity) async {
       authState = authResponseEnity.authState;
-      if (GlobalDataContainer.userId != null) {
+    if (GlobalDataContainer.userId != null) {
         await Dependencies.startDependencies(restart: false);
-                Dependencies.initializeDependencies();
+        bool signInResult = await Dependencies.initializeDependencies();
 
+        if (signInResult == true) {
+          Dependencies.startUtilDependencies();
+
+          goToMainScreenApp(startKey.currentContext);
+        } else {
+          goToCreateUserPage(startKey.currentContext);
+        }
       }
-
-      Dependencies.startUtilDependencies();
-      goToMainScreenApp(startKey.currentContext);
     });
     return data;
   }
@@ -82,11 +94,34 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
       authState = authResponseEnity.authState;
       if (GlobalDataContainer.userId != null) {
         await Dependencies.startDependencies(restart: false);
-        Dependencies.initializeDependencies();
-      }
+        bool signInResult = await Dependencies.initializeDependencies();
 
-      Dependencies.startUtilDependencies();
-      goToMainScreenApp(startKey.currentContext);
+        if (signInResult == true) {
+          Dependencies.startUtilDependencies();
+
+          goToMainScreenApp(startKey.currentContext);
+        } else {
+          goToCreateUserPage(startKey.currentContext);
+        }
+      }
+    });
+  }
+
+  void signOut() async {
+    var authSate1 = await authScreenController.logOut();
+    authSate1.fold((failure) {
+      failuretype = failure;
+      if (failuretype is NetworkFailure) {
+        showNetworkError();
+      }
+      authState = AuthState.error;
+    }, (authResponseEnity) async {
+      if (authResponseEnity.authState == AuthState.succes) {
+        authState = authResponseEnity.authState;
+        Dependencies.clearDependencies();
+        Navigator.of(startKey.currentContext as BuildContext)
+            .popUntil((route) => route.isFirst);
+      }
     });
   }
 

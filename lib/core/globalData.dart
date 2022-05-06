@@ -1,2 +1,4 @@
- class GlobalDataContainer{
-  static  String? userId;}
+class GlobalDataContainer {
+  static String? userId;
+  static String? userName;
+}

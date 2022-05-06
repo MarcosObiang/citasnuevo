@@ -272,8 +272,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                                     height: 100.h,
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        Dependencies.clearDependencies();
-                                      },
+Dependencies.authScreenPresentation.signOut();                                      },
                                       child: Text("Cerrar sesion"),
                                     )),
                               ],

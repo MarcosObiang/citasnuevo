@@ -1,6 +1,32 @@
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
+const Map<String,dynamic> _kProfileCreatorMap = {
+  "Alcohol": 0,
+  "Busco": 0,
+  "Complexion": 0,
+  "Hijos": 0,
+  "Mascotas": 0,
+  "Politca": 0,
+  "Que viva con": 0,
+  "Tabaco": 0
+};
+
+
+
+
+
+ Map<String,dynamic> kUserCreatorMockData={
+    "IMAGENPERFIL1":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL1","removed":false},
+  "IMAGENPERFIL2":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL2","removed":false},
+  "IMAGENPERFIL3":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL3","removed":false},
+  "IMAGENPERFIL4":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL4","removed":false},
+  "IMAGENPERFIL5":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL5","removed":false},
+  "IMAGENPERFIL6":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL6","removed":false},
+  "filtros usuario":_kProfileCreatorMap,"Descripcion":""
+  
+};
+
 const kProfileCharacteristics_LookingFor_ES = [
   {kNotAvailable: "No responder"},
   {"Relacion seria": "Relacion seria"},

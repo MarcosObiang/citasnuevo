@@ -4,15 +4,15 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
 
-abstract class AuthenticationContract {
+abstract class AuthService {
   Future<Map<String, dynamic>> logUserFromGoogle();
   Future<Map<String, dynamic>> logUserFromFacebook();
   Future<Map<String, dynamic>> userAlreadySignedIn();
   Future<Map<String, dynamic>> logOut();
 }
 
-class AuthenticationImpl implements AuthenticationContract {
-  late GoogleSignIn _googleSignIn;
+class AuthServiceImpl implements AuthService {
+  late GoogleSignIn _googleSignIn = new GoogleSignIn();
 
   /// We log the user with his facebook account and we return a Map wich contains the user id and the email.
   ///
@@ -33,6 +33,8 @@ class AuthenticationImpl implements AuthenticationContract {
       userCredential = await FirebaseAuth.instance
           .signInWithCredential(facebookAuthCredential);
       GlobalDataContainer.userId = userCredential.user!.uid;
+      GlobalDataContainer.userName = userCredential.user!.displayName;
+
       return {
         "userId": userCredential.user!.uid,
         "email": userCredential.user!.email
@@ -49,7 +51,7 @@ class AuthenticationImpl implements AuthenticationContract {
   ///
   @override
   Future<Map<String, dynamic>> logUserFromGoogle() async {
-    _googleSignIn = new GoogleSignIn();
+    this._googleSignIn = new GoogleSignIn();
     late UserCredential userCredential;
     try {
       final GoogleSignInAccount? googleSignInAccount =
@@ -73,6 +75,8 @@ class AuthenticationImpl implements AuthenticationContract {
       throw AuthException(message: e.toString());
     }
     GlobalDataContainer.userId = userCredential.user!.uid;
+    GlobalDataContainer.userName = userCredential.user!.displayName;
+
     return {
       "userId": userCredential.user?.uid,
       "email": userCredential.user?.email
@@ -81,11 +85,15 @@ class AuthenticationImpl implements AuthenticationContract {
 
   @override
   Future<Map<String, dynamic>> userAlreadySignedIn() async {
-        _googleSignIn = new GoogleSignIn();
+    this._googleSignIn = new GoogleSignIn();
 
     FirebaseAuth? user = FirebaseAuth.instance;
 
     if (user.currentUser != null) {
+      GlobalDataContainer.userId = user.currentUser!.uid;
+          GlobalDataContainer.userName = user.currentUser!.displayName;
+
+
       return {
         "userId": user.currentUser?.uid,
         "email": user.currentUser?.email,
@@ -104,12 +112,13 @@ class AuthenticationImpl implements AuthenticationContract {
       FirebaseAuth user = FirebaseAuth.instance;
 
       await user.signOut().then((value) async {
-        await _googleSignIn.signOut();
+        await this._googleSignIn.signOut();
       });
-
 
       return {"status": "OK"};
     } catch (e) {
+      print("object");
+
       throw AuthException(message: e.toString());
     }
   }

@@ -100,6 +100,14 @@ class UserSettingsInformationSender extends InformationSender {
       {required this.userBio, required this.userPicruresList, required this.userCharacteristic});
 }
 
+class UserCreatorInformationSender extends InformationSender {
+  List<UserPicture> userPicruresList;
+  String userBio;
+  DateTime minBirthDayInMilliseconds;
+  List<UserCharacteristic>userCharacteristic;
+  UserCreatorInformationSender(
+      {required this.userBio, required this.userPicruresList, required this.userCharacteristic,required this.minBirthDayInMilliseconds});
+}
 abstract class ShouldControllerRemoveData<InformationSender> {
   late StreamController<InformationSender> removeDataController;
 }

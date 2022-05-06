@@ -17,7 +17,7 @@ class ApplicationDataSource {
   @protected
   Map<String, dynamic> _data = Map();
   late StreamSubscription<QuerySnapshot<Map<String, dynamic>>> appSubscription;
-  String userId;
+  String? userId;
   FirebaseFirestore db = FirebaseFirestore.instance;
   StreamController<Map<String, dynamic>> dataStream =
       new StreamController.broadcast();
@@ -32,15 +32,30 @@ class ApplicationDataSource {
 
   ApplicationDataSource({required this.userId});
 
-  Future<void> initializeMainDataSource() async {
-    await getDataFromDb();
-    listenDataFromDb();
+  Future<bool> initializeMainDataSource() async {
+    if (this.userId != null) {
+      if (await userDataExists() == true) {
+        await getDataFromDb();
+        listenDataFromDb();
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      throw Exception("USER_ID_CANNOT_BE_NULL");
+    }
   }
 
   Future<void> getDataFromDb() async {
     DocumentSnapshot document =
         await db.collection("usuarios").doc(userId).get();
     setData = document.data() as Map<String, dynamic>;
+  }
+
+  Future<bool> userDataExists() async {
+    var dor = await db.collection("usuarios").doc(userId).get();
+
+    return dor.exists;
   }
 
   void listenDataFromDb() async {
