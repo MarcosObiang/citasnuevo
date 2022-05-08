@@ -10,6 +10,8 @@ class UserCreatorEntity {
   late bool showBothSexes = false;
   late bool isUserWoman;
   late int birthDateMilliseconds;
+  late bool useMiles = false;
+  late bool useMeters = true;
   DateTime minBirthDate;
   DateTime? date;
 
@@ -51,6 +53,7 @@ class UserCreatorEntity {
     if (dd >= 18) {
       this.age = dd;
       date = dateTime;
+      birthDateMilliseconds = dateTime.millisecondsSinceEpoch;
     }
   }
 }

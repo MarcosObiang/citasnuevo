@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:citasnuevo/data/Mappers/UserCreatorMapper.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/UserCreatorEntity.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
@@ -15,6 +16,7 @@ abstract class UserCreatorController
   StreamController<UserCreatorInformationSender> get getDataStream;
   void insertImageFile(Uint8List imageBytes, int index);
   void deleteImage(int index);
+  void createUser();
 }
 
 class UserCreatorControllerImpl implements UserCreatorController {
@@ -32,6 +34,11 @@ class UserCreatorControllerImpl implements UserCreatorController {
   void clearModuleData() {
     updateDataController.close();
     streamSubscription.cancel();
+  }
+  @override
+
+  void createUser()async{
+    userCreatorRepo.createUser(userData: await UserCreatorMapper.toMap(this.userCreatorEntity));
   }
 
   void insertImageFile(Uint8List imageBytes, int index) {

@@ -1,11 +1,133 @@
+import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/UserCreatorEntity.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image/image.dart' as img;
 
 import '../../core/common/profileCharacteristics.dart';
 import '../../domain/entities/UserSettingsEntity.dart';
 
 class UserCreatorMapper {
-  static toMap({required UserCreatorEntity userCreatorEntity}) async {}
+    static Future<Map<String, dynamic>> toMap(
+      UserCreatorEntity userCreatorEntity) async {
+    Map<String, dynamic> response = new Map();
+    List<UserPicture> userPictureList = userCreatorEntity.userPicruresList;
+    List<UserCharacteristic> userCharacteristicList =
+        userCreatorEntity.userCharacteristics;
+
+    response["images"] = await hashImage(userPictureList);
+    response["userBio"] = userCreatorEntity.userBio;
+    response["userFilters"] = userCharacteristicsToMap(userCharacteristicList);
+    response["userName"]=userCreatorEntity.userName;
+    response["userAgeMills"]=userCreatorEntity.birthDateMilliseconds;
+    response["userAge"]=userCreatorEntity.age;
+    response["showWoman"]=userCreatorEntity.showWoman;
+    response["userPreferesBothSexes"]=userCreatorEntity.showBothSexes;
+    response["isUserWoman"]=userCreatorEntity.isUserWoman;
+    print(response);
+
+    return response;
+  }
+    static Map<String, dynamic> userCharacteristicsToMap(
+      List<UserCharacteristic> data) {
+    Map<String, dynamic> response = Map<String, dynamic>();
+
+    for (int i = 0; i < data.length; i++) {
+      response[data[i].characteristicName] = data[i].characteristicValueIndex;
+    }
+    print("object");
+    return response;
+  }
+
+  static Future<List<Map<String, dynamic>>> hashImage(
+      List<UserPicture> userPictureList) async {
+    List<Map<String, dynamic>> bytesList = [];
+    List<Map<String, dynamic>> response = [];
+
+    userPictureList.sort((a, b) => a.index.compareTo(b.index));
+
+    for (int i = 0; i < userPictureList.length; i++) {
+      if (userPictureList[i].getUserPictureBoxstate ==
+          UserPicutreBoxState.pictureFromBytes) {
+
+        img.Image? imagex = img.decodeImage(userPictureList[i].getImageFile);
+        bytesList.add({
+          "Bytes": imagex,
+          "index": (userPictureList[i].index + 1).toString(),
+          "data": userPictureList[i].getImageFile,
+          "empty": false,
+          "type": UserPicutreBoxState.pictureFromBytes
+        });
+      }
+
+      if (userPictureList[i].getUserPictureBoxstate ==
+          UserPicutreBoxState.empty) {
+        response.add({
+          "index": (userPictureList[i].index + 1).toString(),
+          "data": userPictureList[i].getImageFile,
+          "empty": true,
+          "type": UserPicutreBoxState.empty
+        });
+      }
+
+    }
+
+    List<Map<String, dynamic>> computedImages =
+        await compute(blurHashImage, bytesList);
+    response.addAll(computedImages);
+    return response;
+  }
+
+  static List<Map<String, dynamic>> blurHashImage(
+      List<Map<String, dynamic>> data) {
+    List<Map<String, dynamic>> blredImagesHashes = [];
+    for (int i = 0; i < data.length; i++) {
+      blredImagesHashes.add({
+        "hash": BlurHash.encode(data[i]["Bytes"]).hash,
+        "index": data[i]["index"],
+        "data": data[i]["data"],
+        "empty": false,
+        "type": data[i]["type"]
+      });
+    }
+
+    return blredImagesHashes;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   static UserCreatorInformationSender fromMap(
       Map<String, dynamic> data)  {
     List<UserCharacteristic> userCharacteristics =

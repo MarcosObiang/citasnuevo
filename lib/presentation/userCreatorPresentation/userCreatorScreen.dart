@@ -112,7 +112,9 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                           userSexPreferenceInput(),
                           userFastData(),
                           userPictuerInpit(),
-                          userBioInput(),
+                          userBioInput(userCreatorPresentation),
+                          userUnitsSystem(
+                              userCreatorPresentation: userCreatorPresentation)
                         ],
                       )
                     : userCreatorPresentation.getUserCreatorScreenState ==
@@ -138,7 +140,7 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
     );
   }
 
-  Container userBioInput() {
+  Container userBioInput(UserCreatorPresentation userCreatorPresentation) {
     return Container(
       height: ScreenUtil().screenHeight,
       child: Padding(
@@ -158,11 +160,110 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                     onPressed: () => _pageController.nextPage(
                         duration: Duration(milliseconds: 300),
                         curve: Curves.easeInOut),
-                    icon: Icon(Icons.skip_next),
+                    icon: Icon(Icons.arrow_forward),
                     label: Text("Siguiente"))
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Container userUnitsSystem(
+      {required UserCreatorPresentation userCreatorPresentation}) {
+    return Container(
+      height: ScreenUtil().screenHeight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+                child: Container(
+                    child: Text(
+              "Selecciona tus unidades",
+              style: GoogleFonts.lato(fontSize: 50.sp),
+            ))),
+            Flexible(
+              flex: 10,
+              fit: FlexFit.tight,
+              child: Container(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    child: Text(
+              "Mostrar altura en:",
+              style: GoogleFonts.lato(fontSize: 50.sp),
+            )),
+                    CheckboxListTile(
+                    value: userCreatorPresentation
+                        .userCreatorController.userCreatorEntity.useMeters,
+                    onChanged: (value) {
+                      userCreatorPresentation.userCreatorController
+                          .userCreatorEntity.useMeters = true;
+                      setState(() {});
+                    },
+                    title: Text("Mostrar altura en cm"),
+                  ),
+             
+                   CheckboxListTile(
+                    value: !userCreatorPresentation
+                        .userCreatorController.userCreatorEntity.useMeters,
+                    onChanged: (value) {
+                      userCreatorPresentation.userCreatorController
+                          .userCreatorEntity.useMeters = false;
+                      setState(() {});
+                    },
+                    title: Text("Mostrar altura en pies"),
+                  ),
+                        Container(
+                    child: Text(
+              "Mostrar distancia en:",
+              style: GoogleFonts.lato(fontSize: 50.sp),
+            )),
+                  CheckboxListTile(
+                    value: userCreatorPresentation
+                        .userCreatorController.userCreatorEntity.useMiles,
+                    onChanged: (value) {
+                      userCreatorPresentation.userCreatorController
+                          .userCreatorEntity.useMiles = true;
+                      setState(() {});
+                    },
+                    title: Text("Mostrar distancia en millas"),
+                  ),
+                  CheckboxListTile(
+                    value: !userCreatorPresentation
+                        .userCreatorController.userCreatorEntity.useMiles,
+                    onChanged: (value) {
+                      userCreatorPresentation.userCreatorController
+                          .userCreatorEntity.useMiles = false;
+                      setState(() {});
+                    },
+                    title: Text("Mostrar distancia en kilometros"),
+                  ),
+                  Divider(height: 150.h,color: Colors.white,),
+
+                        Container(
+                    child: Text(
+              "Se puede modificar luego en los ajustes",
+              style: GoogleFonts.lato(fontSize: 50.sp),
+            )),
+                ],
+              )),
+            ),
+            Flexible(
+                flex: 1,
+                fit: FlexFit.tight,
+                child:ElevatedButton.icon(
+                        onPressed: () => _pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeInOut),
+                        icon: Icon(Icons.skip_next),
+                        label: Text("Siguiente")))
+                   
+          ],
         ),
       ),
     );
@@ -489,10 +590,6 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                 )),
           ),
         ),
-        IconButton(
-            onPressed: () =>
-                Navigator.push(context, GoToRoute(page: BioEditingScreen())),
-            icon: Icon(Icons.edit))
       ],
     );
   }

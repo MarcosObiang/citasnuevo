@@ -82,6 +82,12 @@ class UserCreatorPresentation extends ChangeNotifier
   void addDate({required DateTime dateTime})async{
   await  userCreatorController.userCreatorEntity.addUserDate(dateTime: dateTime);
   notifyListeners();
+
+
+  }
+
+  void createUser(){
+    
   }
 
   @override
