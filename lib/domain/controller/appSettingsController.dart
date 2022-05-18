@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
@@ -32,7 +33,6 @@ class AppSettingsController
           inKm: event.inKm,
           showBothSexes: event.showBothSexes,
           showWoman: event.showWoman,
-          showProfilePoints: event.showProfilePoints,
           showProfile: event.showProfile);
       updateDataController.add(event);
     });
@@ -48,8 +48,23 @@ class AppSettingsController
       "enMillas": applicationSettingsEntity.inKm,
       "mostrarAmbosSexos": applicationSettingsEntity.showBothSexes,
       "mostrarMujeres": applicationSettingsEntity.showWoman,
-      "mostrarNotaPerfil": applicationSettingsEntity.showProfilePoints,
       "mostrarPerfil": applicationSettingsEntity.showProfile
+    });
+    return result;
+  }
+
+  Future<Either<Failure, bool>> deleteAccount() async {
+    var result = await appSettingsRepository.deleteAccount();
+    result.fold((l) {}, (r) {
+  //    Dependencies.authRepository.logOut();
+    });
+    return result;
+  }
+
+    Future<Either<Failure, bool>> logOut() async {
+    var result = await appSettingsRepository.logOut();
+    result.fold((l) {}, (r) {
+  //    Dependencies.authRepository.logOut();
     });
     return result;
   }

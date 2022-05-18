@@ -20,9 +20,7 @@ class SettingsScreenPresentation extends ChangeNotifier
   late StreamSubscription<SettingsInformationSender> updateSubscription;
   SettingsScreenPresentation({
     required this.settingsController,
-  }) {
-    
-  }
+  });
 
   void purchase(String productId,bool renewPurchase) {
     settingsController.purchase(productId,renewPurchase);
@@ -48,8 +46,7 @@ class SettingsScreenPresentation extends ChangeNotifier
     updateSubscription.cancel();
 
     settingsController.clearModuleData();
-    initialize();
-  }
+initializeModuleData();  }
 
   @override
   void showErrorDialog(
@@ -86,10 +83,9 @@ class SettingsScreenPresentation extends ChangeNotifier
     updateSubscription.cancel();
 
     settingsController.clearModuleData();
-    initialize();  }
+ }
 
   @override
   void initializeModuleData() {
-    // TODO: implement initializeModuleData
-  }
+initialize();  }
 }

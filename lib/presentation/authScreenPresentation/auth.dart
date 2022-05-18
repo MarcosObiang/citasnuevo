@@ -1,5 +1,6 @@
 import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorScreen.dart';
@@ -16,16 +17,31 @@ import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/globalData.dart';
 
-class AuthScreenPresentation extends ChangeNotifier implements Presentation {
+class AuthScreenPresentation extends ChangeNotifier
+    implements Presentation, ModuleCleaner {
   AuthState _authState = AuthState.notSignedIn;
   AuthScreenController authScreenController;
 
   AuthState get authState => _authState;
-  late Failure failuretype;
   AuthScreenPresentation({
     required this.authScreenController,
-  }) {
-    initialize();
+  });
+
+  @override
+  void restart() {
+    clearModuleData();
+    initializeModuleData();
+  }
+
+  @override
+  bool clearModuleData() {
+    authState = AuthState.notSignedIn;
+    return true;
+  }
+
+  @override
+  void initializeModuleData() {
+    // TODO: implement initializeModuleData
   }
   set authState(AuthState authState) {
     this._authState = authState;
@@ -43,39 +59,47 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
 
   void goToCreateUserPage(BuildContext? context) {
     if (context != null) {
-      Navigator.push(context, GoToRoute(page: UserCreatorScreen(userName: GlobalDataContainer.userName,)));
+      Navigator.push(
+          context,
+          GoToRoute(
+              page: UserCreatorScreen(
+            userName: GlobalDataContainer.userName,
+          )));
     }
   }
 
   ///This method will be called by Flutter´s initState method on the splash screen to check if there is any current user logged in the app
   ///
   ///
-  Future<Either<Failure, AuthResponseEntity>> checkSignedInUser() async {
+  Future<void> checkSignedInUser() async {
     authState = AuthState.signingIn;
     var data = await authScreenController.checkIfUserIsAlreadySignedUp();
 
     data.fold((failure) {
-      failuretype = failure;
-
-      if (failuretype is NetworkFailure) {}
+      if (failure is NetworkFailure) {
+        showNetworkErrorDialog(context: startKey.currentContext);
+      }
 
       authState = AuthState.error;
     }, (authResponseEnity) async {
-      authState = authResponseEnity.authState;
-    if (GlobalDataContainer.userId != null) {
-        await Dependencies.startDependencies(restart: false);
-        bool signInResult = await Dependencies.initializeDependencies();
+      if (authResponseEnity == true) {
+        authState = AuthState.succes;
+        if (GlobalDataContainer.userId != null) {
+          await Dependencies.startDependencies(restart: false);
+          bool signInResult = await Dependencies.initializeDependencies();
 
-        if (signInResult == true) {
-          Dependencies.startUtilDependencies();
+          if (signInResult == true) {
+            Dependencies.startUtilDependencies();
 
-          goToMainScreenApp(startKey.currentContext);
-        } else {
-          goToCreateUserPage(startKey.currentContext);
+            goToMainScreenApp(startKey.currentContext);
+          } else {
+            authState = AuthState.notSignedIn;
+          }
         }
+      } else {
+        authState = AuthState.notSignedIn;
       }
     });
-    return data;
   }
 
   ///This method will be called when the usr presses the "Sign In With Google" button
@@ -85,13 +109,13 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
     authState = AuthState.signingIn;
     var authSate1 = await authScreenController.signInWithGoogleAccount();
     authSate1.fold((failure) {
-      failuretype = failure;
-      if (failuretype is NetworkFailure) {
+      authState = AuthState.error;
+
+      if (failure is NetworkFailure) {
         showNetworkError();
       }
-      authState = AuthState.error;
     }, (authResponseEnity) async {
-      authState = authResponseEnity.authState;
+      authState = AuthState.succes;
       if (GlobalDataContainer.userId != null) {
         await Dependencies.startDependencies(restart: false);
         bool signInResult = await Dependencies.initializeDependencies();
@@ -103,24 +127,6 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
         } else {
           goToCreateUserPage(startKey.currentContext);
         }
-      }
-    });
-  }
-
-  void signOut() async {
-    var authSate1 = await authScreenController.logOut();
-    authSate1.fold((failure) {
-      failuretype = failure;
-      if (failuretype is NetworkFailure) {
-        showNetworkError();
-      }
-      authState = AuthState.error;
-    }, (authResponseEnity) async {
-      if (authResponseEnity.authState == AuthState.succes) {
-        authState = authResponseEnity.authState;
-        Dependencies.clearDependencies();
-        Navigator.of(startKey.currentContext as BuildContext)
-            .popUntil((route) => route.isFirst);
       }
     });
   }
@@ -150,16 +156,5 @@ class AuthScreenPresentation extends ChangeNotifier implements Presentation {
   @override
   void initialize() {
     // TODO: implement initialize
-  }
-
-  @override
-  void restart() {
-    // TODO: implement restart
-  }
-
-  @override
-  bool clearModuleData() {
-    // TODO: implement clearModuleData
-    throw UnimplementedError();
   }
 }

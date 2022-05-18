@@ -6,7 +6,6 @@ class ApplicationSettingsEntity {
   bool inKm;
   bool showBothSexes;
   bool showWoman;
-  bool showProfilePoints;
   bool showProfile;
   ApplicationSettingsEntity({
     required this.distance,
@@ -16,7 +15,6 @@ class ApplicationSettingsEntity {
     required this.inKm,
     required this.showBothSexes,
     required this.showWoman,
-    required this.showProfilePoints,
     required this.showProfile,
   });
 }

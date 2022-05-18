@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
+import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
@@ -17,7 +18,8 @@ abstract class ReactionController
         ShouldControllerRemoveData<ReactionInformationSender>,
         ShouldControllerUpdateData<ReactionInformationSender>,
         ShouldControllerAddData<ReactionInformationSender>,
-        ModuleCleaner {
+        ModuleCleaner,
+        ExternalControllerDataSender<HomeScreenController> {
   ///Saves the reactions in a list
   late List<Reaction> reactions;
 
@@ -52,7 +54,7 @@ class ReactionsControllerImpl implements ReactionController {
   int coins = 0;
 
   @override
-  late bool isPremium;
+  late bool isPremium = false;
 
   @override
   late StreamController<ReactionInformationSender> addDataController =
@@ -81,10 +83,14 @@ class ReactionsControllerImpl implements ReactionController {
   StreamController<Map<String, dynamic>> streamExpiredReactions =
       StreamController.broadcast();
 
+  @override
+  ControllerBridgeInformationSender<HomeScreenController>
+      controllerBridgeInformationSender;
+
   ReactionRepository reactionRepository;
-  ReactionsControllerImpl({
-    required this.reactionRepository,
-  });
+  ReactionsControllerImpl(
+      {required this.reactionRepository,
+      required this.controllerBridgeInformationSender});
 
   StreamController<Map> get getAdditionalData =>
       reactionRepository.additionalDataStream;
@@ -100,11 +106,6 @@ class ReactionsControllerImpl implements ReactionController {
   late StreamSubscription coinsStreamSubscription;
   late StreamSubscription expiredReactionSubscription;
   late StreamSubscription reactionSubscription;
-
-  void initializeReactionListener() async {
-    initReactionStream();
-    initializeExpiredTimeListener();
-  }
 
   int lastSyncronizationTime = 0;
 
@@ -170,7 +171,24 @@ class ReactionsControllerImpl implements ReactionController {
             }
           }
         }
+      } else {
+        int index = reactions
+            .indexWhere((element) => element.idReaction == reaction.idReaction);
+        reactions.removeAt(index);
+
+        removeDataController.add(ReactionInformationSender(
+            index: index,
+            reaction: reaction,
+            reactionAverage: reactionsAverage,
+            isPremium: isPremium,
+            notify: notify,
+            sync: false,
+            isModified: isModified,
+            isDeleted: isDeleted,
+            coins: coins));
       }
+
+      sendReactionData();
     }, onError: (error) {
       addDataController.addError(error);
     });
@@ -236,7 +254,7 @@ class ReactionsControllerImpl implements ReactionController {
         if (lastSyncronizationTime <= 0) {
           return shouldSincronize;
         } else {
-          if (timeInSecondsNow - lastSyncronizationTime > 10) {
+          if (timeInSecondsNow - lastSyncronizationTime > 60) {
             shouldSincronize = true;
           } else {
             shouldSincronize = false;
@@ -268,7 +286,7 @@ class ReactionsControllerImpl implements ReactionController {
     listenerInitialized = false;
     reactionsAverage = 0;
     coins = 0;
-    reactionRepository.clearModuleData();
+    clearModuleData();
     initializeModuleData();
   }
 
@@ -404,24 +422,7 @@ class ReactionsControllerImpl implements ReactionController {
                 index: null));
           }
         }
-      }, (r) {
-        for (int i = 0; i < reactions.length; i++) {
-          if (reactions[i].idReaction == reactionId) {
-            reactions[i].setReactionAceptingState = ReactionAceptingState.done;
-            Reaction reaction = reactions.removeAt(i);
-            removeDataController.add(ReactionInformationSender(
-                sync: false,
-                reaction: reaction,
-                isPremium: isPremium,
-                reactionAverage: reactionsAverage,
-                notify: false,
-                isModified: false,
-                isDeleted: true,
-                coins: coins,
-                index: i));
-          }
-        }
-      });
+      }, (r) {});
 
       return result;
     }
@@ -487,22 +488,7 @@ class ReactionsControllerImpl implements ReactionController {
             index: null));
       }, (r) {
         for (int i = 0; i < reactions.length; i++) {
-          if (reactions[i].idReaction == reactionId) {
-            this.reactions[i].setReactionAceptingState =
-                ReactionAceptingState.done;
-            Reaction reaction = reactions.removeAt(i);
-
-            removeDataController.add(ReactionInformationSender(
-                reaction: reaction,
-                reactionAverage: reactionsAverage,
-                sync: false,
-                isModified: false,
-                isPremium: isPremium,
-                notify: false,
-                isDeleted: true,
-                coins: coins,
-                index: i));
-          }
+          if (reactions[i].idReaction == reactionId) {}
         }
       });
       return result;
@@ -511,11 +497,15 @@ class ReactionsControllerImpl implements ReactionController {
 
   @override
   void initializeModuleData() async {
-
     reactionRepository.initializeModuleData();
-      initReactionStream();
+    initReactionStream();
     initializeExpiredTimeListener();
     DateTime dateTime = await DateNTP().getTime();
     lastSyncronizationTime = dateTime.millisecondsSinceEpoch ~/ 1000;
+  }
+
+  void sendReactionData() {
+    controllerBridgeInformationSender.addInformation(
+        information: {"header": "reaction", "data": reactions.length});
   }
 }

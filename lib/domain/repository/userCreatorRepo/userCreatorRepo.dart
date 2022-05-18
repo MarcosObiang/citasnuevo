@@ -10,6 +10,7 @@ abstract class UserCreatorRepo  implements ModuleCleaner{
 
   Future<Either<Failure,bool>>createUser({required Map<String,dynamic>userData});
    StreamController<UserCreatorInformationSender> get getUserCreatorDataStream;
+   Future<Either<Failure,bool>>logOut();
 
 
 }

@@ -21,12 +21,34 @@ class HomeScreenPresentation extends ChangeNotifier
         ModuleCleaner {
   ProfileListState _profileListState = ProfileListState.empty;
   HomeScreenController homeScreenController;
+  int _newChats = 0;
+  int _newMessages = 0;
+  int _newReactions = 0;
+  int get getNewChats => this._newChats;
+
+  set setNewChats(int value) {
+    this._newChats = value;
+    notifyListeners();
+  }
+
+  int get getNewMessages => this._newMessages;
+
+  set setNewMessages(int value) {
+    this._newMessages = value;
+    notifyListeners();
+  }
+
+  int get getNewReactions => this._newReactions;
+
+  set setNewreactions(int value) {
+    this._newReactions = value;
+    notifyListeners();
+  }
+
   @override
   late StreamSubscription<HomeScreenInformationSender> updateSubscription;
 
-  HomeScreenPresentation({required this.homeScreenController}){
-    
-  }
+  HomeScreenPresentation({required this.homeScreenController});
   get profileListState => this._profileListState;
   set profileListState(profileState) {
     _profileListState = profileState;
@@ -140,18 +162,32 @@ class HomeScreenPresentation extends ChangeNotifier
 
   @override
   void clearModuleData() {
-    profileListState=ProfileListState.empty;
-    
+    profileListState = ProfileListState.empty;
+    updateSubscription.cancel();
+
     homeScreenController.clearModuleData();
   }
 
   @override
   void update() {
-    // TODO: implement update
+    updateSubscription =
+        homeScreenController.updateDataController.stream.listen((event) {
+      if (event.information["chat"] !=null) {
+        setNewChats = event.information["chat"];
+      }
+      if (event.information["message"] !=null) {
+        setNewMessages = event.information["message"];
+      }
+      if (event.information["reaction"] !=null) {
+        setNewreactions = event.information["reaction"];
+      }
+    });
   }
 
   @override
   void initializeModuleData() {
     homeScreenController.initializeModuleData();
+        update();
+
   }
 }

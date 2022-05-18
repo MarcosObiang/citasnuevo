@@ -24,6 +24,11 @@ class UserCreatorMapper {
     response["showWoman"]=userCreatorEntity.showWoman;
     response["userPreferesBothSexes"]=userCreatorEntity.showBothSexes;
     response["isUserWoman"]=userCreatorEntity.isUserWoman;
+    response["maxDistance"]=userCreatorEntity.maxDistanceForSearching;
+    response["minAge"]=userCreatorEntity.minRangeSearchingAge;
+    response["maxAge"]=userCreatorEntity.maxRangeSearchingAge;
+    response["useMeters"]=userCreatorEntity.useMeters;
+    response["useMilles"]=userCreatorEntity.useMiles;
     print(response);
 
     return response;

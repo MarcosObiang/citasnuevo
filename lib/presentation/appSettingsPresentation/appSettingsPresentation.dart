@@ -5,10 +5,12 @@ import 'package:citasnuevo/domain/controller/appSettingsController.dart';
 import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/common/common_widgets.dart/errorWidget.dart';
+import '../../core/dependencies/dependencyCreator.dart';
 import '../../domain/controller/controllerDef.dart';
 import '../presentationDef.dart';
 
@@ -80,6 +82,32 @@ class AppSettingsPresentation extends ChangeNotifier
     if (context != null) {
       showDialog(context: context, builder: (context) => NetwortErrorWidget());
     }
+  }
+
+  void logOut() async {
+    var authSate1 = await appSettingsController.logOut();
+    authSate1.fold((failure) {
+      if (failure is NetworkFailure) {
+        showNetworkErrorDialog(context: startKey.currentContext);
+      }
+    }, (authResponseEnity) async {
+      Dependencies.clearDependencies();
+      Navigator.of(startKey.currentContext as BuildContext)
+          .popUntil((route) => route.isFirst);
+    });
+  }
+
+  void deleteAccount() async {
+    var authSate1 = await appSettingsController.deleteAccount();
+    authSate1.fold((failure) {
+      if (failure is NetworkFailure) {
+        showNetworkErrorDialog(context: startKey.currentContext);
+      }
+    }, (authResponseEnity) async {
+      Dependencies.clearDependencies();
+      Navigator.of(startKey.currentContext as BuildContext)
+          .popUntil((route) => route.isFirst);
+    });
   }
 
   void updateSettings(

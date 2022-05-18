@@ -5,7 +5,9 @@ import 'package:citasnuevo/data/Mappers/UserCreatorMapper.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/UserCreatorEntity.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
+import 'package:dartz/dartz.dart';
 
+import '../../core/dependencies/error/Failure.dart';
 import '../repository/DataManager.dart';
 
 abstract class UserCreatorController
@@ -16,7 +18,8 @@ abstract class UserCreatorController
   StreamController<UserCreatorInformationSender> get getDataStream;
   void insertImageFile(Uint8List imageBytes, int index);
   void deleteImage(int index);
-  void createUser();
+  Future<Either<Failure, bool>> createUser();
+  Future<Either<Failure, bool>> logOut();
 }
 
 class UserCreatorControllerImpl implements UserCreatorController {
@@ -35,10 +38,14 @@ class UserCreatorControllerImpl implements UserCreatorController {
     updateDataController.close();
     streamSubscription.cancel();
   }
-  @override
 
-  void createUser()async{
-    userCreatorRepo.createUser(userData: await UserCreatorMapper.toMap(this.userCreatorEntity));
+  @override
+  Future<Either<Failure, bool>> createUser() async {
+    var result = await userCreatorRepo.createUser(
+        userData: await UserCreatorMapper.toMap(this.userCreatorEntity));
+
+    result.fold((l) {}, (r) {});
+    return result;
   }
 
   void insertImageFile(Uint8List imageBytes, int index) {
@@ -75,4 +82,9 @@ class UserCreatorControllerImpl implements UserCreatorController {
   @override
   StreamController<UserCreatorInformationSender> get getDataStream =>
       userCreatorRepo.getUserCreatorDataStream;
+
+  @override
+  Future<Either<Failure, bool>> logOut() {
+    return userCreatorRepo.logOut();
+  }
 }

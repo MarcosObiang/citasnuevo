@@ -1,18 +1,22 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
-abstract class ApplicationSettingsDataSource implements DataSource {
+abstract class ApplicationSettingsDataSource
+    implements DataSource, AuthenticationSignOutCapacity {
   late StreamController<ApplicationSettingsInformationSender>
       listenAppSettingsUpdate;
 
   Future<bool> updateAppSettings(Map<String, dynamic> data);
   void revertChanges();
+  Future<bool> deleteAccount();
 }
 
 class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
@@ -23,10 +27,11 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
       listenAppSettingsUpdate = new StreamController.broadcast();
 
   @override
+  AuthService authService;
+
+  @override
   late StreamSubscription sourceStreamSubscription;
-  ApplicationDataSourceImpl({
-    required this.source,
-  });
+  ApplicationDataSourceImpl({required this.source, required this.authService});
 
   @override
   void clearModuleData() {
@@ -50,7 +55,6 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
         inKm: source.getData["Ajustes"]["enMillas"],
         showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
         showWoman: source.getData["Ajustes"]["mostrarMujeres"],
-        showProfilePoints: source.getData["Ajustes"]["mostrarNotaPerfil"],
         showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
     sourceStreamSubscription = source.dataStream.stream.listen((event) {
       listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
@@ -61,7 +65,6 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
           inKm: event["Ajustes"]["enMillas"],
           showBothSexes: event["Ajustes"]["mostrarAmbosSexos"],
           showWoman: event["Ajustes"]["mostrarMujeres"],
-          showProfilePoints: event["Ajustes"]["mostrarNotaPerfil"],
           showProfile: event["Ajustes"]["mostrarPerfil"]));
     }, onError: (error) {
       listenAppSettingsUpdate.addError(error);
@@ -92,7 +95,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void revertChanges() {
-listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
+    listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
         distance: source.getData["Ajustes"]["distanciaMaxima"],
         maxAge: source.getData["Ajustes"]["edadFinal"],
         minAge: source.getData["Ajustes"]["edadInicial"],
@@ -100,6 +103,38 @@ listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
         inKm: source.getData["Ajustes"]["enMillas"],
         showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
         showWoman: source.getData["Ajustes"]["mostrarMujeres"],
-        showProfilePoints: source.getData["Ajustes"]["mostrarNotaPerfil"],
-        showProfile: source.getData["Ajustes"]["mostrarPerfil"]));  }
+        showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
+  }
+
+  @override
+  Future<bool> deleteAccount() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected == true) {
+      try {
+        HttpsCallable borrarUsuario =
+            FirebaseFunctions.instance.httpsCallable("borrarUsuario");
+
+        HttpsCallableResult httpsCallableResult =
+            await borrarUsuario.call({"id": GlobalDataContainer.userId});
+        Map<String, dynamic> userData = await authService.logOut();
+
+        return true;
+      } catch (e) {
+        throw AppSettingsException(message: e.toString());
+      }
+    } else {
+      throw NetworkException();
+    }
+  }
+
+  @override
+  Future<bool> logOut() async {
+      try {
+        Map<String, dynamic> userData = await authService.logOut();
+        return true;
+      } catch (e, s) {
+        print(s);
+        throw e;
+      }
+  
+  }
 }

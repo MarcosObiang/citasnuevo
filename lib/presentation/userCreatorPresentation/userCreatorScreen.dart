@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:another_xlider/another_xlider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
+import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
 import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorPresentation.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,7 @@ import '../userSettingsPresentation/userSettingsScreen.dart';
 
 class UserCreatorScreen extends StatefulWidget {
   String? userName;
+
   UserCreatorScreen({required this.userName});
 
   @override
@@ -32,6 +35,215 @@ class UserCreatorScreen extends StatefulWidget {
 }
 
 class _UserCreatorScreenState extends State<UserCreatorScreen> {
+
+  Future<bool> showGoToMainScreenDialog(BuildContext context) async {
+    bool goToMainScreen = false;
+
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Ir a la pantalla principal"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    goToMainScreen = true;
+                    Navigator.pop(context);
+                  },
+                  child: Text("Si")),
+              TextButton(
+                  onPressed: () {
+                    goToMainScreen = false;
+                    Navigator.pop(context);
+                  },
+                  child: Text("No"))
+            ],
+          );
+        });
+    return goToMainScreen;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (Dependencies.userCreatorPresentation.goBackUserCreated==true) {
+          return true;
+        } else {
+          return showGoToMainScreenDialog(context);
+        }
+      },
+      child: ChangeNotifierProvider.value(
+        value: Dependencies.userCreatorPresentation,
+        child: Material(
+          child: SafeArea(
+            child: Consumer<UserCreatorPresentation>(builder:
+                (BuildContext context,
+                    UserCreatorPresentation userCreatorPresentation,
+                    Widget? child) {
+              return Container(
+                  height: ScreenUtil().screenHeight,
+                  child: userCreatorPresentation.getUserCreatorScreenState ==
+                          UserCreatorScreenState.READY
+                      ? Container(
+                          child: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Hola",
+                                style: GoogleFonts.roboto(fontSize: 90.sp),
+                              ),
+                              Text(
+                                "Bienvenido a Hotty",
+                                style: GoogleFonts.roboto(fontSize: 60.sp),
+                              ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        GoToRoute(
+                                            page: UserCreatorPages(
+                                                userName: widget.userName)));
+                                  },
+                                  child: Text("Empezar"))
+                            ],
+                          )),
+                        )
+                      : userCreatorPresentation.getUserCreatorScreenState ==
+                              UserCreatorScreenState.LOADING
+                          ? Container(
+                              child: Center(
+                                  child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  LoadingIndicator(
+                                      indicatorType: Indicator.ballPulseSync),
+                                  Text("Cargando"),
+                                ],
+                              )),
+                            )
+                          : ElevatedButton.icon(
+                              onPressed: () {},
+                              icon: Icon(Icons.error),
+                              label: Text("Error")));
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class ProfileCharacteristicCreatorEditing extends StatefulWidget {
+  List<UserCharacteristic> userCharacteristic;
+  ProfileCharacteristicCreatorEditing({
+    required this.userCharacteristic,
+  });
+
+  @override
+  State<ProfileCharacteristicCreatorEditing> createState() =>
+      _ProfileCharacteristicEditingCreatorState();
+}
+
+class _ProfileCharacteristicEditingCreatorState
+    extends State<ProfileCharacteristicCreatorEditing> {
+  List<Widget> checkboxList = [];
+  List<UserCharacteristic> userCharacteristicsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    addCheckBoxList();
+  }
+
+  void addCheckBoxList() {
+    userCharacteristicsList = new List.from(widget.userCharacteristic);
+  }
+
+  void changeValue() {}
+
+  @override
+  void dispose() {
+    print("okiera");
+    userCharacteristicsList
+        .sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
+
+    Dependencies.userCreatorController.userCreatorEntity.userCharacteristics =
+        userCharacteristicsList;
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Container(
+        height: ScreenUtil().screenHeight,
+        color: Colors.white,
+        child: SafeArea(
+          child: PageView.builder(
+              itemCount: userCharacteristicsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Center(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(userCharacteristicsList[index].characteristicIcon),
+                    Container(
+                      height: 700.h,
+                      child: ListView.builder(
+                          itemCount:
+                              userCharacteristicsList[index].valuesList.length,
+                          itemBuilder: (BuildContext context, int indexInside) {
+                            return CheckboxListTile(
+                                title: Text(userCharacteristicsList[index]
+                                    .valuesList[indexInside]
+                                    .values
+                                    .first),
+                                value: userCharacteristicsList[index]
+                                        .valuesList[indexInside]
+                                        .values
+                                        .first ==
+                                    userCharacteristicsList[index]
+                                        .characteristicValue,
+                                onChanged: (value) {
+                                  userCharacteristicsList[indexInside]
+                                      .userHasValue = value as bool;
+                                  userCharacteristicsList[index]
+                                          .characteristicValue =
+                                      userCharacteristicsList[index]
+                                          .valuesList[indexInside]
+                                          .keys
+                                          .first;
+
+                                  userCharacteristicsList[index]
+                                      .characteristicValueIndex = indexInside;
+
+                                  setState(() {});
+                                });
+                          }),
+                    )
+                  ],
+                ));
+              }),
+        ),
+      ),
+    );
+  }
+}
+
+class UserCreatorPages extends StatefulWidget {
+  String? userName;
+
+  UserCreatorPages({required this.userName});
+
+  @override
+  State<UserCreatorPages> createState() => _UserCreatorPagesState();
+}
+
+class _UserCreatorPagesState extends State<UserCreatorPages> {
   PageController _pageController = new PageController();
   int _ageValue = 18;
   late TextEditingController _userNameTextEditingController;
@@ -72,71 +284,71 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: Dependencies.userCreatorPresentation,
-      child: Material(
-        child: SafeArea(
-          child: Consumer<UserCreatorPresentation>(builder:
-              (BuildContext context,
-                  UserCreatorPresentation userCreatorPresentation,
-                  Widget? child) {
-            return Container(
-                height: ScreenUtil().screenHeight,
-                child: userCreatorPresentation.getUserCreatorScreenState ==
-                        UserCreatorScreenState.READY
-                    ? PageView(
-                        controller: _pageController,
-                        children: [
-                          Container(
-                            child: Center(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Hola",
-                                  style: GoogleFonts.lato(fontSize: 90.sp),
-                                ),
-                                Text(
-                                  "Bienvenido a Hotty",
-                                  style: GoogleFonts.lato(fontSize: 60.sp),
-                                ),
-                                ElevatedButton.icon(
-                                    onPressed: () => _pageController.nextPage(
-                                        duration: Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut),
-                                    icon: Icon(Icons.skip_next),
-                                    label: Text("Siguiente"))
-                              ],
-                            )),
+      child: Consumer<UserCreatorPresentation>(builder: (BuildContext context,
+          UserCreatorPresentation userCreatorPresentation, Widget? child) {
+        return SafeArea(
+          child: Material(
+              child: userCreatorPresentation.getUserCreationProcessState ==
+                      UserCreationProcessState.NOT_STARTED
+                  ? PageView(
+                      controller: _pageController,
+                      children: [
+                        Container(
+                          child: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Hola",
+                                style: GoogleFonts.lato(fontSize: 90.sp),
+                              ),
+                              Text(
+                                "Bienvenido a Hotty",
+                                style: GoogleFonts.lato(fontSize: 60.sp),
+                              ),
+                              ElevatedButton.icon(
+                                  onPressed: () => _pageController.nextPage(
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut),
+                                  icon: Icon(Icons.skip_next),
+                                  label: Text("Siguiente"))
+                            ],
+                          )),
+                        ),
+                        userNameInput(userCreatorPresentation),
+                        userAgeInput(userCreatorPresentation),
+                        userSexPreferenceInput(),
+                        userFastData(),
+                        userPictuerInpit(),
+                        userBioInput(userCreatorPresentation),
+                        userUnitsSystem(
+                            userCreatorPresentation: userCreatorPresentation),
+                        userSearchInput(userCreatorPresentation)
+                      ],
+                    )
+                  : userCreatorPresentation.getUserCreationProcessState ==
+                          UserCreationProcessState.LOADING
+                      ? Container(
+                          child: Column(
+                            children: [
+                              LoadingIndicator(
+                                  indicatorType: Indicator.ballBeat),
+                              Text("Cargando"),
+                            ],
                           ),
-                          userNameInput(),
-                          userAgeInput(userCreatorPresentation),
-                          userSexPreferenceInput(),
-                          userFastData(),
-                          userPictuerInpit(),
-                          userBioInput(userCreatorPresentation),
-                          userUnitsSystem(
-                              userCreatorPresentation: userCreatorPresentation)
-                        ],
-                      )
-                    : userCreatorPresentation.getUserCreatorScreenState ==
-                            UserCreatorScreenState.LOADING
-                        ? Container(
-                            child: Center(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                LoadingIndicator(
-                                    indicatorType: Indicator.ballPulseSync),
-                                Text("Cargando"),
-                              ],
-                            )),
-                          )
-                        : ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: Icon(Icons.error),
-                            label: Text("Error")));
-          }),
-        ),
-      ),
+                        )
+                      : Container(
+                          child: Column(
+                            children: [
+                              ElevatedButton.icon(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.warning),
+                                  label: Text("Error"))
+                            ],
+                          ),
+                        )),
+        );
+      }),
     );
   }
 
@@ -154,7 +366,7 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  child: userBio(),
+                  child: userBio(userCreatorPresentation),
                 ),
                 ElevatedButton.icon(
                     onPressed: () => _pageController.nextPage(
@@ -162,6 +374,192 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                         curve: Curves.easeInOut),
                     icon: Icon(Icons.arrow_forward),
                     label: Text("Siguiente"))
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container userSearchInput(UserCreatorPresentation userCreatorPresentation) {
+    return Container(
+      height: ScreenUtil().screenHeight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          reverse: false,
+          child: Container(
+            height: ScreenUtil().screenHeight,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  height: 300.h,
+                  child: Row(
+                    children: [
+                      Column(
+                        children: [
+                          Text("Distancia"),
+                          Slider(
+                            divisions: 14,
+                            value: userCreatorPresentation.userCreatorController
+                                .userCreatorEntity.maxDistanceForSearching
+                                .toDouble(),
+                            onChanged: (value) {
+                              userCreatorPresentation
+                                  .userCreatorController
+                                  .userCreatorEntity
+                                  .maxDistanceForSearching = value.toInt();
+                              setState(() {});
+                            },
+                            min: 10,
+                            max: 150,
+                          ),
+                        ],
+                      ),
+                      Text(userCreatorPresentation.userCreatorController
+                          .userCreatorEntity.maxDistanceForSearching
+                          .toStringAsFixed(0)),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 300.h,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        flex: 8,
+                        fit: FlexFit.tight,
+                        child: Container(
+                          height: 200.h,
+                          child: FlutterSlider(
+                            rangeSlider: true,
+                            values: [
+                              userCreatorPresentation.userCreatorController
+                                  .userCreatorEntity.minRangeSearchingAge
+                                  .toDouble(),
+                              userCreatorPresentation.userCreatorController
+                                  .userCreatorEntity.maxRangeSearchingAge
+                                  .toDouble()
+                            ],
+                            max: 70,
+                            min: 18,
+                            onDragging: (index, minValue, maxValue) {
+                              double min = minValue;
+                              double max = maxValue;
+
+                              userCreatorPresentation
+                                  .userCreatorController
+                                  .userCreatorEntity
+                                  .minRangeSearchingAge = min.toInt();
+                              userCreatorPresentation
+                                  .userCreatorController
+                                  .userCreatorEntity
+                                  .maxRangeSearchingAge = max.toInt();
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 4,
+                        fit: FlexFit.tight,
+                        child: Container(
+                          child: Text(
+                              "${userCreatorPresentation.userCreatorController.userCreatorEntity.minRangeSearchingAge.toStringAsFixed(0)} - ${userCreatorPresentation.userCreatorController.userCreatorEntity.maxRangeSearchingAge.toStringAsFixed(0)}"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton.icon(
+                    onPressed: () => userCreatorPresentation.createUser(),
+                    icon: Icon(Icons.arrow_forward),
+                    label: Text("Siguiente"))
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container userAdsConsentInput(
+      UserCreatorPresentation userCreatorPresentation) {
+    return Container(
+      height: ScreenUtil().screenHeight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          reverse: false,
+          child: Container(
+            height: ScreenUtil().screenHeight,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Text(
+                          "Para poder darte todas las ventajas de Hotty que son:"),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Text("-30000 gemas por registrarte"),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Text(
+                          "-600 gemas gratis cada 24h siempre y cuando tengas menos de 600 gemas"),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Text("-5000 gemas por verificar tu perfil"),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                      Text(
+                          "-5000 gemas por compartir la aplicacion con un amigo"),
+                      Divider(
+                        color: Colors.white,
+                        height: 100.h,
+                      ),
+                    ],
+                  ),
+                ),
+                Dependencies.advertisingServices.consentFormShowed
+                    ? ElevatedButton.icon(
+                        onPressed: () => _pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeInOut),
+                        icon: Icon(Icons.arrow_forward),
+                        label: Text("Siguiente"))
+                    : ElevatedButton.icon(
+                        onPressed: () => _pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeInOut),
+                        icon: Icon(Icons.arrow_forward),
+                        label: Text("De acuerdo"))
               ],
             ),
           ),
@@ -193,11 +591,11 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    child: Text(
-              "Mostrar altura en:",
-              style: GoogleFonts.lato(fontSize: 50.sp),
-            )),
-                    CheckboxListTile(
+                      child: Text(
+                    "Mostrar altura en:",
+                    style: GoogleFonts.lato(fontSize: 50.sp),
+                  )),
+                  CheckboxListTile(
                     value: userCreatorPresentation
                         .userCreatorController.userCreatorEntity.useMeters,
                     onChanged: (value) {
@@ -207,8 +605,7 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                     },
                     title: Text("Mostrar altura en cm"),
                   ),
-             
-                   CheckboxListTile(
+                  CheckboxListTile(
                     value: !userCreatorPresentation
                         .userCreatorController.userCreatorEntity.useMeters,
                     onChanged: (value) {
@@ -218,11 +615,11 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                     },
                     title: Text("Mostrar altura en pies"),
                   ),
-                        Container(
-                    child: Text(
-              "Mostrar distancia en:",
-              style: GoogleFonts.lato(fontSize: 50.sp),
-            )),
+                  Container(
+                      child: Text(
+                    "Mostrar distancia en:",
+                    style: GoogleFonts.lato(fontSize: 50.sp),
+                  )),
                   CheckboxListTile(
                     value: userCreatorPresentation
                         .userCreatorController.userCreatorEntity.useMiles,
@@ -243,26 +640,27 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                     },
                     title: Text("Mostrar distancia en kilometros"),
                   ),
-                  Divider(height: 150.h,color: Colors.white,),
-
-                        Container(
-                    child: Text(
-              "Se puede modificar luego en los ajustes",
-              style: GoogleFonts.lato(fontSize: 50.sp),
-            )),
+                  Divider(
+                    height: 150.h,
+                    color: Colors.white,
+                  ),
+                  Container(
+                      child: Text(
+                    "Se puede modificar luego en los ajustes",
+                    style: GoogleFonts.lato(fontSize: 50.sp),
+                  )),
                 ],
               )),
             ),
             Flexible(
                 flex: 1,
                 fit: FlexFit.tight,
-                child:ElevatedButton.icon(
-                        onPressed: () => _pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeInOut),
-                        icon: Icon(Icons.skip_next),
-                        label: Text("Siguiente")))
-                   
+                child: ElevatedButton.icon(
+                    onPressed: () => _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut),
+                    icon: Icon(Icons.skip_next),
+                    label: Text("Siguiente")))
           ],
         ),
       ),
@@ -494,39 +892,65 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
             ElevatedButton(
                 onPressed: () async {
                   await DatePicker.showDatePicker(context,
-                          maxTime: Dependencies
-                              .userCreatorPresentation
-                              .userCreatorController
-                              .userCreatorEntity
-                              .minBirthDate)
+                          maxTime: userCreatorPresentation.userCreatorController
+                              .userCreatorEntity.minBirthDate)
                       .then((value) {
                     if (value != null) {
-                      Dependencies.userCreatorPresentation
-                          .addDate(dateTime: value);
+                      userCreatorPresentation.addDate(dateTime: value);
                     }
                   });
                 },
                 child: Text("Añadir fecha")),
             Text(
               "Debes tener más de 18 años para usar Hotty",
-              style: GoogleFonts.lato(fontSize: 50.sp),
+              style: GoogleFonts.lato(fontSize: 40.sp),
             ),
-            ElevatedButton.icon(
-                onPressed: () => _pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOut),
-                icon: Icon(Icons.skip_next),
-                label: Text("Siguiente"))
+            userCreatorPresentation.getUserCreatorEntity.age == null
+                ? Text("Debes especificar tu edad")
+                : Container(
+                    child:
+                        userCreatorPresentation.getUserCreatorEntity.age! >= 18
+                            ? ElevatedButton.icon(
+                                onPressed: () => _pageController.nextPage(
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut),
+                                icon: Icon(Icons.skip_next),
+                                label: Text("Siguiente"))
+                            : Container())
           ],
         ),
       ),
     );
   }
 
-  Container userNameInput() {
+  void showNameErrorDialog(BuildContext context) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("El nombre debe contener mas de 1 caracter"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("Entendido"))
+            ],
+          );
+        });
+  }
+
+  Container userNameInput(UserCreatorPresentation userCreatorPresentation) {
     if (widget.userName != null) {
-      _userNameTextEditingController = new TextEditingController.fromValue(
-          TextEditingValue(text: widget.userName as String));
+      if (widget.userName!.length <= 25) {
+        _userNameTextEditingController = new TextEditingController.fromValue(
+            TextEditingValue(text: widget.userName as String));
+        userCreatorPresentation.getUserCreatorEntity.userName =
+            widget.userName as String;
+      } else {
+        _userNameTextEditingController = new TextEditingController();
+      }
     } else {
       _userNameTextEditingController = new TextEditingController();
     }
@@ -546,17 +970,25 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
             ),
             TextField(
               controller: _userNameTextEditingController,
-              maxLength: 15,
+              maxLength: 25,
               onChanged: (value) {
-                Dependencies.userCreatorController.userCreatorEntity.userName =
-                    value;
+                userCreatorPresentation.getUserCreatorEntity.userName = value;
               },
               textInputAction: TextInputAction.done,
             ),
             ElevatedButton.icon(
-                onPressed: () => _pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOut),
+                onPressed: () {
+                  if (userCreatorPresentation.getUserCreatorEntity.userName
+                          .trim()
+                          .length >
+                      2) {
+                    _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut);
+                  } else {
+                    showNameErrorDialog(context);
+                  }
+                },
                 icon: Icon(Icons.skip_next),
                 label: Text("Siguiente"))
           ],
@@ -565,11 +997,10 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
     );
   }
 
-  Column userBio() {
+  Column userBio(UserCreatorPresentation userCreatorPresentation) {
     TextEditingController textEditingController =
         new TextEditingController.fromValue(TextEditingValue(
-            text:
-                Dependencies.userCreatorController.userCreatorEntity.userBio));
+            text: userCreatorPresentation.getUserCreatorEntity.userBio));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -587,6 +1018,11 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                 child: TextField(
                   controller: textEditingController,
                   maxLength: 300,
+                  textInputAction: TextInputAction.done,
+                  onChanged: (value) {
+                    userCreatorPresentation.getUserCreatorEntity.userBio =
+                        value;
+                  },
                 )),
           ),
         ),
@@ -830,104 +1266,5 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                 : Container()
           ],
         ));
-  }
-}
-
-// ignore: must_be_immutable
-class ProfileCharacteristicCreatorEditing extends StatefulWidget {
-  List<UserCharacteristic> userCharacteristic;
-  ProfileCharacteristicCreatorEditing({
-    required this.userCharacteristic,
-  });
-
-  @override
-  State<ProfileCharacteristicCreatorEditing> createState() =>
-      _ProfileCharacteristicEditingCreatorState();
-}
-
-class _ProfileCharacteristicEditingCreatorState
-    extends State<ProfileCharacteristicCreatorEditing> {
-  List<Widget> checkboxList = [];
-  List<UserCharacteristic> userCharacteristicsList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    addCheckBoxList();
-  }
-
-  void addCheckBoxList() {
-    userCharacteristicsList = new List.from(widget.userCharacteristic);
-  }
-
-  void changeValue() {}
-
-  @override
-  void dispose() {
-    print("okiera");
-    userCharacteristicsList
-        .sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
-
-    Dependencies.userCreatorController.userCreatorEntity.userCharacteristics =
-        userCharacteristicsList;
-
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        height: ScreenUtil().screenHeight,
-        color: Colors.white,
-        child: SafeArea(
-          child: PageView.builder(
-              itemCount: userCharacteristicsList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(userCharacteristicsList[index].characteristicIcon),
-                    Container(
-                      height: 700.h,
-                      child: ListView.builder(
-                          itemCount:
-                              userCharacteristicsList[index].valuesList.length,
-                          itemBuilder: (BuildContext context, int indexInside) {
-                            return CheckboxListTile(
-                                title: Text(userCharacteristicsList[index]
-                                    .valuesList[indexInside]
-                                    .values
-                                    .first),
-                                value: userCharacteristicsList[index]
-                                        .valuesList[indexInside]
-                                        .values
-                                        .first ==
-                                    userCharacteristicsList[index]
-                                        .characteristicValue,
-                                onChanged: (value) {
-                                  userCharacteristicsList[indexInside]
-                                      .userHasValue = value as bool;
-                                  userCharacteristicsList[index]
-                                          .characteristicValue =
-                                      userCharacteristicsList[index]
-                                          .valuesList[indexInside]
-                                          .keys
-                                          .first;
-
-                                  userCharacteristicsList[index]
-                                      .characteristicValueIndex = indexInside;
-
-                                  setState(() {});
-                                });
-                          }),
-                    )
-                  ],
-                ));
-              }),
-        ),
-      ),
-    );
   }
 }

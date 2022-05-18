@@ -43,4 +43,17 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
 
   @override
   StreamController<UserCreatorInformationSender> get getUserCreatorDataStream => userCreatorDataSource.userCreatorDataStream;
+
+  @override
+  Future<Either<Failure, bool>> logOut() async{
+    try {
+      bool result = await userCreatorDataSource.logOut();
+      return Right(result);
+    } catch (e) {
+      if (e is UserCreatorException) {
+        return Left(UserCreatorFailure());
+      } else {
+        return Left(NetworkFailure());
+      }
+    }  }
 }

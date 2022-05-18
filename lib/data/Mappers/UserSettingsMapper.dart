@@ -47,7 +47,7 @@ class UserSettingsMapper {
               .refFromURL(userImages[i]!["Imagen"])
               .fullPath;
 
-           FirebaseCacheManager().getSingleFile(firebaseImage);
+          FirebaseCacheManager().getSingleFile(firebaseImage);
         } else {
           list.add(UserPicture(index: i));
         }
@@ -192,7 +192,11 @@ class UserSettingsMapper {
             characteristicValue: kProfileCharacteristics_ES[i]
                 .entries
                 .first
-                .value[bmw[i].value]
+                .value[bmw
+                    .firstWhere((element) =>
+                        element.key ==
+                        kProfileCharacteristics_ES[i].entries.first.key)
+                    .value]
                 .values
                 .first));
       } else {
@@ -206,7 +210,11 @@ class UserSettingsMapper {
             characteristicValue: kProfileCharacteristics_ES[i]
                 .entries
                 .first
-                .value[bmw[i].value]
+                .value[bmw
+                    .firstWhere((element) =>
+                        element.key ==
+                        kProfileCharacteristics_ES[i].entries.first.key)
+                    .value]
                 .values
                 .first));
       }

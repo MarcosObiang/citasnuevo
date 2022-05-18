@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -9,11 +10,43 @@ import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 
 import '../entities/ChatEntity.dart';
+import '../entities/RewardsEntity.dart';
 //ignore_for_file: close_sinks
 
 abstract class Controller implements ModuleCleaner {}
 
 class InformationSender {}
+
+abstract class AuthenticationCapacity {
+  late AuthService authService;
+}
+
+enum SignInProviders { GOOGLE, FACEABOOK }
+
+abstract class AuthenticationLogInCapacity implements AuthenticationCapacity {
+  ///provider can be 2 values:
+  ///
+  ///"SignInProviders.GOOGLE": to sign iN with google auth
+  ///
+  ///"SignInProviders.FACEBOOK": to sign in with facebook
+
+  Future<bool> logIn({required SignInProviders signInProviders});
+}
+
+abstract class AuthenticationUserAlreadySignedInCapacity
+    implements AuthenticationCapacity {
+  /// Call to check if the user has already signed in
+  ///
+  /// if the user is already signed in, the app shoould let the user to the next screen
+
+  Future<bool> checkIfUserIsAlreadySignedIn();
+}
+
+abstract class AuthenticationSignOutCapacity implements AuthenticationCapacity {
+  /// Call to end the sesion in the device and within the app
+
+  Future<bool> logOut();
+}
 
 class ReactionInformationSender extends InformationSender {
   Reaction? reaction;
@@ -25,7 +58,6 @@ class ReactionInformationSender extends InformationSender {
   bool sync;
   bool isPremium;
   bool notify;
-
   ReactionInformationSender(
       {required this.reaction,
       required this.reactionAverage,
@@ -58,8 +90,9 @@ class ChatInformationSender extends InformationSender {
       x});
 }
 
-class HomeScreenInformationSender {
-  HomeScreenInformationSender();
+class HomeScreenInformationSender extends InformationSender {
+  Map<String, dynamic> information;
+  HomeScreenInformationSender({required this.information});
 }
 
 class SettingsInformationSender extends InformationSender {
@@ -68,7 +101,15 @@ class SettingsInformationSender extends InformationSender {
     required this.settingsEntity,
   });
 }
-
+class RewardInformationSender extends InformationSender {
+  Rewards rewards;
+  int secondsToDailyReward;
+  
+  RewardInformationSender({
+    required this.rewards,
+    required this.secondsToDailyReward
+  });
+}
 class ApplicationSettingsInformationSender extends InformationSender {
   int distance;
   int maxAge;
@@ -77,7 +118,6 @@ class ApplicationSettingsInformationSender extends InformationSender {
   bool inKm;
   bool showBothSexes;
   bool showWoman;
-  bool showProfilePoints;
   bool showProfile;
   ApplicationSettingsInformationSender({
     required this.distance,
@@ -87,7 +127,6 @@ class ApplicationSettingsInformationSender extends InformationSender {
     required this.inKm,
     required this.showBothSexes,
     required this.showWoman,
-    required this.showProfilePoints,
     required this.showProfile,
   });
 }
@@ -95,19 +134,25 @@ class ApplicationSettingsInformationSender extends InformationSender {
 class UserSettingsInformationSender extends InformationSender {
   List<UserPicture> userPicruresList;
   String userBio;
-  List<UserCharacteristic>userCharacteristic;
+  List<UserCharacteristic> userCharacteristic;
   UserSettingsInformationSender(
-      {required this.userBio, required this.userPicruresList, required this.userCharacteristic});
+      {required this.userBio,
+      required this.userPicruresList,
+      required this.userCharacteristic});
 }
 
 class UserCreatorInformationSender extends InformationSender {
   List<UserPicture> userPicruresList;
   String userBio;
   DateTime minBirthDayInMilliseconds;
-  List<UserCharacteristic>userCharacteristic;
+  List<UserCharacteristic> userCharacteristic;
   UserCreatorInformationSender(
-      {required this.userBio, required this.userPicruresList, required this.userCharacteristic,required this.minBirthDayInMilliseconds});
+      {required this.userBio,
+      required this.userPicruresList,
+      required this.userCharacteristic,
+      required this.minBirthDayInMilliseconds});
 }
+
 abstract class ShouldControllerRemoveData<InformationSender> {
   late StreamController<InformationSender> removeDataController;
 }
@@ -121,3 +166,80 @@ abstract class ShouldControllerAddData<InformationSender> {
   /// Needs to listen to a [Controller.addDataController] and implement the presentation logic for new data
   late StreamController<InformationSender> addDataController;
 }
+
+///USE ONLY TO CREATE A CONTROLLER BRIDGE CLASS,
+///DO NOT IMPLEMENT IT DIRECTLY ON ANY CONTROLLER
+///
+///EXPAMPLE:
+/// ```dart
+///class HomeScreenControllerBridge<HomeScreenController>
+///    implements
+///         ControllerBridgeInformationReciever<HomeScreenController>,
+///         ControllerBridgeInformationSender<HomeScreenController> {
+///   @override
+///   late StreamController<Map<String, dynamic>>
+///            controllerBridgeInformationSenderStream=new StreamController.broadcast();
+///
+///   @override
+///  void addInformation({required Map<String, dynamic> information}) {
+///     // TODO: implement addInformation
+///   }
+/// }
+/// ```
+/// Brigdes are not bi-directional, this means that bridges are only one way
+/// between two controllers
+/// 
+/// To create the sender side implement in the controller the abstrac class "ExternalControllerDataSender"<T>
+/// 
+/// to create the recieve side implement in the controller the abstrac class "ExternalControllerDataReciever"<T>
+///
+///
+///
+abstract class ControllerBridgeInformationSender<T> {
+  void addInformation({required Map<String, dynamic> information});
+}
+
+///USE ONLY TO CREATE A CONTROLLER BRIDGE CLASS,
+///DO NOT IMPLEMENT IT DIRECTLY ON ANY CONTROLLER
+///
+///EXPAMPLE:
+/// ```dart
+///class HomeScreenControllerBridge<HomeScreenController>
+///    implements
+///         ControllerBridgeInformationReciever<HomeScreenController>,
+///         ControllerBridgeInformationSender<HomeScreenController> {
+///   @override
+///         controllerBridgeInformationSenderStream=new StreamController.broadcast();
+///
+///   @override
+///  void addInformation({required Map<String, dynamic> information}) {
+///     // TODO: implement addInformation
+///   }
+/// }
+/// ```
+/// Brigdes are not bi-directional, this means that bridges are only one way
+/// between two controllers
+/// 
+/// To create the sender side implement in the controller the abstrac class "ExternalControllerDataSender"<T>
+/// 
+/// to create the recieve side implement in the controller the abstrac class "ExternalControllerDataReciever"<T>
+
+abstract class ControllerBridgeInformationReciever<T> {
+  late StreamController<Map<String, dynamic>>
+      controllerBridgeInformationSenderStream;
+
+      void initializeStream();
+      void closeStream();
+}
+
+abstract class ExternalControllerDataSender<T> {
+  late ControllerBridgeInformationSender<T> controllerBridgeInformationSender;
+
+}
+
+abstract class ExteralControllerDataReciever<T> {
+  late ControllerBridgeInformationReciever<T>
+      controllerBridgeInformationReciever;
+}
+
+

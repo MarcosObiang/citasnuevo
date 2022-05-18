@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/platform/networkInfo.dart';
+import 'package:citasnuevo/data/Mappers/RewardMapper.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
@@ -9,20 +10,14 @@ import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import '../../../core/dependencies/error/Failure.dart';
 
 abstract class RewardDataSource implements DataSource {
-  /// Called first to create the [Rewards] object and initialize it
-  Future<Either<Failure, Rewards>> getRewardObject();
+  // ignore: close_sinks
+  late StreamController<Rewards> rewardStream;
 
   /// Used for get a link so the user can share it and get rewarded with coins
   Future<Either<Failure, String>> getDynamicLink();
 
   /// Used to claim a daily reward after spending all of the coins 24 h before
   Future<Either<Failure, bool>> getDailyReward();
-
-  ///Used to get the verification reward after the ferivication process is succesful
-  Future<Either<Failure, bool>> getVerificationReward();
-
-  /// Used to get the shared link reward after the link is shared
-  Future<Either<Failure, bool>> getLinkSharedReward();
 
   ///Use to get real time updates from the data source
   ///
@@ -47,21 +42,17 @@ class RewardDataSourceImpl implements RewardDataSource {
   }
 
   @override
-  Future<Either<Failure, bool>> getLinkSharedReward() {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<Either<Failure, Rewards>> getRewardObject() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       Map dataSource = source.getData;
       try {
         Rewards rewards = new Rewards(
+      isPremium: dataSource["monedasInfinitas"],
             timeUntilDailyReward: dataSource["siguienteRecompensa"],
-            welcomeRewardRigth: dataSource["primeraRecompensa"],
+            waitingFirstReward: dataSource["primeraRecompensa"],
             rewardForShareRigth: false,
             rewardForVerificationRigth: false,
-            dailyRewardRigth: dataSource["esperandoRecompensa"]);
+            waitingReward: dataSource["esperandoRecompensa"]);
         return Right(rewards);
       } catch (e) {
         return Left(RewardFailure());
@@ -78,23 +69,29 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   void subscribeToMainDataSource() {
-    source.dataStream.stream.listen((event) {});
+    rewardStream.add(RewardMapper.instance.fromMap(data: source.getData));
+
+    sourceStreamSubscription = source.dataStream.stream.listen((event) {
+      rewardStream.add(RewardMapper.instance.fromMap(data: event));
+    });
   }
 
   @override
-  late var dataConverter;
-
-  @override
   bool clearModuleData() {
-    // TODO: implement clearModuleData
-    throw UnimplementedError();
+    rewardStream.close();
+    sourceStreamSubscription.cancel();
+    return true;
   }
 
   @override
   void initializeModuleData() {
-    // TODO: implement initializeModuleData
+    rewardStream = new StreamController.broadcast();
+    subscribeToMainDataSource();
   }
 
   @override
- late StreamSubscription sourceStreamSubscription;
+  late StreamSubscription sourceStreamSubscription;
+
+  @override
+  late StreamController<Rewards> rewardStream;
 }

@@ -20,7 +20,6 @@ abstract class UserSettingsDataSource implements DataSource {
 
   Future<bool> updateAppSettings(Map<String, dynamic> data);
   Future<bool> revertChanges();
-
 }
 
 class UserSettingsDataSourceImpl implements UserSettingsDataSource {
@@ -54,7 +53,8 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
     Map<String, dynamic> userFilters = source.getData["filtros usuario"];
     bool firstInitialized = true;
 
-    listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(source.getData));
+    listenAppSettingsUpdate
+        .add(await UserSettingsMapper.fromMap(source.getData));
 
     source.dataStream.stream.listen((event) async {
       try {
@@ -124,7 +124,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
           }
 
           if (userPicutreBoxState == UserPicutreBoxState.pictureFromNetwork) {
-       final storageRef = FirebaseStorage.instance.ref();
+            final storageRef = FirebaseStorage.instance.ref();
 
             Uint8List imageFile = pictureData[i]["data"];
             String pictureHash = pictureData[i]["hash"];
@@ -151,7 +151,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
             String image =
                 "${GlobalDataContainer.userId}/Perfil/imagenes/Image$pictureIndex.jpg";
             Reference referenciaImagen = storageRef.child(image);
-         //   await referenciaImagen.delete();
+            //   await referenciaImagen.delete();
 
             parsedImages.add({
               "Imagen": "downloadUrl",
@@ -180,18 +180,21 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
           throw UserSettingsException(message: "function_error");
         }
       } catch (e) {
-        listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(source.getData));
+        listenAppSettingsUpdate
+            .add(await UserSettingsMapper.fromMap(source.getData));
         throw UserSettingsException(message: e.toString());
       }
     } else {
-      listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(source.getData));
+      listenAppSettingsUpdate
+          .add(await UserSettingsMapper.fromMap(source.getData));
       throw NetworkException();
     }
   }
 
   @override
- Future <bool> revertChanges() async{
-    listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(source.getData));
+  Future<bool> revertChanges() async {
+    listenAppSettingsUpdate
+        .add(await UserSettingsMapper.fromMap(source.getData));
     return true;
   }
 }

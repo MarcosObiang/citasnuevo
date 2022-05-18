@@ -1,11 +1,7 @@
-import 'package:citasnuevo/core/globalData.dart';
-import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
-import 'package:citasnuevo/presentation/Routes.dart';
+
 import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +9,6 @@ import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
-
-import 'core/notifications/notifications_service.dart';
 
 GlobalKey startKey = new GlobalKey();
 final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
@@ -31,10 +24,11 @@ void main() async {
 
   await Dependencies.startAuthDependencies();
 
-  
   runApp(MultiProvider(
       providers: [
         Provider(create: (_) => Dependencies.settingsScreenPresentation),
+                Provider(create: (_) => Dependencies.rewardScreenPresentation),
+
         Provider(create: (_) => Dependencies.chatPresentation),
         Provider(create: (_) => Dependencies.homeReportScreenPresentation),
         Provider(create: (_) => Dependencies.authScreenPresentation),
@@ -42,8 +36,7 @@ void main() async {
         Provider(create: (_) => Dependencies.reactionPresentation),
         Provider(create: (_) => Dependencies.appSettingsPresentation),
         Provider(create: (_) => Dependencies.userSettingsPresentation),
-                Provider(create: (_) => Dependencies.userCreatorPresentation)
-
+        Provider(create: (_) => Dependencies.userCreatorPresentation)
       ],
       child: MaterialApp(
           navigatorObservers: [routeObserver],
@@ -72,29 +65,15 @@ class _StartState extends State<Start> {
     super.didChangeDependencies();
   }
 
-  
-
   @override
   Widget build(
     BuildContext context,
   ) {
-    return ChangeNotifierProvider.value(
-      key: startKey,
-      value: Dependencies.authScreenPresentation,
-      child: Consumer<AuthScreenPresentation>(builder: (BuildContext context,
-          AuthScreenPresentation authScreenPresentation, Widget? child) {
-        if (userStatcusChecked == false) {
-          Dependencies.authScreenPresentation.checkSignedInUser();
-          userStatcusChecked = true;
-        }
-        if (authScreenPresentation.authState == AuthState.succes &&
-            Start.done == false) {}
-        return ScreenUtilInit(
-            designSize: Size(1080, 1920),
-            builder: () {
-              return AuthScreen();
-            });
-      }),
-    );
+    return ScreenUtilInit(
+        key: startKey,
+        designSize: Size(1080, 1920),
+        builder: () {
+          return AuthScreen();
+        });
   }
 }

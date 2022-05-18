@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
@@ -61,7 +62,6 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     return {"coins": coins, "averageReactions": reactionsAverage};
   }
 
-  @override
   void initializeReactionListener() async {
     bool notifyReactions = false;
 
@@ -90,7 +90,6 @@ class ReactionDataSourceImpl implements ReactionDataSource {
                   "deleted": false,
                   "notify": notifyReactions
                 });
-
               }
               if (element.type == DocumentChangeType.modified) {
                 Reaction reaction = ReactionConverter.fromMap(
@@ -114,8 +113,6 @@ class ReactionDataSourceImpl implements ReactionDataSource {
                   "deleted": true,
                   "notify": false
                 });
-
-      
               }
             } catch (e, s) {
               reactionListener.addError(Exception());
@@ -126,7 +123,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
           notifyReactions = true;
         });
       } catch (e, s) {
-        throw ReactionException(message: e. toString(), stackTrace: s);
+        throw ReactionException(message: e.toString(), stackTrace: s);
       }
     } else {
       throw NetworkException();
@@ -134,7 +131,8 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   @override
-  void subscribeToMainDataSource() {
+  void subscribeToMainDataSource() async{
+   await Future.delayed(Duration(milliseconds: 200));
     userID = source.getData["id"];
     isPremium = source.getData["monedasInfinitas"];
     reactionsAverage = double.parse(source.getData["mediaTotal"].toString());
@@ -161,9 +159,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   Future<void> revealReaction(String reactionId) async {
-    late StreamSubscription<bool> adsStreamSubscription;
 
-    int cero = 0;
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         HttpsCallable callToRevealReactionFunction =
@@ -171,36 +167,27 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
         await Dependencies.advertisingServices.showInterstitial();
 
-        adsStreamSubscription = Dependencies
-            .advertisingServices.advertismentStateStream.stream
-            .listen((event) async {
+        await for (bool event in Dependencies
+            .advertisingServices.advertismentStateStream.stream) {
           if (event) {
-            cero += 1;
-            print(cero);
             HttpsCallableResult result = await callToRevealReactionFunction
                 .call({
               "idValoracion": reactionId,
               "idUsuario": userID,
               "primeraSolicitud": false
             });
+            if (result.data["estado"] == "correcto") {
+              break;
+            }
 
             if (result.data["estado"] != "correcto") {
-              adsStreamSubscription.cancel();
-
-              throw Exception(["NOT_ALLOWED"]);
+              throw Exception(["FAILED"]);
+            } else {
+              throw Exception(["AD_INCOMPLETE"]);
             }
-            if (result.data["estado"] == "correcto") {
-              adsStreamSubscription.cancel();
-            }
-          } else {
-            adsStreamSubscription.cancel();
-
-            throw Exception(["AD_INCOMPLETE"]);
           }
-        });
+        }
       } catch (e, S) {
-        adsStreamSubscription.cancel();
-
         throw ReactionException(message: e.toString(), stackTrace: S);
       }
     } else {

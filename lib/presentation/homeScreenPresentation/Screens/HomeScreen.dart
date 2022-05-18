@@ -82,14 +82,11 @@ class _HomeAppScreenState extends State<HomeAppScreen> {
                                       indicatorType: Indicator.audioEqualizer)
                                   : Container()),
                         ],
-                        ElevatedButton(
-                            onPressed: () =>
-                                homeScreenPresentation.getProfiles(),
-                            child: Text("Start"))
+                      
                       ],
                     ),
                   ),
-                  HomeNavigationBar()
+                  HomeNavigationBar(newChats: homeScreenPresentation.getNewChats,newMessages: homeScreenPresentation.getNewMessages,newReactions:homeScreenPresentation.getNewReactions)
                 ],
               );
             }),

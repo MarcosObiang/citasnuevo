@@ -4,7 +4,7 @@ class Rewards {
   int timeUntilDailyReward;
 
   /// if the user has the welcoming reward, this is a one time reward and is given to the user after he creates a profile
-  bool welcomeRewardRigth;
+  bool waitingFirstReward;
 
   ///When the user invites a new user via the reward link, if the new user verifies his profile this user will habe the rigth to a reward
 
@@ -16,17 +16,23 @@ class Rewards {
 
   ///Link to share with friends to earn extra coins, start value is ["NO_LINK_AVAILABLE"]
   ///
-  
+  bool waitingReward;
+
+  bool isPremium;
+
+
+
+
 
   String dynamicLink="NO_LINK_AVAILABLE";
-/// The user has the right for daily reward
-  bool dailyRewardRigth;
+
   Rewards({
+required this.isPremium,
+    required this.waitingReward,
     required this.timeUntilDailyReward,
-    required this.welcomeRewardRigth,
+    required this.waitingFirstReward,
     required this.rewardForShareRigth,
     required this.rewardForVerificationRigth,
-    required this.dailyRewardRigth,
   });
 
 

@@ -11,6 +11,9 @@ import '../../../core/dependencies/error/Failure.dart';
 abstract class AppSettingsRepository implements ModuleCleaner {
   late ApplicationSettingsDataSource appSettingsDataSource;
   Future<Either<Failure, bool>> updateSettings(Map<String,dynamic> data);
+    Future<Either<Failure, bool>> deleteAccount();
+    Future<Either<Failure,bool>> logOut();
+
 
   StreamController<ApplicationSettingsInformationSender> get appSettingsStream;
 

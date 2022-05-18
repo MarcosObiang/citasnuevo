@@ -45,4 +45,36 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> deleteAccount()async {
+try {
+      var result = await appSettingsDataSource.deleteAccount();
+      return Right(result);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      } else {
+        return Left(AppSettingsFailure());
+      }
+    }  }
+
+  @override
+  Future<Either<Failure, bool>> logOut()async {
+    // TODO: implement logOut
+   try {
+      bool authData =
+          await appSettingsDataSource.logOut();
+
+      return Right(authData);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure());
+      }
+      if (e is AuthException) {
+        return Left(AuthFailure());
+      } else {
+        return Left(ServerFailure());
+      }
+    }  }
 }

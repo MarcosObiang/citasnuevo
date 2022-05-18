@@ -4,14 +4,17 @@ import 'UserSettingsEntity.dart';
 
 class UserCreatorEntity {
   int? age;
-  late String userBio;
+  late String userBio="";
   late bool showWoman = false;
   late String userName;
   late bool showBothSexes = false;
-  late bool isUserWoman;
+  late bool isUserWoman=false;
   late int birthDateMilliseconds;
   late bool useMiles = false;
   late bool useMeters = true;
+  int minRangeSearchingAge=18;
+  int maxRangeSearchingAge=30;
+  int maxDistanceForSearching=60;
   DateTime minBirthDate;
   DateTime? date;
 

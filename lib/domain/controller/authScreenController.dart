@@ -10,20 +10,15 @@ class AuthScreenController implements Controller {
 
   AuthScreenController({required this.authRepository});
 
-  Future<Either<Failure, AuthResponseEntity>>
-      checkIfUserIsAlreadySignedUp() async {
+  Future<Either<Failure, bool>> checkIfUserIsAlreadySignedUp() async {
     return authRepository.checkSignedInUser();
   }
 
-  Future<Either<Failure, AuthResponseEntity>> signInWithGoogleAccount() async {
-    return authRepository.logIn(
-        params: const LoginParams(loginType: LoginType.google));
+  Future<Either<Failure, bool>> signInWithGoogleAccount() async {
+    return authRepository.logIn(signInProviders: SignInProviders.GOOGLE);
   }
 
-    Future<Either<Failure, AuthResponseEntity>> logOut() async {
-    return authRepository.logOut(
-        );
-  }
+  
 
   @override
   void clearModuleData() {

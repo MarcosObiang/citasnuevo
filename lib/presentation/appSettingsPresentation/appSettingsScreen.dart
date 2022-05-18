@@ -48,8 +48,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         .applicationSettingsEntity.showWoman;
     showProfile = Dependencies.appSettingsPresentation.appSettingsController
         .applicationSettingsEntity.showProfile;
-    showProfilePoints = Dependencies.appSettingsPresentation
-        .appSettingsController.applicationSettingsEntity.showProfilePoints;
+ 
   }
 
   @override
@@ -65,7 +64,6 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                 inKm: inKm,
                 showBothSexes: showBothSexes,
                 showWoman: showWoman,
-                showProfilePoints: showProfilePoints,
                 showProfile: showProfile));
 
         return true;
@@ -96,7 +94,6 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                                       inKm: inKm,
                                       showBothSexes: showBothSexes,
                                       showWoman: showWoman,
-                                      showProfilePoints: showProfilePoints,
                                       showProfile: showProfile));
 
                               Navigator.pop(context);
@@ -236,22 +233,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  height: 100.h,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text("Mostrar nota perfil"),
-                                      Switch.adaptive(
-                                          value: showProfilePoints,
-                                          onChanged: (value) {
-                                            showProfilePoints = value;
-                                            setState(() {});
-                                          })
-                                    ],
-                                  ),
-                                ),
+                               
                                 Container(
                                   height: 100.h,
                                   child: Row(
@@ -272,8 +254,18 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                                     height: 100.h,
                                     child: ElevatedButton(
                                       onPressed: () {
-Dependencies.authScreenPresentation.signOut();                                      },
+                                       appSettingsPresentation.logOut();
+                                      },
                                       child: Text("Cerrar sesion"),
+                                    )),
+
+                                    Container(
+                                    height: 100.h,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        appSettingsPresentation.deleteAccount();
+                                      },
+                                      child: Text("Borrar cuenta"),
                                     )),
                               ],
                             )

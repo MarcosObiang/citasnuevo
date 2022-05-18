@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/location_services/locatio_service.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -64,15 +65,16 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         Map<dynamic, dynamic> functionResult = Map();
+        Map<String,dynamic> positionData=await LocationService.instance.determinePosition();
         List<Map<dynamic, dynamic>> profilesCache = [];
         HttpsCallableResult result = await fetchProfilesCloudFunction.call({
           "edadFinal": dataSourceStreamData["Ajustes"]["edadFinal"],
           "edadInicial": dataSourceStreamData["Ajustes"]["edadInicial"],
           "ambosSexos": source.getData["Ajustes"]["mostrarAmbosSexos"],
           "sexo": dataSourceStreamData["Ajustes"]["mostrarMujeres"],
-          "latitud": dataSourceStreamData["posicionLat"],
-          "longitud": dataSourceStreamData["posicionLon"],
-          "distancia": dataSourceStreamData["Ajustes"]["distanciaMaxima"]
+          "latitud": positionData["lat"],
+          "longitud": positionData["lon"],
+          "distancia": dataSourceStreamData["Ajustes"]["distanciaMaxima"]/10
         });
         if (result.data["estado"] == "correcto") {
           List<Object?> objectResult = result.data["mensaje"];

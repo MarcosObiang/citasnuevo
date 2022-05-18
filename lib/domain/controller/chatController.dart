@@ -6,6 +6,7 @@ import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
+import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
@@ -22,7 +23,8 @@ abstract class ChatController
         ShouldControllerRemoveData<ChatInformationSender>,
         ShouldControllerUpdateData<ChatInformationSender>,
         ShouldControllerAddData<ChatInformationSender>,
-        ModuleCleaner {
+        ModuleCleaner,
+       ExternalControllerDataSender<HomeScreenController> {
   late ChatRepository chatRepository;
   late List<Chat> chatList;
   late bool anyChatOpen;
@@ -76,9 +78,12 @@ class ChatControllerImpl implements ChatController {
   late StreamController<ChatInformationSender> updateDataController =
       StreamController.broadcast();
 
-  ChatControllerImpl({
-    required this.chatRepository,
-  });
+        @override
+  ControllerBridgeInformationSender<HomeScreenController> controllerBridgeInformationSender;
+
+  ChatControllerImpl(
+      {required this.chatRepository,
+      required this.controllerBridgeInformationSender});
 
   StreamController get getChatStream => chatRepository.getChatStream;
   StreamController<dynamic> get getMessageStream =>
@@ -128,6 +133,8 @@ class ChatControllerImpl implements ChatController {
               isChat: true,
               index: null,
               isDeleted: false));
+              sendChatData();
+              sendMessageData();
         }
 
         if (firstQuery == false && isRemoved == false && isModified == false) {
@@ -182,6 +189,7 @@ class ChatControllerImpl implements ChatController {
             }
           }
         }
+        sendChatData();
       }
     }, onError: (error) {
       addDataController.addError(error);
@@ -323,6 +331,7 @@ class ChatControllerImpl implements ChatController {
           }
         }
       }
+      sendMessageData();
     });
   }
 
@@ -481,4 +490,36 @@ class ChatControllerImpl implements ChatController {
   void initializeModuleData() {
     chatRepository.initializeModuleData();
   }
+
+  void sendChatData() {
+    int newChats = 0;
+
+    for (int a = 0; a < chatList.length; a++) {
+      if (chatList[a].messagesList.isEmpty == true) {
+        newChats = newChats + 1;
+      }
+    }
+
+   
+
+        controllerBridgeInformationSender.addInformation(information: {"header": "chat", "data": newChats});
+  }
+
+  void sendMessageData() {
+    int newMessages = 0;
+
+    for (int b = 0; b < chatList.length; b++) {
+      if (chatList[b].messagesList.isNotEmpty == true) {
+        newMessages = newMessages + chatList[b].unreadMessages;
+      }
+    }
+
+
+                controllerBridgeInformationSender.addInformation(information: {"header": "message", "data": newMessages});
+
+  }
+
+
+
+
 }
