@@ -16,7 +16,7 @@ class Params extends Equatable {
 
 enum LoginType { facebook, google }
 enum AuthState { notSignedIn, signingIn, error, succes }
-enum ProfileListState { empty, loading, ready, error }
+enum ProfileListState { empty, loading, ready, error,location_denied,location_forever_denied,location_disabled,location_status_unknown,profile_not_visible }
 enum ReportSendingState { notSended, sending, sended, error }
 enum ChatReportSendingState { notSended, sending, sended, error }
 

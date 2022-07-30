@@ -18,7 +18,7 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
 
   @override
   // TODO: implement appSettingsStream
-  StreamController<ApplicationSettingsInformationSender>
+  StreamController<ApplicationSettingsInformationSender>?
       get appSettingsStream => appSettingsDataSource.listenAppSettingsUpdate;
 
   @override

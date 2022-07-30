@@ -36,7 +36,24 @@ class GenericErrorDialog extends StatelessWidget {
     );
   }
 }
+class GenericDialog extends StatelessWidget {
+  final String content;
+  final String title;
 
+  const GenericDialog({required this.content, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Text(content),
+      title: Text(title),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context), child: Text("Entendido"))
+      ],
+    );
+  }
+}
 class AdsGenericErrorDialog extends StatelessWidget {
   final String content;
   final String title;

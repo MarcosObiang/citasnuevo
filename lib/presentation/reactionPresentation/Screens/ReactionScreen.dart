@@ -4,6 +4,7 @@ import 'package:citasnuevo/presentation/reactionPresentation/Widgets/RevealingCa
 import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,7 @@ class _ReactionScreenState extends State<ReactionScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Dependencies.reactionPresentation.initializeValues();
     });
   }
@@ -54,17 +55,24 @@ class _ReactionScreenState extends State<ReactionScreen> {
                     ],
                   ),
                 ),
-                Container(
-                  height: kBottomNavigationBarHeight,
-                  width: ScreenUtil.defaultSize.width,
-                  child: Text(
-                      "Media:${reactionPresentation.getAverage.toStringAsFixed(1)}"),
+                Center(
+                  child: Container(
+                    height: kBottomNavigationBarHeight,
+                    width: ScreenUtil.defaultSize.width,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                          "Exito: ${(reactionPresentation.getAverage.toStringAsFixed(0))} %",style: GoogleFonts.lato(fontSize:50.sp,fontWeight: FontWeight.bold),),
+                    ),
+                  ),
                 ),
                 Container(
                   height: kBottomNavigationBarHeight,
                   width: ScreenUtil.defaultSize.width,
-                  child: Text(
-                      "Reacciones:${reactionPresentation.reactionsController.reactions.length}"),
+                  child: Center(
+                    child: Text(
+                        "Reacciones:${reactionPresentation.reactionsController.reactions.length}",style: GoogleFonts.lato(fontSize:60.sp,fontWeight: FontWeight.bold),),
+                  ),
                 ),
                 Expanded(
                   child: LayoutBuilder(builder:
@@ -76,13 +84,14 @@ class _ReactionScreenState extends State<ReactionScreen> {
                         child: reactionPresentation.getReactionListState ==
                                 ReactionListState.ready
                             ? AnimatedList(
+                              physics: NeverScrollableScrollPhysics(),
                                 key: ReactionScreen.reactionsListKey,
                                 initialItemCount: reactionPresentation
                                     .reactionsController.reactions.length,
                                 itemBuilder: (BuildContext context, int index,
                                     Animation<double> animation) {
                                   return Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: EdgeInsets.only(bottom: 100.h,left:50.w,right:50.w,top:50.h),
                                     child: ReactionCard(
                                         reaction: reactionPresentation
                                             .reactionsController
@@ -106,7 +115,7 @@ class _ReactionScreenState extends State<ReactionScreen> {
                                           width: 200.w,
                                           child: LoadingIndicator(
                                               indicatorType:
-                                                  Indicator.ballRotate),
+                                                  Indicator.semiCircleSpin),
                                         ),
                                         Text("Cargando")
                                       ],

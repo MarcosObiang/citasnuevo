@@ -56,13 +56,13 @@ class ChatPresentation extends ChangeNotifier
       new StreamController.broadcast();
 
   @override
-  late StreamSubscription<ChatInformationSender> addDataSubscription;
+  late StreamSubscription<ChatInformationSender>? addDataSubscription;
 
   @override
-  late StreamSubscription<ChatInformationSender> removeDataSubscription;
+  late StreamSubscription<ChatInformationSender>? removeDataSubscription;
 
   @override
-  late StreamSubscription<ChatInformationSender> updateSubscription;
+  late StreamSubscription<ChatInformationSender>? updateSubscription;
 
   ChatPresentation({
     required this.chatController,
@@ -75,7 +75,7 @@ class ChatPresentation extends ChangeNotifier
   set setAnyChatOpen(bool value) {
     chatController.setAnyChatOpen = value;
     if (anyChatOpen == false) {
-      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         notifyListeners();
       });
     }
@@ -122,7 +122,7 @@ class ChatPresentation extends ChangeNotifier
 
   void getChatRemitentProfile(
       {required String profileId, required String chatId}) async {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       notifyListeners();
     });
     var result = await chatController.getUserProfile(
@@ -224,9 +224,9 @@ class ChatPresentation extends ChangeNotifier
   @protected
   void clearModuleData() {
     updateMessageListNotification.close();
-    addDataSubscription.cancel();
-    removeDataSubscription.cancel();
-    updateSubscription.cancel();
+    addDataSubscription?.cancel();
+    removeDataSubscription?.cancel();
+    updateSubscription?.cancel();
     chatDeletedNotification.close();
     updateMessageListNotification = new StreamController.broadcast();
     chatDeletedNotification = new StreamController.broadcast();
@@ -239,7 +239,7 @@ class ChatPresentation extends ChangeNotifier
 
   @override
   void addData() {
-    addDataSubscription = chatController.addDataController.stream.listen(
+    addDataSubscription = chatController.addDataController?.stream.listen(
         (event) async {
           if (event is ChatException) {
             setChatListState = ChatListState.error;
@@ -280,7 +280,7 @@ class ChatPresentation extends ChangeNotifier
               }
             }
 
-            WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               notifyListeners();
             });
           }
@@ -360,7 +360,7 @@ class ChatPresentation extends ChangeNotifier
   @override
   void removeData() {
     removeDataSubscription =
-        chatController.removeDataController.stream.listen((event) {
+        chatController.removeDataController?.stream.listen((event) {
       bool isRemoved = event.isDeleted as bool;
       List<Chat> chatListFromStream = event.chatList as List<Chat>;
 
@@ -384,7 +384,7 @@ class ChatPresentation extends ChangeNotifier
         if (chatController.chatList.isEmpty) {
           setChatListState = ChatListState.empty;
         }
-        WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           notifyListeners();
         });
       }
@@ -394,7 +394,7 @@ class ChatPresentation extends ChangeNotifier
   @override
   void update() {
     updateSubscription =
-        chatController.updateDataController.stream.listen((event) {
+        chatController.updateDataController?.stream.listen((event) {
       notifyListeners();
     });
   }

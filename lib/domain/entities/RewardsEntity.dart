@@ -20,20 +20,16 @@ class Rewards {
 
   bool isPremium;
 
+  int coins;
 
+  String dynamicLink = "NO_LINK_AVAILABLE";
 
-
-
-  String dynamicLink="NO_LINK_AVAILABLE";
-
-  Rewards({
-required this.isPremium,
-    required this.waitingReward,
-    required this.timeUntilDailyReward,
-    required this.waitingFirstReward,
-    required this.rewardForShareRigth,
-    required this.rewardForVerificationRigth,
-  });
-
-
+  Rewards(
+      {required this.isPremium,
+      required this.waitingReward,
+      required this.timeUntilDailyReward,
+      required this.waitingFirstReward,
+      required this.rewardForShareRigth,
+      required this.rewardForVerificationRigth,
+      required this.coins});
 }

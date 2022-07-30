@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
+import 'package:citasnuevo/domain/controller/rewardController.dart';
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
@@ -8,41 +9,45 @@ import 'package:citasnuevo/domain/repository/settingsRepository/SettingsReposito
 abstract class SettingsController
     implements
         ShouldControllerUpdateData<SettingsInformationSender>,
+        ExternalControllerDataSender<RewardController>,
         ModuleCleaner {
-  late SettingsEntity settingsEntity;
+  late SettingsEntity? settingsEntity;
   late SettingsRepository settingsRepository;
   void initialize();
-  void purchase(String productId,bool renewPurchase);
+  void purchase(String productId, bool renewPurchase);
 }
 
 class SettingsControllerImpl implements SettingsController {
   @override
-  late SettingsEntity settingsEntity;
+  SettingsEntity? settingsEntity;
 
   @override
-  late StreamController<SettingsInformationSender> updateDataController =
+  StreamController<SettingsInformationSender>? updateDataController =
       StreamController.broadcast();
 
   @override
   SettingsRepository settingsRepository;
-  SettingsControllerImpl({
-    required this.settingsRepository,
-  });
+  SettingsControllerImpl(
+      {required this.settingsRepository,
+      required this.controllerBridgeInformationSender});
 
   @override
   void initialize() {
     settingsRepository.settingsStream.stream.listen((event) {
       settingsEntity = event;
-      updateDataController
-          .add(SettingsInformationSender(settingsEntity: settingsEntity));
+      exteralInformationSender();
+      if (settingsEntity != null) {
+        updateDataController?.add(SettingsInformationSender(
+            settingsEntity: settingsEntity as SettingsEntity));
+      }
     }, onError: (error) {
-      updateDataController.addError(error);
+      updateDataController?.addError(error);
     });
   }
 
   @override
   void clearModuleData() {
-    updateDataController.close();
+    updateDataController?.close();
     updateDataController = new StreamController.broadcast();
     settingsRepository.clearModuleData();
   }
@@ -50,15 +55,16 @@ class SettingsControllerImpl implements SettingsController {
   @override
   void initializeModuleData() {
     initialize();
+
     settingsRepository.initializeModuleData();
   }
 
-  void purchase(String productId,bool renewPurchase) {
+  void purchase(String productId, bool renewPurchase) {
     bool makePurchase = true;
 
-    settingsEntity.productInfoList.forEach((element) {
+    settingsEntity?.productInfoList.forEach((element) {
       if (productId == element.offerId) {
-        if (element.productIsActive&&renewPurchase==false) {
+        if (element.productIsActive && renewPurchase == false) {
           makePurchase = false;
         }
       }
@@ -66,6 +72,21 @@ class SettingsControllerImpl implements SettingsController {
 
     if (makePurchase) {
       settingsRepository.purchase(productId);
+    }
+  }
+
+  @override
+  ControllerBridgeInformationSender<RewardController>?
+      controllerBridgeInformationSender;
+
+  void exteralInformationSender() {
+    String? productInfo = settingsEntity?.productInfoList
+        .where((element) => element.productId == "premiumsemanal")
+        .first
+        .productPrice;
+    if (productInfo != null) {
+      controllerBridgeInformationSender
+          ?.addInformation(information: {"data": productInfo});
     }
   }
 }

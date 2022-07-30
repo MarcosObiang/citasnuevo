@@ -43,7 +43,7 @@ class UserSettingsPresentation extends ChangeNotifier
   }
 
   @override
-  late StreamSubscription<UserSettingsInformationSender> updateSubscription;
+  late StreamSubscription<UserSettingsInformationSender>? updateSubscription;
 
   @override
   void initialize() {
@@ -63,7 +63,7 @@ class UserSettingsPresentation extends ChangeNotifier
   @override
   void restart() {
     setUserSettingsScreenState = UserSettingsScreenState.loading;
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
     userSettingsController.clearModuleData();
     initialize();
   }
@@ -119,7 +119,7 @@ class UserSettingsPresentation extends ChangeNotifier
   @override
   void update() {
     updateSubscription =
-        userSettingsController.updateDataController.stream.listen((event) {
+        userSettingsController.updateDataController?.stream.listen((event) {
       setUserSettingsScreenState = UserSettingsScreenState.loaded;
     }, onError: (error) {
       setUserSettingsScreenState = UserSettingsScreenState.error;
@@ -129,7 +129,7 @@ class UserSettingsPresentation extends ChangeNotifier
   @override
   void clearModuleData() {
     setUserSettingsScreenState = UserSettingsScreenState.loading;
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
     userSettingsController.clearModuleData();  }
 
   @override

@@ -17,14 +17,14 @@ class AppSettingsController
   late ApplicationSettingsEntity applicationSettingsEntity;
 
   @override
-  late StreamController<ApplicationSettingsInformationSender>
+  late StreamController<ApplicationSettingsInformationSender>?
       updateDataController = StreamController.broadcast();
   AppSettingsController({
     required this.appSettingsRepository,
   });
 
   void initializeListener() {
-    appSettingsRepository.appSettingsStream.stream.listen((event) {
+    appSettingsRepository.appSettingsStream?.stream.listen((event) {
       applicationSettingsEntity = new ApplicationSettingsEntity(
           distance: event.distance,
           maxAge: event.maxAge,
@@ -34,7 +34,7 @@ class AppSettingsController
           showBothSexes: event.showBothSexes,
           showWoman: event.showWoman,
           showProfile: event.showProfile);
-      updateDataController.add(event);
+      updateDataController?.add(event);
     });
   }
 
@@ -56,22 +56,22 @@ class AppSettingsController
   Future<Either<Failure, bool>> deleteAccount() async {
     var result = await appSettingsRepository.deleteAccount();
     result.fold((l) {}, (r) {
-  //    Dependencies.authRepository.logOut();
+      //    Dependencies.authRepository.logOut();
     });
     return result;
   }
 
-    Future<Either<Failure, bool>> logOut() async {
+  Future<Either<Failure, bool>> logOut() async {
     var result = await appSettingsRepository.logOut();
     result.fold((l) {}, (r) {
-  //    Dependencies.authRepository.logOut();
+      //    Dependencies.authRepository.logOut();
     });
     return result;
   }
 
   @override
   void clearModuleData() {
-    updateDataController.close();
+    updateDataController?.close();
     updateDataController = new StreamController.broadcast();
   }
 

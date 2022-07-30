@@ -9,11 +9,11 @@ import '../../domain/entities/UserSettingsEntity.dart';
 
 class UserCreatorMapper {
     static Future<Map<String, dynamic>> toMap(
-      UserCreatorEntity userCreatorEntity) async {
+      UserCreatorEntity? userCreatorEntity) async {
     Map<String, dynamic> response = new Map();
-    List<UserPicture> userPictureList = userCreatorEntity.userPicruresList;
+    List<UserPicture> userPictureList = userCreatorEntity!.userPicruresList;
     List<UserCharacteristic> userCharacteristicList =
-        userCreatorEntity.userCharacteristics;
+        userCreatorEntity!.userCharacteristics;
 
     response["images"] = await hashImage(userPictureList);
     response["userBio"] = userCreatorEntity.userBio;

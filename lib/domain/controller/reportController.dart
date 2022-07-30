@@ -24,7 +24,6 @@ class ReportController implements Controller  {
   @override
   void clearModuleData() {
     // TODO: implement clearModuleData
-    throw UnimplementedError();
   }
 
   @override

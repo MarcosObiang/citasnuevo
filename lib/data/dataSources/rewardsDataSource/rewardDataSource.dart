@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/data/Mappers/RewardMapper.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 
+import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/dependencies/error/Failure.dart';
 
 abstract class RewardDataSource implements DataSource {
@@ -14,10 +17,12 @@ abstract class RewardDataSource implements DataSource {
   late StreamController<Rewards> rewardStream;
 
   /// Used for get a link so the user can share it and get rewarded with coins
-  Future<Either<Failure, String>> getDynamicLink();
+  Future<String> getDynamicLink();
 
   /// Used to claim a daily reward after spending all of the coins 24 h before
-  Future<Either<Failure, bool>> getDailyReward();
+  Future<bool> getDailyReward();
+
+  Future<bool> getFrstReward();
 
   ///Use to get real time updates from the data source
   ///
@@ -32,12 +37,36 @@ class RewardDataSourceImpl implements RewardDataSource {
   });
 
   @override
-  Future<Either<Failure, bool>> getDailyReward() {
-    throw UnimplementedError();
+  Future<bool> getDailyReward() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        await Dependencies.advertisingServices.showRewarded();
+
+        await for (bool event in Dependencies
+            .advertisingServices.advertismentStateStream.stream) {
+          if (event) {
+            HttpsCallable callDailyReward = FirebaseFunctions.instance
+                .httpsCallable("solcitarCreditosDiarios");
+            HttpsCallableResult httpsCallable = await callDailyReward.call();
+            if (httpsCallable.data["estado"] == "correcto") {
+              return true;
+            } else {
+              throw RewardException(message: "Error");
+            }
+          }
+          
+        }
+        return true;
+      } catch (e) {
+        throw RewardException(message: "Error");
+      }
+    } else {
+      throw NetworkException();
+    }
   }
 
   @override
-  Future<Either<Failure, String>> getDynamicLink() {
+  Future<String> getDynamicLink() {
     throw UnimplementedError();
   }
 
@@ -47,7 +76,8 @@ class RewardDataSourceImpl implements RewardDataSource {
       Map dataSource = source.getData;
       try {
         Rewards rewards = new Rewards(
-      isPremium: dataSource["monedasInfinitas"],
+            coins: dataSource["creditos"],
+            isPremium: dataSource["monedasInfinitas"],
             timeUntilDailyReward: dataSource["siguienteRecompensa"],
             waitingFirstReward: dataSource["primeraRecompensa"],
             rewardForShareRigth: false,
@@ -79,7 +109,7 @@ class RewardDataSourceImpl implements RewardDataSource {
   @override
   bool clearModuleData() {
     rewardStream.close();
-    sourceStreamSubscription.cancel();
+    sourceStreamSubscription?.cancel();
     return true;
   }
 
@@ -90,8 +120,28 @@ class RewardDataSourceImpl implements RewardDataSource {
   }
 
   @override
-  late StreamSubscription sourceStreamSubscription;
+   StreamSubscription? sourceStreamSubscription;
 
   @override
   late StreamController<Rewards> rewardStream;
+
+  @override
+  Future<bool> getFrstReward() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        HttpsCallable callDailyReward =
+            FirebaseFunctions.instance.httpsCallable("pedirPrimeraRecompensa");
+        HttpsCallableResult httpsCallable = await callDailyReward.call();
+        if (httpsCallable.data["estado"] == "correcto") {
+          return true;
+        } else {
+          throw RewardException(message: "Error");
+        }
+      } catch (e) {
+        throw RewardException(message: "Error");
+      }
+    } else {
+      throw NetworkException();
+    }
+  }
 }

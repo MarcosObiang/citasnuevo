@@ -34,24 +34,24 @@ abstract class ReactionDataSource implements DataSource {
 
 class ReactionDataSourceImpl implements ReactionDataSource {
   @override
-  late StreamController<Map<String, dynamic>> reactionListener =
+  StreamController<Map<String, dynamic>> reactionListener =
       new StreamController.broadcast();
   @override
-  late StreamController<Map<dynamic, dynamic>> additionalDataSender =
+  StreamController<Map<dynamic, dynamic>> additionalDataSender =
       new StreamController.broadcast();
 
   @override
-  late StreamSubscription sourceStreamSubscription;
+  StreamSubscription? sourceStreamSubscription;
 
-  late StreamSubscription<QuerySnapshot<Map<String, dynamic>>>
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
       reactionSubscriptionListener;
   @override
   ApplicationDataSource source;
-  late String userID;
-  late double reactionsAverage;
-  late int coins;
-  late Map aditionalData;
-  late bool isPremium;
+  String? userID = kNotAvailable;
+  double? reactionsAverage = 0;
+  int? coins = 0;
+  Map? aditionalData = new Map();
+  bool? isPremium = false;
   List<String> reactionsId = [];
 
   ReactionDataSourceImpl({
@@ -68,39 +68,42 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         FirebaseFirestore instance = FirebaseFirestore.instance;
-        DateTime dateTime = await DateNTP.instance.getTime();
-        int queryDate =
-            dateTime.subtract(Duration(days: 1)).millisecondsSinceEpoch ~/ 1000;
+     
         reactionSubscriptionListener = instance
             .collection("valoraciones")
-            .where("Time", isGreaterThanOrEqualTo: queryDate)
             .where("idDestino", isEqualTo: userID)
             .snapshots()
             .listen((dato) {
-          dato.docChanges.forEach((element) {
+          dato.docChanges.forEach((element) async {
             try {
-              if (element.type == DocumentChangeType.added) {
-                Reaction reaction = ReactionConverter.fromMap(
-                    element.doc.data() as Map<String, dynamic>);
+              DateTime dateTime = await DateNTP.instance.getTime();
+              int queryTime = dateTime.millisecondsSinceEpoch ~/ 1000;
+              int caducidadValoracion = element.doc.get("caducidad");
 
-                reactionListener.add({
-                  "modified": false,
-                  "reaction": reaction,
-                  "dataLength": dato.docChanges.length,
-                  "deleted": false,
-                  "notify": notifyReactions
-                });
-              }
-              if (element.type == DocumentChangeType.modified) {
-                Reaction reaction = ReactionConverter.fromMap(
-                    element.doc.data() as Map<String, dynamic>);
-                reactionListener.add({
-                  "modified": true,
-                  "reaction": reaction,
-                  "dataLength": dato.docChanges.length,
-                  "deleted": false,
-                  "notify": false
-                });
+              if (caducidadValoracion > queryTime) {
+                if (element.type == DocumentChangeType.added) {
+                  Reaction reaction = ReactionConverter.fromMap(
+                      element.doc.data() as Map<String, dynamic>);
+
+                  reactionListener.add({
+                    "modified": false,
+                    "reaction": reaction,
+                    "dataLength": dato.docChanges.length,
+                    "deleted": false,
+                    "notify": element.doc.metadata.isFromCache==true?false:true
+                  });
+                }
+                if (element.type == DocumentChangeType.modified) {
+                  Reaction reaction = ReactionConverter.fromMap(
+                      element.doc.data() as Map<String, dynamic>);
+                  reactionListener.add({
+                    "modified": true,
+                    "reaction": reaction,
+                    "dataLength": dato.docChanges.length,
+                    "deleted": false,
+                    "notify": false
+                  });
+                }
               }
 
               if (element.type == DocumentChangeType.removed) {
@@ -120,7 +123,6 @@ class ReactionDataSourceImpl implements ReactionDataSource {
               throw ReactionException(message: e.toString(), stackTrace: s);
             }
           });
-          notifyReactions = true;
         });
       } catch (e, s) {
         throw ReactionException(message: e.toString(), stackTrace: s);
@@ -131,35 +133,45 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   @override
-  void subscribeToMainDataSource() async{
-   await Future.delayed(Duration(milliseconds: 200));
-    userID = source.getData["id"];
-    isPremium = source.getData["monedasInfinitas"];
-    reactionsAverage = double.parse(source.getData["mediaTotal"].toString());
-    coins = source.getData["creditos"];
-    additionalDataSender.add({
-      "reactionsAverage": reactionsAverage,
-      "coins": coins,
-      "isPremium": isPremium
-    });
-    sourceStreamSubscription = source.dataStream.stream.listen((event) {
-      reactionsAverage = double.parse(event["mediaTotal"].toString());
-      coins = event["creditos"];
-      isPremium = event["monedasInfinitas"];
+  void subscribeToMainDataSource() async {
+    try {
+      await Future.delayed(Duration(milliseconds: 200));
+      sourceStreamSubscription = source.dataStream.stream.listen((event) {
+        reactionsAverage = double.parse(event["mediaTotal"].toString());
+        if(reactionsAverage!=null){
+        reactionsAverage=double.parse(reactionsAverage!.toStringAsFixed(1))*10;
 
+        }
+        coins = event["creditos"];
+        isPremium = event["monedasInfinitas"];
+
+        additionalDataSender.add({
+          "reactionsAverage": reactionsAverage,
+          "coins": coins,
+          "isPremium": isPremium
+        });
+      });
+      userID = source.getData["id"];
+      isPremium = source.getData["monedasInfinitas"];
+  reactionsAverage = double.parse( source.getData["mediaTotal"].toString());
+        if(reactionsAverage!=null){
+        reactionsAverage=double.parse(reactionsAverage!.toStringAsFixed(1))*10;
+
+        }      coins = source.getData["creditos"];
       additionalDataSender.add({
         "reactionsAverage": reactionsAverage,
         "coins": coins,
         "isPremium": isPremium
       });
-    });
 
-    initializeReactionListener();
+      initializeReactionListener();
+    } catch (e) {
+      additionalDataSender.addError(e);
+    }
   }
 
   @override
   Future<void> revealReaction(String reactionId) async {
-
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         HttpsCallable callToRevealReactionFunction =
@@ -209,8 +221,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
           "idDestino": reactionSenderId
         });
 
-        if (httpsCallableResult.data["estado"] == "correcto" &&
-            httpsCallableResult.data["mensaje"] == 0) {
+        if (httpsCallableResult.data["estado"] == "correcto") {
           return true;
         } else {
           throw Exception(["NOT_ALLOWED"]);
@@ -247,8 +258,8 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   void clearModuleData() {
     reactionListener.close();
     additionalDataSender.close();
-    sourceStreamSubscription.cancel();
-    reactionSubscriptionListener.cancel();
+    sourceStreamSubscription?.cancel();
+    reactionSubscriptionListener?.cancel();
     coins = 0;
     aditionalData = new Map();
     reactionsAverage = 0;

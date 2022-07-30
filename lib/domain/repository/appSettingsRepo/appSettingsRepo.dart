@@ -15,6 +15,6 @@ abstract class AppSettingsRepository implements ModuleCleaner {
     Future<Either<Failure,bool>> logOut();
 
 
-  StreamController<ApplicationSettingsInformationSender> get appSettingsStream;
+  StreamController<ApplicationSettingsInformationSender>? get appSettingsStream;
 
 }

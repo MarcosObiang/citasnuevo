@@ -1,7 +1,14 @@
 import 'dart:async';
 
 enum ReactionRevealigState { notRevealed, revealed, revealing, error }
-enum ReactionAceptingState { done, inProcessAcepting,inProcessDeclining, notAccepted, error }
+
+enum ReactionAceptingState {
+  done,
+  inProcessAcepting,
+  inProcessDeclining,
+  notAccepted,
+  error
+}
 
 class Reaction {
   int age;
@@ -24,8 +31,6 @@ class Reaction {
     this.reactionAceptingState = reactionAceptingState;
     reactionRevealedStateStream.add(this.reactionAceptingState);
   }
-
-
 
   get getAge => this.age;
 
@@ -74,10 +79,8 @@ class Reaction {
   get getReactionRevealigState => this.reactionRevealigState;
 
   set setReactionRevealigState(reactionRevealigState) {
- 
-      this.reactionRevealigState = reactionRevealigState;
-      reactionRevealedStateStream.add(this.reactionRevealigState);
-    
+    this.reactionRevealigState = reactionRevealigState;
+    reactionRevealedStateStream.add(this.reactionRevealigState);
   }
 
   StreamController<dynamic> reactionRevealedStateStream =
@@ -112,6 +115,15 @@ class Reaction {
     }
   }
 
+  void resyncReaction() {
+    this.secondsUntilExpiration = reactionExpirationDateInSeconds -
+        DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    if (this.secondsUntilExpiration > 86400) {
+      this.secondsUntilExpiration = 86400;
+    }
+  }
+
   void closeSecondsRemainingStream() {
     if (secondsRemainingStream.isClosed == false) {
       secondsRemainingStream.close();
@@ -131,11 +143,19 @@ class Reaction {
           this.secondsUntilExpiration = this.secondsUntilExpiration - 1;
           secondsRemainingStream.add(this.secondsUntilExpiration);
         }
-        if (this.secondsUntilExpiration == 1) {
+
+        if (this.reactionRevealigState == ReactionRevealigState.revealed) {
+          closeSecondsRemainingStream();
+          reactionTimer.cancel();
+        }
+        if (this.secondsUntilExpiration <=1 &&
+            reactionTimer.isActive &&
+            secondsRemainingStream.isClosed == false) {
+          reactionTimer.cancel();
+
           this.reactionExpiredId.add(this);
 
           closeSecondsRemainingStream();
-          reactionTimer.cancel();
         }
       });
     }

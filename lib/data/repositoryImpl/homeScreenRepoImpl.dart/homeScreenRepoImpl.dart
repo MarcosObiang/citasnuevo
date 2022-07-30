@@ -9,6 +9,7 @@ import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart'
 import 'package:dartz/dartz.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:geolocator_platform_interface/src/enums/location_permission.dart';
 
 class HomeScreenRepositoryImpl implements HomeScreenRepository {
   @override
@@ -31,7 +32,9 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       if (e is NetworkException) {
         return Left(NetworkFailure());
       } else if (e is FetchProfilesException) {
-        return Left(FetchUserFailure());
+        return Left(FetchUserFailure(message: e.message));
+      } else if (e is LocationServiceException) {
+        return Left(LocationServiceFailure(message: e.message));
       } else {
         return Left(GenericModuleFailure());
       }
@@ -64,5 +67,39 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
   @override
   void initializeModuleData() {
     homeScreenDataSource.initializeModuleData();
+  }
+
+  @override
+  Future<Either<Failure, LocationPermission>>
+      requestLocationPermission() async {
+    // TODO: implement requestLocationPermission
+    try {
+      var result = await homeScreenDataSource.requestPermission();
+      return Right(result);
+    } catch (e) {
+      if (e is RatingProfilesException) {
+        return Left(RatingProfilesFailure());
+      } else if (e is LocationServiceException) {
+        return Left(LocationServiceFailure(message: e.message));
+      } else {
+        return Left(ServerFailure());
+      }
+    }
+  }
+  
+  @override
+  Future<Either<Failure, bool>> goToAppSettings() async{
+      try {
+      var result = await homeScreenDataSource.goToLocationSettings();
+      return Right(result);
+    } catch (e) {
+      if (e is RatingProfilesException) {
+        return Left(RatingProfilesFailure());
+      } else if (e is LocationServiceException) {
+        return Left(LocationServiceFailure(message: e.message));
+      } else {
+        return Left(ServerFailure());
+      }
+    }
   }
 }

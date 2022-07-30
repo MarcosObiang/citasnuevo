@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:core';
+import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/location_services/locatio_service.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
+import 'package:flutter/animation.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../../core/common/commonUtils/getUserImage.dart';
 
@@ -27,6 +30,10 @@ abstract class HomeScreenDataSource implements DataSource {
   /// Throws [RatingProfilesException] when a generic error occurs during the process
   ///
   /// Throws [NetworkException] if there is no actual connection
+  ///
+  ///
+  Future<LocationPermission> requestPermission();
+  Future<bool> goToLocationSettings();
 
   Future<void> sendRating(
       {required double ratingValue, required String idProfileRated});
@@ -47,8 +54,8 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   HttpsCallable reportUser =
       FirebaseFunctions.instance.httpsCallable("enviarDenuncia");
   Map<String, dynamic> dataSourceStreamData = Map();
-    @override
- late StreamSubscription sourceStreamSubscription;
+  @override
+  StreamSubscription? sourceStreamSubscription;
   HomeScreenDataSourceImpl({
     required this.source,
   });
@@ -64,33 +71,69 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   Future<Map<dynamic, dynamic>> fetchProfiles() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        Map<dynamic, dynamic> functionResult = Map();
-        Map<String,dynamic> positionData=await LocationService.instance.determinePosition();
-        List<Map<dynamic, dynamic>> profilesCache = [];
-        HttpsCallableResult result = await fetchProfilesCloudFunction.call({
-          "edadFinal": dataSourceStreamData["Ajustes"]["edadFinal"],
-          "edadInicial": dataSourceStreamData["Ajustes"]["edadInicial"],
-          "ambosSexos": source.getData["Ajustes"]["mostrarAmbosSexos"],
-          "sexo": dataSourceStreamData["Ajustes"]["mostrarMujeres"],
-          "latitud": positionData["lat"],
-          "longitud": positionData["lon"],
-          "distancia": dataSourceStreamData["Ajustes"]["distanciaMaxima"]/10
-        });
-        if (result.data["estado"] == "correcto") {
-          List<Object?> objectResult = result.data["mensaje"];
-          objectResult.forEach((element) {
-            profilesCache.add(element as Map<dynamic, dynamic>);
-          });
+        bool isLocationEnabled =
+            await LocationService.instance.isLocationServiceEnabled();
 
-          functionResult["userCharacteristicsData"] =
-              source.getData["filtros usuario"];
-          functionResult["profilesList"] = profilesCache;
-          return functionResult;
+        if (isLocationEnabled) {
+          LocationPermission permission =
+              await LocationService.instance.locationPermissionStatus();
+
+          if (permission == LocationPermission.always ||
+              permission == LocationPermission.whileInUse) {
+            Map<dynamic, dynamic> functionResult = Map();
+            Map<String, dynamic> positionData =
+                await LocationService.instance.determinePosition();
+            List<Map<dynamic, dynamic>> profilesCache = [];
+            HttpsCallableResult result = await fetchProfilesCloudFunction.call({
+              "edadFinal": dataSourceStreamData["Ajustes"]["edadFinal"],
+              "edadInicial": dataSourceStreamData["Ajustes"]["edadInicial"],
+              "ambosSexos": source.getData["Ajustes"]["mostrarAmbosSexos"],
+              "sexo": dataSourceStreamData["Ajustes"]["mostrarMujeres"],
+              "latitud": positionData["lat"],
+              "longitud": positionData["lon"],
+              "distancia":
+                  dataSourceStreamData["Ajustes"]["distanciaMaxima"] / 10
+            });
+            if (result.data["estado"] == "correcto") {
+              List<Object?> objectResult = result.data["mensaje"];
+              objectResult.forEach((element) {
+                profilesCache.add(element as Map<dynamic, dynamic>);
+              });
+
+              functionResult["userCharacteristicsData"] =
+                  source.getData["filtros usuario"];
+              functionResult["profilesList"] = profilesCache;
+              functionResult["todayDateTime"] =
+                  await DateNTP.instance.getTime();
+              return functionResult;
+            } else if (result.data["estado"] == "error") {
+              if (result.data["mensaje"] == "error_perfil_invisible") {
+                throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
+              } else {
+                throw FetchProfilesException(
+                    message: "INTERNAL_ERROR");
+              }
+            } else {
+              throw FetchProfilesException(message: "PROFILES_FETCHING_FAILED");
+            }
+          } else {
+            if (permission == LocationPermission.deniedForever) {
+              throw LocationServiceException(
+                  message: "LOCATION_PERMISSION_DENIED_FOREVER");
+            }
+            if (permission == LocationPermission.denied) {
+              throw LocationServiceException(
+                  message: "LOCATION_PERMISSION_DENIED");
+            } else {
+              throw LocationServiceException(
+                  message: "UNABLE_TO_DETERMINE_LOCATION_STATUS");
+            }
+          }
         } else {
-          throw FetchProfilesException(message: "PROFILES_FETCHING_FAILED");
+          throw LocationServiceException(message: "LOCATION_SERVICE_DISABLED");
         }
       } catch (e) {
-        throw FetchProfilesException(message: e.toString());
+        throw e;
       }
     } else {
       throw NetworkException();
@@ -152,7 +195,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   @override
   void clearModuleData() {
     dataSourceStreamData = Map();
-    sourceStreamSubscription.cancel();
+    sourceStreamSubscription?.cancel();
   }
 
   @override
@@ -160,5 +203,24 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
     subscribeToMainDataSource();
   }
 
+  @override
+  Future<LocationPermission> requestPermission() async {
+    try {
+      LocationPermission locationPermission =
+          await LocationService.instance.requestLocationPermission();
+      return locationPermission;
+    } catch (e) {
+      throw LocationServiceException(message: e.toString());
+    }
+  }
 
+  @override
+  Future<bool> goToLocationSettings() async {
+    try {
+      bool openSettings = await LocationService.instance.gotoLocationSettings();
+      return openSettings;
+    } catch (e) {
+      throw LocationServiceException(message: e.toString());
+    }
+  }
 }

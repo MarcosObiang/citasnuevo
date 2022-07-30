@@ -17,6 +17,7 @@ import 'package:citasnuevo/presentation/reactionPresentation/Widgets/RevealingCa
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:notify_inapp/notify_inapp.dart';
 
 enum RevealingAnimationState { notTurning, turned, turning }
@@ -40,13 +41,13 @@ class ReactionPresentation extends ChangeNotifier
   bool isPremium = false;
 
   @override
-  late StreamSubscription<ReactionInformationSender> addDataSubscription;
+  StreamSubscription<ReactionInformationSender>? addDataSubscription;
 
   @override
-  late StreamSubscription<ReactionInformationSender> updateSubscription;
+  StreamSubscription<ReactionInformationSender>? updateSubscription;
 
   @override
-  late StreamSubscription<ReactionInformationSender> removeDataSubscription;
+  StreamSubscription<ReactionInformationSender>? removeDataSubscription;
 
   @override
   void clearModuleData() {
@@ -186,9 +187,9 @@ class ReactionPresentation extends ChangeNotifier
     clearModuleData();
 
     setReactionListState = ReactionListState.loading;
-    updateSubscription.cancel();
-    addDataSubscription.cancel();
-    removeDataSubscription.cancel();
+    updateSubscription?.cancel();
+    addDataSubscription?.cancel();
+    removeDataSubscription?.cancel();
 
     initialize();
   }
@@ -196,7 +197,13 @@ class ReactionPresentation extends ChangeNotifier
   @override
   void update() {
     updateSubscription =
-        reactionsController.updateDataController.stream.listen((event) {
+        reactionsController.updateDataController?.stream.listen((event) {
+      if (reactionsController.reactions.isEmpty) {
+        setReactionListState = ReactionListState.empty;
+      } else {
+        setReactionListState = ReactionListState.ready;
+      }
+
       if (event.coins != null) {
         setCoins = event.coins as int;
       }
@@ -206,9 +213,7 @@ class ReactionPresentation extends ChangeNotifier
       if (event.isPremium != null) {
         setIsPremium = event.isPremium;
       }
-      if (event.sync == true) {
-        restart();
-      }
+
       notifyListeners();
     }, onError: (_) {
       setReactionListState = ReactionListState.error;
@@ -217,8 +222,7 @@ class ReactionPresentation extends ChangeNotifier
 
   @override
   void addData() async {
-
-    addDataSubscription = reactionsController.addDataController.stream.listen(
+    addDataSubscription = reactionsController.addDataController?.stream.listen(
         (event) {
           if (event.isModified == false) {
             setReactionListState = ReactionListState.ready;
@@ -229,8 +233,9 @@ class ReactionPresentation extends ChangeNotifier
 
             if (ReactionScreen.reactionsListKey.currentContext != null &&
                 ReactionScreen.reactionsListKey.currentState != null) {
-              ReactionScreen.reactionsListKey.currentState?.insertItem(0);
-              WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {});
+              ReactionScreen.reactionsListKey.currentState
+                  ?.insertItem(0, duration: Duration(milliseconds: 1500));
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
             }
           }
         },
@@ -243,8 +248,16 @@ class ReactionPresentation extends ChangeNotifier
   @override
   void removeData() {
     removeDataSubscription =
-        reactionsController.removeDataController.stream.listen(
+        reactionsController.removeDataController?.stream.listen(
             (event) {
+              DateTime? reactionExpireTime;
+              ReactionRevealigState? reactionRevealigState;
+
+              if (event.reaction != null) {
+                reactionExpireTime = DateTime.fromMillisecondsSinceEpoch(
+                    event.reaction!.reactionExpirationDateInSeconds * 1000);
+                reactionRevealigState = event.reaction!.reactionRevealigState;
+              }
               if (ReactionScreen.reactionsListKey.currentState != null &&
                   ReactionScreen.boxConstraints != null) {
                 if (event.index != null && event.reaction != null) {
@@ -255,15 +268,29 @@ class ReactionPresentation extends ChangeNotifier
                           boxConstraints: ReactionScreen.boxConstraints,
                           index: event.index as int,
                           animation: animation),
-                      duration: Duration(milliseconds: 300));
+                      duration: Duration(milliseconds: 800));
 
                   if (reactionsController.reactions.length == 0) {
-                    setReactionListState = ReactionListState.empty;
+                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                      setReactionListState = ReactionListState.empty;
+                    });
                   }
-                  WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+                  else {
+                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                     notifyListeners();
                   });
                 }
+                }
+              } else {
+                if (reactionsController.reactions.length == 0) {
+                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                    setReactionListState = ReactionListState.empty;
+                  });
+                } 
+              }
+              if (reactionExpireTime != null &&
+                  reactionRevealigState == ReactionRevealigState.notRevealed) {
+                showExpiredINAppNotification(dateTime: reactionExpireTime);
               }
             },
             cancelOnError: false,
@@ -299,6 +326,39 @@ class ReactionPresentation extends ChangeNotifier
                     ),
                     Text(
                       "Tienes una nueva reacción",
+                      style: GoogleFonts.lato(fontSize: 40.sp),
+                    ),
+                  ],
+                ),
+              )),
+        ),
+        duration: 300);
+  }
+
+  void showExpiredINAppNotification({required DateTime dateTime}) {
+    var expireTimeFormat = new DateFormat.yMEd().add_Hms();
+
+    Notify notify = Notify();
+    notify.show(
+        startKey.currentContext as BuildContext,
+        Padding(
+          padding: EdgeInsets.all(10.h),
+          child: Container(
+              height: 150.h,
+              width: ScreenUtil().screenWidth,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Padding(
+                padding: EdgeInsets.all(10.h),
+                child: Column(
+                  children: [
+                    Text(
+                      "Reaccion caducada",
+                      style: GoogleFonts.lato(fontSize: 60.sp),
+                    ),
+                    Text(
+                      " Ha caducado el ${expireTimeFormat.format(dateTime)}",
                       style: GoogleFonts.lato(fontSize: 40.sp),
                     ),
                   ],

@@ -51,10 +51,10 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     widget.images.addAll([
       widget.profile.profileImage1,
       widget.profile.profileImage2,
-      widget.profile.profileImage1,
-      widget.profile.profileImage2,
-      widget.profile.profileImage1,
-      widget.profile.profileImage2
+      widget.profile.profileImage3,
+      widget.profile.profileImage4,
+      widget.profile.profileImage5,
+      widget.profile.profileImage6
     ]);
     generateList();
   }
@@ -73,7 +73,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 children: [
                   ListView(children: widgetList),
                   profileInfo(
-                      name: widget.profile.name, age: widget.profile.age.toString()),
+                      name: widget.profile.name, age: widget.profile.age.toString(),distance: widget.profile.distance.toString()),
                   if (isRating) ...[ratingScreen()],
               widget.needRatingWidget?    reactionSlider(homeScreenPresentation):Container()
                 ],
@@ -83,7 +83,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     );
   }
 
-  Widget profileInfo({required String name, required String age}) {
+  Widget profileInfo({required String name, required String age, required String distance}) {
     return Container(
         height: widget.boxConstraints.maxHeight * 0.15,
         width: widget.boxConstraints.maxWidth,
@@ -116,7 +116,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "100 Km",
+                    "$distance Km",
                     style:
                         GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
                   ),
@@ -236,6 +236,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           profileCharateristicsData: widget.profile.profileCharacteristics,
           constraints: widget.boxConstraints,
         ));
+        widgetList.add(ProfileFoot(constraints: widget.boxConstraints));
 
     var time2 = DateTime.now().microsecondsSinceEpoch;
 

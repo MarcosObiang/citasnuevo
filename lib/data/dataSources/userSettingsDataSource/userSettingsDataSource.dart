@@ -24,21 +24,21 @@ abstract class UserSettingsDataSource implements DataSource {
 
 class UserSettingsDataSourceImpl implements UserSettingsDataSource {
   @override
-  late StreamController<UserSettingsInformationSender> listenAppSettingsUpdate =
+   StreamController<UserSettingsInformationSender> listenAppSettingsUpdate =
       StreamController.broadcast();
 
   @override
   ApplicationDataSource source;
 
   @override
-  late StreamSubscription sourceStreamSubscription;
+   StreamSubscription? sourceStreamSubscription;
   UserSettingsDataSourceImpl({
     required this.source,
   });
 
   @override
   void clearModuleData() {
-    sourceStreamSubscription.cancel();
+    sourceStreamSubscription?.cancel();
     listenAppSettingsUpdate.close();
     listenAppSettingsUpdate = new StreamController.broadcast();
   }

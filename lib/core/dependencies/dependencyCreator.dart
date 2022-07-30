@@ -35,6 +35,7 @@ import 'package:citasnuevo/domain/controller/rewardController.dart';
 import 'package:citasnuevo/domain/controller/userCreatorController.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
 import 'package:citasnuevo/domain/controller_bridges/HomeScreenCotrollerBridge.dart';
+import 'package:citasnuevo/domain/controller_bridges/RewardScreenControllerBridge.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/userSettingsRepo.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
@@ -76,18 +77,22 @@ class Dependencies {
       AuthDataSourceImpl(authService: authService);
 
   static late final AuthRepository authRepository;
+
   /// REWARD SCREEN
-  /// 
-  /// 
-  /// 
-  /// 
+  ///
+  ///
+  ///
+  ///
+  static late final RewardScreenControllerBridge<RewardController>
+      rewardScreenControllerBridge = new RewardScreenControllerBridge();
 
   static late final RewardDataSource rewardDataSource =
       RewardDataSourceImpl(source: applicationDataSource);
   static late final RewardRepository rewardRepository =
       RewardRepoImpl(rewardDataSource: rewardDataSource);
-  static late final RewardController rewardController =
-      RewardControllerImpl(rewardRepository: rewardRepository);
+  static late final RewardController rewardController = RewardControllerImpl(
+      rewardRepository: rewardRepository,
+      controllerBridgeInformationReciever: rewardScreenControllerBridge);
   static late final RewardScreenPresentation rewardScreenPresentation =
       RewardScreenPresentation(rewardController: rewardController);
 
@@ -166,7 +171,9 @@ class Dependencies {
   static late final SettingsRepository settingsRepository =
       new SettingsRepoImpl(settingsDataSource: settingsDataSource);
   static late final SettingsController settingsController =
-      new SettingsControllerImpl(settingsRepository: settingsRepository);
+      new SettingsControllerImpl(
+          settingsRepository: settingsRepository,
+          controllerBridgeInformationSender: rewardScreenControllerBridge);
   static late final SettingsScreenPresentation settingsScreenPresentation =
       new SettingsScreenPresentation(settingsController: settingsController);
 
@@ -270,32 +277,37 @@ class Dependencies {
   }
 
   static Future<bool> initializeDependencies() async {
-    applicationDataSource.userId = GlobalDataContainer.userId as String;
-    bool userDataExists =
-        await applicationDataSource.initializeMainDataSource();
+    try {
+      applicationDataSource.userId = GlobalDataContainer.userId as String;
+      bool userDataExists =
+          await applicationDataSource.initializeMainDataSource();
 
-    if (userDataExists == true) {
-      homeScreenPresentation.initialize();
-      chatPresentation.initialize();
-      reactionPresentation.initialize();
-      authScreenPresentation.clearModuleData();
+      if (userDataExists == true) {
+        
+        await PurchasesServices.purchasesServices.initService();
+        NotificationService instance = new NotificationService();
+        await instance.startBackgroundNotificationHandler();
+        homeScreenPresentation.initialize();
+        chatPresentation.initialize();
+        reactionPresentation.initialize();
 
-      await PurchasesServices.purchasesServices.initService();
-      NotificationService instance = new NotificationService();
-      await instance.startBackgroundNotificationHandler();
-      authScreenPresentation.clearModuleData();
-      homeReportScreenPresentation.initialize();
-      settingsScreenPresentation.initialize();
-      appSettingsPresentation.initialize();
-      userSettingsPresentation.initialize();
-      advertisingServices.initializeAdsService();
+        authScreenPresentation.clearModuleData();
+        homeReportScreenPresentation.initialize();
+        settingsScreenPresentation.initialize();
+        appSettingsPresentation.initialize();
+        userSettingsPresentation.initialize();
+        advertisingServices.initializeAdsService();
+        rewardScreenPresentation.initializeModuleData();
 
-      return true;
-    } else {
-      userCreatorPresentation.initializeModuleData();
-      advertisingServices.shouldUserGiveCosent();
+        return true;
+      } else {
+        userCreatorPresentation.initializeModuleData();
+        advertisingServices.shouldUserGiveCosent();
 
-      return false;
+        return false;
+      }
+    } catch (e) {
+      throw e;
     }
   }
 }

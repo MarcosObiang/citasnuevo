@@ -29,7 +29,7 @@ class AppSettingsPresentation extends ChangeNotifier
 
   AppSettingsPresentation({required this.appSettingsController});
   @override
-  late StreamSubscription<ApplicationSettingsInformationSender>
+  late StreamSubscription<ApplicationSettingsInformationSender>?
       updateSubscription;
   get getAppSettingsEntity => appSettingsController.applicationSettingsEntity;
   set setAppSettingsScreenState(AppSettingsScreenState appSettingsScreenState) {
@@ -53,7 +53,7 @@ class AppSettingsPresentation extends ChangeNotifier
   @override
   void restart() {
     setAppSettingsScreenState = AppSettingsScreenState.loading;
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
     appSettingsController.clearModuleData();
     initialize();
   }
@@ -135,7 +135,7 @@ class AppSettingsPresentation extends ChangeNotifier
   @override
   void update() {
     updateSubscription =
-        appSettingsController.updateDataController.stream.listen((event) {
+        appSettingsController.updateDataController?.stream.listen((event) {
       setAppSettingsScreenState = AppSettingsScreenState.loaded;
     }, onError: (error) {
       setAppSettingsScreenState = AppSettingsScreenState.error;
@@ -145,7 +145,7 @@ class AppSettingsPresentation extends ChangeNotifier
   @override
   void clearModuleData() {
     setAppSettingsScreenState = AppSettingsScreenState.loading;
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
     appSettingsController.clearModuleData();
   }
 

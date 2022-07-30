@@ -16,7 +16,7 @@ import 'package:flutter/cupertino.dart';
 class ApplicationDataSource {
   @protected
   Map<String, dynamic> _data = Map();
-  late StreamSubscription<QuerySnapshot<Map<String, dynamic>>> appSubscription;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? appSubscription;
   String? userId;
   FirebaseFirestore db = FirebaseFirestore.instance;
   StreamController<Map<String, dynamic>> dataStream =
@@ -69,8 +69,9 @@ class ApplicationDataSource {
   }
 
   void clearAppDataSource() {
-    appSubscription.cancel();
-    _data.clear();
+    if (appSubscription != null) {
+      appSubscription!.cancel();
+    }
   }
 }
 
@@ -78,7 +79,7 @@ abstract class DataSource implements ModuleCleaner {
   /// Subscribe to the source to get the data from the backend
   late ApplicationDataSource source;
 
-  late StreamSubscription sourceStreamSubscription;
+   StreamSubscription? sourceStreamSubscription;
 
   ///Must be called before any method in the class to get the data needed
   ///

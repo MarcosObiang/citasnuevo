@@ -39,6 +39,10 @@ class ApplicationStateFailure extends Failure {
 class FetchUserFailure extends Failure {
   @override
   List<Object?> get props => throw UnimplementedError();
+    String message;
+  FetchUserFailure({
+    required this.message,
+  });
 }
 
 class RatingProfilesFailure extends Failure {
@@ -84,3 +88,13 @@ class UserCreatorFailure extends Failure {
   @override
   List<Object?> get props => throw UnimplementedError();
 }
+
+class LocationServiceFailure extends Failure {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+  String message;
+  LocationServiceFailure({
+    required this.message,
+  });
+}
+

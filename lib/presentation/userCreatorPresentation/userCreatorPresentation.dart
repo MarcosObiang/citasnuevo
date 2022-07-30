@@ -28,7 +28,7 @@ class UserCreatorPresentation extends ChangeNotifier
         Presentation,
         ModuleCleaner {
   @override
-  late StreamSubscription<UserCreatorInformationSender> updateSubscription;
+  late StreamSubscription<UserCreatorInformationSender>? updateSubscription;
   UserCreatorController userCreatorController;
   UserCreatorScreenState _userCreatorScreenState =
       UserCreatorScreenState.LOADING;
@@ -57,7 +57,7 @@ class UserCreatorPresentation extends ChangeNotifier
 
   @override
   void clearModuleData() {
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
     _userCreatorScreenState = UserCreatorScreenState.LOADING;
     _userCreationProcessState = UserCreationProcessState.NOT_STARTED;
   }
@@ -182,7 +182,7 @@ void logOut()async{
   @override
   void update() {
     updateSubscription =
-        userCreatorController.getDataStream.stream.listen((event) {
+        userCreatorController.getDataStream?.stream.listen((event) {
       setUserCreatorScreenState = UserCreatorScreenState.READY;
       notifyListeners();
     });

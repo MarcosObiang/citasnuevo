@@ -46,7 +46,7 @@ class AuthScreenPresentation extends ChangeNotifier
   set authState(AuthState authState) {
     this._authState = authState;
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       notifyListeners();
     });
   }

@@ -26,75 +26,103 @@ class _ReportScreenState extends State<ReportScreen> {
   String reportText = "";
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: Dependencies.homeReportScreenPresentation,
-      child: Consumer<HomeReportScreenPresentation>(builder:
-          (BuildContext context,
-              HomeReportScreenPresentation homeReportScreenPresentation,
-              Widget? child) {
-        return SafeArea(
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            body: SingleChildScrollView(
-              reverse: true,
-              child: Column(
-                children: [
-                  Icon(Icons.report, color: Colors.red, size: 400.sp),
-                  Text("Ayudanos a mantener Hotty seguro",
-                      style: GoogleFonts.lato(fontSize: 55.sp)),
-                  Divider(
-                    height: 100.h,
-                  ),
-                  if (homeReportScreenPresentation.reportSendidnState ==
-                      ReportSendingState.sending) ...[
-                    LoadingIndicator(indicatorType: Indicator.ballScale)
-                  ] else ...[
-                    Text("Describenos el motivo de tu denuncia",
-                        style: GoogleFonts.lato(fontSize: 45.sp)),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        focusNode: focusNode,
-                        textInputAction: TextInputAction.done,
-                        controller: textEditingController,
-                        onChanged: (value) {
-                          reportText = textEditingController.text;
-                        },
-                        onEditingComplete: () => showSendReportDialog(context),
-                        style: GoogleFonts.lato(fontSize: 45.sp),
-                        decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(color: Colors.white),
-                                gapPadding: 10)),
-                        maxLines: 6,
-                        maxLength: 300,
-                      ),
+    return WillPopScope(
+      onWillPop: () async {
+        Dependencies.homeReportScreenPresentation.reportSendidnState =
+            ReportSendingState.notSended;
+        return true;
+      },
+      child: ChangeNotifierProvider.value(
+        value: Dependencies.homeReportScreenPresentation,
+        child: Consumer<HomeReportScreenPresentation>(builder:
+            (BuildContext context,
+                HomeReportScreenPresentation homeReportScreenPresentation,
+                Widget? child) {
+          return SafeArea(
+            child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              body: SingleChildScrollView(
+                reverse: true,
+                child: Column(
+                  children: [
+                    Icon(Icons.report, color: Colors.red, size: 400.sp),
+                    Text("Ayudanos a mantener Hotty seguro",
+                        style: GoogleFonts.lato(fontSize: 55.sp)),
+                    Divider(
+                      height: 100.h,
                     ),
+                    if (homeReportScreenPresentation.reportSendidnState ==
+                        ReportSendingState.sending) ...[
+                      LoadingIndicator(indicatorType: Indicator.ballScale)
+                    ],
+                    if (homeReportScreenPresentation.reportSendidnState ==
+                        ReportSendingState.notSended) ...[
+                      Text("Describenos el motivo de tu denuncia",
+                          style: GoogleFonts.lato(fontSize: 45.sp)),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextField(
+                              focusNode: focusNode,
+                              textInputAction: TextInputAction.done,
+                              controller: textEditingController,
+                              onChanged: (value) {
+                                reportText = textEditingController.text;
+                              },
+                              onEditingComplete: () =>
+                                  showSendReportDialog(context),
+                              style: GoogleFonts.lato(fontSize: 45.sp),
+                              decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
+                                      gapPadding: 10)),
+                              maxLength: 300,
+                            ),
+                          ),
+                          Divider(
+                            height: 50.h,
+                            color: Colors.white,
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                focusNode.unfocus();
+                                if (textEditingController.text
+                                    .trim()
+                                    .isNotEmpty) {
+                                  showSendReportDialog(context);
+                                } else {
+                                  showTextfieldIsEmpty(context);
+                                }
+                              },
+                              child: Text("Enviar denuncia"))
+                        ],
+                      ),
+                    ],
+                    if (homeReportScreenPresentation.reportSendidnState ==
+                        ReportSendingState.sended) ...[
+                      Text(
+                          "Gracias por ayudarnos a mantener la plataforma segura"),
+                      ElevatedButton(
+                          onPressed: () {
+                                   Dependencies.homeReportScreenPresentation.reportSendidnState =
+            ReportSendingState.notSended;
+                            Navigator.pop(context);
+                          },
+                          child: Text("Salir"))
+                    ]
                   ],
-                  Divider(
-                    height: 50.h,
-                    color: Colors.white,
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        focusNode.unfocus();
-                        if (textEditingController.text.trim().isNotEmpty) {
-                          showSendReportDialog(context);
-                        } else {
-                          showTextfieldIsEmpty(context);
-                        }
-                      },
-                      child: Text("Enviar denuncia"))
-                ],
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 

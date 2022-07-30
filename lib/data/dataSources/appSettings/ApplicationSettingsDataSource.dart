@@ -11,7 +11,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 abstract class ApplicationSettingsDataSource
     implements DataSource, AuthenticationSignOutCapacity {
-  late StreamController<ApplicationSettingsInformationSender>
+  StreamController<ApplicationSettingsInformationSender>?
       listenAppSettingsUpdate;
 
   Future<bool> updateAppSettings(Map<String, dynamic> data);
@@ -23,20 +23,23 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   @override
   ApplicationDataSource source;
   @override
-  late StreamController<ApplicationSettingsInformationSender>
+  StreamController<ApplicationSettingsInformationSender>?
       listenAppSettingsUpdate = new StreamController.broadcast();
 
   @override
   AuthService authService;
 
   @override
-  late StreamSubscription sourceStreamSubscription;
+  StreamSubscription? sourceStreamSubscription;
   ApplicationDataSourceImpl({required this.source, required this.authService});
 
   @override
   void clearModuleData() {
-    sourceStreamSubscription.cancel();
-    listenAppSettingsUpdate.close();
+    if (sourceStreamSubscription != null) {
+      sourceStreamSubscription!.cancel();
+    }
+
+    listenAppSettingsUpdate?.close();
     listenAppSettingsUpdate = new StreamController.broadcast();
   }
 
@@ -47,7 +50,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void subscribeToMainDataSource() {
-    listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
+    listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
         distance: source.getData["Ajustes"]["distanciaMaxima"],
         maxAge: source.getData["Ajustes"]["edadFinal"],
         minAge: source.getData["Ajustes"]["edadInicial"],
@@ -57,7 +60,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
         showWoman: source.getData["Ajustes"]["mostrarMujeres"],
         showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
     sourceStreamSubscription = source.dataStream.stream.listen((event) {
-      listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
+      listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
           distance: event["Ajustes"]["distanciaMaxima"],
           maxAge: event["Ajustes"]["edadFinal"],
           minAge: event["Ajustes"]["edadInicial"],
@@ -67,7 +70,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
           showWoman: event["Ajustes"]["mostrarMujeres"],
           showProfile: event["Ajustes"]["mostrarPerfil"]));
     }, onError: (error) {
-      listenAppSettingsUpdate.addError(error);
+      listenAppSettingsUpdate?.addError(error);
     });
   }
 
@@ -95,7 +98,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void revertChanges() {
-    listenAppSettingsUpdate.add(ApplicationSettingsInformationSender(
+    listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
         distance: source.getData["Ajustes"]["distanciaMaxima"],
         maxAge: source.getData["Ajustes"]["edadFinal"],
         minAge: source.getData["Ajustes"]["edadInicial"],
@@ -128,13 +131,12 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   Future<bool> logOut() async {
-      try {
-        Map<String, dynamic> userData = await authService.logOut();
-        return true;
-      } catch (e, s) {
-        print(s);
-        throw e;
-      }
-  
+    try {
+      Map<String, dynamic> userData = await authService.logOut();
+      return true;
+    } catch (e, s) {
+      print(s);
+      throw e;
+    }
   }
 }

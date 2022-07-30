@@ -18,3 +18,20 @@ class ProfileDescription extends StatelessWidget {
     );
   }
 }
+
+class ProfileFoot extends StatelessWidget {
+  final BoxConstraints constraints;
+  const ProfileFoot({ required this.constraints});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      height: constraints.maxHeight / 3,
+      width: constraints.maxWidth,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+      ),
+    );
+  }
+}

@@ -7,29 +7,39 @@ import '../../domain/entities/ProfileCharacteristicsEntity.dart';
 
 class ProfileMapper {
   static List<Profile> fromMap(Map data) {
+    DateTime todayTime = data["todayDateTime"];
     List<Profile> profilesList = [];
     List<Map<dynamic, dynamic>> profilesFromBackend = data["profilesList"];
     Map userCharacteristicsData = data["userCharacteristicsData"];
     for (int i = 0; i < profilesFromBackend.length; i++) {
+      int fechaNacimiento = profilesFromBackend[i]["fechaNacimiento"];
+
+      int edad = (DateTime.fromMillisecondsSinceEpoch(
+                  todayTime.millisecondsSinceEpoch)
+              .difference(DateTime.fromMillisecondsSinceEpoch(fechaNacimiento))
+              .inDays) ~/
+          365;
+
       Map<dynamic, dynamic> profileCharacteristics =
           profilesFromBackend[i]["filtrosUsuario"];
       List<ProfileCharacteristics> characteristicsCoparationResults = [];
       characteristicsCoparationResults = characteristicsParser(
           profileData: profileCharacteristics,
           userData: userCharacteristicsData);
-
+      num distancia = profilesFromBackend[i]["distancia"];
+      distancia = int.parse(distancia.toStringAsFixed(0));
       profilesList.add(Profile(
           id: profilesFromBackend[i]["identificador"],
           name: profilesFromBackend[i]["nombre"],
-          age: profilesFromBackend[i]["Edad"],
+          age: edad,
           profileImage1: profilesFromBackend[i]["IMAGENPERFIL1"],
-          profileImage2: profilesFromBackend[i]["IMAGENPERFIL1"],
-          profileImage3: profilesFromBackend[i]["IMAGENPERFIL1"],
-          profileImage4: profilesFromBackend[i]["IMAGENPERFIL1"],
-          profileImage5: profilesFromBackend[i]["IMAGENPERFIL1"],
-          profileImage6: profilesFromBackend[i]["IMAGENPERFIL1"],
+          profileImage2: profilesFromBackend[i]["IMAGENPERFIL2"],
+          profileImage3: profilesFromBackend[i]["IMAGENPERFIL3"],
+          profileImage4: profilesFromBackend[i]["IMAGENPERFIL4"],
+          profileImage5: profilesFromBackend[i]["IMAGENPERFIL5"],
+          profileImage6: profilesFromBackend[i]["IMAGENPERFIL6"],
           verified: false,
-          distance: 30,
+          distance:distancia,
           profileCharacteristics: characteristicsCoparationResults,
           bio: profilesFromBackend[i]["Descripcion"]));
     }
@@ -71,7 +81,6 @@ class ProfileMapper {
     return characteristicsList;
   }
 
-  
   Map<String, dynamic> toMap(List<Profile> data) {
     throw UnimplementedError();
   }

@@ -17,7 +17,7 @@ class SettingsScreenPresentation extends ChangeNotifier
   SettingsScreenState settingsScreenState = SettingsScreenState.loading;
 
   @override
-  late StreamSubscription<SettingsInformationSender> updateSubscription;
+  late StreamSubscription<SettingsInformationSender>? updateSubscription;
   SettingsScreenPresentation({
     required this.settingsController,
   });
@@ -43,7 +43,7 @@ class SettingsScreenPresentation extends ChangeNotifier
   @override
   void restart() {
     setSettingsScreenState = SettingsScreenState.loading;
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
 
     settingsController.clearModuleData();
 initializeModuleData();  }
@@ -67,7 +67,7 @@ initializeModuleData();  }
   @override
   void update() {
     updateSubscription =
-        settingsController.updateDataController.stream.listen((event) {
+        settingsController.updateDataController?.stream.listen((event) {
       setSettingsScreenState = SettingsScreenState.loaded;
 
       settingsEntity = event.settingsEntity;
@@ -80,7 +80,7 @@ initializeModuleData();  }
   @override
   void clearModuleData() {
     setSettingsScreenState = SettingsScreenState.loading;
-    updateSubscription.cancel();
+    updateSubscription?.cancel();
 
     settingsController.clearModuleData();
  }

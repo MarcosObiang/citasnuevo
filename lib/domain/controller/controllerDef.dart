@@ -102,12 +102,14 @@ class SettingsInformationSender extends InformationSender {
   });
 }
 class RewardInformationSender extends InformationSender {
-  Rewards rewards;
-  int secondsToDailyReward;
+  Rewards? rewards;
+  int? secondsToDailyReward;
+  String? premiumPrice;
   
   RewardInformationSender({
     required this.rewards,
-    required this.secondsToDailyReward
+    required this.secondsToDailyReward,
+    required this.premiumPrice
   });
 }
 class ApplicationSettingsInformationSender extends InformationSender {
@@ -154,17 +156,17 @@ class UserCreatorInformationSender extends InformationSender {
 }
 
 abstract class ShouldControllerRemoveData<InformationSender> {
-  late StreamController<InformationSender> removeDataController;
+  late StreamController<InformationSender>? removeDataController;
 }
 
 abstract class ShouldControllerUpdateData<InformationSender> {
   /// Needs to listen to a [Controller.updateData] and implement the presentation logic for updated data
-  late StreamController<InformationSender> updateDataController;
+   StreamController<InformationSender>? updateDataController;
 }
 
 abstract class ShouldControllerAddData<InformationSender> {
   /// Needs to listen to a [Controller.addDataController] and implement the presentation logic for new data
-  late StreamController<InformationSender> addDataController;
+   StreamController<InformationSender>? addDataController;
 }
 
 ///USE ONLY TO CREATE A CONTROLLER BRIDGE CLASS,
@@ -233,7 +235,7 @@ abstract class ControllerBridgeInformationReciever<T> {
 }
 
 abstract class ExternalControllerDataSender<T> {
-  late ControllerBridgeInformationSender<T> controllerBridgeInformationSender;
+  late ControllerBridgeInformationSender<T>? controllerBridgeInformationSender;
 
 }
 

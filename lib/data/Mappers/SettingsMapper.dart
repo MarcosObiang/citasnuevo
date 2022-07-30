@@ -5,7 +5,7 @@ import 'package:purchases_flutter/models/offering_wrapper.dart';
 class SettingsMapper {
   static SettingsEntity fromMap(Map<String, dynamic> latestSettings) {
     List<ProductInfo> productInfoList = [];
-    PurchasesServices.purchasesServices.product.all
+    PurchasesServices.purchasesServices.product!.all
         .forEach((String key, Offering offering) {
       String subscriptionId = latestSettings["subscriptionId"];
       String paymentState = latestSettings["paymentState"];

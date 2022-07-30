@@ -8,6 +8,7 @@ class RewardMapper{
     
     return new Rewards(
       isPremium: data["monedasInfinitas"],
+      coins: data["creditos"],
             timeUntilDailyReward: data["siguienteRecompensa"],
             waitingFirstReward: data["primeraRecompensa"],
             rewardForShareRigth: false,

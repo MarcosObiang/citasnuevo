@@ -82,11 +82,12 @@ class _ReactionCardState extends State<ReactionCard>
 
   @override
   void dispose() {
-    super.dispose();
     _revealingAnimation.dispose();
+    super.dispose();
   }
 
   var reactionTimeFormat = new DateFormat("HH:mm:ss");
+  var expireTimeFormat = new DateFormat.yMEd().add_Hms();
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +101,7 @@ class _ReactionCardState extends State<ReactionCard>
                 showCard == false) {
               if (_revealingAnimation.isCompleted ||
                   _revealingAnimation.isDismissed) {
-                WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   _revealingAnimation.reset();
                   _revealingAnimation.forward();
                   showCard = true;
@@ -110,7 +111,7 @@ class _ReactionCardState extends State<ReactionCard>
             }
           }
           if (data.data is ReactionAceptingState) {
-            WidgetsBinding.instance?.addPostFrameCallback((data) {
+            WidgetsBinding.instance.addPostFrameCallback((data) {
               setState(() {});
             });
           }
@@ -132,8 +133,12 @@ class _ReactionCardState extends State<ReactionCard>
                           ..rotateY(_revealingRotationValue),
                         alignment: FractionalOffset.center,
                         child: Container(
-                            color: Colors.deepPurpleAccent,
-                            height: widget.boxConstraints.biggest.height,
+                            decoration: BoxDecoration(
+                                color: Colors.deepPurpleAccent,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            height: widget.boxConstraints.biggest.height -
+                                (kBottomNavigationBarHeight),
                             width: widget.boxConstraints.biggest.width,
                             child: _revealingRotationValue < (pi / 2)
                                 ? reactionCounter()
@@ -185,12 +190,16 @@ class _ReactionCardState extends State<ReactionCard>
   }
 
   StreamBuilder<int> reactionCounter() {
+    DateTime reactionExpireTime = DateTime.fromMillisecondsSinceEpoch(
+        widget.reaction.reactionExpirationDateInSeconds * 1000);
     return StreamBuilder(
       stream: widget.reaction.secondsRemainingStream.stream,
       initialData: widget.reaction.secondsUntilExpiration,
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return Container(
-          color: Color.fromARGB(255, 61, 12, 194),
+          decoration: BoxDecoration(
+              color: Color.fromARGB(255, 61, 12, 194),
+              borderRadius: BorderRadius.all(Radius.circular(10))),
           height: widget.boxConstraints.biggest.height,
           width: widget.boxConstraints.biggest.width,
           child: Center(
@@ -199,27 +208,58 @@ class _ReactionCardState extends State<ReactionCard>
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          reactionTimeFormat.format(
-                              DateTime(0, 0, 0, 0, 0, snapshot.data as int)),
-                          style: GoogleFonts.lato(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              reactionTimeFormat.format(DateTime(
+                                  0, 0, 0, 0, 0, snapshot.data as int)),
+                              style: GoogleFonts.lato(
+                                color: Colors.white,
+                                fontSize: 90.sp,
+                              ),
+                            ),
+                            Icon(
+                              Icons.timer,
                               color: Colors.white,
-                              fontSize: 90.sp,
-                              letterSpacing: 50.w),
+                            )
+                          ],
                         ),
-                        ElevatedButton(
-                            onPressed: () {
-                              Dependencies.reactionPresentation.revealReaction(
-                                  reactionId: widget.reaction.idReaction);
-                            },
-                            child: Text("Revelar"))
+                        Divider(height: 100.h, color: Colors.transparent),
+                        Text("Disponible hasta:",
+                            style: GoogleFonts.lato(
+                              color: Colors.white,
+                              fontSize: 50.sp,
+                            )),
+                        Divider(height: 50.h, color: Colors.transparent),
+                        Text(
+                          expireTimeFormat.format(reactionExpireTime),
+                          style: GoogleFonts.lato(
+                            color: Colors.white,
+                            fontSize: 50.sp,
+                          ),
+                        ),
+                        Divider(height: 100.h, color: Colors.transparent),
+                        widget.reaction.secondsUntilExpiration >= 5
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  if (widget.reaction.secondsUntilExpiration >
+                                      5) {
+                                    Dependencies.reactionPresentation
+                                        .revealReaction(
+                                            reactionId:
+                                                widget.reaction.idReaction);
+                                  }
+                                },
+                                child: Text("Revelar"))
+                            : Container(),
                       ],
                     )
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         LoadingIndicator(
-                            indicatorType: Indicator.ballPulseRise),
+                            indicatorType: Indicator.semiCircleSpin),
                         Text("Revelando")
                       ],
                     )),
@@ -235,6 +275,8 @@ class _ReactionCardState extends State<ReactionCard>
       child: Stack(
         children: [
           Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
               width: widget.boxConstraints.maxWidth,
               child: OctoImage(
                 fadeInDuration: Duration(milliseconds: 50),
@@ -264,7 +306,7 @@ class _ReactionCardState extends State<ReactionCard>
                         Container(
                             height: 200.h,
                             child: LoadingIndicator(
-                                indicatorType: Indicator.ballPulse)),
+                                indicatorType: Indicator.semiCircleSpin)),
                       ],
                     ),
                   ),

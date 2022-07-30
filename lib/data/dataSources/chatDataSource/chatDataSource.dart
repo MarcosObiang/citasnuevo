@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:async/async.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
@@ -22,8 +21,8 @@ import 'package:flutter/foundation.dart';
 import '../../../domain/entities/ProfileEntity.dart';
 
 abstract class ChatDataSource implements DataSource {
-  late StreamSubscription<QuerySnapshot<Object?>> chatListenerSbscription;
-  late StreamSubscription<QuerySnapshot<Object?>> messageListenerSubscription;
+  StreamSubscription<QuerySnapshot<Object?>>? chatListenerSbscription;
+  StreamSubscription<QuerySnapshot<Object?>>? messageListenerSubscription;
   late List<Message> messagesWithOutChat;
 
   late StreamController<dynamic> chatStream;
@@ -56,19 +55,19 @@ class ChatDatsSourceImpl implements ChatDataSource {
   bool isInitializerFinished = false;
   String userId = kNotAvailable;
   @override
-  late List<Message> messagesWithOutChat = [];
+  List<Message> messagesWithOutChat = [];
 
   @override
-  late StreamSubscription sourceStreamSubscription;
+  StreamSubscription? sourceStreamSubscription;
 
   List<String> chatIds = [];
 
   @override
   StreamController chatStream = new StreamController.broadcast();
   @override
-  late StreamSubscription<QuerySnapshot<Object?>> chatListenerSbscription;
+  StreamSubscription<QuerySnapshot<Object?>>? chatListenerSbscription;
   @override
-  late StreamSubscription<QuerySnapshot<Object?>> messageListenerSubscription;
+  StreamSubscription<QuerySnapshot<Object?>>? messageListenerSubscription;
   @override
   StreamController<Map<String, dynamic>> messageStream =
       new StreamController.broadcast();
@@ -99,7 +98,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
             .snapshots()
             .listen((event) async {
           if (event.docChanges.isNotEmpty) {
-            if (event.docChanges.length > 1 && isInitializerFinished == false) {
+            if (event.docChanges.length > 0 && isInitializerFinished == false) {
               for (int i = 0; i < event.docChanges.length; i++) {
                 String chatId = event.docChanges[i].doc.get("idConversacion");
 
@@ -239,7 +238,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
           throw ChatException(message: "ERROR_FROM_BACKEND");
         }, cancelOnError: true);
 
-        chatListenerSbscription.onError((_) {
+        chatListenerSbscription?.onError((_) {
           chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
 
           throw ChatException(message: "ERROR_FROM_BACKEND");
@@ -486,14 +485,14 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   void clearModuleData() {
-    chatListenerSbscription.cancel();
+    chatListenerSbscription?.cancel();
     chatStream.close();
-    messageListenerSubscription.cancel();
+    messageListenerSubscription?.cancel();
     messageStream.close();
     chatIds.clear();
     chatStream = new StreamController.broadcast();
     messageStream = new StreamController.broadcast();
-    sourceStreamSubscription.cancel();
+    sourceStreamSubscription?.cancel();
     isInitializerFinished = false;
   }
 

@@ -26,7 +26,7 @@ class ReportDataSourceImpl implements ReportDataSource {
   @override
   ApplicationDataSource source;
   @override
-  late StreamSubscription sourceStreamSubscription;
+   StreamSubscription? sourceStreamSubscription;
   ReportDataSourceImpl({
     required this.source,
   });

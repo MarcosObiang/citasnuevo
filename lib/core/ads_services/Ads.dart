@@ -11,22 +11,35 @@ class AdvertisingServices {
   bool showAds = true;
   bool adsInitialized = false;
   bool hasUserConsent = false;
-  bool shouldShowConsentForm = false;
   bool consentFormShowed = false;
 
-  void shouldUserGiveCosent() async {
-    shouldShowConsentForm = await requestConsentInfoUpdate();
+  Future<bool> shouldUserGiveCosent() async {
+    return requestConsentInfoUpdate();
+  }
+
+  Future<bool> checkConsent() async {
+    var consent = await ConsentManager.getConsentStatus();
+    if (consent == Status.PERSONALIZED) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void initializeAdsService() async {
-    
+    bool showDialog = await shouldUserGiveCosent();
+
+    if (showDialog) {
+      await showConsentForm(showDialog);
+    }
+
     Appodeal.setLogLevel(Appodeal.LogLevelDebug);
     Appodeal.setTesting(true);
 
     if (Platform.isAndroid) {
       await Appodeal.initialize(
           androidAdsId, [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL],
-          boolConsent: hasUserConsent);
+          boolConsent: await checkConsent());
     }
 
     Appodeal.setUseSafeArea(true);
@@ -36,9 +49,7 @@ class AdvertisingServices {
     adsInitialized = true;
   }
 
-
-
-  Future<void> showConsentForm() async {
+  Future<void> showConsentForm(bool shouldShowConsentForm) async {
     if (shouldShowConsentForm == true) {
       try {
         await showDialog(
@@ -56,8 +67,6 @@ class AdvertisingServices {
     }
   }
 
- 
-
   StreamController<bool> advertismentStateStream =
       new StreamController.broadcast();
 
@@ -72,23 +81,54 @@ class AdvertisingServices {
       anuncioEnCurso = await Appodeal.show(Appodeal.INTERSTITIAL);
     } else {}
 
-    Appodeal.setInterstitialCallbacks(onInterstitialLoaded: (isPrecache) {
-      print("onInterstitialLoaded");
-    }, onInterstitialFailedToLoad: () {
-      print("onInterstitialFailedToLoad");
-    }, onInterstitialShown: () {
-      print("onInterstitialShown");
-    }, onInterstitialShowFailed: () {
-      print("onInterstitialShowFailed");
-    }, onInterstitialClicked: () {
-      print("onInterstitialClicked");
-    }, onInterstitialClosed: () {
-      print("onInterstitialClosed");
-      advertismentStateStream.add(true);
-    }, onInterstitialExpired: () {
-      print("onInterstitialExpired");
-    });
+    Appodeal.setInterstitialCallbacks(
+        onInterstitialLoaded: (isPrecache) {
+          print("onInterstitialLoaded");
+        },
+        onInterstitialFailedToLoad: () {},
+        onInterstitialShown: () {
+          print("onInterstitialShown");
+        },
+        onInterstitialShowFailed: () {
+          print("onInterstitialShowFailed");
+          advertismentStateStream.add(true);
+        },
+        onInterstitialClicked: () {
+          print("onInterstitialClicked");
+        },
+        onInterstitialClosed: () {
+          print("onInterstitialClosed");
+          advertismentStateStream.add(true);
+        },
+        onInterstitialExpired: () {
+          print("onInterstitialExpired");
+                    advertismentStateStream.add(true);
 
+        });
+
+    return anuncioEnCurso;
+  }
+
+  Future<bool> showRewarded() async {
+    bool sePuedeMostrar = await Appodeal.canShow(Appodeal.REWARDED_VIDEO);
+    bool anuncioEnCurso = false;
+    if (sePuedeMostrar) {
+      anuncioEnCurso = await Appodeal.show(Appodeal.REWARDED_VIDEO);
+    } else {}
+
+    Appodeal.setRewardedVideoCallbacks(
+        onRewardedVideoLoaded: (isPrecache) => {},
+        onRewardedVideoFailedToLoad: () => {},
+        onRewardedVideoShown: () => {},
+        onRewardedVideoShowFailed: () {
+          advertismentStateStream.add(true);
+        },
+        onRewardedVideoFinished: (amount, reward) {
+          advertismentStateStream.add(true);
+        },
+        onRewardedVideoClosed: (isFinished) => {},
+        onRewardedVideoExpired: () => {},
+        onRewardedVideoClicked: () => {});
     return anuncioEnCurso;
   }
 

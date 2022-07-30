@@ -11,7 +11,7 @@ class Profile {
   Map profileImage5;
   Map profileImage6;
   bool verified;
-  int distance;
+  num distance;
   String bio;
   List<ProfileCharacteristics> profileCharacteristics;
   Profile({

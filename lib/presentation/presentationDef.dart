@@ -31,7 +31,7 @@ abstract class Presentation<T>  {
 }
 
 abstract class ShouldRemoveData <InformationSender> {
-  late StreamSubscription<InformationSender>  removeDataSubscription;
+  late StreamSubscription<InformationSender>?  removeDataSubscription;
 
   /// Holds the controller.remove [StreamSubscription]
   ///
@@ -42,7 +42,7 @@ abstract class ShouldRemoveData <InformationSender> {
 
 abstract class ShouldUpdateData<InformationSender>  {
   /// Needs to listen to a [Controller.updateData] and implement the presentation logic for updated data
-  late StreamSubscription<InformationSender>  updateSubscription;
+  late StreamSubscription<InformationSender>?  updateSubscription;
 
   /// Holds the controller.update [StreamSubscription]
   ///
@@ -53,7 +53,7 @@ abstract class ShouldUpdateData<InformationSender>  {
 
 abstract class SouldAddData<InformationSender> {
   /// Needs to listen to a [Controller.addDataController] and implement the presentation logic for new data
-  late StreamSubscription<InformationSender> addDataSubscription;
+  late StreamSubscription<InformationSender>? addDataSubscription;
 
   /// Holds the controller.remove [StreamSubscription]
   ///

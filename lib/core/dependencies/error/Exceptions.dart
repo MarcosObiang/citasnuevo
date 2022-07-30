@@ -1,5 +1,5 @@
 class ServerException implements Exception {
-    final String message;
+  final String message;
   ServerException({required this.message});
 }
 
@@ -13,12 +13,12 @@ class NetworkException implements Exception {
 }
 
 class ApplicationStateException implements Exception {
-    final String message;
+  final String message;
   ApplicationStateException({required this.message});
 }
 
 class RatingProfilesException implements Exception {
-    final String message;
+  final String message;
   RatingProfilesException({required this.message});
 }
 
@@ -34,10 +34,7 @@ class FetchProfilesException implements Exception {
 class ReactionException implements Exception {
   String message;
   StackTrace stackTrace;
-  ReactionException({
-    required this.message,
-    required this.stackTrace
-  }) {
+  ReactionException({required this.message, required this.stackTrace}) {
     print(message);
   }
 }
@@ -50,6 +47,7 @@ class ReportException implements Exception {
     print(message);
   }
 }
+
 class ChatException implements Exception {
   String message;
   ChatException({
@@ -67,6 +65,7 @@ class SettingsException implements Exception {
     print(message);
   }
 }
+
 class AppSettingsException implements Exception {
   String message;
   AppSettingsException({
@@ -91,5 +90,48 @@ class UserCreatorException implements Exception {
     required this.message,
   }) {
     print(message);
+  }
+}
+
+class RewardException implements Exception {
+  String message;
+  RewardException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+class LocationServiceException implements Exception {
+  String message;
+  LocationServiceException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+class InitException implements Exception {
+  String message;
+  InitException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+class LateInitErrorChecker {
+  /// Used to check if the error is caused due to not initialized variables in the code
+  static bool isInitError({required dynamic e}) {
+    if (e is Error) {
+      String errorMessage = e.toString();
+      if (errorMessage.contains("has not been initialized")) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }

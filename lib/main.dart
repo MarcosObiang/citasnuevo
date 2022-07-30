@@ -2,6 +2,8 @@ import 'package:citasnuevo/core/params_types/params_and_types.dart';
 
 import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -17,18 +19,20 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
       options: FirebaseOptions(
+        
           apiKey: "AIzaSyBm3rwlrV7qshSIgASobNLoeb5RgdwwSMI",
           appId: "1:151798284057:android:2f9b0eec10be91eb5e8f88",
           messagingSenderId: "",
           projectId: "hotty-189c7"));
+
+//FirebaseFunctions.instance.useFunctionsEmulator("localhost", 5001);
 
   await Dependencies.startAuthDependencies();
 
   runApp(MultiProvider(
       providers: [
         Provider(create: (_) => Dependencies.settingsScreenPresentation),
-                Provider(create: (_) => Dependencies.rewardScreenPresentation),
-
+        Provider(create: (_) => Dependencies.rewardScreenPresentation),
         Provider(create: (_) => Dependencies.chatPresentation),
         Provider(create: (_) => Dependencies.homeReportScreenPresentation),
         Provider(create: (_) => Dependencies.authScreenPresentation),
@@ -72,7 +76,7 @@ class _StartState extends State<Start> {
     return ScreenUtilInit(
         key: startKey,
         designSize: Size(1080, 1920),
-        builder: () {
+        builder: (BuildContext context, Widget? child) {
           return AuthScreen();
         });
   }

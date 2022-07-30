@@ -15,7 +15,7 @@ abstract class UserCreatorController
         ShouldControllerUpdateData<UserCreatorInformationSender>,
         ModuleCleaner {
   late UserCreatorEntity userCreatorEntity;
-  StreamController<UserCreatorInformationSender> get getDataStream;
+  StreamController<UserCreatorInformationSender>? get getDataStream;
   void insertImageFile(Uint8List imageBytes, int index);
   void deleteImage(int index);
   Future<Either<Failure, bool>> createUser();
@@ -25,18 +25,18 @@ abstract class UserCreatorController
 class UserCreatorControllerImpl implements UserCreatorController {
   UserCreatorRepo userCreatorRepo;
   late UserCreatorEntity userCreatorEntity;
-  late StreamSubscription streamSubscription;
+  StreamSubscription? streamSubscription;
 
   @override
-  late StreamController<UserCreatorInformationSender> updateDataController;
+  StreamController<UserCreatorInformationSender>? updateDataController;
   UserCreatorControllerImpl({
     required this.userCreatorRepo,
   });
 
   @override
   void clearModuleData() {
-    updateDataController.close();
-    streamSubscription.cancel();
+    updateDataController?.close();
+    streamSubscription?.cancel();
   }
 
   @override
@@ -61,13 +61,13 @@ class UserCreatorControllerImpl implements UserCreatorController {
   }
 
   void initializeListener() {
-    streamSubscription = getDataStream.stream.listen((event) {
+    streamSubscription = getDataStream?.stream.listen((event) {
       this.userCreatorEntity = new UserCreatorEntity(
           minBirthDate: event.minBirthDayInMilliseconds,
           userBio: event.userBio,
           userCharacteristics: event.userCharacteristic,
           userPicruresList: event.userPicruresList);
-      updateDataController.add(event);
+      updateDataController?.add(event);
     });
   }
 
@@ -80,7 +80,7 @@ class UserCreatorControllerImpl implements UserCreatorController {
   }
 
   @override
-  StreamController<UserCreatorInformationSender> get getDataStream =>
+  StreamController<UserCreatorInformationSender>? get getDataStream =>
       userCreatorRepo.getUserCreatorDataStream;
 
   @override

@@ -25,7 +25,7 @@ class LocationService {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
-      throw Exception("LOCATION_DENIED");
+        throw Exception("LOCATION_DENIED");
       }
     }
 
@@ -39,5 +39,25 @@ class LocationService {
     position = await Geolocator.getCurrentPosition();
 
     return {"lon": position.longitude, "lat": position.latitude};
+  }
+
+  Future<bool> isLocationServiceEnabled() async {
+    return await Geolocator.isLocationServiceEnabled();
+  }
+
+  Future<LocationPermission> locationPermissionStatus() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    return permission;
+  }
+
+  Future<LocationPermission> requestLocationPermission()async{
+     return await Geolocator.requestPermission();
+
+  }
+
+  Future<bool> gotoLocationSettings()async{
+     return await Geolocator.openLocationSettings();
+
   }
 }

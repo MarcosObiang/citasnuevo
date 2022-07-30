@@ -217,15 +217,7 @@ class _NavigationBarState extends State<HomeNavigationBar> {
                   color: Colors.white,
                 )),
               ),
-              Flexible(
-                fit: FlexFit.tight,
-                flex: 1,
-                child: settingsButton(
-                    icon: Icon(
-                  LineAwesomeIcons.user_edit,
-                  color: Colors.white,
-                )),
-              ),  Flexible(
+               Flexible(
                 fit: FlexFit.tight,
                 flex: 1,
                 child: rewardsButton(
@@ -234,6 +226,15 @@ class _NavigationBarState extends State<HomeNavigationBar> {
                   color: Colors.white,
                 )),
               ),
+              Flexible(
+                fit: FlexFit.tight,
+                flex: 1,
+                child: settingsButton(
+                    icon: Icon(
+                  LineAwesomeIcons.user_edit,
+                  color: Colors.white,
+                )),
+              ), 
             ]),
       ),
     );

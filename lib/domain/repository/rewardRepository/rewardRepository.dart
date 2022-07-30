@@ -13,5 +13,6 @@ abstract class RewardRepository  implements ModuleCleaner{
    StreamController<Rewards> get getRewardsStream;
 
    Future<Either<Failure,bool>> getDailyReward();
+   Future<Either<Failure,bool>> getFirstReward();
 
 }

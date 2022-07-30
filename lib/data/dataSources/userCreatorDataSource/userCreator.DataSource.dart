@@ -30,14 +30,14 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
   ApplicationDataSource source;
 
   @override
-  late StreamSubscription sourceStreamSubscription;
-  late StreamSubscription userCreatorDataStreamSubscription;
+   StreamSubscription? sourceStreamSubscription;
+   StreamSubscription? userCreatorDataStreamSubscription;
 
   UserCreatorDataSourceImpl({required this.source, required this.authService});
 
   @override
   void clearModuleData() {
-    sourceStreamSubscription.cancel();
+    sourceStreamSubscription?.cancel();
     userCreatorDataStream.close();
   }
 

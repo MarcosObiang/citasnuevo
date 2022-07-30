@@ -71,7 +71,10 @@ ReportController reportController;
 
 
 
+void showThanksForReportingDialog(){
 
+  
+}
 
 
   @override

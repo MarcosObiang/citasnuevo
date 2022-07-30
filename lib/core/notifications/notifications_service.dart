@@ -13,6 +13,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 await Firebase.initializeApp(
       );
   if (message.data["tipoNotificacion"] == "valoracion") {
+    
  SystemNotifications.instance
         .showReactionNotification();
   }
@@ -152,8 +153,8 @@ class SystemNotifications{
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
       0,
-      "Nueva valoración",
-           "Tienes valoraciones sin revelar",
+      "Nueva reacción",
+           "Tienes reacciones sin revelar",
       platformChannelSpecifics,payload:"valoraciones"
     );
   }

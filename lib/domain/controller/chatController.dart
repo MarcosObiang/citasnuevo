@@ -67,19 +67,19 @@ class ChatControllerImpl implements ChatController {
   late StreamSubscription<dynamic> chatListenerSubscription;
   late StreamSubscription<dynamic> messageListenerSubscription;
   @override
-  late StreamController<ChatInformationSender> addDataController =
+  late StreamController<ChatInformationSender>? addDataController =
       StreamController.broadcast();
 
   @override
-  late StreamController<ChatInformationSender> removeDataController =
+  late StreamController<ChatInformationSender>? removeDataController =
       StreamController.broadcast();
 
   @override
-  late StreamController<ChatInformationSender> updateDataController =
+  late StreamController<ChatInformationSender>? updateDataController =
       StreamController.broadcast();
 
         @override
-  ControllerBridgeInformationSender<HomeScreenController> controllerBridgeInformationSender;
+  ControllerBridgeInformationSender<HomeScreenController>? controllerBridgeInformationSender;
 
   ChatControllerImpl(
       {required this.chatRepository,
@@ -116,7 +116,7 @@ class ChatControllerImpl implements ChatController {
   void _initializeChatListener() {
     chatListenerSubscription = getChatStream.stream.listen((event) {
       if (event is ChatException) {
-        addDataController.addError(event);
+        addDataController?.addError(event);
         chatListenerSubscription.cancel();
       } else {
         bool isModified = event["modified"];
@@ -125,7 +125,7 @@ class ChatControllerImpl implements ChatController {
         List<Chat> chatListFromStream = event["chatList"];
         if (firstQuery == true) {
           chatList.insertAll(0, chatListFromStream);
-          addDataController.add(ChatInformationSender(
+          addDataController?.add(ChatInformationSender(
               chatList: chatListFromStream,
               messageList: null,
               firstQuery: firstQuery,
@@ -139,7 +139,7 @@ class ChatControllerImpl implements ChatController {
 
         if (firstQuery == false && isRemoved == false && isModified == false) {
           chatList.insertAll(0, chatListFromStream);
-          addDataController.add(ChatInformationSender(
+          addDataController?.add(ChatInformationSender(
               chatList: chatListFromStream,
               messageList: null,
               firstQuery: firstQuery,
@@ -154,7 +154,7 @@ class ChatControllerImpl implements ChatController {
             if (chatList[a].chatId == chatListFromStream.first.chatId) {
               chatList.removeAt(a);
               chatRemovedIndex = a;
-              removeDataController.add(ChatInformationSender(
+              removeDataController?.add(ChatInformationSender(
                   chatList: chatListFromStream,
                   messageList: null,
                   firstQuery: firstQuery,
@@ -176,7 +176,7 @@ class ChatControllerImpl implements ChatController {
                   chatList.first.remitentPictureHash;
               chatList[a].remitentName = chatList.first.remitentName;
               chatList[a].notificationToken = chatList.first.notificationToken;
-              updateDataController.add(ChatInformationSender(
+              updateDataController?.add(ChatInformationSender(
                   chatList: chatListFromStream,
                   messageList: null,
                   firstQuery: firstQuery,
@@ -192,7 +192,7 @@ class ChatControllerImpl implements ChatController {
         sendChatData();
       }
     }, onError: (error) {
-      addDataController.addError(error);
+      addDataController?.addError(error);
       chatListenerSubscription.cancel();
     });
   }
@@ -229,7 +229,7 @@ class ChatControllerImpl implements ChatController {
                             messageId: "messageId",
                             messageDate: tiempo.millisecondsSinceEpoch,
                             messageType: MessageType.DATE));
-                    addDataController.add(ChatInformationSender(
+                    addDataController?.add(ChatInformationSender(
                         chatList: chatList,
                         messageList: [message],
                         firstQuery: false,
@@ -256,7 +256,7 @@ class ChatControllerImpl implements ChatController {
                           messageId: "messageId",
                           messageDate: tiempo.millisecondsSinceEpoch,
                           messageType: MessageType.DATE));
-                  addDataController.add(ChatInformationSender(
+                  addDataController?.add(ChatInformationSender(
                       chatList: chatList,
                       messageList: [
                         Message(
@@ -279,7 +279,7 @@ class ChatControllerImpl implements ChatController {
                 }
 
                 chatList[i].messagesList.insert(0, message);
-                addDataController.add(ChatInformationSender(
+                addDataController?.add(ChatInformationSender(
                     chatList: chatList,
                     messageList: [message],
                     firstQuery: false,
@@ -316,7 +316,7 @@ class ChatControllerImpl implements ChatController {
                     chatList[i].messagesList[a].read == false) {
                   chatList[i].messagesList[a].read = true;
                 }
-                updateDataController.add(ChatInformationSender(
+                updateDataController?.add(ChatInformationSender(
                     chatList: chatList,
                     messageList: [message],
                     firstQuery: false,
@@ -424,7 +424,7 @@ class ChatControllerImpl implements ChatController {
         break;
       }
 
-      updateDataController.add(ChatInformationSender(
+      updateDataController?.add(ChatInformationSender(
           chatList: chatList,
           messageList: [],
           firstQuery: false,
@@ -477,11 +477,11 @@ class ChatControllerImpl implements ChatController {
     chatOpenId = "";
     chatListenerSubscription.cancel();
     messageListenerSubscription.cancel();
-    addDataController.close();
+    addDataController?.close();
     addDataController = new StreamController.broadcast();
-    removeDataController.close();
+    removeDataController?.close();
     removeDataController = new StreamController.broadcast();
-    updateDataController.close();
+    updateDataController?.close();
     updateDataController = new StreamController.broadcast();
     chatRepository.clearModuleData();
   }
@@ -502,7 +502,7 @@ class ChatControllerImpl implements ChatController {
 
    
 
-        controllerBridgeInformationSender.addInformation(information: {"header": "chat", "data": newChats});
+        controllerBridgeInformationSender?.addInformation(information: {"header": "chat", "data": newChats});
   }
 
   void sendMessageData() {
@@ -515,7 +515,7 @@ class ChatControllerImpl implements ChatController {
     }
 
 
-                controllerBridgeInformationSender.addInformation(information: {"header": "message", "data": newMessages});
+                controllerBridgeInformationSender?.addInformation(information: {"header": "message", "data": newMessages});
 
   }
 

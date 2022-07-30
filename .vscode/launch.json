@@ -11,7 +11,12 @@
         
         
         
-        
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Debug",
+            "port": 9229
+          },
 
 
         {

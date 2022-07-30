@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:core';
 
 import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
@@ -36,14 +37,14 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   };
 
   @override
-  late StreamController<SettingsEntity> onUserSettingsUpdate =
+   StreamController<SettingsEntity> onUserSettingsUpdate =
       StreamController.broadcast();
 
   @override
   ApplicationDataSource source;
 
   @override
-  late StreamSubscription sourceStreamSubscription;
+   StreamSubscription? sourceStreamSubscription;
 
   SettingsDataSourceImpl({
     required this.source,
@@ -53,7 +54,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   void clearModuleData() {
     latestSettings = new Map<String, dynamic>();
     onUserSettingsUpdate = StreamController.broadcast();
-    sourceStreamSubscription.cancel();
+    sourceStreamSubscription?.cancel();
   }
 
   @override
@@ -141,22 +142,27 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   }
 
   void sendFirst() {
-    Map<String, dynamic> dataFromSource = source.getData;
-    latestSettings["name"] = dataFromSource["Nombre"];
-    latestSettings["age"] = dataFromSource["Edad"];
-    latestSettings["isPremium"] = dataFromSource["monedasInfinitas"];
-    latestSettings["userPicture"] = GetProfileImage.getProfileImage
-        .getProfileImageMap(dataFromSource)["image"];
-    latestSettings["hash"] = GetProfileImage.getProfileImage
-        .getProfileImageMap(dataFromSource)["hash"];
-    latestSettings["subscriptionId"] = dataFromSource["idSuscripcion"];
-    latestSettings["paymentState"] = dataFromSource["estadoPagoSuscripcion"];
-    latestSettings["subscriptionExpirationTime"] =
-        dataFromSource["caducidadSuscripcion"];
-    latestSettings["pausedModeExpirationTime"] =
-        dataFromSource["finPausaSuscripcion"];
+    try {
+      Map<String, dynamic> dataFromSource = source.getData;
+      latestSettings["name"] = dataFromSource["Nombre"];
+      latestSettings["age"] = dataFromSource["Edad"];
+      latestSettings["isPremium"] = dataFromSource["monedasInfinitas"];
+      latestSettings["userPicture"] = GetProfileImage.getProfileImage
+          .getProfileImageMap(dataFromSource)["image"];
+      latestSettings["hash"] = GetProfileImage.getProfileImage
+          .getProfileImageMap(dataFromSource)["hash"];
+      latestSettings["subscriptionId"] = dataFromSource["idSuscripcion"];
+      latestSettings["paymentState"] = dataFromSource["estadoPagoSuscripcion"];
+      latestSettings["subscriptionExpirationTime"] =
+          dataFromSource["caducidadSuscripcion"];
+      latestSettings["pausedModeExpirationTime"] =
+          dataFromSource["finPausaSuscripcion"];
 
-    onUserSettingsUpdate.add(SettingsMapper.fromMap(latestSettings));
+      onUserSettingsUpdate.add(SettingsMapper.fromMap(latestSettings));
+    } catch (e) {
+      print(e);
+      throw e;
+    }
   }
 
   @override

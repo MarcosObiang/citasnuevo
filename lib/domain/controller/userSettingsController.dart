@@ -22,7 +22,7 @@ class UserSettingsController
 
 
   @override
-  late StreamController<UserSettingsInformationSender> updateDataController =
+  late StreamController<UserSettingsInformationSender>? updateDataController =
       StreamController.broadcast();
 
 
@@ -57,16 +57,16 @@ class UserSettingsController
           userCharacteristics: event.userCharacteristic,
           userBio: event.userBio,
           userPicruresList: event.userPicruresList);
-      updateDataController.add(event);
+      updateDataController!.add(event);
       userSettingsEntityUpdate = userSettingsEntity;
     }, onError: (error) {
-      updateDataController.addError(error);
+      updateDataController!.addError(error);
     });
   }
 
   @override
   void clearModuleData() {
-    updateDataController.close();
+    updateDataController!.close();
     updateDataController = new StreamController.broadcast();
   }
 
