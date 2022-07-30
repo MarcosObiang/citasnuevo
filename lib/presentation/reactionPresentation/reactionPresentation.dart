@@ -133,20 +133,28 @@ class ReactionPresentation extends ChangeNotifier
   });
 
   void revealReaction({required String reactionId}) async {
-    var result =
-        await reactionsController.revealReaction(reactionId: reactionId);
-    result.fold((failure) {
-      if (failure is NetworkFailure) {
-        showNetworkErrorDialog(
-            context: ReactionScreen.reactionsListKey.currentContext);
-      }
-      if (failure is ReactionFailure) {
-        showErrorDialog(
-            content: "Error al intentar realizar la operacion",
-            context: ReactionScreen.reactionsListKey.currentContext,
-            title: "Error");
-      }
-    }, (r) {});
+    if (getCoins >= 200) {
+      var result =
+          await reactionsController.revealReaction(reactionId: reactionId);
+      result.fold((failure) {
+        if (failure is NetworkFailure) {
+          showNetworkErrorDialog(
+              context: ReactionScreen.reactionsListKey.currentContext);
+        }
+        if (failure is ReactionFailure) {
+          showErrorDialog(
+              content: "Error al intentar realizar la operacion",
+              context: ReactionScreen.reactionsListKey.currentContext,
+              title: "Error");
+        }
+      }, (r) {});
+    } else {
+      showErrorDialog(
+        title: "Creditos insuficientes",
+        content: "Ve recompensas para ver las opciones que te damos para ganar creditos gratuitos",
+        context: ReactionScreen.reactionsListKey.currentContext,
+      );
+    }
   }
 
   @override
@@ -274,19 +282,18 @@ class ReactionPresentation extends ChangeNotifier
                     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                       setReactionListState = ReactionListState.empty;
                     });
+                  } else {
+                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                      notifyListeners();
+                    });
                   }
-                  else {
-                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                    notifyListeners();
-                  });
-                }
                 }
               } else {
                 if (reactionsController.reactions.length == 0) {
                   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                     setReactionListState = ReactionListState.empty;
                   });
-                } 
+                }
               }
               if (reactionExpireTime != null &&
                   reactionRevealigState == ReactionRevealigState.notRevealed) {

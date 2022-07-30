@@ -68,7 +68,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         FirebaseFirestore instance = FirebaseFirestore.instance;
-     
+
         reactionSubscriptionListener = instance
             .collection("valoraciones")
             .where("idDestino", isEqualTo: userID)
@@ -90,7 +90,8 @@ class ReactionDataSourceImpl implements ReactionDataSource {
                     "reaction": reaction,
                     "dataLength": dato.docChanges.length,
                     "deleted": false,
-                    "notify": element.doc.metadata.isFromCache==true?false:true
+                    "notify":
+                        element.doc.metadata.isFromCache == true ? false : true
                   });
                 }
                 if (element.type == DocumentChangeType.modified) {
@@ -138,9 +139,9 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       await Future.delayed(Duration(milliseconds: 200));
       sourceStreamSubscription = source.dataStream.stream.listen((event) {
         reactionsAverage = double.parse(event["mediaTotal"].toString());
-        if(reactionsAverage!=null){
-        reactionsAverage=double.parse(reactionsAverage!.toStringAsFixed(1))*10;
-
+        if (reactionsAverage != null) {
+          reactionsAverage =
+              double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
         }
         coins = event["creditos"];
         isPremium = event["monedasInfinitas"];
@@ -153,11 +154,12 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       });
       userID = source.getData["id"];
       isPremium = source.getData["monedasInfinitas"];
-  reactionsAverage = double.parse( source.getData["mediaTotal"].toString());
-        if(reactionsAverage!=null){
-        reactionsAverage=double.parse(reactionsAverage!.toStringAsFixed(1))*10;
-
-        }      coins = source.getData["creditos"];
+      reactionsAverage = double.parse(source.getData["mediaTotal"].toString());
+      if (reactionsAverage != null) {
+        reactionsAverage =
+            double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
+      }
+      coins = source.getData["creditos"];
       additionalDataSender.add({
         "reactionsAverage": reactionsAverage,
         "coins": coins,
@@ -176,33 +178,51 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       try {
         HttpsCallable callToRevealReactionFunction =
             FirebaseFunctions.instance.httpsCallable("quitarCreditosUsuario");
-
         await Dependencies.advertisingServices.showInterstitial();
 
-        await for (bool event in Dependencies
-            .advertisingServices.advertismentStateStream.stream) {
-          if (event) {
-            HttpsCallableResult result = await callToRevealReactionFunction
-                .call({
-              "idValoracion": reactionId,
-              "idUsuario": userID,
-              "primeraSolicitud": false
-            });
-            if (result.data["estado"] == "correcto") {
-              break;
-            }
+        if (Dependencies
+                .advertisingServices.interstitialAdvertismentStateStream !=
+            null) {
+          await for (bool event in Dependencies.advertisingServices
+              .interstitialAdvertismentStateStream!.stream) {
+            if (event) {
+              HttpsCallableResult result = await callToRevealReactionFunction
+                  .call({
+                "idValoracion": reactionId,
+                "idUsuario": userID,
+                "primeraSolicitud": false
+              });
+              if (result.data["estado"] == "correcto") {
+                      Dependencies
+                .advertisingServices.closeStream();
+                break;
+          
+              }
 
-            if (result.data["estado"] != "correcto") {
-              throw Exception(["FAILED"]);
-            } else {
-              throw Exception(["AD_INCOMPLETE"]);
+              if (result.data["estado"] != "correcto") {
+                      Dependencies
+                .advertisingServices.closeStream();
+                throw Exception(["FAILED"]);
+              } else {
+                      Dependencies
+                .advertisingServices.closeStream();
+                throw Exception(["AD_INCOMPLETE"]);
+              }
             }
           }
+        } else {
+                Dependencies
+                .advertisingServices.closeStream();
+          throw Exception(["AD_INCOMPLETE"]);
         }
       } catch (e, S) {
+              Dependencies
+                .advertisingServices.closeStream();
         throw ReactionException(message: e.toString(), stackTrace: S);
       }
     } else {
+            Dependencies
+                .advertisingServices.closeStream();
       throw NetworkException();
     }
   }

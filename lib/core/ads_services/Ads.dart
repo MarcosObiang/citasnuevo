@@ -67,69 +67,72 @@ class AdvertisingServices {
     }
   }
 
-  StreamController<bool> advertismentStateStream =
-      new StreamController.broadcast();
+  StreamController<bool>? interstitialAdvertismentStateStream;
+  StreamController<bool>? rewardedAdvertismentStateStream;
 
   void closeStream() {
-    advertismentStateStream.close();
+    interstitialAdvertismentStateStream?.close();
+    rewardedAdvertismentStateStream?.close();
+
+
   }
 
-  Future<bool> showInterstitial() async {
-    bool sePuedeMostrar = await Appodeal.canShow(Appodeal.INTERSTITIAL);
-    bool anuncioEnCurso = false;
-    if (sePuedeMostrar) {
-      anuncioEnCurso = await Appodeal.show(Appodeal.INTERSTITIAL);
-    } else {}
-
-    Appodeal.setInterstitialCallbacks(
-        onInterstitialLoaded: (isPrecache) {
+  Future<void> showInterstitial() async {
+    
+      interstitialAdvertismentStateStream = StreamController();
+      bool sePuedeMostrar = await Appodeal.canShow(Appodeal.INTERSTITIAL);
+      if (sePuedeMostrar == true) {
+        await Appodeal.show(Appodeal.INTERSTITIAL);
+        Appodeal.setInterstitialCallbacks(onInterstitialLoaded: (isPrecache) {
           print("onInterstitialLoaded");
-        },
-        onInterstitialFailedToLoad: () {},
-        onInterstitialShown: () {
+        }, onInterstitialFailedToLoad: () {
+          print("onInterstitialLoaded");
+        }, onInterstitialShown: () {
           print("onInterstitialShown");
-        },
-        onInterstitialShowFailed: () {
+        }, onInterstitialShowFailed: () {
           print("onInterstitialShowFailed");
-          advertismentStateStream.add(true);
-        },
-        onInterstitialClicked: () {
+          interstitialAdvertismentStateStream?.add(true);
+        }, onInterstitialClicked: () {
           print("onInterstitialClicked");
-        },
-        onInterstitialClosed: () {
+        }, onInterstitialClosed: () {
           print("onInterstitialClosed");
-          advertismentStateStream.add(true);
-        },
-        onInterstitialExpired: () {
+          interstitialAdvertismentStateStream?.add(true);
+        }, onInterstitialExpired: () {
           print("onInterstitialExpired");
-                    advertismentStateStream.add(true);
-
+          interstitialAdvertismentStateStream?.add(true);
         });
-
-    return anuncioEnCurso;
+      } else {
+        interstitialAdvertismentStateStream?.add(true);
+      }
+    
   }
 
-  Future<bool> showRewarded() async {
+  Future<void> showRewarded() async {
+      rewardedAdvertismentStateStream=StreamController();
     bool sePuedeMostrar = await Appodeal.canShow(Appodeal.REWARDED_VIDEO);
-    bool anuncioEnCurso = false;
     if (sePuedeMostrar) {
-      anuncioEnCurso = await Appodeal.show(Appodeal.REWARDED_VIDEO);
-    } else {}
+   await Appodeal.show(Appodeal.REWARDED_VIDEO);
+      Appodeal.setRewardedVideoCallbacks(
+          onRewardedVideoLoaded: (isPrecache) => {},
+          onRewardedVideoFailedToLoad: ()  {
+              
+          },
+          onRewardedVideoShown: () => {},
+          onRewardedVideoShowFailed: () {
+            rewardedAdvertismentStateStream?.add(true);
+          },
+          onRewardedVideoFinished: (amount, reward) {
+            rewardedAdvertismentStateStream?.add(true);
+          },
+          onRewardedVideoClosed: (isFinished) => {},
+          onRewardedVideoExpired: () => {},
+          onRewardedVideoClicked: () => {});
+    } else {
+      rewardedAdvertismentStateStream?.add(true);
+    }
+    
 
-    Appodeal.setRewardedVideoCallbacks(
-        onRewardedVideoLoaded: (isPrecache) => {},
-        onRewardedVideoFailedToLoad: () => {},
-        onRewardedVideoShown: () => {},
-        onRewardedVideoShowFailed: () {
-          advertismentStateStream.add(true);
-        },
-        onRewardedVideoFinished: (amount, reward) {
-          advertismentStateStream.add(true);
-        },
-        onRewardedVideoClosed: (isFinished) => {},
-        onRewardedVideoExpired: () => {},
-        onRewardedVideoClicked: () => {});
-    return anuncioEnCurso;
+
   }
 
   Future<bool> requestConsentInfoUpdate() async {

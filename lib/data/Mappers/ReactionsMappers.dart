@@ -10,7 +10,7 @@ class ReactionConverter {
       return Reaction(
           age: 20,
           reactionExpirationDateInSeconds: data["caducidad"],
-          reactioValue: data["Valoracion"],
+          reactioValue: double.parse(data["Valoracion"].toString()),
           imageHash: data["hash"],
           imageUrl: data["Imagen Usuario"],
           name: data["Nombe emisor"],

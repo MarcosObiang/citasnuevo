@@ -149,7 +149,7 @@ class Reaction {
           reactionTimer.cancel();
         }
         if (this.secondsUntilExpiration <=1 &&
-            reactionTimer.isActive &&
+            reactionTimer.isActive==true &&
             secondsRemainingStream.isClosed == false) {
           reactionTimer.cancel();
 

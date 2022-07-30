@@ -20,7 +20,7 @@ abstract class RewardDataSource implements DataSource {
   Future<String> getDynamicLink();
 
   /// Used to claim a daily reward after spending all of the coins 24 h before
-  Future<bool> getDailyReward();
+  Future<void> getDailyReward();
 
   Future<bool> getFrstReward();
 
@@ -37,30 +37,38 @@ class RewardDataSourceImpl implements RewardDataSource {
   });
 
   @override
-  Future<bool> getDailyReward() async {
+  Future<void> getDailyReward() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         await Dependencies.advertisingServices.showRewarded();
 
-        await for (bool event in Dependencies
-            .advertisingServices.advertismentStateStream.stream) {
-          if (event) {
-            HttpsCallable callDailyReward = FirebaseFunctions.instance
-                .httpsCallable("solcitarCreditosDiarios");
-            HttpsCallableResult httpsCallable = await callDailyReward.call();
-            if (httpsCallable.data["estado"] == "correcto") {
-              return true;
-            } else {
-              throw RewardException(message: "Error");
+       
+          await for (bool event in Dependencies.advertisingServices
+              .interstitialAdvertismentStateStream!.stream) {
+            if (event) {
+              HttpsCallable callDailyReward = FirebaseFunctions.instance
+                  .httpsCallable("solcitarCreditosDiarios");
+              HttpsCallableResult httpsCallable = await callDailyReward.call();
+              if (httpsCallable.data["estado"] == "correcto") {
+                      Dependencies
+                .advertisingServices.closeStream();
+              } else {
+                      Dependencies
+                .advertisingServices.closeStream();
+                throw RewardException(message: "Error");
+              }
             }
           }
-          
-        }
-        return true;
+       
+
       } catch (e) {
+              Dependencies
+                .advertisingServices.closeStream();
         throw RewardException(message: "Error");
       }
     } else {
+            Dependencies
+                .advertisingServices.closeStream();
       throw NetworkException();
     }
   }
@@ -120,7 +128,7 @@ class RewardDataSourceImpl implements RewardDataSource {
   }
 
   @override
-   StreamSubscription? sourceStreamSubscription;
+  StreamSubscription? sourceStreamSubscription;
 
   @override
   late StreamController<Rewards> rewardStream;
