@@ -97,17 +97,25 @@ class HomeScreenInformationSender extends InformationSender {
 
 class SettingsInformationSender extends InformationSender {
   SettingsEntity settingsEntity;
+  bool? isAppSettingsUpdating;
+    bool? isUserSettingsUpdating;
+
   SettingsInformationSender({
     required this.settingsEntity,
+    required this.isAppSettingsUpdating,
+required this.isUserSettingsUpdating
+
   });
 }
 class RewardInformationSender extends InformationSender {
   Rewards? rewards;
   int? secondsToDailyReward;
   String? premiumPrice;
+  bool isPremium;
   
   RewardInformationSender({
     required this.rewards,
+    required this.isPremium,
     required this.secondsToDailyReward,
     required this.premiumPrice
   });
@@ -143,6 +151,8 @@ class UserSettingsInformationSender extends InformationSender {
       required this.userCharacteristic});
 }
 
+ 
+
 class UserCreatorInformationSender extends InformationSender {
   List<UserPicture> userPicruresList;
   String userBio;
@@ -174,10 +184,8 @@ abstract class ShouldControllerAddData<InformationSender> {
 ///
 ///EXPAMPLE:
 /// ```dart
-///class HomeScreenControllerBridge<HomeScreenController>
-///    implements
-///         ControllerBridgeInformationReciever<HomeScreenController>,
-///         ControllerBridgeInformationSender<HomeScreenController> {
+///class HomeScreenControllerBridge
+///    implements ControllerBridge {
 ///   @override
 ///   late StreamController<Map<String, dynamic>>
 ///            controllerBridgeInformationSenderStream=new StreamController.broadcast();
@@ -186,62 +194,26 @@ abstract class ShouldControllerAddData<InformationSender> {
 ///  void addInformation({required Map<String, dynamic> information}) {
 ///     // TODO: implement addInformation
 ///   }
+/// 
+///   void initializeStream();
+///   void closeStream();
 /// }
 /// ```
-/// Brigdes are not bi-directional, this means that bridges are only one way
-/// between two controllers
+/// Brigdes can be  bi-directional, this means the same
+/// controller can send an recieve information, bridges can also be used by
+/// multiple controllers to share data between them
 /// 
-/// To create the sender side implement in the controller the abstrac class "ExternalControllerDataSender"<T>
 /// 
-/// to create the recieve side implement in the controller the abstrac class "ExternalControllerDataReciever"<T>
 ///
 ///
 ///
-abstract class ControllerBridgeInformationSender<T> {
+abstract class ControllerBridge {
   void addInformation({required Map<String, dynamic> information});
-}
-
-///USE ONLY TO CREATE A CONTROLLER BRIDGE CLASS,
-///DO NOT IMPLEMENT IT DIRECTLY ON ANY CONTROLLER
-///
-///EXPAMPLE:
-/// ```dart
-///class HomeScreenControllerBridge<HomeScreenController>
-///    implements
-///         ControllerBridgeInformationReciever<HomeScreenController>,
-///         ControllerBridgeInformationSender<HomeScreenController> {
-///   @override
-///         controllerBridgeInformationSenderStream=new StreamController.broadcast();
-///
-///   @override
-///  void addInformation({required Map<String, dynamic> information}) {
-///     // TODO: implement addInformation
-///   }
-/// }
-/// ```
-/// Brigdes are not bi-directional, this means that bridges are only one way
-/// between two controllers
-/// 
-/// To create the sender side implement in the controller the abstrac class "ExternalControllerDataSender"<T>
-/// 
-/// to create the recieve side implement in the controller the abstrac class "ExternalControllerDataReciever"<T>
-
-abstract class ControllerBridgeInformationReciever<T> {
-  late StreamController<Map<String, dynamic>>
+   StreamController<Map<String, dynamic>>?
       controllerBridgeInformationSenderStream;
 
       void initializeStream();
       void closeStream();
-}
-
-abstract class ExternalControllerDataSender<T> {
-  late ControllerBridgeInformationSender<T>? controllerBridgeInformationSender;
-
-}
-
-abstract class ExteralControllerDataReciever<T> {
-  late ControllerBridgeInformationReciever<T>
-      controllerBridgeInformationReciever;
 }
 
 

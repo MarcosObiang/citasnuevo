@@ -25,7 +25,7 @@ abstract class ChatDataSource implements DataSource {
   StreamSubscription<QuerySnapshot<Object?>>? messageListenerSubscription;
   late List<Message> messagesWithOutChat;
 
-  late StreamController<dynamic> chatStream;
+   StreamController<dynamic>? chatStream;
   late StreamController<Map<String, dynamic>> messageStream;
 
   Future<bool> messagesSeen({required List<String> data});
@@ -63,7 +63,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
   List<String> chatIds = [];
 
   @override
-  StreamController chatStream = new StreamController.broadcast();
+  StreamController? chatStream = new StreamController.broadcast();
   @override
   StreamSubscription<QuerySnapshot<Object?>>? chatListenerSbscription;
   @override
@@ -81,14 +81,133 @@ class ChatDatsSourceImpl implements ChatDataSource {
     subscribeToMainDataSource();
   }
 
-  Future<void> processData() async {}
 
+  Future<void> _addCurrentConversations({required QuerySnapshot<Map<String, dynamic>> event}) async {
+    List<Map<String, dynamic>> chatDataList = [];
+
+    for (int i = 0; i < event.docChanges.length; i++) {
+      String chatId = event.docChanges[i].doc.get("idConversacion");
+
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
+          await readMessages(chatId);
+
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList = [];
+      Map<String, dynamic> chatData = {
+        "chat": event.docChanges[i].doc.data() as Map<String, dynamic>,
+        "messages": chatMessages.isNotEmpty ? chatMessages : emptyList,
+        "userId": GlobalDataContainer.userId,
+      };
+      chatDataList.add(chatData);
+      chatIds.add(chatId);
+    }
+
+    try {
+      List<Chat> object = await compute(ChatConverter.fromMap, chatDataList);
+      chatStream?.add({
+        "modified": false,
+        "removed": false,
+        "chatList": object,
+        "firstQuery": true
+      });
+
+      isInitializerFinished = true;
+    } catch (e) {
+      throw ChatException(message: e.toString());
+    }
+  }
+
+  Future<void> _addNewConversation({required DocumentSnapshot<Map<String, dynamic>> doc})async{
+              String chatId =
+                       doc.get("idConversacion");
+                    if (chatIds.contains(chatId) == false) {
+                      List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                          chatMessages = await readMessages(chatId);
+
+                      List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                          emptyList = [];
+
+                      Map<String, dynamic> chatData = {
+                        "chat": doc.data()
+                            as Map<String, dynamic>,
+                        "messages":
+                            chatMessages.length > 0 ? chatMessages : emptyList,
+                        "userId": GlobalDataContainer.userId,
+                      };
+                      List<Map<String, dynamic>> singleChatDataList = [];
+                      singleChatDataList.add(chatData);
+
+                      List<Chat> object =
+                          ChatConverter.fromMap(singleChatDataList);
+                      chatIds.add(chatId);
+
+                      chatStream?.add({
+                        "modified": false,
+                        "removed": false,
+                        "chatList": object,
+                        "firstQuery": false
+                      });
+                    }
+
+  }
+void _removeConversation({required DocumentSnapshot<Map<String, dynamic>> doc}){
+                List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                        chatMessages = [];
+                    Map<String, dynamic> chatData = {
+                      "chat": doc.data()
+                          as Map<String, dynamic>,
+                      "messages": chatMessages,
+                      "userId": GlobalDataContainer.userId,
+                    };
+                    List<Map<String, dynamic>> singleChatDataList = [];
+                    singleChatDataList.add(chatData);
+
+                    List<Chat> object =
+                        ChatConverter.fromMap(singleChatDataList);
+                    object.forEach((element) {
+                      chatIds.removeWhere((chatID) => chatID == element.chatId);
+                    });
+
+                    chatStream?.add({
+                      "modified": false,
+                      "removed": true,
+                      "chatList": object,
+                      "firstQuery": false
+                    });
+
+}
+
+
+void _modifyConversation({required DocumentSnapshot<Map<String, dynamic>> doc}){
+                    List<QueryDocumentSnapshot<Map<String, dynamic>>>
+                        chatMessages = [];
+                    Map<String, dynamic> chatData = {
+                      "chat": doc.data()
+                          as Map<String, dynamic>,
+                      "messages": chatMessages,
+                      "userId": GlobalDataContainer.userId,
+                    };
+                    List<Map<String, dynamic>> singleChatDataList = [];
+                    singleChatDataList.add(chatData);
+
+                    List<Chat> object =
+                        ChatConverter.fromMap(singleChatDataList);
+
+                    chatStream?.add({
+                      "modified": true,
+                      "removed": false,
+                      "chatList": object,
+                      "firstQuery": false
+                    });
+
+}
+/// Keeps chats up to date
+/// 
+/// Listen to new chats, when a chat is removed, or when is modified
   @override
   void initializeChatListener() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         FirebaseFirestore instance = FirebaseFirestore.instance;
-        List<Map<String, dynamic>> chatDataList = [];
 
         chatListenerSbscription = instance
             .collection("usuarios")
@@ -99,132 +218,35 @@ class ChatDatsSourceImpl implements ChatDataSource {
             .listen((event) async {
           if (event.docChanges.isNotEmpty) {
             if (event.docChanges.length > 0 && isInitializerFinished == false) {
-              for (int i = 0; i < event.docChanges.length; i++) {
-                String chatId = event.docChanges[i].doc.get("idConversacion");
-
-                List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
-                    await readMessages(chatId);
-
-                List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList =
-                    [];
-                Map<String, dynamic> chatData = {
-                  "chat":
-                      event.docChanges[i].doc.data() as Map<String, dynamic>,
-                  "messages":
-                      chatMessages.isNotEmpty ? chatMessages : emptyList,
-                  "userId": GlobalDataContainer.userId,
-                };
-                chatDataList.add(chatData);
-                chatIds.add(chatId);
-              }
-
-              try {
-                List<Chat> object =
-                    await compute(ChatConverter.fromMap, chatDataList);
-                chatStream.add({
-                  "modified": false,
-                  "removed": false,
-                  "chatList": object,
-                  "firstQuery": true
-                });
-
-                isInitializerFinished = true;
-              } catch (e) {
-                chatStream.addError(ChatException(message: e.toString()));
-
-                throw ChatException(message: e.toString());
-              }
+              await _addCurrentConversations(event: event);
             }
             if (event.docChanges.length > 0 && isInitializerFinished == true) {
               try {
-                if (event.docChanges.first.type == DocumentChangeType.added) {
-                  String chatId =
-                      event.docChanges.first.doc.get("idConversacion");
-                  if (chatIds.contains(chatId) == false) {
-                    List<QueryDocumentSnapshot<Map<String, dynamic>>>
-                        chatMessages = await readMessages(chatId);
+                for (int a = 0; a < event.docChanges.length; a++) {
+                  if (event.docChanges[a].type == DocumentChangeType.added) {
+                   await _addNewConversation(doc: event.docChanges[a].doc);
+          
+                  }
 
-                    List<QueryDocumentSnapshot<Map<String, dynamic>>>
-                        emptyList = [];
+                  if (event.docChanges[a].type == DocumentChangeType.removed) {
+                    _removeConversation(doc: event.docChanges[a].doc);
+      
+                  }
 
-                    Map<String, dynamic> chatData = {
-                      "chat": event.docChanges.first.doc.data()
-                          as Map<String, dynamic>,
-                      "messages":
-                          chatMessages.length > 0 ? chatMessages : emptyList,
-                      "userId": GlobalDataContainer.userId,
-                    };
-                    List<Map<String, dynamic>> singleChatDataList = [];
-                    singleChatDataList.add(chatData);
+                  if (event.docChanges[a].type == DocumentChangeType.modified) {
+                    _modifyConversation(doc: event.docChanges[a].doc);
 
-                    List<Chat> object =
-                        ChatConverter.fromMap(singleChatDataList);
-                    chatIds.add(chatId);
-
-                    chatStream.add({
-                      "modified": false,
-                      "removed": false,
-                      "chatList": object,
-                      "firstQuery": false
-                    });
                   }
                 }
-
-                if (event.docChanges.first.type == DocumentChangeType.removed) {
-                  List<QueryDocumentSnapshot<Map<String, dynamic>>>
-                      chatMessages = [];
-                  Map<String, dynamic> chatData = {
-                    "chat": event.docChanges.first.doc.data()
-                        as Map<String, dynamic>,
-                    "messages": chatMessages,
-                    "userId": GlobalDataContainer.userId,
-                  };
-                  List<Map<String, dynamic>> singleChatDataList = [];
-                  singleChatDataList.add(chatData);
-
-                  List<Chat> object = ChatConverter.fromMap(singleChatDataList);
-                  object.forEach((element) {
-                    chatIds.removeWhere((chatID) => chatID == element.chatId);
-                  });
-
-                  chatStream.add({
-                    "modified": false,
-                    "removed": true,
-                    "chatList": object,
-                    "firstQuery": false
-                  });
-                }
-                if (event.docChanges.first.type ==
-                    DocumentChangeType.modified) {
-                  List<QueryDocumentSnapshot<Map<String, dynamic>>>
-                      chatMessages = [];
-                  Map<String, dynamic> chatData = {
-                    "chat": event.docChanges.first.doc.data()
-                        as Map<String, dynamic>,
-                    "messages": chatMessages,
-                    "userId": GlobalDataContainer.userId,
-                  };
-                  List<Map<String, dynamic>> singleChatDataList = [];
-                  singleChatDataList.add(chatData);
-
-                  List<Chat> object = ChatConverter.fromMap(singleChatDataList);
-
-                  chatStream.add({
-                    "modified": true,
-                    "removed": false,
-                    "chatList": object,
-                    "firstQuery": false
-                  });
-                }
               } catch (e) {
-                chatStream.addError(ChatException(message: e.toString()));
+                chatStream?.addError(ChatException(message: e.toString()));
 
                 throw ChatException(message: e.toString());
               }
             }
           } else {
             List<Chat> emptyList = [];
-            chatStream.add({
+            chatStream?.add({
               "modified": false,
               "removed": false,
               "chatList": emptyList,
@@ -233,23 +255,23 @@ class ChatDatsSourceImpl implements ChatDataSource {
             });
           }
         }, onError: (error) {
-          chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
+          chatStream?.addError(ChatException(message: "ERROR_FROM_BACKEND"));
 
           throw ChatException(message: "ERROR_FROM_BACKEND");
         }, cancelOnError: true);
 
         chatListenerSbscription?.onError((_) {
-          chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
+          chatStream?.addError(ChatException(message: "ERROR_FROM_BACKEND"));
 
           throw ChatException(message: "ERROR_FROM_BACKEND");
         });
       } catch (e) {
-        chatStream.addError(ChatException(message: "ERROR_FROM_BACKEND"));
+        chatStream?.addError(ChatException(message: "ERROR_FROM_BACKEND"));
 
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -258,12 +280,12 @@ class ChatDatsSourceImpl implements ChatDataSource {
     FirebaseFirestore instance = FirebaseFirestore.instance;
 
     List<QueryDocumentSnapshot<Map<String, dynamic>>> data = [];
+
     QuerySnapshot<Map<String, dynamic>> net = await instance
         .collection("mensajes")
         .where("idConversacion", isEqualTo: chatId)
         .orderBy("horaMensaje", descending: true)
-        .snapshots()
-        .first;
+        .get();
     data.addAll(net.docs);
 
     return data;
@@ -311,7 +333,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -322,6 +344,10 @@ class ChatDatsSourceImpl implements ChatDataSource {
       userId = event["id"];
     });
   }
+
+  /// Send messages to the receptor
+  /// 
+  ///
 
   @override
   Future<bool> sendMessages(
@@ -351,17 +377,17 @@ class ChatDatsSourceImpl implements ChatDataSource {
         messageData["cargaNotificacion"] = true;
         messageData["notificarEsteUsuario"] = remitentId;
         messageData["interlocutores"] = [userId, remitentId];
-
         await firestoreInstance
             .collection("mensajes")
             .doc(messageId)
             .set(messageData);
+
         return true;
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -383,7 +409,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -416,7 +442,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -436,7 +462,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
           return ProfileMapper.fromMap({
             "profilesList": [profilesCache.first],
-            "userCharacteristicsData": source.getData["filtros usuario"]
+            "userCharacteristicsData": source.getData["filtros usuario"],
+            "todayDateTime": await DateNTP.instance.getTime()
           }).first;
         } else {
           throw ChatException(message: "PROFILE_COULD_NOT_BE_FETCHED");
@@ -445,7 +472,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -479,17 +506,19 @@ class ChatDatsSourceImpl implements ChatDataSource {
         throw ChatException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
   @override
   void clearModuleData() {
     chatListenerSbscription?.cancel();
-    chatStream.close();
+    chatStream?.close();
     messageListenerSubscription?.cancel();
     messageStream.close();
     chatIds.clear();
+    chatListenerSbscription=null;
+    chatStream=null;
     chatStream = new StreamController.broadcast();
     messageStream = new StreamController.broadcast();
     sourceStreamSubscription?.cancel();

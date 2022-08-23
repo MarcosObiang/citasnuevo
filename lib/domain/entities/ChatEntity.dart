@@ -71,6 +71,7 @@ class Chat {
 
   // ignore: unused_element
   void calculateUnreadMessages(String userId) {
+    unreadMessages=0;
     for (int i = 0; i < messagesList.length; i++) {
       if (messagesList[i].read == false &&
           messagesList[i].senderId != userId&&messagesList[i].messageType!=MessageType.DATE) {

@@ -11,6 +11,7 @@ import 'package:citasnuevo/domain/repository/reactionRepository/reactionReposito
 import 'package:dartz/dartz.dart';
 
 import '../../core/dependencies/error/Failure.dart';
+import '../controller_bridges/HomeScreenCotrollerBridge.dart';
 import 'controllerDef.dart';
 
 abstract class ReactionController
@@ -18,8 +19,7 @@ abstract class ReactionController
         ShouldControllerRemoveData<ReactionInformationSender>,
         ShouldControllerUpdateData<ReactionInformationSender>,
         ShouldControllerAddData<ReactionInformationSender>,
-        ModuleCleaner,
-        ExternalControllerDataSender<HomeScreenController> {
+        ModuleCleaner {
   ///Saves the reactions in a list
   late List<Reaction> reactions;
 
@@ -54,7 +54,7 @@ class ReactionsControllerImpl implements ReactionController {
   int coins = 0;
 
   @override
-   bool isPremium = false;
+  bool isPremium = false;
 
   @override
   StreamController<ReactionInformationSender>? addDataController =
@@ -83,14 +83,12 @@ class ReactionsControllerImpl implements ReactionController {
   StreamController<Map<String, dynamic>> streamExpiredReactions =
       StreamController.broadcast();
 
-  @override
-  ControllerBridgeInformationSender<HomeScreenController>?
-      controllerBridgeInformationSender;
+  HomeScreenControllerBridge homeScreencontrollerbridge;
 
   ReactionRepository reactionRepository;
   ReactionsControllerImpl(
       {required this.reactionRepository,
-      required this.controllerBridgeInformationSender});
+      required this.homeScreencontrollerbridge});
 
   StreamController<Map> get getAdditionalData =>
       reactionRepository.additionalDataStream;
@@ -106,7 +104,6 @@ class ReactionsControllerImpl implements ReactionController {
   StreamSubscription? coinsStreamSubscription;
   StreamSubscription? expiredReactionSubscription;
   StreamSubscription? reactionSubscription;
-
 
   @override
   void clearModuleData() {
@@ -143,6 +140,16 @@ class ReactionsControllerImpl implements ReactionController {
 
     }
   }*/
+
+  bool checkIfReactionCanShowAds(String reactionId) {
+    bool canShowAds = true;
+    for (int i = 0; i < reactions.length; i++) {
+      if (reactions[i].idReaction == reactionId) {
+        canShowAds = reactions[i].canShowAds;
+      }
+    }
+    return canShowAds;
+  }
 
   void initReactionStream() {
     initCoinListener();
@@ -183,21 +190,20 @@ class ReactionsControllerImpl implements ReactionController {
         if (reactions.isNotEmpty == true) {
           int index = reactions.indexWhere(
               (element) => element.idReaction == reaction.idReaction);
-              if(index>=0){
-          reactions.removeAt(index);
+          if (index >= 0) {
+            reactions.removeAt(index);
 
-          removeDataController?.add(ReactionInformationSender(
-              index: index,
-              reaction: reaction,
-              reactionAverage: reactionsAverage,
-              isPremium: isPremium,
-              notify: notify,
-              sync: false,
-              isModified: isModified,
-              isDeleted: isDeleted,
-              coins: coins));
-              }
-
+            removeDataController?.add(ReactionInformationSender(
+                index: index,
+                reaction: reaction,
+                reactionAverage: reactionsAverage,
+                isPremium: isPremium,
+                notify: notify,
+                sync: false,
+                isModified: isModified,
+                isDeleted: isDeleted,
+                coins: coins));
+          }
         }
       }
 
@@ -260,8 +266,6 @@ class ReactionsControllerImpl implements ReactionController {
     });
   }
 
-
-
   void syncReactions() {
     for (int i = 0; i < reactions.length; i++) {
       reactions[i].resyncReaction();
@@ -273,7 +277,8 @@ class ReactionsControllerImpl implements ReactionController {
     syncReactions();
 
     for (int i = 0; i < this.reactions.length; i++) {
-      if (this.reactions[i].idReaction == reactionId&&this.reactions[i].secondsUntilExpiration>0) {
+      if (this.reactions[i].idReaction == reactionId &&
+          this.reactions[i].secondsUntilExpiration > 0) {
         this.reactions[i].setReactionRevealigState =
             ReactionRevealigState.revealing;
         updateDataController?.add(ReactionInformationSender(
@@ -299,6 +304,7 @@ class ReactionsControllerImpl implements ReactionController {
         if (this.reactions[i].idReaction == reactionId) {
           this.reactions[i].setReactionRevealigState =
               ReactionRevealigState.notRevealed;
+          this.reactions[i].canShowAds = false;
           updateDataController?.add(ReactionInformationSender(
               sync: false,
               isPremium: isPremium,
@@ -319,97 +325,92 @@ class ReactionsControllerImpl implements ReactionController {
 
   Future<Either<Failure, bool>> acceptReaction(
       {required String reactionId, required String reactionSenderId}) async {
-        syncReactions();
-  
-   
-      for (int i = 0; i < this.reactions.length; i++) {
-        if (this.reactions[i].idReaction == reactionId) {
-          this.reactions[i].setReactionAceptingState =
-              ReactionAceptingState.inProcessAcepting;
+    syncReactions();
+
+    for (int i = 0; i < this.reactions.length; i++) {
+      if (this.reactions[i].idReaction == reactionId) {
+        this.reactions[i].setReactionAceptingState =
+            ReactionAceptingState.inProcessAcepting;
+        updateDataController?.add(ReactionInformationSender(
+            reaction: null,
+            reactionAverage: reactionsAverage,
+            isPremium: isPremium,
+            notify: false,
+            isModified: null,
+            sync: false,
+            isDeleted: null,
+            coins: coins,
+            index: null));
+
+        break;
+      }
+    }
+    Either<Failure, bool> result = await reactionRepository.acceptReaction(
+        reactionId: reactionId, reactionSenderId: reactionSenderId);
+
+    result.fold((l) {
+      for (int i = 0; i < reactions.length; i++) {
+        if (reactions[i].idReaction == reactionId) {
+          reactions[i].setReactionAceptingState = ReactionAceptingState.error;
           updateDataController?.add(ReactionInformationSender(
               reaction: null,
               reactionAverage: reactionsAverage,
               isPremium: isPremium,
               notify: false,
-              isModified: null,
               sync: false,
+              isModified: null,
               isDeleted: null,
               coins: coins,
               index: null));
-
-          break;
         }
       }
-      Either<Failure, bool> result = await reactionRepository.acceptReaction(
-          reactionId: reactionId, reactionSenderId: reactionSenderId);
+    }, (r) {});
 
-      result.fold((l) {
-        for (int i = 0; i < reactions.length; i++) {
-          if (reactions[i].idReaction == reactionId) {
-            reactions[i].setReactionAceptingState = ReactionAceptingState.error;
-            updateDataController?.add(ReactionInformationSender(
-                reaction: null,
-                reactionAverage: reactionsAverage,
-                isPremium: isPremium,
-                notify: false,
-                sync: false,
-                isModified: null,
-                isDeleted: null,
-                coins: coins,
-                index: null));
-          }
-        }
-      }, (r) {});
-
-      return result;
-    
+    return result;
   }
 
   Future<Either<Failure, bool>> rejectReaction(
       {required String reactionId}) async {
- 
-
- syncReactions();
-      for (int i = 0; i < this.reactions.length; i++) {
-        if (this.reactions[i].idReaction == reactionId) {
-          this.reactions[i].setReactionAceptingState =
-              ReactionAceptingState.inProcessDeclining;
-          updateDataController?.add(ReactionInformationSender(
-              reaction: null,
-              reactionAverage: reactionsAverage,
-              sync: false,
-              isModified: null,
-              isPremium: isPremium,
-              notify: false,
-              isDeleted: null,
-              coins: coins,
-              index: null));
-
-          break;
-        }
-      }
-
-      Either<Failure, bool> result =
-          await reactionRepository.rejectReaction(reactionId: reactionId);
-
-      result.fold((l) {
+    syncReactions();
+    for (int i = 0; i < this.reactions.length; i++) {
+      if (this.reactions[i].idReaction == reactionId) {
+        this.reactions[i].setReactionAceptingState =
+            ReactionAceptingState.inProcessDeclining;
         updateDataController?.add(ReactionInformationSender(
             reaction: null,
             reactionAverage: reactionsAverage,
             sync: false,
             isModified: null,
-            isDeleted: null,
             isPremium: isPremium,
             notify: false,
+            isDeleted: null,
             coins: coins,
             index: null));
-      }, (r) {
-        for (int i = 0; i < reactions.length; i++) {
-          if (reactions[i].idReaction == reactionId) {}
-        }
-      });
-      return result;
-    
+
+        break;
+      }
+    }
+
+    Either<Failure, bool> result =
+        await reactionRepository.rejectReaction(reactionId: reactionId);
+
+    result.fold((l) {
+      updateDataController?.add(ReactionInformationSender(
+          reaction: null,
+          reactionAverage: reactionsAverage,
+          sync: false,
+          isModified: null,
+          isDeleted: null,
+          isPremium: isPremium,
+          notify: false,
+          coins: coins,
+          index: null));
+    }, (r) {
+      for (int i = 0; i < reactions.length; i++) {
+        if (reactions[i].idReaction == reactionId) {}
+      }
+    });
+    return result;
   }
 
   @override
@@ -417,11 +418,10 @@ class ReactionsControllerImpl implements ReactionController {
     reactionRepository.initializeModuleData();
     initReactionStream();
     initializeExpiredTimeListener();
-    DateTime dateTime = await DateNTP().getTime();
   }
 
   void sendReactionData() {
-    controllerBridgeInformationSender?.addInformation(
+    homeScreencontrollerbridge.addInformation(
         information: {"header": "reaction", "data": reactions.length});
   }
 }

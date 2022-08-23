@@ -11,11 +11,24 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 abstract class ApplicationSettingsDataSource
     implements DataSource, AuthenticationSignOutCapacity {
+  /// Send the current state of app settings
   StreamController<ApplicationSettingsInformationSender>?
+      // ignore: close_sinks
       listenAppSettingsUpdate;
 
+  /// Updates the app setings in the server
+  ///
+
   Future<bool> updateAppSettings(Map<String, dynamic> data);
+
+  /// Reverts settings to it initial state
+  ///
+  /// If somethng goes wrong when trying to update the settings using [updateAppSettings]
+  ///
+  /// this method will revert the app settings to the state before attempting to update settings
   void revertChanges();
+
+  /// Call to the server to delete the user
   Future<bool> deleteAccount();
 }
 
@@ -23,11 +36,10 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   @override
   ApplicationDataSource source;
   @override
+  AuthService authService;
+  @override
   StreamController<ApplicationSettingsInformationSender>?
       listenAppSettingsUpdate = new StreamController.broadcast();
-
-  @override
-  AuthService authService;
 
   @override
   StreamSubscription? sourceStreamSubscription;
@@ -35,11 +47,11 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void clearModuleData() {
-    if (sourceStreamSubscription != null) {
-      sourceStreamSubscription!.cancel();
-    }
+    sourceStreamSubscription?.cancel();
+    sourceStreamSubscription = null;
 
     listenAppSettingsUpdate?.close();
+    listenAppSettingsUpdate = null;
     listenAppSettingsUpdate = new StreamController.broadcast();
   }
 
@@ -50,15 +62,20 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void subscribeToMainDataSource() {
-    listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
-        distance: source.getData["Ajustes"]["distanciaMaxima"],
-        maxAge: source.getData["Ajustes"]["edadFinal"],
-        minAge: source.getData["Ajustes"]["edadInicial"],
-        inCm: source.getData["Ajustes"]["enCm"],
-        inKm: source.getData["Ajustes"]["enMillas"],
-        showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
-        showWoman: source.getData["Ajustes"]["mostrarMujeres"],
-        showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
+    try {
+      listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
+          distance: source.getData["Ajustes"]["istanciaMaxima"],
+          maxAge: source.getData["Ajustes"]["edadFinal"],
+          minAge: source.getData["Ajustes"]["edadInicial"],
+          inCm: source.getData["Ajustes"]["enCm"],
+          inKm: source.getData["Ajustes"]["enMillas"],
+          showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
+          showWoman: source.getData["Ajustes"]["mostrarMujeres"],
+          showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
+    } catch (e) {
+      throw AppSettingsException(message: e.toString());
+    }
+
     sourceStreamSubscription = source.dataStream.stream.listen((event) {
       listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
           distance: event["Ajustes"]["distanciaMaxima"],
@@ -89,10 +106,14 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
           throw AppSettingsException(message: "CLOUD_FUNCTION_ERROR");
         }
       } catch (e) {
+        revertChanges();
+
         throw AppSettingsException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      revertChanges();
+
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -118,25 +139,32 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
         HttpsCallableResult httpsCallableResult =
             await borrarUsuario.call({"id": GlobalDataContainer.userId});
-        Map<String, dynamic> userData = await authService.logOut();
-
-        return true;
+        if (httpsCallableResult.data["estado"] == "correcto") {
+          await authService.logOut();
+          return true;
+        } else {
+          throw AppSettingsException(message: "SERVER_ERROR");
+        }
       } catch (e) {
-        throw AppSettingsException(message: e.toString());
+        if (e is AuthException) {
+          throw AuthException(message: e.toString());
+        } else {
+          throw AppSettingsException(message: e.toString());
+        }
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
   @override
   Future<bool> logOut() async {
     try {
-      Map<String, dynamic> userData = await authService.logOut();
+      await authService.logOut();
       return true;
     } catch (e, s) {
       print(s);
-      throw e;
+      throw AuthException(message: e.toString());
     }
   }
 }

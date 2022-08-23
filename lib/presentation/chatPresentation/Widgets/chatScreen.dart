@@ -1,18 +1,19 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatMessage.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatReportScreen.dart';
-import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatProfileDetailScreen.dart';
-import 'package:citasnuevo/presentation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
+
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatMessage.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatProfileDetailScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatReportScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
+import 'package:citasnuevo/presentation/routes.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/globalData.dart';
@@ -105,6 +106,10 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
     controller.animateTo(0,
         duration: Duration(milliseconds: 400), curve: Curves.easeInSine);
   }
+  /// Searches for the rigth chat to open in the chatList
+  /// 
+  /// When the user opens a chat, before anything is painted, 
+  /// we need to know the index of the chat we want to access
 
   int getIndex({required String chatId}) {
     int index = -1;
@@ -393,6 +398,8 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
             flex: 8,
             fit: FlexFit.tight,
             child: TextFormField(
+              maxLength: 600,
+              maxLines: null,
               controller: textEditingController,
               focusNode: focusNode,
               textInputAction: TextInputAction.send,
@@ -456,7 +463,9 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                     Navigator.pop(context);
                   },
                   child: Text("Si")),
-              TextButton(onPressed: () {}, child: Text("No"))
+              TextButton(onPressed: () {
+                Navigator.pop(context);
+              }, child: Text("No"))
             ],
           );
         });

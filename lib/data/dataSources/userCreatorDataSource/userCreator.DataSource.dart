@@ -135,7 +135,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
         UserCreatorException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
     // TODO: implement createUser
     throw UnimplementedError();

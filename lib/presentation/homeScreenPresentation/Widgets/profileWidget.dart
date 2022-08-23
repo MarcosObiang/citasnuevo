@@ -22,19 +22,23 @@ class ProfileWidget extends StatefulWidget {
   final BoxConstraints boxConstraints;
   int listIndex;
   bool needRatingWidget;
+  bool showDistance;
 
   Profile profile;
   List<Map<dynamic, dynamic>> images = [];
-  ProfileWidget(
-      {required this.profile,
-      required this.needRatingWidget,
-      required this.boxConstraints,
-      required this.listIndex});
+  ProfileWidget({
+    required this.profile,
+    required this.needRatingWidget,
+    required this.boxConstraints,
+    required this.listIndex,
+    required this.showDistance,
+  });
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-return _ProfileWidgetState();  }
+    return _ProfileWidgetState();
+  }
 }
 
 class _ProfileWidgetState extends State<ProfileWidget> {
@@ -61,29 +65,36 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return ChangeNotifierProvider.value(
       value: Dependencies.homeScreenPresentation,
-      child: Consumer<HomeScreenPresentation>(
-        builder: (BuildContext context,HomeScreenPresentation homeScreenPresentation,Widget? child) {
-          return Container(
-              height: widget.boxConstraints.maxHeight,
-              width: widget.boxConstraints.maxWidth,
-              child: Stack(
-                children: [
-                  ListView(children: widgetList),
-                  profileInfo(
-                      name: widget.profile.name, age: widget.profile.age.toString(),distance: widget.profile.distance.toString()),
-                  if (isRating) ...[ratingScreen()],
-              widget.needRatingWidget?    reactionSlider(homeScreenPresentation):Container()
-                ],
-              ));
-        }
-      ),
+      child: Consumer<HomeScreenPresentation>(builder: (BuildContext context,
+          HomeScreenPresentation homeScreenPresentation, Widget? child) {
+        return Container(
+            height: widget.boxConstraints.maxHeight,
+            width: widget.boxConstraints.maxWidth,
+            child: Stack(
+              children: [
+                ListView(children: widgetList),
+                profileInfo(
+                    name: widget.profile.name,
+                    age: widget.profile.age.toString(),
+                    distance: widget.profile.distance.toString(),
+                    showDistance: widget.showDistance),
+                if (isRating) ...[ratingScreen()],
+                widget.needRatingWidget
+                    ? reactionSlider(homeScreenPresentation)
+                    : Container()
+              ],
+            ));
+      }),
     );
   }
 
-  Widget profileInfo({required String name, required String age, required String distance}) {
+  Widget profileInfo(
+      {required String name,
+      required String age,
+      required String distance,
+      required bool showDistance}) {
     return Container(
         height: widget.boxConstraints.maxHeight * 0.15,
         width: widget.boxConstraints.maxWidth,
@@ -115,14 +126,16 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    "$distance Km",
-                    style:
-                        GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
-                  ),
+                  showDistance
+                      ? Text(
+                          "$distance Km",
+                          style: GoogleFonts.lato(
+                              color: Colors.white, fontSize: 50.sp),
+                        )
+                      : Container(),
                   IconButton(
                       onPressed: () {
-                        goToReportScreen(widget.profile.id);
+                        goToReportScreen(widget.profile.id,context);
                       },
                       icon: Icon(
                         Icons.report,
@@ -192,7 +205,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 if (this.mounted == true) {
                   setState(() {
                     ratingValue = valor;
-                    sendReaction(ratingValue,homeScreenPresentation);
+                    sendReaction(ratingValue, homeScreenPresentation);
                   });
                 }
               },
@@ -205,9 +218,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     );
   }
 
-  void sendReaction(double ratingValue,HomeScreenPresentation homeScreenPresentation) {
+  void sendReaction(
+      double ratingValue, HomeScreenPresentation homeScreenPresentation) {
     try {
-    homeScreenPresentation.sendReaction(ratingValue, widget.listIndex, widget.boxConstraints);
+      homeScreenPresentation.sendReaction(
+          ratingValue, widget.listIndex, widget.boxConstraints);
     } catch (e) {}
   }
 
@@ -236,14 +251,15 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           profileCharateristicsData: widget.profile.profileCharacteristics,
           constraints: widget.boxConstraints,
         ));
-        widgetList.add(ProfileFoot(constraints: widget.boxConstraints));
+    widgetList.add(ProfileFoot(constraints: widget.boxConstraints));
 
     var time2 = DateTime.now().microsecondsSinceEpoch;
 
     print("${(time2 - time1)} microseconds");
   }
 
-  void goToReportScreen(String userId) {
-    Navigator.push(context, GoToRoute(page: ReportScreen(userId)));
+  void goToReportScreen(String userId, BuildContext context) {
+    Navigator.pushNamed(context, ReportScreen.routeName,
+        arguments: ReportScreenArgs(userId: userId));
   }
 }

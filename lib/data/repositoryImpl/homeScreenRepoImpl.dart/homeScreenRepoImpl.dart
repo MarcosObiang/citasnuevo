@@ -30,13 +30,13 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       return Right(profilesList);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else if (e is FetchProfilesException) {
         return Left(FetchUserFailure(message: e.message));
       } else if (e is LocationServiceException) {
         return Left(LocationServiceFailure(message: e.message));
       } else {
-        return Left(GenericModuleFailure());
+        return Left(GenericModuleFailure(message: e.toString()));
       }
     }
   }
@@ -50,11 +50,11 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       return Right(Void);
     } catch (e) {
       if (e is RatingProfilesException) {
-        return Left(RatingProfilesFailure());
+        return Left(RatingProfilesFailure(message: e.toString()));
       } else if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ServerFailure());
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }
@@ -78,11 +78,11 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       return Right(result);
     } catch (e) {
       if (e is RatingProfilesException) {
-        return Left(RatingProfilesFailure());
+        return Left(RatingProfilesFailure(message: e.toString()));
       } else if (e is LocationServiceException) {
         return Left(LocationServiceFailure(message: e.message));
       } else {
-        return Left(ServerFailure());
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }
@@ -94,11 +94,11 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       return Right(result);
     } catch (e) {
       if (e is RatingProfilesException) {
-        return Left(RatingProfilesFailure());
+        return Left(RatingProfilesFailure(message: e.toString()));
       } else if (e is LocationServiceException) {
         return Left(LocationServiceFailure(message: e.message));
       } else {
-        return Left(ServerFailure());
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }

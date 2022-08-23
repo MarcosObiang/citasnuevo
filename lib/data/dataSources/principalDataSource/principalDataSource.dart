@@ -79,6 +79,7 @@ abstract class DataSource implements ModuleCleaner {
   /// Subscribe to the source to get the data from the backend
   late ApplicationDataSource source;
 
+   // ignore: cancel_subscriptions
    StreamSubscription? sourceStreamSubscription;
 
   ///Must be called before any method in the class to get the data needed

@@ -39,9 +39,9 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
       return Right(result);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(AppSettingsFailure());
+        return Left(AppSettingsFailure(message: e.toString()));
       }
     }
   }
@@ -53,9 +53,9 @@ try {
       return Right(result);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(AppSettingsFailure());
+        return Left(AppSettingsFailure(message: e.toString()));
       }
     }  }
 
@@ -69,12 +69,12 @@ try {
       return Right(authData);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       }
       if (e is AuthException) {
-        return Left(AuthFailure());
+        return Left(AuthFailure(message: e.toString()));
       } else {
-        return Left(ServerFailure());
+        return Left(ServerFailure(message: e.toString()));
       }
     }  }
 }

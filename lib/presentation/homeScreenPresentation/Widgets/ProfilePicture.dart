@@ -5,16 +5,21 @@ import 'package:octo_image/octo_image.dart';
 class ProfilePicture extends StatelessWidget {
   final Map profilePicture;
   final BoxConstraints boxConstraints;
+  
   ProfilePicture({required this.profilePicture, required this.boxConstraints});
   @override
   Widget build(BuildContext context) {
     return Container(
         height: boxConstraints.maxHeight,
         width: boxConstraints.maxWidth,
-        child: OctoImage(
+        child:  OctoImage(
           fadeInDuration: Duration(milliseconds: 50),
           fit: BoxFit.cover,
-          image: CachedNetworkImageProvider(profilePicture["Imagen"]),
+          image: CachedNetworkImageProvider(profilePicture["Imagen"],
+          
+          errorListener: (){
+
+          }),
           placeholderBuilder: OctoPlaceholder.blurHash(profilePicture["hash"],
               fit: BoxFit.cover),
         ));

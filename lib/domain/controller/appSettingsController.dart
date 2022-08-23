@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/domain/controller/SettingsController.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
+import 'package:citasnuevo/domain/controller_bridges/SettingsToAppSettingsControllerBridge.dart';
 import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 import 'package:dartz/dartz.dart';
@@ -9,19 +11,23 @@ import 'package:dartz/dartz.dart';
 import '../../core/dependencies/error/Failure.dart';
 import '../repository/DataManager.dart';
 
+enum AppSettingsState { loading, updating, loaded, noLoaded }
+
 class AppSettingsController
     implements
         ShouldControllerUpdateData<ApplicationSettingsInformationSender>,
         ModuleCleaner {
   AppSettingsRepository appSettingsRepository;
   late ApplicationSettingsEntity applicationSettingsEntity;
+  AppSettingsToSettingsControllerBridge?
+      settingsToAppSettingsControllerBridge;
 
   @override
   late StreamController<ApplicationSettingsInformationSender>?
       updateDataController = StreamController.broadcast();
-  AppSettingsController({
-    required this.appSettingsRepository,
-  });
+  AppSettingsController(
+      {required this.appSettingsRepository,
+      required this.settingsToAppSettingsControllerBridge});
 
   void initializeListener() {
     appSettingsRepository.appSettingsStream?.stream.listen((event) {
@@ -40,6 +46,8 @@ class AppSettingsController
 
   Future<Either<Failure, bool>> updateAppSettings(
       ApplicationSettingsEntity applicationSettingsEntity) async {
+    sendInfo(updatingSettings: true);
+
     var result = await appSettingsRepository.updateSettings({
       "distanciaMaxima": applicationSettingsEntity.distance,
       "edadFinal": applicationSettingsEntity.maxAge,
@@ -49,6 +57,11 @@ class AppSettingsController
       "mostrarAmbosSexos": applicationSettingsEntity.showBothSexes,
       "mostrarMujeres": applicationSettingsEntity.showWoman,
       "mostrarPerfil": applicationSettingsEntity.showProfile
+    });
+    result.fold((l) {
+      sendInfo(updatingSettings: false);
+    }, (r) {
+      sendInfo(updatingSettings: false);
     });
     return result;
   }
@@ -79,5 +92,10 @@ class AppSettingsController
   void initializeModuleData() {
     appSettingsRepository.initializeModuleData();
     initializeListener();
+  }
+
+  void sendInfo({required bool updatingSettings}) {
+    settingsToAppSettingsControllerBridge
+        ?.addInformation(information: {"updatingSettings": updatingSettings});
   }
 }

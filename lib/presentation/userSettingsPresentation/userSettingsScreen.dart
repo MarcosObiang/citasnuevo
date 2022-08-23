@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
+import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,16 +20,23 @@ import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentation.dart';
 
+import '../../main.dart';
 import '../../reordableList.dart';
+
+class UserSettingsScreenArgs{
+  
+}
 
 class UserSettingsScreen extends StatefulWidget {
   const UserSettingsScreen();
+  static const routeName = '/UserSettingsScreen';
 
   @override
   State<UserSettingsScreen> createState() => _UserSettingsScreenState();
 }
 
-class _UserSettingsScreenState extends State<UserSettingsScreen> {
+class _UserSettingsScreenState extends State<UserSettingsScreen>
+    with RouteAware {
   ScrollController scrollController = new ScrollController();
   @override
   void initState() {
@@ -57,6 +65,37 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    print("Change dependencies!!!!");
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void didPush() {
+    // Route was pushed onto navigator and is now topmost route.
+    print("Did Push!");
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {});
+    print("Did Pop Next");
+  }
+
+  @override
+  void didPushNext() {
+    print("Did Push Next");
+
+    super.didPushNext();
+  }
+
+  @override
+  void didPop() {
+    super.didPop();
+  }
+
   late List<UserPicture> userPicturesList;
   late List<Key> userPicturesListKeys;
   late List<UserCharacteristic> userCharacteristicsList = [];
@@ -70,30 +109,34 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         bool exit = true;
 
         await Future.delayed(Duration(milliseconds: 200));
-
-        await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("¿Guardar cambios?"),
-                actions: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Dependencies.userSettingsPresentation.saveChanges =
-                            false;
-                        Navigator.pop(context);
-                      },
-                      child: Text("No")),
-                  ElevatedButton(
-                      onPressed: () {
-                        Dependencies.userSettingsPresentation.saveChanges =
-                            true;
-                        Navigator.pop(context);
-                      },
-                      child: Text("Si")),
-                ],
-              );
-            });
+        if (Dependencies
+                .userSettingsPresentation.getUserSettingsScreenUpdateState ==
+            UserSettingsScreenUpdateState.done) {
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("¿Guardar cambios?"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Dependencies.userSettingsPresentation.saveChanges =
+                              false;
+                          Navigator.pop(context);
+                        },
+                        child: Text("No",
+                            style: GoogleFonts.lato(color: Colors.black))),
+                    ElevatedButton(
+                        onPressed: () {
+                          Dependencies.userSettingsPresentation.saveChanges =
+                              true;
+                          Navigator.pop(context);
+                        },
+                        child: Text("Si")),
+                  ],
+                );
+              });
+        }
 
         return exit;
       },
@@ -114,35 +157,64 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                               controller: scrollController,
                               reverse: false,
                               child: Container(
-                                height: ScreenUtil.defaultSize.height + 2500.h,
-                                child: Column(
-                                  children: [
-                                    userPictures(),
-                                    userBio(),
-                                    Divider(
-                                      color: Colors.white,
-                                      height: 100.h,
-                                    ),
-                                    Container(
-                                      height: 2000.h,
-                                      child: ListView.builder(
-                                          itemCount:
-                                              userCharacteristicsList.length,
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            return profileCharacteristic(
-                                                userCharacteristicsList[index],
-                                                index);
-                                          }),
-                                    )
-                                  ],
-                                ),
-                              ),
+                                  height:
+                                      ScreenUtil.defaultSize.height + 3000.h,
+                                  child: Column(
+                                    children: [
+                                      Flexible(
+                                          flex: 3,
+                                          fit: FlexFit.tight,
+                                          child: LayoutBuilder(builder:
+                                              (BuildContext context,
+                                                  BoxConstraints
+                                                      boxConstraints) {
+                                            return userPictures(boxConstraints);
+                                          })),
+                                      Flexible(
+                                          flex: 3,
+                                          fit: FlexFit.tight,
+                                          child: userBio()),
+                                      Flexible(
+                                        flex: 8,
+                                        fit: FlexFit.tight,
+                                        child: Column(
+                                          children: [
+                                            Flexible(
+                                                flex: 1,
+                                                fit: FlexFit.tight,
+                                                child: Text(
+                                                  "Filtros",
+                                                  style: GoogleFonts.lato(
+                                                      fontSize: 80.sp),
+                                                )),
+                                            Flexible(
+                                              flex: 8,
+                                              fit: FlexFit.tight,
+                                              child: Container(
+                                                child: ListView.builder(
+                                                    itemCount:
+                                                        userCharacteristicsList
+                                                            .length,
+                                                    physics:
+                                                        NeverScrollableScrollPhysics(),
+                                                    itemBuilder:
+                                                        (BuildContext context,
+                                                            int index) {
+                                                      return profileCharacteristic(
+                                                          userCharacteristicsList[
+                                                              index],
+                                                          index);
+                                                    }),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  )),
                             ),
                             userSettingsPresentation
-                                        .userSettingsScreenUpdateState ==
+                                        .getUserSettingsScreenUpdateState ==
                                     UserSettingsScreenUpdateState.loading
                                 ? Container(
                                     height: ScreenUtil().screenHeight,
@@ -183,7 +255,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                               child: Container(
                                 height: 300.h,
                                 child: LoadingIndicator(
-                                    indicatorType: Indicator.ballPulse),
+                                    indicatorType: Indicator.orbit),
                               ),
                             );
                 },
@@ -195,17 +267,17 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     );
   }
 
-  Container userPictures() {
+  Container userPictures(BoxConstraints boxConstraints) {
     return Container(
-      height: 900.h,
+      height: boxConstraints.biggest.height.h,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ReorderableGridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            childAspectRatio: 2.h / 3.h,
-            mainAxisSpacing: 20.h,
+            mainAxisSpacing: boxConstraints.biggest.height * 0.03,
             crossAxisSpacing: 20.w,
             crossAxisCount: 3,
+            mainAxisExtent: boxConstraints.biggest.height * 0.45,
           ),
           onReorder: (oldIndex, newIndex) {
             UserPicture oldPicture = userPicturesList[oldIndex];
@@ -221,8 +293,8 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
           physics: NeverScrollableScrollPhysics(),
           itemCount: 6,
           itemBuilder: (BuildContext context, int index) {
-            return pictureBox(
-                userPicturesListKeys[index], userPicturesList[index], index);
+            return pictureBox(userPicturesListKeys[index],
+                userPicturesList[index], index, boxConstraints);
           },
         ),
       ),
@@ -346,8 +418,10 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     setState(() {});
   }
 
-  Widget pictureBox(Key key, UserPicture userPictureData, int index) {
+  Widget pictureBox(Key key, UserPicture userPictureData, int index,
+      BoxConstraints boxConstraints) {
     return Container(
+        height: boxConstraints.biggest.height,
         decoration: BoxDecoration(border: Border.all(color: Colors.black)),
         key: key,
         child: Stack(
@@ -358,16 +432,15 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                     onTap: () {
                       addPictureFromDevice(index);
                     },
-                    child: Container(
-                        child: OctoImage(
+                    child: OctoImage(
                       fadeInDuration: Duration(milliseconds: 50),
                       fit: BoxFit.cover,
                       image: CachedNetworkImageProvider(
                           userPictureData.getPictureUrl),
                       placeholderBuilder: OctoPlaceholder.blurHash(
                           userPictureData.getPictureHash,
-                          fit: BoxFit.cover),
-                    )),
+                          fit: BoxFit.fill),
+                    ),
                   )
                 : userPictureData.getUserPictureBoxstate ==
                         UserPicutreBoxState.pictureFromBytes
@@ -400,7 +473,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                             color: index != 0
                                 ? Color.fromARGB(181, 244, 67, 54)
                                 : Colors.grey),
-                        height: 100.h,
                         child: IconButton(
                             onPressed: () {
                               if (index != 0) {
@@ -413,11 +485,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
           ],
         ));
   }
-
-
-
-
-
 }
 
 // ignore: must_be_immutable
@@ -426,6 +493,7 @@ class ProfileCharacteristicEditing extends StatefulWidget {
   ProfileCharacteristicEditing({
     required this.userCharacteristic,
   });
+  static const routeName = '/ProfileCharacteristicEditing';
 
   @override
   State<ProfileCharacteristicEditing> createState() =>
@@ -451,7 +519,6 @@ class _ProfileCharacteristicEditingState
 
   @override
   void dispose() {
-    print("okiera");
     userCharacteristicsList
         .sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
 
@@ -459,6 +526,25 @@ class _ProfileCharacteristicEditingState
         .userSettingsEntityUpdate.userCharacteristics = userCharacteristicsList;
 
     super.dispose();
+  }
+
+  Text title({required int listBuilderIndex, required int pageViewIndex}) {
+    return Text(userCharacteristicsList[pageViewIndex]
+        .valuesList[listBuilderIndex]
+        .values
+        .first);
+  }
+
+  bool? value({required int listViewIndex, required int pageViewIndex}) {
+    return userCharacteristicsList[pageViewIndex]
+                .valuesList[listViewIndex]
+                .entries
+                .first
+                .key ==
+            userCharacteristicsList[pageViewIndex].characteristicValue ||
+        (listViewIndex == 0 &&
+            userCharacteristicsList[pageViewIndex].characteristicValueIndex ==
+                0);
   }
 
   @override
@@ -470,41 +556,40 @@ class _ProfileCharacteristicEditingState
         child: SafeArea(
           child: PageView.builder(
               itemCount: userCharacteristicsList.length,
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (BuildContext context, int pageViewIndex) {
                 return Center(
                     child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(userCharacteristicsList[index].characteristicIcon),
+                    Icon(userCharacteristicsList[pageViewIndex]
+                        .characteristicIcon),
                     Container(
                       height: 700.h,
                       child: ListView.builder(
-                          itemCount:
-                              userCharacteristicsList[index].valuesList.length,
-                          itemBuilder: (BuildContext context, int indexInside) {
+                          itemCount: userCharacteristicsList[pageViewIndex]
+                              .valuesList
+                              .length,
+                          itemBuilder:
+                              (BuildContext context, int listViewIndex) {
                             return CheckboxListTile(
-                                title: Text(userCharacteristicsList[index]
-                                    .valuesList[indexInside]
-                                    .values
-                                    .first),
-                                value: userCharacteristicsList[index]
-                                        .valuesList[indexInside]
-                                        .keys
-                                        .first ==
-                                    userCharacteristicsList[index]
-                                        .characteristicValue,
+                                title: title(
+                                    listBuilderIndex: listViewIndex,
+                                    pageViewIndex: pageViewIndex),
+                                value: value(
+                                    listViewIndex: listViewIndex,
+                                    pageViewIndex: pageViewIndex),
                                 onChanged: (value) {
-                                  userCharacteristicsList[indexInside]
+                                  userCharacteristicsList[listViewIndex]
                                       .userHasValue = value as bool;
-                                  userCharacteristicsList[index]
+                                  userCharacteristicsList[pageViewIndex]
                                           .characteristicValue =
-                                      userCharacteristicsList[index]
-                                          .valuesList[indexInside]
+                                      userCharacteristicsList[pageViewIndex]
+                                          .valuesList[listViewIndex]
                                           .keys
                                           .first;
 
-                                  userCharacteristicsList[index]
-                                      .characteristicValueIndex = indexInside;
+                                  userCharacteristicsList[pageViewIndex]
+                                      .characteristicValueIndex = listViewIndex;
 
                                   setState(() {});
                                 });
@@ -520,6 +605,8 @@ class _ProfileCharacteristicEditingState
 }
 
 class BioEditingScreen extends StatefulWidget {
+  static const routeName = '/BioEditingScreen';
+
   const BioEditingScreen({Key? key}) : super(key: key);
 
   @override

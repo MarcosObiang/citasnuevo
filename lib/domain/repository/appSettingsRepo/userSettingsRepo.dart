@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../core/dependencies/error/Failure.dart';
@@ -9,7 +10,7 @@ import '../DataManager.dart';
 
 abstract class UserSettingsRepository implements ModuleCleaner {
   late UserSettingsDataSource appSettingsDataSource;
-  Future<Either<Failure, bool>> updateSettings(Map<String,dynamic> data);
+  Future<Either<Failure, bool>> updateSettings(UserSettingsEntity userSettingsEntity);
 
   StreamController<UserSettingsInformationSender> get appSettingsStream;
 

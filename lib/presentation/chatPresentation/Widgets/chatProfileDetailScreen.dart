@@ -90,6 +90,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                           boxConstraints: constraints,
                           listIndex: 0,
                           needRatingWidget: false,
+                          showDistance: false,
                         );
                       }),
                     )

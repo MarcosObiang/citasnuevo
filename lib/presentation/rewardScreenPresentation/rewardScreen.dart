@@ -1,7 +1,9 @@
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/presentation/rewardScreenPresentation/rewardScreenPresentation.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +14,9 @@ import 'package:provider/provider.dart';
 import '../settingsPresentation/SettingsScreen.dart';
 
 class RewardScreen extends StatefulWidget {
+          static const routeName = '/RewardScreen';
+
+  
   const RewardScreen();
 
   @override
@@ -36,10 +41,13 @@ class _RewardScreenState extends State<RewardScreen> {
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Gemas"),
+                      Text("Recompensas"),
                       Row(
                         children: [
-                          Text("${rewardScreenPresentation.coins}"),
+                          rewardScreenPresentation.rewardController.isPremium ==
+                                  false
+                              ? Text("${rewardScreenPresentation.coins}")
+                              : Icon(LineAwesomeIcons.infinity),
                           Icon(LineAwesomeIcons.gem)
                         ],
                       ),
@@ -48,85 +56,236 @@ class _RewardScreenState extends State<RewardScreen> {
                 ),
                 rewardScreenPresentation.getRewardScreenState ==
                         RewardScreenState.done
-                    ? Container(
-                        height: ScreenUtil.defaultSize.height,
-                        color: Colors.white,
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverAppBar(
-                              centerTitle: true,
-                              backgroundColor: Colors.transparent,
-                              expandedHeight: 700.h,
-                              stretch: false,
-                              elevation: 20,
-                              automaticallyImplyLeading: false,
-                              actions: [],
-                              flexibleSpace: Card(
-                                color: Colors.orange,
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Hotty Premium',
-                                      style: GoogleFonts.roboto(
-                                          color: Colors.black, fontSize: 70.sp),
-                                    ),
-                                    Text(
-                                      'Consigue Monedas infinitas',
-                                      style: GoogleFonts.roboto(
-                                          color: Colors.black, fontSize: 50.sp),
-                                    ),
-                                    Text(
-                                      'Olvidate de los anuncios',
-                                      style: GoogleFonts.roboto(
-                                          color: Colors.white, fontSize: 50.sp),
-                                    ),
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              GoToRoute(
-                                                  page: SubscriptionScreen()));
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.deepPurpleAccent,
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(30))),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(40.h),
-                                            child: Text(
-                                              'Desde ${rewardScreenPresentation.premiumPrice}',
-                                              style: GoogleFonts.roboto(
-                                                  color: Colors.white,
-                                                  fontSize: 50.sp),
+                    ? Expanded(
+                        child: rewardScreenPresentation
+                                    .rewardController.isPremium ==
+                                false
+                            ? Stack(
+                                alignment: AlignmentDirectional.center,
+                                children: [
+                                  Container(
+                                      color: Colors.white,
+                                      child: Column(
+                                        children: [
+                                          Flexible(
+                                            flex: 3,
+                                            fit: FlexFit.tight,
+                                            child: Card(
+                                              color: Colors.orange,
+                                              child: Container(
+                                                width: ScreenUtil
+                                                    .defaultSize.width,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      'Hotty Premium',
+                                                      style: GoogleFonts.roboto(
+                                                          color: Colors.black,
+                                                          fontSize: 70.sp),
+                                                    ),
+                                                    Text(
+                                                      'Consigue Monedas infinitas',
+                                                      style: GoogleFonts.roboto(
+                                                          color: Colors.black,
+                                                          fontSize: 50.sp),
+                                                    ),
+                                                    Text(
+                                                      'Olvidate de los anuncios',
+                                                      style: GoogleFonts.roboto(
+                                                          color: Colors.white,
+                                                          fontSize: 50.sp),
+                                                    ),
+                                                    TextButton(
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                              context,
+                                                              GoToRoute(
+                                                                  page:
+                                                                      SubscriptionsMenu()));
+                                                        },
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              color: Colors
+                                                                  .deepPurpleAccent,
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          30))),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    40.h),
+                                                            child: Text(
+                                                              'Desde ${rewardScreenPresentation.premiumPrice}',
+                                                              style: GoogleFonts
+                                                                  .roboto(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          50.sp),
+                                                            ),
+                                                          ),
+                                                        )),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        )),
-                                  ],
-                                ),
+                                          Flexible(
+                                            flex: 9,
+                                            fit: FlexFit.tight,
+                                            child: ListView(
+                                              children: [
+                                                rewardScreenPresentation.rewards
+                                                            .waitingFirstReward ==
+                                                        true
+                                                    ? bonoBienvenida(
+                                                        rewardScreenPresentation)
+                                                    : Container(),
+                                                dailyReward(
+                                                    rewardScreenPresentation),
+                                                inviteFriendWidget(
+                                                    sharingLink:
+                                                        rewardScreenPresentation
+                                                            .sharingLink,
+                                                    sharingRewardState:
+                                                        rewardScreenPresentation
+                                                            .getSharingRewardState,
+                                                    loadSharingLink:
+                                                        rewardScreenPresentation
+                                                            .getSharingLink),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                                  rewardScreenPresentation
+                                              .getRewardedAdShowingState ==
+                                          RewardedAdShowingState.adLoading
+                                      ? Container(
+                                          width: ScreenUtil().screenWidth,
+                                          color:
+                                              Color.fromARGB(217, 27, 22, 22),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Cargando anuncio",
+                                                style: GoogleFonts.lato(
+                                                    color: Colors.white,
+                                                    fontSize: 65.sp),
+                                              ),
+                                              Container(
+                                                height: 200.h,
+                                                width: 200.h,
+                                                child: LoadingIndicator(
+                                                    indicatorType:
+                                                        Indicator.orbit),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      : rewardScreenPresentation
+                                                  .getRewardedAdShowingState ==
+                                              RewardedAdShowingState
+                                                  .errorLoadingAd
+                                          ? Container(
+                                              width: ScreenUtil().screenWidth,
+                                              color: Color.fromARGB(
+                                                  217, 27, 22, 22),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    "Error al mostrar anuncio",
+                                                    style: GoogleFonts.lato(
+                                                        color: Colors.white,
+                                                        fontSize: 75.sp),
+                                                  ),
+                                                  Text(
+                                                    "No te preocupes, podras reclamar tu recompensa",
+                                                    style: GoogleFonts.lato(
+                                                        color: Colors.white,
+                                                        fontSize: 65.sp),
+                                                  ),
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        rewardScreenPresentation
+                                                                .setRewardedAdShowingstate =
+                                                            RewardedAdShowingState
+                                                                .adNotShowing;
+                                                        rewardScreenPresentation
+                                                            .askDailyReward(
+                                                                showAd: false);
+                                                      },
+                                                      child: Text(
+                                                          "Reclamar recompensa",
+                                                          style:
+                                                              GoogleFonts.lato(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      60.sp)))
+                                                ],
+                                              ),
+                                            )
+                                          : rewardScreenPresentation
+                                                      .getRewardedAdShowingState ==
+                                                  RewardedAdShowingState
+                                                      .adIncomplete
+                                              ? Container(
+                                                  width:
+                                                      ScreenUtil().screenWidth,
+                                                  color: Color.fromARGB(
+                                                      217, 27, 22, 22),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        "Anuncio incompleto",
+                                                        style: GoogleFonts.lato(
+                                                            color: Colors.white,
+                                                            fontSize: 75.sp),
+                                                      ),
+                                                      Text(
+                                                        "Debes completar el anuncio para obtener tu recompensa",
+                                                        style: GoogleFonts.lato(
+                                                            color: Colors.white,
+                                                            fontSize: 55.sp),
+                                                      ),
+                                                      ElevatedButton(
+                                                          onPressed: () {
+                                                            rewardScreenPresentation
+                                                                    .setRewardedAdShowingstate =
+                                                                RewardedAdShowingState
+                                                                    .adNotShowing;
+                                                          },
+                                                          child: Text(
+                                                              "Entendido",
+                                                              style: GoogleFonts.lato(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize:
+                                                                      60.sp)))
+                                                    ],
+                                                  ),
+                                                )
+                                              : Container(),
+                                ],
+                              )
+                            : Center(
+                                child: Text("Eres premium"),
                               ),
-                              floating: true,
-                              pinned: true,
-                              collapsedHeight: 600.h,
-                            ),
-                            SliverList(
-                              delegate: SliverChildListDelegate([
-                                rewardScreenPresentation
-                                            .rewards.waitingFirstReward ==
-                                        true
-                                    ? bonoBienvenida(rewardScreenPresentation)
-                                    : Container(),
-                                dailyReward(rewardScreenPresentation),
-                                facebookShare(),
-                                inviteFriendWidget(),
-                                verifyProfileAndWindWidget()
-                              ]),
-                            ),
-                          ],
-                        ))
+                      )
                     : rewardScreenPresentation.getRewardScreenState ==
                             RewardScreenState.loading
                         ? Container(
@@ -208,72 +367,96 @@ class _RewardScreenState extends State<RewardScreen> {
     );
   }
 
-  Container inviteFriendWidget() {
+  Container inviteFriendWidget(
+      {required String? sharingLink,
+      required SharingRewardState sharingRewardState,
+      required Function loadSharingLink}) {
     return Container(
-      height: 500.h,
-      child: Card(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text("Invita a tu amigo y gana",
-                style:
-                    GoogleFonts.roboto(color: Colors.black, fontSize: 70.sp)),
-            Text(
-                "Invita a un amigo y gana 3000 monedas cuando se registre en Hotty",
-                style:
-                    GoogleFonts.roboto(color: Colors.black, fontSize: 50.sp)),
-            TextButton(
-                onPressed: () {},
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent,
-                      borderRadius: BorderRadius.all(Radius.circular(30))),
-                  child: Padding(
-                    padding: EdgeInsets.all(40.h),
-                    child: Text(
-                      'Invitar',
-                      style: GoogleFonts.roboto(
-                          color: Colors.black, fontSize: 50.sp),
+      height: 700.h,
+      child: Stack(
+        children: [
+          Card(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text("Invita a un amigo y gana",
+                    style: GoogleFonts.roboto(
+                        color: Colors.black, fontSize: 70.sp)),
+                Text(
+                    "Invita a un amigo y gana 3000 monedas cuando se registre en Hotty",
+                    style: GoogleFonts.roboto(
+                        color: Colors.black, fontSize: 50.sp)),
+                sharingLink == null
+                    ? TextButton(
+                        onPressed: () {
+                          loadSharingLink();
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(30))),
+                          child: Padding(
+                            padding: EdgeInsets.all(40.h),
+                            child: Text(
+                              'Invitar',
+                              style: GoogleFonts.roboto(
+                                  color: Colors.white, fontSize: 50.sp),
+                            ),
+                          ),
+                        ))
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Comparte el enlace con tus amigos"),
+                          SelectableText(
+                            sharingLink,
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                        new ClipboardData(text: sharingLink));
+                                  
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.deepPurpleAccent,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                child: Padding(
+                                  padding: EdgeInsets.all(40.h),
+                                  child: Text(
+                                    'Copiar al portapapeles',
+                                    style: GoogleFonts.roboto(
+                                        color: Colors.white, fontSize: 45.sp),
+                                  ),
+                                ),
+                              ))
+                        ],
+                      ),
+              ],
+            ),
+          ),
+          sharingRewardState == SharingRewardState.inProcess
+              ? Card(
+                  color: Colors.red,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Espere"),
+                        Container(
+                          height: 200.h,
+                          width: 200.h,
+                          child:
+                              LoadingIndicator(indicatorType: Indicator.orbit),
+                        )
+                      ],
                     ),
                   ),
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Container facebookShare() {
-    return Container(
-      height: 500.h,
-      child: Card(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text("Comparte en Facebook y gana",
-                style:
-                    GoogleFonts.roboto(color: Colors.black, fontSize: 70.sp)),
-            Text(
-                "Comparte un post de Hotty en tu perfil de facebook y gana 200 monedas",
-                style:
-                    GoogleFonts.roboto(color: Colors.black, fontSize: 50.sp)),
-            TextButton(
-                onPressed: () {},
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent,
-                      borderRadius: BorderRadius.all(Radius.circular(30))),
-                  child: Padding(
-                    padding: EdgeInsets.all(40.h),
-                    child: Text(
-                      'Compartir',
-                      style: GoogleFonts.roboto(
-                          color: Colors.black, fontSize: 50.sp),
-                    ),
-                  ),
-                )),
-          ],
-        ),
+                )
+              : Container(),
+        ],
       ),
     );
   }
@@ -285,7 +468,7 @@ class _RewardScreenState extends State<RewardScreen> {
             initialData: rewardScreenPresentation
                 .rewardController.secondsUntilDailyReward,
             stream:
-                rewardScreenPresentation.dailyRewardTieRemainingStream.stream,
+                rewardScreenPresentation.dailyRewardTieRemainingStream?.stream,
             builder: (BuildContext context, AsyncSnapshot<int> data) {
               return Stack(
                 children: [
@@ -328,7 +511,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                                   200 &&
                                               data.data! <= 0) {
                                             rewardScreenPresentation
-                                                .askDailyReward();
+                                                .askDailyReward(showAd: true);
                                           }
                                         },
                                         child: Container(
@@ -351,10 +534,13 @@ class _RewardScreenState extends State<RewardScreen> {
                                                 Text(
                                                   'Reclamar recompensa',
                                                   style: GoogleFonts.roboto(
-                                                      color: Colors.black,
+                                                      color: Colors.white,
                                                       fontSize: 50.sp),
                                                 ),
-                                                Icon(LineAwesomeIcons.film)
+                                                Icon(
+                                                  LineAwesomeIcons.film,
+                                                  color: Colors.white,
+                                                )
                                               ],
                                             ),
                                           ),
@@ -367,22 +553,23 @@ class _RewardScreenState extends State<RewardScreen> {
                   rewardScreenPresentation.getDayliRewardState ==
                           DailyRewardState.inProcess
                       ? Container(
-                          height: 500.h,
+                          height: 600.h,
                           width: ScreenUtil().screenWidth,
                           color: Color.fromARGB(228, 100, 24, 135),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Cargando",
-                                style: GoogleFonts.roboto(color: Colors.white),
+                                "Espere",
+                                style: GoogleFonts.roboto(
+                                    color: Colors.white, fontSize: 60.sp),
                               ),
                               Center(
                                   child: Container(
                                 height: 200.h,
-                                width: 300.h,
+                                width: 200.h,
                                 child: LoadingIndicator(
-                                    indicatorType: Indicator.ballPulse),
+                                    indicatorType: Indicator.orbit),
                               ))
                             ],
                           ),

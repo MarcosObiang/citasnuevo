@@ -7,35 +7,36 @@ import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart'
 import 'package:dartz/dartz.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../controller_bridges/HomeScreenCotrollerBridge.dart';
+
 class HomeScreenController
     implements
         Controller,
-        ExteralControllerDataReciever<HomeScreenController>,
         ShouldControllerUpdateData<HomeScreenInformationSender> {
-  List<Profile> profilesList = [];
-  HomeScreenRepository homeScreenRepository;
   @override
   StreamController<HomeScreenInformationSender>? updateDataController =
       StreamController.broadcast();
-  @override
-  ControllerBridgeInformationReciever<HomeScreenController>
-      controllerBridgeInformationReciever;
+  List<Profile> profilesList = [];
+  HomeScreenRepository homeScreenRepository;
+  HomeScreenControllerBridge homeScreenControllerBridge;
   StreamSubscription? controllerBridgeSubscription;
   int newReactions = 0;
   int newChats = 0;
   int newMessages = 0;
   HomeScreenController(
       {required this.homeScreenRepository,
-      required this.controllerBridgeInformationReciever});
+      required this.homeScreenControllerBridge});
   get getProfilesList => this.profilesList;
+
+  /// this method calls the fetchProfiles method from the repository,
+  ///
+  /// it handels fails
 
   Future<Either<Failure, void>> fetchProfileList() async {
     bool succes = false;
-    Failure failure = ServerFailure();
     var response = await homeScreenRepository.fetchProfiles();
     response.fold((fail) {
       succes = false;
-      failure = fail;
     }, (profileData) {
       profileData.forEach((element) {
         bool profileExists = profileAlreadyExists(element);
@@ -46,11 +47,8 @@ class HomeScreenController
 
       succes = true;
     });
-    if (succes) {
-      return Right(profilesList);
-    } else {
-      return Left(failure);
-    }
+    return response;
+  
   }
 
   bool profileAlreadyExists(Profile profile) {
@@ -93,22 +91,22 @@ class HomeScreenController
     profilesList.clear();
     updateDataController?.close();
     controllerBridgeSubscription?.cancel();
-    controllerBridgeInformationReciever.closeStream();
+    homeScreenControllerBridge.closeStream();
     homeScreenRepository.clearModuleData();
   }
 
   @override
   void initializeModuleData() {
     updateDataController = StreamController.broadcast();
-    controllerBridgeInformationReciever.initializeStream();
+    homeScreenControllerBridge.initializeStream();
 
     homeScreenRepository.initializeModuleData();
     listenControllerBridge();
   }
 
   void listenControllerBridge() {
-    controllerBridgeSubscription = controllerBridgeInformationReciever
-        .controllerBridgeInformationSenderStream.stream
+    controllerBridgeSubscription = homeScreenControllerBridge
+        .controllerBridgeInformationSenderStream?.stream
         .listen((event) {
       if (event["header"] == "reaction") {
         newReactions = event["data"];

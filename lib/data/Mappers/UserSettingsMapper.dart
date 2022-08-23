@@ -4,9 +4,10 @@ import 'dart:typed_data';
 
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
-
+import 'package:image_compare/image_compare.dart';
 import '../../core/common/profileCharacteristics.dart';
 import '../../domain/controller/controllerDef.dart';
 import 'package:blurhash_dart/blurhash_dart.dart';
@@ -43,11 +44,6 @@ class UserSettingsMapper {
             ..setNetworkPicture(
                 pictureHashData: userImages[i]!["hash"],
                 pictureUrlData: userImages[i]!["Imagen"]));
-          String firebaseImage = FirebaseStorage.instance
-              .refFromURL(userImages[i]!["Imagen"])
-              .fullPath;
-
-          FirebaseCacheManager().getSingleFile(firebaseImage);
         } else {
           list.add(UserPicture(index: i));
         }
@@ -72,25 +68,24 @@ class UserSettingsMapper {
     List<UserCharacteristic> userCharacteristicList =
         userSettingsEntity.userCharacteristics;
 
-    response["images"] = await hashImage(userPictureList);
+    response["images"] = await _hashImage(userPictureList);
     response["userBio"] = userSettingsEntity.userBio;
-    response["userFilters"] = userCharacteristicsToMap(userCharacteristicList);
+    response["userFilters"] = _userCharacteristicsToMap(userCharacteristicList);
 
     return response;
   }
 
-  static Map<String, dynamic> userCharacteristicsToMap(
+  static Map<String, dynamic> _userCharacteristicsToMap(
       List<UserCharacteristic> data) {
     Map<String, dynamic> response = Map<String, dynamic>();
 
     for (int i = 0; i < data.length; i++) {
       response[data[i].characteristicName] = data[i].characteristicValueIndex;
     }
-    print("object");
     return response;
   }
 
-  static Future<List<Map<String, dynamic>>> hashImage(
+  static Future<List<Map<String, dynamic>>> _hashImage(
       List<UserPicture> userPictureList) async {
     List<Map<String, dynamic>> bytesList = [];
     List<Map<String, dynamic>> response = [];
@@ -133,10 +128,9 @@ class UserSettingsMapper {
             .fullPath;
 
         File file = await FirebaseCacheManager().getSingleFile(firebaseImage);
-        Uint8List dataFromNetwork = file.readAsBytesSync();
+        Uint8List dataFromNetwork = await file.readAsBytes();
         await FirebaseCacheManager().removeFile(firebaseImage);
         img.Image? imagex = img.decodeImage(dataFromNetwork);
-
         bytesList.add({
           "Bytes": imagex,
           "index": (userPictureList[i].index + 1).toString(),
@@ -161,7 +155,7 @@ class UserSettingsMapper {
         "hash": BlurHash.encode(data[i]["Bytes"]).hash,
         "index": data[i]["index"],
         "data": data[i]["data"],
-        "empty": false,
+        "empty": data[i]["empty"],
         "type": data[i]["type"]
       });
     }
@@ -174,49 +168,53 @@ class UserSettingsMapper {
     List<UserCharacteristic> userCharacteristics = [];
 
     Iterable<MapEntry<String, dynamic>> characteristicData = data.entries;
-    List<MapEntry<String, dynamic>> bmw = characteristicData.toList();
+    List<MapEntry<String, dynamic>> rawUserCharacteristicsList =
+        characteristicData.toList();
 
-    bmw.removeWhere((element) => element.key == "Altura");
-    bmw.removeWhere((element) => element.key == "Vegetariano");
-    bmw.removeWhere((element) => element.key == "orientacionSexual");
+    rawUserCharacteristicsList
+        .removeWhere((element) => element.key == "Altura");
+    rawUserCharacteristicsList
+        .removeWhere((element) => element.key == "Vegetariano");
+    rawUserCharacteristicsList
+        .removeWhere((element) => element.key == "orientacionSexual");
 
-    for (int i = 0; i < bmw.length; i++) {
-      if (bmw[i].value != 0) {
+    for (int i = 0; i < rawUserCharacteristicsList.length; i++) {
+
+      Map<String, IconData> characteristicIcon =
+          kProfileCharacteristics_Icons.firstWhere((element) =>
+              element.containsKey(rawUserCharacteristicsList[i].key));
+      IconData characteristicIconData = characteristicIcon.values.first;
+      Map<String, dynamic> characteristicValueMap =
+          kProfileCharacteristics_ES.firstWhere((element) =>
+              element.containsKey(rawUserCharacteristicsList[i].key));
+      List<Map<String, String>> listCharacteristics =
+          characteristicValueMap.entries.first.value;
+      String characteristicValue =
+          listCharacteristics[rawUserCharacteristicsList[i].value]
+              .entries
+              .first
+              .value;
+      if (rawUserCharacteristicsList[i].value != 0) {
         userCharacteristics.add(UserCharacteristic(
-            characteristicIcon: kProfileCharacteristics_Icons[i].values.first,
-            characteristicValueIndex: bmw[i].value,
-            userHasValue: true,
-            positionIndex: i,
-            valuesList: kProfileCharacteristics_ES[i].entries.first.value,
-            characteristicName: kProfileCharacteristics_ES[i].entries.first.key,
-            characteristicValue: kProfileCharacteristics_ES[i]
-                .entries
-                .first
-                .value[bmw
-                    .firstWhere((element) =>
-                        element.key ==
-                        kProfileCharacteristics_ES[i].entries.first.key)
-                    .value]
-                .values
-                .first));
-      } else {
-        userCharacteristics.add(UserCharacteristic(
-            characteristicIcon: kProfileCharacteristics_Icons[i].values.first,
-            characteristicValueIndex: bmw[i].value,
-            positionIndex: i,
-            userHasValue: false,
-            valuesList: kProfileCharacteristics_ES[i].entries.first.value,
-            characteristicName: kProfileCharacteristics_ES[i].entries.first.key,
-            characteristicValue: kProfileCharacteristics_ES[i]
-                .entries
-                .first
-                .value[bmw
-                    .firstWhere((element) =>
-                        element.key ==
-                        kProfileCharacteristics_ES[i].entries.first.key)
-                    .value]
-                .values
-                .first));
+          characteristicIcon: characteristicIconData,
+          characteristicValueIndex: rawUserCharacteristicsList[i].value,
+          userHasValue: true,
+          positionIndex: i,
+          valuesList: listCharacteristics,
+          characteristicName: characteristicValueMap.entries.first.key,
+          characteristicValue: characteristicValue,
+        ));
+      }
+      if (rawUserCharacteristicsList[i].value == 0) {
+      userCharacteristics.add(UserCharacteristic(
+          characteristicIcon: characteristicIconData,
+          characteristicValueIndex: rawUserCharacteristicsList[i].value,
+          userHasValue: false,
+          positionIndex: i,
+          valuesList: listCharacteristics,
+          characteristicName: characteristicValueMap.entries.first.key,
+          characteristicValue: characteristicValue,
+        ));
       }
     }
     return userCharacteristics;

@@ -119,8 +119,8 @@ class _ReactionCardState extends State<ReactionCard>
           return AnimatedBuilder(
               animation: _revealingAnimation,
               builder: (BuildContext context, Widget? child) {
-                return FadeTransition(
-                  opacity: widget.animation,
+                return SizeTransition(
+                  sizeFactor: widget.animation,
                   child: ChangeNotifierProvider.value(
                     value: Dependencies.reactionPresentation,
                     child: Consumer<ReactionPresentation>(builder:

@@ -1,0 +1,129 @@
+# Diff Details
+
+Date : 2022-08-20 10:49:39
+
+Directory d:\\Proyecto\\citasnuevo
+
+Total : 114 files,  9818 codes, 369 comments, 1407 blanks, all 11594 lines
+
+[Summary](results.md) / [Details](details.md) / [Diff Summary](diff.md) / Diff Details
+
+## Files
+| filename | language | code | comment | blank | total |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| [FuncionesNubeFirebase/functions/src/darValoraciones/darValoraciones.ts](/FuncionesNubeFirebase/functions/src/darValoraciones/darValoraciones.ts) | TypeScript | 2 | 0 | 4 | 6 |
+| [FuncionesNubeFirebase/functions/src/solicitarUsuarios/solicitarUsuarios.ts](/FuncionesNubeFirebase/functions/src/solicitarUsuarios/solicitarUsuarios.ts) | TypeScript | 191 | 29 | 164 | 384 |
+| [FuncionesNubeFirebase/functions/src/test/index.test.ts](/FuncionesNubeFirebase/functions/src/test/index.test.ts) | TypeScript | 0 | 9 | 1 | 10 |
+| [lib/core/ads_services/Ads.dart](/lib/core/ads_services/Ads.dart) | Dart | 64 | 0 | 5 | 69 |
+| [lib/core/common/commonUtils/DateNTP.dart](/lib/core/common/commonUtils/DateNTP.dart) | Dart | 7 | 0 | 3 | 10 |
+| [lib/core/common/common_widgets.dart/errorWidget.dart](/lib/core/common/common_widgets.dart/errorWidget.dart) | Dart | 16 | 0 | 2 | 18 |
+| [lib/core/common/profileCharacteristics.dart](/lib/core/common/profileCharacteristics.dart) | Dart | 28 | 0 | 8 | 36 |
+| [lib/core/dependencies/dependencyCreator.dart](/lib/core/dependencies/dependencyCreator.dart) | Dart | 147 | 35 | 20 | 202 |
+| [lib/core/dependencies/error/Exceptions.dart](/lib/core/dependencies/error/Exceptions.dart) | Dart | 59 | 1 | 8 | 68 |
+| [lib/core/dependencies/error/Failure.dart](/lib/core/dependencies/error/Failure.dart) | Dart | 24 | 0 | 5 | 29 |
+| [lib/core/firebase_services/firebase_auth.dart](/lib/core/firebase_services/firebase_auth.dart) | Dart | 21 | 0 | 10 | 31 |
+| [lib/core/globalData.dart](/lib/core/globalData.dart) | Dart | 2 | 0 | 1 | 3 |
+| [lib/core/iapPurchases/iapPurchases.dart](/lib/core/iapPurchases/iapPurchases.dart) | Dart | 59 | 1 | 7 | 67 |
+| [lib/core/location_services/locatio_service.dart](/lib/core/location_services/locatio_service.dart) | Dart | 38 | 12 | 14 | 64 |
+| [lib/core/notifications/notifications_service.dart](/lib/core/notifications/notifications_service.dart) | Dart | 193 | 6 | 35 | 234 |
+| [lib/data/Mappers/ChatConverter.dart](/lib/data/Mappers/ChatConverter.dart) | Dart | 67 | 0 | 9 | 76 |
+| [lib/data/Mappers/MessajeConverter.dart](/lib/data/Mappers/MessajeConverter.dart) | Dart | 1 | 0 | 0 | 1 |
+| [lib/data/Mappers/ProfilesMapper.dart](/lib/data/Mappers/ProfilesMapper.dart) | Dart | 9 | 0 | 0 | 9 |
+| [lib/data/Mappers/RewardMapper.dart](/lib/data/Mappers/RewardMapper.dart) | Dart | 14 | 0 | 4 | 18 |
+| [lib/data/Mappers/SettingsMapper.dart](/lib/data/Mappers/SettingsMapper.dart) | Dart | 61 | 0 | 8 | 69 |
+| [lib/data/Mappers/UserCreatorMapper.dart](/lib/data/Mappers/UserCreatorMapper.dart) | Dart | 165 | 0 | 61 | 226 |
+| [lib/data/Mappers/UserSettingsMapper.dart](/lib/data/Mappers/UserSettingsMapper.dart) | Dart | 195 | 0 | 28 | 223 |
+| [lib/data/dataSources/HomeDataSource/homeScreenDataSources.dart](/lib/data/dataSources/HomeDataSource/homeScreenDataSources.dart) | Dart | 60 | 2 | 2 | 64 |
+| [lib/data/dataSources/appSettings/ApplicationSettingsDataSource.dart](/lib/data/dataSources/appSettings/ApplicationSettingsDataSource.dart) | Dart | 125 | 0 | 18 | 143 |
+| [lib/data/dataSources/authDataSources/authDataSourceImpl.dart](/lib/data/dataSources/authDataSources/authDataSourceImpl.dart) | Dart | -18 | 0 | 6 | -12 |
+| [lib/data/dataSources/chatDataSource/chatDataSource.dart](/lib/data/dataSources/chatDataSource/chatDataSource.dart) | Dart | 15 | 0 | 5 | 20 |
+| [lib/data/dataSources/principalDataSource/principalDataSource.dart](/lib/data/dataSources/principalDataSource/principalDataSource.dart) | Dart | 19 | 0 | 3 | 22 |
+| [lib/data/dataSources/reactionDataSources/reactionDataSource.dart](/lib/data/dataSources/reactionDataSources/reactionDataSource.dart) | Dart | 9 | 0 | -2 | 7 |
+| [lib/data/dataSources/rewardsDataSource/rewardDataSource.dart](/lib/data/dataSources/rewardsDataSource/rewardDataSource.dart) | Dart | 72 | -4 | 1 | 69 |
+| [lib/data/dataSources/sanctionsDataSource.dart/sanctionsDataSource.dart](/lib/data/dataSources/sanctionsDataSource.dart/sanctionsDataSource.dart) | Dart | 76 | 1 | 17 | 94 |
+| [lib/data/dataSources/settingsDataSource/settingsDataSource.dart](/lib/data/dataSources/settingsDataSource/settingsDataSource.dart) | Dart | 44 | 0 | -1 | 43 |
+| [lib/data/dataSources/userCreatorDataSource/userCreator.DataSource.dart](/lib/data/dataSources/userCreatorDataSource/userCreator.DataSource.dart) | Dart | 151 | 5 | 30 | 186 |
+| [lib/data/dataSources/userSettingsDataSource/userSettingsDataSource.dart](/lib/data/dataSources/userSettingsDataSource/userSettingsDataSource.dart) | Dart | 202 | 3 | 39 | 244 |
+| [lib/data/repositoryImpl/appSettingsRepoImpl/appSettingsRepo.dart](/lib/data/repositoryImpl/appSettingsRepoImpl/appSettingsRepo.dart) | Dart | 67 | 2 | 12 | 81 |
+| [lib/data/repositoryImpl/authRepoImpl/authRepoImpl.dart](/lib/data/repositoryImpl/authRepoImpl/authRepoImpl.dart) | Dart | -6 | 0 | 2 | -4 |
+| [lib/data/repositoryImpl/homeScreenRepoImpl.dart/homeScreenRepoImpl.dart](/lib/data/repositoryImpl/homeScreenRepoImpl.dart/homeScreenRepoImpl.dart) | Dart | 34 | 1 | 2 | 37 |
+| [lib/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart](/lib/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart) | Dart | -13 | 0 | 1 | -12 |
+| [lib/data/repositoryImpl/rewardRepoImpl/rewardRepoImpl.dart](/lib/data/repositoryImpl/rewardRepoImpl/rewardRepoImpl.dart) | Dart | 64 | 0 | 10 | 74 |
+| [lib/data/repositoryImpl/sanctionsRepoImpl/sanctionsRepoImpl.dart](/lib/data/repositoryImpl/sanctionsRepoImpl/sanctionsRepoImpl.dart) | Dart | 41 | 1 | 9 | 51 |
+| [lib/data/repositoryImpl/settingsRepoImpl/settingsRepoImpl.dart](/lib/data/repositoryImpl/settingsRepoImpl/settingsRepoImpl.dart) | Dart | 4 | 0 | 1 | 5 |
+| [lib/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart](/lib/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart) | Dart | 49 | 0 | 11 | 60 |
+| [lib/data/repositoryImpl/userSettingsRepoImpl.dart/userSettingsRepoImpl.dart](/lib/data/repositoryImpl/userSettingsRepoImpl.dart/userSettingsRepoImpl.dart) | Dart | 57 | 0 | 10 | 67 |
+| [lib/domain/controller/SettingsController.dart](/lib/domain/controller/SettingsController.dart) | Dart | 74 | 0 | 10 | 84 |
+| [lib/domain/controller/appSettingsController.dart](/lib/domain/controller/appSettingsController.dart) | Dart | 86 | 2 | 14 | 102 |
+| [lib/domain/controller/authScreenController.dart](/lib/domain/controller/authScreenController.dart) | Dart | -3 | 0 | 2 | -1 |
+| [lib/domain/controller/chatController.dart](/lib/domain/controller/chatController.dart) | Dart | 94 | 7 | 11 | 112 |
+| [lib/domain/controller/controllerDef.dart](/lib/domain/controller/controllerDef.dart) | Dart | 87 | 37 | 17 | 141 |
+| [lib/domain/controller/homeScreenController.dart](/lib/domain/controller/homeScreenController.dart) | Dart | 71 | 3 | 10 | 84 |
+| [lib/domain/controller/reactionsController.dart](/lib/domain/controller/reactionsController.dart) | Dart | 84 | 8 | 12 | 104 |
+| [lib/domain/controller/reportController.dart](/lib/domain/controller/reportController.dart) | Dart | -1 | 0 | 0 | -1 |
+| [lib/domain/controller/rewardController.dart](/lib/domain/controller/rewardController.dart) | Dart | 154 | 0 | 34 | 188 |
+| [lib/domain/controller/sanctionsController.dart](/lib/domain/controller/sanctionsController.dart) | Dart | 61 | 1 | 12 | 74 |
+| [lib/domain/controller/userCreatorController.dart](/lib/domain/controller/userCreatorController.dart) | Dart | 75 | 0 | 16 | 91 |
+| [lib/domain/controller/userSettingsController.dart](/lib/domain/controller/userSettingsController.dart) | Dart | 80 | 0 | 20 | 100 |
+| [lib/domain/controller_bridges/HomeScreenCotrollerBridge.dart](/lib/domain/controller_bridges/HomeScreenCotrollerBridge.dart) | Dart | 23 | 0 | 10 | 33 |
+| [lib/domain/controller_bridges/RewardScreenControllerBridge.dart](/lib/domain/controller_bridges/RewardScreenControllerBridge.dart) | Dart | 23 | 0 | 6 | 29 |
+| [lib/domain/controller_bridges/SettingsToAppSettingsControllerBridge.dart](/lib/domain/controller_bridges/SettingsToAppSettingsControllerBridge.dart) | Dart | 21 | 0 | 6 | 27 |
+| [lib/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart](/lib/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart) | Dart | 19 | 0 | 6 | 25 |
+| [lib/domain/entities/ApplicationSettingsEntity.dart](/lib/domain/entities/ApplicationSettingsEntity.dart) | Dart | 20 | 0 | 1 | 21 |
+| [lib/domain/entities/ChatEntity.dart](/lib/domain/entities/ChatEntity.dart) | Dart | 1 | 0 | 0 | 1 |
+| [lib/domain/entities/ReactionEntity.dart](/lib/domain/entities/ReactionEntity.dart) | Dart | 14 | 0 | 1 | 15 |
+| [lib/domain/entities/RewardsEntity.dart](/lib/domain/entities/RewardsEntity.dart) | Dart | 3 | -1 | 0 | 2 |
+| [lib/domain/entities/SanctionsEntity.dart](/lib/domain/entities/SanctionsEntity.dart) | Dart | 34 | 11 | 9 | 54 |
+| [lib/domain/entities/SettingsEntity.dart](/lib/domain/entities/SettingsEntity.dart) | Dart | 26 | 0 | 3 | 29 |
+| [lib/domain/entities/UserCreatorEntity.dart](/lib/domain/entities/UserCreatorEntity.dart) | Dart | 52 | 0 | 11 | 63 |
+| [lib/domain/entities/UserSettingsEntity.dart](/lib/domain/entities/UserSettingsEntity.dart) | Dart | 73 | 0 | 15 | 88 |
+| [lib/domain/repository/appSettingsRepo/appSettingsRepo.dart](/lib/domain/repository/appSettingsRepo/appSettingsRepo.dart) | Dart | 14 | 0 | 7 | 21 |
+| [lib/domain/repository/appSettingsRepo/userSettingsRepo.dart](/lib/domain/repository/appSettingsRepo/userSettingsRepo.dart) | Dart | 13 | 0 | 7 | 20 |
+| [lib/domain/repository/homeScreenRepo/homeScreenRepo.dart](/lib/domain/repository/homeScreenRepo/homeScreenRepo.dart) | Dart | 4 | 0 | 2 | 6 |
+| [lib/domain/repository/reactionRepository/reactionRepository.dart](/lib/domain/repository/reactionRepository/reactionRepository.dart) | Dart | -1 | -5 | 1 | -5 |
+| [lib/domain/repository/rewardRepository/rewardRepository.dart](/lib/domain/repository/rewardRepository/rewardRepository.dart) | Dart | 13 | 0 | 6 | 19 |
+| [lib/domain/repository/sanctionsRepo/sanctionsRepo.dart](/lib/domain/repository/sanctionsRepo/sanctionsRepo.dart) | Dart | 11 | 0 | 5 | 16 |
+| [lib/domain/repository/settingsRepository/SettingsRepository.dart](/lib/domain/repository/settingsRepository/SettingsRepository.dart) | Dart | 1 | 0 | 1 | 2 |
+| [lib/domain/repository/userCreatorRepo/userCreatorRepo.dart](/lib/domain/repository/userCreatorRepo/userCreatorRepo.dart) | Dart | 10 | 0 | 6 | 16 |
+| [lib/main.dart](/lib/main.dart) | Dart | 3 | 1 | 3 | 7 |
+| [lib/presentation/appSettingsPresentation/appSettingsPresentation.dart](/lib/presentation/appSettingsPresentation/appSettingsPresentation.dart) | Dart | 137 | 2 | 18 | 157 |
+| [lib/presentation/appSettingsPresentation/appSettingsScreen.dart](/lib/presentation/appSettingsPresentation/appSettingsScreen.dart) | Dart | 309 | 1 | 13 | 323 |
+| [lib/presentation/authScreenPresentation/Screens/authScreen.dart](/lib/presentation/authScreenPresentation/Screens/authScreen.dart) | Dart | 33 | 0 | 3 | 36 |
+| [lib/presentation/authScreenPresentation/auth.dart](/lib/presentation/authScreenPresentation/auth.dart) | Dart | 24 | -1 | 2 | 25 |
+| [lib/presentation/chatPresentation/Widgets/chatMessage.dart](/lib/presentation/chatPresentation/Widgets/chatMessage.dart) | Dart | -2 | 0 | 0 | -2 |
+| [lib/presentation/chatPresentation/Widgets/chatProfileDetailScreen.dart](/lib/presentation/chatPresentation/Widgets/chatProfileDetailScreen.dart) | Dart | 1 | 0 | 0 | 1 |
+| [lib/presentation/chatPresentation/Widgets/chatScreen.dart](/lib/presentation/chatPresentation/Widgets/chatScreen.dart) | Dart | 4 | 0 | -2 | 2 |
+| [lib/presentation/chatPresentation/chatPresentation.dart](/lib/presentation/chatPresentation/chatPresentation.dart) | Dart | 73 | 1 | 4 | 78 |
+| [lib/presentation/homeReportScreenPresentation/ReportScreen.dart](/lib/presentation/homeReportScreenPresentation/ReportScreen.dart) | Dart | 28 | 0 | 0 | 28 |
+| [lib/presentation/homeReportScreenPresentation/homeReportScreenPresentation.dart](/lib/presentation/homeReportScreenPresentation/homeReportScreenPresentation.dart) | Dart | 2 | 0 | 1 | 3 |
+| [lib/presentation/homeScreenPresentation/Screens/HomeScreen.dart](/lib/presentation/homeScreenPresentation/Screens/HomeScreen.dart) | Dart | 230 | -1 | 17 | 246 |
+| [lib/presentation/homeScreenPresentation/Widgets/NavigationBar.dart](/lib/presentation/homeScreenPresentation/Widgets/NavigationBar.dart) | Dart | 139 | 0 | 0 | 139 |
+| [lib/presentation/homeScreenPresentation/Widgets/ProfileDescription.dart](/lib/presentation/homeScreenPresentation/Widgets/ProfileDescription.dart) | Dart | 15 | 0 | 2 | 17 |
+| [lib/presentation/homeScreenPresentation/Widgets/ProfilePicture.dart](/lib/presentation/homeScreenPresentation/Widgets/ProfilePicture.dart) | Dart | 2 | 0 | 3 | 5 |
+| [lib/presentation/homeScreenPresentation/Widgets/profileWidget.dart](/lib/presentation/homeScreenPresentation/Widgets/profileWidget.dart) | Dart | 4 | 0 | 0 | 4 |
+| [lib/presentation/homeScreenPresentation/homeScrenPresentation.dart](/lib/presentation/homeScreenPresentation/homeScrenPresentation.dart) | Dart | 109 | 34 | 18 | 161 |
+| [lib/presentation/reactionPresentation/Screens/ReactionScreen.dart](/lib/presentation/reactionPresentation/Screens/ReactionScreen.dart) | Dart | -215 | 0 | -17 | -232 |
+| [lib/presentation/reactionPresentation/Widgets/RevealingCard.dart](/lib/presentation/reactionPresentation/Widgets/RevealingCard.dart) | Dart | 349 | 0 | 19 | 368 |
+| [lib/presentation/reactionPresentation/reactionPresentation.dart](/lib/presentation/reactionPresentation/reactionPresentation.dart) | Dart | 224 | 0 | 15 | 239 |
+| [lib/presentation/rewardScreenPresentation/rewardScreen.dart](/lib/presentation/rewardScreenPresentation/rewardScreen.dart) | Dart | 684 | 0 | 12 | 696 |
+| [lib/presentation/rewardScreenPresentation/rewardScreenPresentation.dart](/lib/presentation/rewardScreenPresentation/rewardScreenPresentation.dart) | Dart | 273 | 0 | 44 | 317 |
+| [lib/presentation/sanctionsPresentation/sanctionsPresentation.dart](/lib/presentation/sanctionsPresentation/sanctionsPresentation.dart) | Dart | 90 | 4 | 20 | 114 |
+| [lib/presentation/sanctionsPresentation/sanctionsScreen.dart](/lib/presentation/sanctionsPresentation/sanctionsScreen.dart) | Dart | 205 | 0 | 5 | 210 |
+| [lib/presentation/settingsPresentation/SettingsScreen.dart](/lib/presentation/settingsPresentation/SettingsScreen.dart) | Dart | 439 | 0 | 8 | 447 |
+| [lib/presentation/settingsPresentation/settingsScreenPresentation.dart](/lib/presentation/settingsPresentation/settingsScreenPresentation.dart) | Dart | 31 | 0 | 8 | 39 |
+| [lib/presentation/userCreatorPresentation/userCreatorPresentation.dart](/lib/presentation/userCreatorPresentation/userCreatorPresentation.dart) | Dart | 154 | 3 | 34 | 191 |
+| [lib/presentation/userCreatorPresentation/userCreatorScreen.dart](/lib/presentation/userCreatorPresentation/userCreatorScreen.dart) | Dart | 1,210 | 1 | 60 | 1,271 |
+| [lib/presentation/userSettingsPresentation/userPresentation.dart](/lib/presentation/userSettingsPresentation/userPresentation.dart) | Dart | 122 | 2 | 26 | 150 |
+| [lib/presentation/userSettingsPresentation/userSettingsScreen.dart](/lib/presentation/userSettingsPresentation/userSettingsScreen.dart) | Dart | 605 | 2 | 47 | 654 |
+| [lib/reordableList.dart](/lib/reordableList.dart) | Dart | 188 | 32 | 29 | 249 |
+| [lib/reordableLists/drag_info.dart](/lib/reordableLists/drag_info.dart) | Dart | 180 | 13 | 49 | 242 |
+| [lib/reordableLists/reorderable_grid_mixin.dart](/lib/reordableLists/reorderable_grid_mixin.dart) | Dart | 188 | 36 | 53 | 277 |
+| [lib/reordableLists/reorderable_item.dart](/lib/reordableLists/reorderable_item.dart) | Dart | 139 | 18 | 30 | 187 |
+| [lib/reordableLists/reorderable_sliver_grid_view.dart](/lib/reordableLists/reorderable_sliver_grid_view.dart) | Dart | 57 | 8 | 13 | 78 |
+| [lib/reordableLists/reorderable_wrapper_widget.dart](/lib/reordableLists/reorderable_wrapper_widget.dart) | Dart | 75 | 43 | 26 | 144 |
+| [lib/reordableLists/sliver_grid_with_reorderable_pos_delegate.dart](/lib/reordableLists/sliver_grid_with_reorderable_pos_delegate.dart) | Dart | 25 | 2 | 3 | 30 |
+| [lib/reordableLists/test_grid.dart](/lib/reordableLists/test_grid.dart) | Dart | 10 | 0 | 2 | 12 |
+| [lib/reordableLists/util.dart](/lib/reordableLists/util.dart) | Dart | 6 | 1 | 3 | 10 |
+| [pubspec.yaml](/pubspec.yaml) | YAML | 17 | 0 | 2 | 19 |
+
+[Summary](results.md) / [Details](details.md) / [Diff Summary](diff.md) / Diff Details

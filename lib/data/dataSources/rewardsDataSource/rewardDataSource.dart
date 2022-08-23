@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/data/Mappers/RewardMapper.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -8,13 +10,14 @@ import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/dependencies/error/Failure.dart';
 
 abstract class RewardDataSource implements DataSource {
   // ignore: close_sinks
-  late StreamController<Rewards> rewardStream;
+  late StreamController<Rewards>? rewardStream;
 
   /// Used for get a link so the user can share it and get rewarded with coins
   Future<String> getDynamicLink();
@@ -40,65 +43,55 @@ class RewardDataSourceImpl implements RewardDataSource {
   Future<void> getDailyReward() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        await Dependencies.advertisingServices.showRewarded();
-
-       
-          await for (bool event in Dependencies.advertisingServices
-              .interstitialAdvertismentStateStream!.stream) {
-            if (event) {
-              HttpsCallable callDailyReward = FirebaseFunctions.instance
-                  .httpsCallable("solcitarCreditosDiarios");
-              HttpsCallableResult httpsCallable = await callDailyReward.call();
-              if (httpsCallable.data["estado"] == "correcto") {
-                      Dependencies
-                .advertisingServices.closeStream();
-              } else {
-                      Dependencies
-                .advertisingServices.closeStream();
-                throw RewardException(message: "Error");
-              }
-            }
-          }
-       
-
+        HttpsCallable callDailyReward =
+            FirebaseFunctions.instance.httpsCallable("solcitarCreditosDiarios");
+        HttpsCallableResult httpsCallable = await callDailyReward.call();
+        if (httpsCallable.data["estado"] == "correcto") {
+          Dependencies.advertisingServices.closeStream();
+        } else {
+          Dependencies.advertisingServices.closeStream();
+          throw RewardException(message: "Error");
+        }
       } catch (e) {
-              Dependencies
-                .advertisingServices.closeStream();
+        Dependencies.advertisingServices.closeStream();
         throw RewardException(message: "Error");
       }
     } else {
-            Dependencies
-                .advertisingServices.closeStream();
-      throw NetworkException();
+      Dependencies.advertisingServices.closeStream();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
   @override
-  Future<String> getDynamicLink() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<Failure, Rewards>> getRewardObject() async {
+  Future<String> getDynamicLink() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
-      Map dataSource = source.getData;
       try {
-        Rewards rewards = new Rewards(
-            coins: dataSource["creditos"],
-            isPremium: dataSource["monedasInfinitas"],
-            timeUntilDailyReward: dataSource["siguienteRecompensa"],
-            waitingFirstReward: dataSource["primeraRecompensa"],
-            rewardForShareRigth: false,
-            rewardForVerificationRigth: false,
-            waitingReward: dataSource["esperandoRecompensa"]);
-        return Right(rewards);
+        HttpsCallable recopensaComparte =
+            FirebaseFunctions.instance.httpsCallable("linkComparteGana");
+        String rewardCode = IdGenerator.instancia.createId();
+        final dynamicLinkParams = DynamicLinkParameters(
+            link: Uri.parse(
+                "https://marcosobiang98.wixsite.com/obydevgames/comarteGana/$rewardCode"),
+            uriPrefix: "https://citas.page.link",
+            androidParameters:
+                AndroidParameters(packageName: "com.hotty.citas"));
+
+        final uri = await FirebaseDynamicLinks.instance
+            .buildShortLink(dynamicLinkParams);
+        await recopensaComparte.call({
+          "codigo": rewardCode,
+          "id": GlobalDataContainer.userId,
+          "link": uri.shortUrl.toString()
+        });
+        return uri.shortUrl.toString();
       } catch (e) {
-        return Left(RewardFailure());
+        throw RewardException(message: "ERROR_BUILDING_SHARING_LINHK:[message: ${e.toString()}]");
       }
     } else {
-      return Left(NetworkFailure());
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
+
 
   @override
   Future<Either<Failure, bool>> getVerificationReward() {
@@ -107,16 +100,16 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   void subscribeToMainDataSource() {
-    rewardStream.add(RewardMapper.instance.fromMap(data: source.getData));
+    rewardStream?.add(RewardMapper.instance.fromMap(data: source.getData));
 
     sourceStreamSubscription = source.dataStream.stream.listen((event) {
-      rewardStream.add(RewardMapper.instance.fromMap(data: event));
+      rewardStream?.add(RewardMapper.instance.fromMap(data: event));
     });
   }
 
   @override
   bool clearModuleData() {
-    rewardStream.close();
+    rewardStream?.close();
     sourceStreamSubscription?.cancel();
     return true;
   }
@@ -131,7 +124,7 @@ class RewardDataSourceImpl implements RewardDataSource {
   StreamSubscription? sourceStreamSubscription;
 
   @override
-  late StreamController<Rewards> rewardStream;
+  StreamController<Rewards>? rewardStream;
 
   @override
   Future<bool> getFrstReward() async {
@@ -149,7 +142,7 @@ class RewardDataSourceImpl implements RewardDataSource {
         throw RewardException(message: "Error");
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 }

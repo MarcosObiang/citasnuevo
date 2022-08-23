@@ -91,6 +91,8 @@ dependencies:
   flutter_inapp_notifications: ^0.0.3
   notify_inapp: ^0.0.3
   numberpicker: ^2.1.1
+  image_compare: ^1.1.2
+  firebase_dynamic_links: ^4.3.4
 
 
 

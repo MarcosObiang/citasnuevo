@@ -4,34 +4,20 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 
-abstract class Presentation<T>  {
-  /// Must be called when the use case returns a [Failure] type object
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context});
-
-  ///Must be called when the  function has not finished yet
-  void showLoadingDialog();
-
-  void showNetworkErrorDialog({required BuildContext? context});
-
+abstract class Presentation {
+  /// Restarts the whole module
   ///
+  ///  Modules are only initialized when the user logs in, and are cleaned up only when the user logs out
   ///
-  ///This function is only meant to be called at the start of the app to initialize the [T] module
-  void initialize();
-
-  ///This function is only meant to be called when we need to reload an entire module after an error
+  /// but there are many cases where we may need to reload the whole module (if any error occcurs while using the app)
   ///
-  ///or when we swich users to clear the module data and restart [T]
+  /// so the restart implementation should call the [clearModuleData] and the [initializeModuleData] (in this order) methods from the absract class [ModuleCleaner]
 
   void restart();
-
-
 }
 
-abstract class ShouldRemoveData <InformationSender> {
-  late StreamSubscription<InformationSender>?  removeDataSubscription;
+abstract class ShouldRemoveData<InformationSender> {
+  late StreamSubscription<InformationSender>? removeDataSubscription;
 
   /// Holds the controller.remove [StreamSubscription]
   ///
@@ -40,9 +26,9 @@ abstract class ShouldRemoveData <InformationSender> {
   void removeData();
 }
 
-abstract class ShouldUpdateData<InformationSender>  {
+abstract class ShouldUpdateData<InformationSender> {
   /// Needs to listen to a [Controller.updateData] and implement the presentation logic for updated data
-  late StreamSubscription<InformationSender>?  updateSubscription;
+  late StreamSubscription<InformationSender>? updateSubscription;
 
   /// Holds the controller.update [StreamSubscription]
   ///

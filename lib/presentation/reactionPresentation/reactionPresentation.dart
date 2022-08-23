@@ -9,24 +9,44 @@ import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
+import 'package:citasnuevo/presentation/dialogs.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
 
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Widgets/RevealingCard.dart';
+import 'package:citasnuevo/presentation/rewardScreenPresentation/rewardScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:notify_inapp/notify_inapp.dart';
 
+import '../../core/dependencies/dependencyCreator.dart';
+import '../Routes.dart';
+
 enum RevealingAnimationState { notTurning, turned, turning }
 
-enum ReactionListState { loading, ready, empty, error }
+enum ReactionListState {
+  loading,
+  ready,
+  empty,
+  error,
+  loadingAd,
+  errorLoadingAd
+}
+
+enum AdShowingState {
+  adLoading,
+  errorLoadingAd,
+  adShown,
+  adShowing,
+  adNotshowing
+}
 
 class ReactionPresentation extends ChangeNotifier
     implements
-        Presentation<ReactionPresentation>,
+        Presentation,
         SouldAddData<ReactionInformationSender>,
         ShouldRemoveData<ReactionInformationSender>,
         ShouldUpdateData<ReactionInformationSender>,
@@ -35,6 +55,7 @@ class ReactionPresentation extends ChangeNotifier
   bool additionalDataRecieverIsInitialized = false;
   double _reactionsAverage = 0;
   ReactionListState _reactionListState = ReactionListState.empty;
+  AdShowingState _adShowingstate = AdShowingState.adNotshowing;
   ReactionsControllerImpl reactionsController;
   bool readyToSincronize = false;
   int lastSincronizationTimeInSeconds = 0;
@@ -56,7 +77,9 @@ class ReactionPresentation extends ChangeNotifier
     additionalDataRecieverIsInitialized = false;
     _reactionsAverage = 0;
     _reactionListState = ReactionListState.empty;
-
+    updateSubscription?.cancel();
+    addDataSubscription?.cancel();
+    removeDataSubscription?.cancel();
     reactionsController.clearModuleData();
   }
 
@@ -65,6 +88,12 @@ class ReactionPresentation extends ChangeNotifier
     notifyListeners();
   }
 
+  set setAdShowingState(AdShowingState adShowingState) {
+    this._adShowingstate = adShowingState;
+    notifyListeners();
+  }
+
+  AdShowingState get getAdShowingState => this._adShowingstate;
   set setCoins(int coins) {
     this._coins = coins;
     notifyListeners();
@@ -97,11 +126,11 @@ class ReactionPresentation extends ChangeNotifier
 
     result.fold((failure) {
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(
+        PresentationDialogs.instance.showNetworkErrorDialog(
             context: ReactionScreen.reactionsListKey.currentContext);
       }
       if (failure is ReactionFailure) {
-        showErrorDialog(
+       PresentationDialogs.instance. showErrorDialog(
             content: "Error al intentar realizar la operacion",
             context: ReactionScreen.reactionsListKey.currentContext,
             title: "Error");
@@ -116,11 +145,11 @@ class ReactionPresentation extends ChangeNotifier
 
     result.fold((failure) {
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(
+        PresentationDialogs.instance.showNetworkErrorDialog(
             context: ReactionScreen.reactionsListKey.currentContext);
       }
       if (failure is ReactionFailure) {
-        showErrorDialog(
+        PresentationDialogs.instance.showErrorDialog(
             content: "Error al intentar realizar la operacion",
             context: ReactionScreen.reactionsListKey.currentContext,
             title: "Error");
@@ -133,52 +162,132 @@ class ReactionPresentation extends ChangeNotifier
   });
 
   void revealReaction({required String reactionId}) async {
-    if (getCoins >= 200) {
+    if (isPremium == false) {
+      if (getCoins >= 200) {
+        if (reactionsController.checkIfReactionCanShowAds(reactionId)) {
+          await Dependencies.advertisingServices.showInterstitial();
+          if (Dependencies
+                  .advertisingServices.interstitialAdvertismentStateStream !=
+              null) {
+            setAdShowingState = AdShowingState.adLoading;
+
+            await for (Map<String, dynamic> event in Dependencies
+                .advertisingServices
+                .interstitialAdvertismentStateStream!
+                .stream) {
+              if (event["status"] == "FAILED") {
+                setAdShowingState = AdShowingState.errorLoadingAd;
+              }
+              if (event["status"] == "CLOSED") {
+                setAdShowingState = AdShowingState.adShown;
+              }
+              if (event["status"] == "EXPIRED") {
+                setAdShowingState = AdShowingState.errorLoadingAd;
+              }
+              if (event["status"] == "NOT_READY") {
+                setAdShowingState = AdShowingState.errorLoadingAd;
+              }
+              if (event["status"] == "SHOWING") {
+                setAdShowingState = AdShowingState.adShowing;
+              }
+              Dependencies.advertisingServices.closeStream();
+              setAdShowingState = AdShowingState.adNotshowing;
+
+              var result = await reactionsController.revealReaction(
+                  reactionId: reactionId);
+              result.fold((failure) {
+                if (failure is NetworkFailure) {
+                  PresentationDialogs.instance.showNetworkErrorDialog(
+                      context: ReactionScreen.reactionsListKey.currentContext);
+                }
+                if (failure is ReactionFailure) {
+                  PresentationDialogs.instance.showErrorDialog(
+                      content: "Error al intentar realizar la operacion",
+                      context: ReactionScreen.reactionsListKey.currentContext,
+                      title: "Error");
+                }
+              }, (r) {});
+            }
+          } else {
+            setAdShowingState = AdShowingState.errorLoadingAd;
+          }
+        } else {
+          var result =
+              await reactionsController.revealReaction(reactionId: reactionId);
+          result.fold((failure) {
+            if (failure is NetworkFailure) {
+              PresentationDialogs.instance.showNetworkErrorDialog(
+                  context: ReactionScreen.reactionsListKey.currentContext);
+            }
+            if (failure is ReactionFailure) {
+             PresentationDialogs.instance. showErrorDialog(
+                  content: "Error al intentar realizar la operacion",
+                  context: ReactionScreen.reactionsListKey.currentContext,
+                  title: "Error");
+            }
+          }, (r) {});
+        }
+      } else {
+        PresentationDialogs.instance.showErrorDialogWithOptions(
+            context: ReactionScreen.reactionsListKey.currentContext,
+            dialogText: "Abre recompensas y ve opciones para ganar creditos",
+            dialogTitle: "Gemas Insuficientes",
+            dialogOptionsList: [
+              DialogOptions(function: Navigator.pop, text: "Ahota no"),
+              DialogOptions(function: this.goTorewards, text: "Ver recompensas")
+            ]);
+      }
+    } else {
       var result =
           await reactionsController.revealReaction(reactionId: reactionId);
       result.fold((failure) {
         if (failure is NetworkFailure) {
-          showNetworkErrorDialog(
+          PresentationDialogs.instance.showNetworkErrorDialog(
               context: ReactionScreen.reactionsListKey.currentContext);
         }
         if (failure is ReactionFailure) {
-          showErrorDialog(
+          PresentationDialogs.instance.showErrorDialog(
               content: "Error al intentar realizar la operacion",
               context: ReactionScreen.reactionsListKey.currentContext,
               title: "Error");
         }
       }, (r) {});
-    } else {
-      showErrorDialog(
-        title: "Creditos insuficientes",
-        content: "Ve recompensas para ver las opciones que te damos para ganar creditos gratuitos",
-        context: ReactionScreen.reactionsListKey.currentContext,
-      );
     }
   }
 
+  void goTorewards(BuildContext context) {
+    Navigator.pop(context);
+    Navigator.pushNamed(context, RewardScreen.routeName);
+  }
+
   @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {
+  void showErrorDialogWithOptions({required BuildContext? context}) {
     if (context != null) {
       showDialog(
           context: context,
-          builder: (context) =>
-              GenericErrorDialog(title: title, content: content));
+          builder: (context) => AlertDialog(
+                title: Text("Creditos insuficientes"),
+                content:
+                    Text("Abre recompensas y ve opciones para ganar creditos"),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("Ahora no")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+
+                        Navigator.push(
+                            context, GoToRoute(page: RewardScreen()));
+                      },
+                      child: Text("Abrir recompensas"))
+                ],
+              ));
     }
   }
 
   @override
   void showLoadingDialog() {}
-
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }
-  }
 
   @override
   void initialize() async {
@@ -193,11 +302,6 @@ class ReactionPresentation extends ChangeNotifier
   @override
   void restart() {
     clearModuleData();
-
-    setReactionListState = ReactionListState.loading;
-    updateSubscription?.cancel();
-    addDataSubscription?.cancel();
-    removeDataSubscription?.cancel();
 
     initialize();
   }
@@ -276,7 +380,7 @@ class ReactionPresentation extends ChangeNotifier
                           boxConstraints: ReactionScreen.boxConstraints,
                           index: event.index as int,
                           animation: animation),
-                      duration: Duration(milliseconds: 800));
+                      duration: Duration(milliseconds: 1500));
 
                   if (reactionsController.reactions.length == 0) {
                     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -308,6 +412,7 @@ class ReactionPresentation extends ChangeNotifier
 
   @override
   void initializeModuleData() {
+    setReactionListState = ReactionListState.loading;
     reactionsController.initializeModuleData();
   }
 

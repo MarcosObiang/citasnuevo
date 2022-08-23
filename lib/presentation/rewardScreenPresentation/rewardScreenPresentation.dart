@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/rewardController.dart';
 import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';
 import 'package:citasnuevo/main.dart';
+import 'package:citasnuevo/presentation/dialogs.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +23,26 @@ enum DailyRewardState {
   done,
 }
 
+enum SharingRewardState {
+  inProcess,
+  done,
+}
+
 enum FirstRewards {
   inProcess,
   done,
 }
 
-enum RewardScreenState { loading, done, error }
+enum RewardedAdShowingState {
+  adLoading,
+  errorLoadingAd,
+  adShowing,
+  adNotShowing,
+  adShown,
+  adIncomplete
+}
+
+enum RewardScreenState { loading, done, error, loadingAd }
 
 class RewardScreenPresentation extends ChangeNotifier
     implements
@@ -35,51 +52,68 @@ class RewardScreenPresentation extends ChangeNotifier
   RewardController rewardController;
   DailyRewardState _dailyRewardState = DailyRewardState.done;
   FirstRewards _firstRewards = FirstRewards.done;
+  SharingRewardState _sharingRewardState = SharingRewardState.done;
   RewardScreenState _rewardScreenState = RewardScreenState.loading;
+  RewardedAdShowingState _rewardedAdShowingState =
+      RewardedAdShowingState.adNotShowing;
   int coins = 0;
+
+  set setRewardedAdShowingstate(RewardedAdShowingState rewardedAdShowingState) {
+    this._rewardedAdShowingState = rewardedAdShowingState;
+
+    notifyListeners();
+  }
 
   set setRewardScreenState(RewardScreenState rewardScreenState) {
     this._rewardScreenState = rewardScreenState;
     notifyListeners();
   }
 
-  RewardScreenState get getRewardScreenState => this._rewardScreenState;
+  set setSharingRewardState(SharingRewardState sharingRewardState) {
+    this._sharingRewardState = sharingRewardState;
+    notifyListeners();
+  }
 
   set setDayliRewardState(DailyRewardState dailyRewardState) {
     this._dailyRewardState = dailyRewardState;
     notifyListeners();
   }
 
-  FirstRewards get getFirstRewards => this._firstRewards;
-
   set setFirstRewards(FirstRewards firstRewards) {
     this._firstRewards = firstRewards;
     notifyListeners();
   }
 
+  FirstRewards get getFirstRewards => this._firstRewards;
+
+  RewardScreenState get getRewardScreenState => this._rewardScreenState;
+  SharingRewardState get getSharingRewardState => this._sharingRewardState;
+
+  RewardedAdShowingState get getRewardedAdShowingState =>
+      this._rewardedAdShowingState;
   DailyRewardState get getDayliRewardState => this._dailyRewardState;
   late Rewards rewards;
   RewardScreenPresentation({required this.rewardController});
 
   @override
-  late StreamSubscription<RewardInformationSender>? updateSubscription;
+  StreamSubscription<RewardInformationSender>? updateSubscription;
 
   String premiumPrice = "";
+  String? sharingLink;
 
-  late StreamController<int> dailyRewardTieRemainingStream;
+  StreamController<int>? dailyRewardTieRemainingStream;
 
   @override
   void clearModuleData() {
     updateSubscription?.cancel();
-    dailyRewardTieRemainingStream.close();
+    dailyRewardTieRemainingStream?.close();
     setDayliRewardState = DailyRewardState.done;
     setFirstRewards = FirstRewards.done;
     coins = 0;
     setRewardScreenState = RewardScreenState.loading;
   }
 
-  @override
-  void initialize() {}
+
 
   @override
   void initializeModuleData() {
@@ -95,16 +129,96 @@ class RewardScreenPresentation extends ChangeNotifier
     initializeModuleData();
   }
 
-  void askDailyReward() async {
-    setDayliRewardState = DailyRewardState.inProcess;
-    var result = await rewardController.askDailyReward();
+  void getSharingLink() async {
+    setSharingRewardState = SharingRewardState.inProcess;
+
+    var result = await rewardController.getSharingLink();
+
     result.fold((l) {
-      setDayliRewardState = DailyRewardState.done;
+      setSharingRewardState = SharingRewardState.done;
+
+      if (l is NetworkFailure) {
+       PresentationDialogs.instance. showErrorDialog(
+            content: "Hotty npuede conectarse a internet",
+            context: startKey.currentContext,
+            title: "Error");
+      } else {
+       PresentationDialogs.instance. showErrorDialog(
+            content: "Error al intentar realizar la operacion",
+            context: startKey.currentContext,
+            title: "Error");
+      }
     }, (r) {
-      setDayliRewardState = DailyRewardState.done;
-      showInAppRewardNotification(
-          rewardDescription: "Ya tienes 600 creditos", rewardHeader: "Genial");
+      sharingLink = r;
+      setSharingRewardState = SharingRewardState.done;
     });
+  }
+
+  void askDailyReward({required bool showAd}) async {
+    if (showAd == true) {
+      setRewardedAdShowingstate = RewardedAdShowingState.adLoading;
+
+      await Dependencies.advertisingServices.showRewarded();
+
+      if (Dependencies.advertisingServices.rewardedAdvertismentStateStream !=
+          null) {
+        await for (Map<String, dynamic> event in Dependencies
+            .advertisingServices.rewardedAdvertismentStateStream!.stream) {
+          String status = event["status"];
+
+          if (status == "FAILED") {
+            setRewardedAdShowingstate = RewardedAdShowingState.errorLoadingAd;
+          }
+
+          if (status == "CLOSED") {
+            setRewardedAdShowingstate = RewardedAdShowingState.adShown;
+          }
+          if (status == "INCOMPLETE") {
+            setRewardedAdShowingstate = RewardedAdShowingState.adIncomplete;
+          }
+          Dependencies.advertisingServices.closeStream();
+
+          if (status != "INCOMPLETE" && status != "FAILED") {
+            setDayliRewardState = DailyRewardState.inProcess;
+
+            var result = await rewardController.askDailyReward();
+            result.fold((l) {
+              setRewardedAdShowingstate = RewardedAdShowingState.adNotShowing;
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                setDayliRewardState = DailyRewardState.done;
+              });
+             PresentationDialogs.instance. showErrorDialog(
+                  content: "Error al intentar realizar la operacion",
+                  context: startKey.currentContext,
+                  title: "Error");
+            }, (r) {
+              setRewardedAdShowingstate = RewardedAdShowingState.adNotShowing;
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                setDayliRewardState = DailyRewardState.done;
+              });
+              showInAppRewardNotification(
+                  rewardDescription: "Ya tienes 600 creditos",
+                  rewardHeader: "Genial");
+            });
+          }
+        }
+      }
+    } else {
+      setDayliRewardState = DailyRewardState.inProcess;
+      var result = await rewardController.askDailyReward();
+      result.fold((l) {
+        setDayliRewardState = DailyRewardState.done;
+       PresentationDialogs.instance. showErrorDialog(
+            content: "Hotty npuede conectarse a internet",
+            context: startKey.currentContext,
+            title: "Error");
+      }, (r) {
+        setDayliRewardState = DailyRewardState.done;
+        showInAppRewardNotification(
+            rewardDescription: "Ya tienes 600 creditos",
+            rewardHeader: "Genial");
+      });
+    }
   }
 
   void askFirstReward() async {
@@ -112,29 +226,23 @@ class RewardScreenPresentation extends ChangeNotifier
     var result = await rewardController.askFirstReward();
     result.fold((l) {
       setFirstRewards = FirstRewards.done;
+     PresentationDialogs.instance. showErrorDialog(
+          content: "Error al intentar realizar la operacion",
+          context: startKey.currentContext,
+          title: "Error");
     }, (r) {
       setFirstRewards = FirstRewards.done;
       showInAppRewardNotification(
-          rewardDescription: "Te regalamos 30000 creditos",
+          rewardDescription: "Te regalamos 15000 creditos",
           rewardHeader: "Disfruta Hotty");
     });
   }
 
-  @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {}
 
-  @override
-  void showLoadingDialog() {}
 
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }
-  }
+
+
+
 
   @override
   void update() {
@@ -151,7 +259,7 @@ class RewardScreenPresentation extends ChangeNotifier
       }
 
       setRewardScreenState = RewardScreenState.done;
-      dailyRewardTieRemainingStream.add(event.secondsToDailyReward as int);
+      dailyRewardTieRemainingStream?.add(event.secondsToDailyReward as int);
     }, onError: (error) {
       setRewardScreenState = RewardScreenState.error;
     });

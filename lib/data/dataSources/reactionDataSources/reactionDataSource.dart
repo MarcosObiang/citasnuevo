@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
-import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
@@ -12,8 +10,6 @@ import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSou
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-
-import '../../../presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 
 abstract class ReactionDataSource implements DataSource {
 // ignore: close_sinks
@@ -62,9 +58,43 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     return {"coins": coins, "averageReactions": reactionsAverage};
   }
 
-  void initializeReactionListener() async {
-    bool notifyReactions = false;
+  void _addReaction({required DocumentChange<Map<String, dynamic>> element}) {
+    Reaction reaction =
+        ReactionConverter.fromMap(element.doc.data() as Map<String, dynamic>);
 
+    reactionListener.add({
+      "modified": false,
+      "reaction": reaction,
+      "deleted": false,
+      "notify": element.doc.metadata.isFromCache == true ? false : true
+    });
+  }
+
+  void _modifyReaction(
+      {required DocumentChange<Map<String, dynamic>> element}) {
+    Reaction reaction =
+        ReactionConverter.fromMap(element.doc.data() as Map<String, dynamic>);
+    reactionListener.add({
+      "modified": true,
+      "reaction": reaction,
+      "deleted": false,
+      "notify": false
+    });
+  }
+
+  void _deleteReaction(
+      {required DocumentChange<Map<String, dynamic>> element}) {
+    Reaction reaction =
+        ReactionConverter.fromMap(element.doc.data() as Map<String, dynamic>);
+    reactionListener.add({
+      "modified": true,
+      "reaction": reaction,
+      "deleted": true,
+      "notify": false
+    });
+  }
+
+  void initializeReactionListener() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         FirebaseFirestore instance = FirebaseFirestore.instance;
@@ -82,41 +112,15 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
               if (caducidadValoracion > queryTime) {
                 if (element.type == DocumentChangeType.added) {
-                  Reaction reaction = ReactionConverter.fromMap(
-                      element.doc.data() as Map<String, dynamic>);
-
-                  reactionListener.add({
-                    "modified": false,
-                    "reaction": reaction,
-                    "dataLength": dato.docChanges.length,
-                    "deleted": false,
-                    "notify":
-                        element.doc.metadata.isFromCache == true ? false : true
-                  });
+                  _addReaction(element: element);
                 }
                 if (element.type == DocumentChangeType.modified) {
-                  Reaction reaction = ReactionConverter.fromMap(
-                      element.doc.data() as Map<String, dynamic>);
-                  reactionListener.add({
-                    "modified": true,
-                    "reaction": reaction,
-                    "dataLength": dato.docChanges.length,
-                    "deleted": false,
-                    "notify": false
-                  });
+                  _modifyReaction(element: element);
                 }
               }
 
               if (element.type == DocumentChangeType.removed) {
-                Reaction reaction = ReactionConverter.fromMap(
-                    element.doc.data() as Map<String, dynamic>);
-                reactionListener.add({
-                  "modified": true,
-                  "reaction": reaction,
-                  "dataLength": dato.docChanges.length,
-                  "deleted": true,
-                  "notify": false
-                });
+                _deleteReaction(element: element);
               }
             } catch (e, s) {
               reactionListener.addError(Exception());
@@ -129,7 +133,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         throw ReactionException(message: e.toString(), stackTrace: s);
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -178,52 +182,22 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       try {
         HttpsCallable callToRevealReactionFunction =
             FirebaseFunctions.instance.httpsCallable("quitarCreditosUsuario");
-        await Dependencies.advertisingServices.showInterstitial();
 
-        if (Dependencies
-                .advertisingServices.interstitialAdvertismentStateStream !=
-            null) {
-          await for (bool event in Dependencies.advertisingServices
-              .interstitialAdvertismentStateStream!.stream) {
-            if (event) {
-              HttpsCallableResult result = await callToRevealReactionFunction
-                  .call({
-                "idValoracion": reactionId,
-                "idUsuario": userID,
-                "primeraSolicitud": false
-              });
-              if (result.data["estado"] == "correcto") {
-                      Dependencies
-                .advertisingServices.closeStream();
-                break;
-          
-              }
+        HttpsCallableResult result = await callToRevealReactionFunction.call({
+          "idValoracion": reactionId,
+          "idUsuario": userID,
+          "primeraSolicitud": false
+        });
+        if (result.data["estado"] == "correcto") {}
 
-              if (result.data["estado"] != "correcto") {
-                      Dependencies
-                .advertisingServices.closeStream();
-                throw Exception(["FAILED"]);
-              } else {
-                      Dependencies
-                .advertisingServices.closeStream();
-                throw Exception(["AD_INCOMPLETE"]);
-              }
-            }
-          }
-        } else {
-                Dependencies
-                .advertisingServices.closeStream();
-          throw Exception(["AD_INCOMPLETE"]);
+        if (result.data["estado"] != "correcto") {
+          throw Exception(["FAILED"]);
         }
       } catch (e, S) {
-              Dependencies
-                .advertisingServices.closeStream();
         throw ReactionException(message: e.toString(), stackTrace: S);
       }
     } else {
-            Dependencies
-                .advertisingServices.closeStream();
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -250,7 +224,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         throw ReactionException(message: e.toString(), stackTrace: s);
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -265,7 +239,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         throw ReactionException(message: e.toString(), stackTrace: s);
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 

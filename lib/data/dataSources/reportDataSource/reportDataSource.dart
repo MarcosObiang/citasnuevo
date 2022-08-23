@@ -44,14 +44,16 @@ class ReportDataSourceImpl implements ReportDataSource {
         await reportUser.call({
           "idDenunciado": idUserReported,
           "idDenunciante": idReporter,
-          "detalles": reportDetails
+          "detalles": reportDetails,
+          "conversacionIncluida":false,
+          "idConversacion":0
         });
         return true;
       } catch (e) {
         throw ReportException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 

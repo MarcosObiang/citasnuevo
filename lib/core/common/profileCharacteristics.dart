@@ -17,7 +17,7 @@ const Map<String,dynamic> _kProfileCreatorMap = {
 
 
  Map<String,dynamic> kUserCreatorMockData={
-    "IMAGENPERFIL1":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL1","removed":false},
+  "IMAGENPERFIL1":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL1","removed":false},
   "IMAGENPERFIL2":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL2","removed":false},
   "IMAGENPERFIL3":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL3","removed":false},
   "IMAGENPERFIL4":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL4","removed":false},
@@ -28,7 +28,7 @@ const Map<String,dynamic> _kProfileCreatorMap = {
 };
 
 const kProfileCharacteristics_LookingFor_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Relacion seria": "Relacion seria"},
   {"Lo que surja": "Lo que surja"},
   {"Algo casual": "Algo casual"},
@@ -36,7 +36,7 @@ const kProfileCharacteristics_LookingFor_ES = [
 ];
 
 const kProfileCharacteristics_BodyType_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Normal": "Normal"},
   {"Atletica": "Atletica"},
   {"Talla Grande": "Talla Grande"},
@@ -44,34 +44,34 @@ const kProfileCharacteristics_BodyType_ES = [
 ];
 
 const kProfileCharacteristics_Children_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Algun dia": "Algun día"},
   {"Nunca": "Nunca"},
   {"Tengo hijos": "Tengo hijos"},
 ];
 const kProfileCharacteristics_Pets_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Perro": "Perro"},
   {"Gato": "Gato"},
   {"Me gustaría": "Me gustaría"}
 ];
 
 const kProfileCharacteristics_Politics_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Derechas": "Derechas"},
   {"Izquierda": "Izquierda"},
   {"Centro": "Centro"},
   {"Apolitico": "Apolitico"}
 ];
 const kProfileCharacteristics_LivesWith_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Solo": "Solo"},
   {"Familia": "Familia"},
   {"Amigos": "Amigos"}
 ];
 
 const kProfileCharacteristics_Alcohol_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"En sociedad": "En sociedad"},
   {"No bebo": "No bebo"},
   {"No me importa": "No me importa"},
@@ -79,15 +79,15 @@ const kProfileCharacteristics_Alcohol_ES = [
 ];
 
 const kProfileCharacteristics_Smoking_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   {"Fumo": "Fumo"},
   {"No Fumo": "No Fumo"},
   {"A veces": "A veces"},
-  {"Odio el tabaco": "Odio el tabacosss"}
+  {"Odio el tabaco": "Odio el tabaco"}
 ];
 
 const kProfileCharacteristics_SexualOrientation_ES = [
-  {kNotAvailable: "No responder"},
+  {kNotAvailable: "Sin respuesta"},
   "Hetero",
   "Gay",
   "Lesbiana",

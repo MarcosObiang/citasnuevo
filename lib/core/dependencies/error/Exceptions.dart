@@ -1,3 +1,6 @@
+const kNetworkErrorMessage= "NETWORK_ERROR";
+
+
 class ServerException implements Exception {
   final String message;
   ServerException({required this.message});
@@ -9,7 +12,9 @@ class AuthException implements Exception {
 }
 
 class NetworkException implements Exception {
-  NetworkException();
+    final String message;
+
+  NetworkException({required this.message});
 }
 
 class ApplicationStateException implements Exception {
@@ -119,6 +124,15 @@ class InitException implements Exception {
     print(message);
   }
 }
+class SanctionException implements Exception {
+  String message;
+  SanctionException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
 
 class LateInitErrorChecker {
   /// Used to check if the error is caused due to not initialized variables in the code

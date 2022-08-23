@@ -4,6 +4,7 @@ import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:citasnuevo/main.dart';
+import 'package:citasnuevo/presentation/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -16,15 +17,19 @@ import '../../domain/repository/DataManager.dart';
 import '../presentationDef.dart';
 
 enum UserSettingsScreenState { loading, loaded, error }
+
 enum UserSettingsScreenUpdateState { loading, loaded, error, done }
 
 class UserSettingsPresentation extends ChangeNotifier
-    implements ShouldUpdateData<UserSettingsInformationSender>, Presentation,ModuleCleaner{
+    implements
+        ShouldUpdateData<UserSettingsInformationSender>,
+        Presentation,
+        ModuleCleaner {
   UserSettingsController userSettingsController;
 
   UserSettingsPresentation({required this.userSettingsController});
   late UserSettingsScreenState userSettingsScreenState;
-  late UserSettingsScreenUpdateState userSettingsScreenUpdateState =
+  late UserSettingsScreenUpdateState _userSettingsScreenUpdateState =
       UserSettingsScreenUpdateState.done;
   UserSettingsEntity get getUserSettingsEntity =>
       userSettingsController.userSettingsEntity;
@@ -38,19 +43,15 @@ class UserSettingsPresentation extends ChangeNotifier
 
   set setUserSettingsScreenUdateState(
       UserSettingsScreenUpdateState userSettingsScreenUpdateState) {
-    this.userSettingsScreenUpdateState = userSettingsScreenUpdateState;
+    this._userSettingsScreenUpdateState = userSettingsScreenUpdateState;
     notifyListeners();
   }
 
-  @override
-  late StreamSubscription<UserSettingsInformationSender>? updateSubscription;
+  UserSettingsScreenUpdateState get getUserSettingsScreenUpdateState =>
+      _userSettingsScreenUpdateState;
 
   @override
-  void initialize() {
-    userSettingsController.initializeModuleData();
-    setUserSettingsScreenState = UserSettingsScreenState.loading;
-    update();
-  }
+  late StreamSubscription<UserSettingsInformationSender>? updateSubscription;
 
   void addPictureFromDevice(Uint8List uint8list, int index) {
     userSettingsController.insertImageFile(uint8list, index);
@@ -62,10 +63,8 @@ class UserSettingsPresentation extends ChangeNotifier
 
   @override
   void restart() {
-    setUserSettingsScreenState = UserSettingsScreenState.loading;
-    updateSubscription?.cancel();
-    userSettingsController.clearModuleData();
-    initialize();
+    clearModuleData();
+    initializeModuleData();
   }
 
   void userSettingsUpdate() async {
@@ -75,44 +74,22 @@ class UserSettingsPresentation extends ChangeNotifier
       var result = await userSettingsController.updateSettings();
 
       result.fold((l) {
+        setUserSettingsScreenUdateState = UserSettingsScreenUpdateState.done;
+
         if (l is NetworkFailure) {
-          showErrorDialog(
+          PresentationDialogs.instance
+              .showNetworkErrorDialog(context: startKey.currentContext);
+        } else {
+          PresentationDialogs.instance.showErrorDialog(
               title: "Error",
               content: "No se han podido guardar los cambios",
               context: startKey.currentContext);
-          showNetworkErrorDialog(context: startKey.currentContext);
         }
       }, (r) {
         setUserSettingsScreenUdateState = UserSettingsScreenUpdateState.done;
       });
     } else {
       userSettingsController.revertChanges();
-    }
-  }
-
-  @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {
-    if (context != null) {
-      showDialog(
-          context: context,
-          useRootNavigator: false,
-          builder: (context) =>
-              GenericErrorDialog(content: content, title: title));
-    }
-  }
-
-  @override
-  void showLoadingDialog() {
-    // TODO: implement showLoadingDialog
-  }
-
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
     }
   }
 
@@ -130,10 +107,13 @@ class UserSettingsPresentation extends ChangeNotifier
   void clearModuleData() {
     setUserSettingsScreenState = UserSettingsScreenState.loading;
     updateSubscription?.cancel();
-    userSettingsController.clearModuleData();  }
+    userSettingsController.clearModuleData();
+  }
 
   @override
   void initializeModuleData() {
-    // TODO: implement initializeModuleData
+    userSettingsController.initializeModuleData();
+    setUserSettingsScreenState = UserSettingsScreenState.loading;
+    update();
   }
 }

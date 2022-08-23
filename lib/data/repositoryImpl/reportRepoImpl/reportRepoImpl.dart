@@ -37,11 +37,11 @@ class ReportRepositoryImpl implements ReportRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else if (e is ReportException) {
-        return Left(ReportFailure());
+        return Left(ReportFailure(message: e.toString()));
       } else {
-        return Left(ReportFailure());
+        return Left(ReportFailure(message: e.toString()));
       }
     }
   }

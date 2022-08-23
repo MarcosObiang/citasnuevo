@@ -9,7 +9,7 @@ import 'package:dartz/dartz.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthDataSource authDataSource;
+  final AuthScreenDataSource authDataSource;
   AuthRepositoryImpl({
     required this.authDataSource,
   });
@@ -23,12 +23,12 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(authData);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       }
       if (e is AuthException) {
-        return Left(AuthFailure());
+        return Left(AuthFailure(message: e.toString()));
       } else {
-        return Left(ServerFailure());
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }
@@ -41,12 +41,12 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(authResponseEntity);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       }
       if (e is AuthException) {
-        return Left(AuthFailure());
+        return Left(AuthFailure(message: e.toString()));
       } else {
-        return Left(ServerFailure());
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }

@@ -35,11 +35,11 @@ class ReactionRepositoryImpl implements ReactionRepository {
       return Right(Void);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else if (e is ReactionException) {
-        return Left(ReactionFailure());
+        return Left(ReactionFailure(message: e.toString()));
       } else {
-        return Left(GenericModuleFailure());
+        return Left(GenericModuleFailure(message: e.toString()));
       }
     }
   }
@@ -53,11 +53,11 @@ class ReactionRepositoryImpl implements ReactionRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else if (e is ReactionException) {
-        return Left(ReactionFailure());
+        return Left(ReactionFailure(message: e.toString()));
       } else {
-        return Left(GenericModuleFailure());
+        return Left(GenericModuleFailure(message: e.toString()));
       }
     }
   }
@@ -70,11 +70,11 @@ class ReactionRepositoryImpl implements ReactionRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else if (e is ReactionException) {
-        return Left(ReactionFailure());
+        return Left(ReactionFailure(message: e.toString()));
       } else {
-        return Left(GenericModuleFailure());
+        return Left(GenericModuleFailure(message: e.toString()));
       }
     }
   }
@@ -85,7 +85,7 @@ class ReactionRepositoryImpl implements ReactionRepository {
       reactionDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
-      return Left(ChatFailure());
+      return Left(ChatFailure(message: e.toString()));
     }
   }
 

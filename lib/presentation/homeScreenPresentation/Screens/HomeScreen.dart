@@ -15,6 +15,8 @@ import 'package:provider/provider.dart';
 import '../../appSettingsPresentation/appSettingsScreen.dart';
 
 class HomeAppScreen extends StatefulWidget {
+              static const routeName = '/HomeAppScreen';
+
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
 
   @override
@@ -62,7 +64,7 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
               return Stack(
                 children: [
                   Container(
-                      color: Colors.deepPurple,
+                      color: Colors.white,
                       height: constraints.maxHeight,
                       width: constraints.maxWidth,
                       child: homeScreenPresentation.profileListState ==
@@ -342,6 +344,7 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
                 profile: homeScreenPresentation
                     .homeScreenController.profilesList[index],
                 needRatingWidget: true,
+                showDistance: true,
                 listIndex: index,
               ));
         });

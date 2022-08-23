@@ -26,11 +26,11 @@ class _TextMessageState extends State<TextMessage> {
 
     if (widget.message.senderId == GlobalDataContainer.userId) {
       paddingData =
-          EdgeInsets.only(top: 50.h, bottom: 50.h, left: 100.w, right: 20.w);
+          EdgeInsets.only(top: 50.h, bottom: 50.h, left: 300.w, right: 20.w);
       messageColor = userMessagesColor;
     } else {
       paddingData =
-          EdgeInsets.only(top: 50.h, bottom: 50.h, right: 100.w, left: 20.w);
+          EdgeInsets.only(top: 50.h, bottom: 50.h, right: 300.w, left: 20.w);
       messageColor = remitentMessagesColor;
     }
   }
@@ -44,11 +44,11 @@ class _TextMessageState extends State<TextMessage> {
   Widget build(BuildContext context) {
     if (widget.message.senderId == GlobalDataContainer.userId) {
       paddingData =
-          EdgeInsets.only(top: 30.h, bottom: 30.h, left: 100.w, right: 20.w);
+          EdgeInsets.only(top: 30.h, bottom: 30.h, left: 300.w, right: 20.w);
       messageColor = userMessagesColor;
     } else {
       paddingData =
-          EdgeInsets.only(top: 30.h, bottom: 30.h, right: 100.w, left: 20.w);
+          EdgeInsets.only(top: 30.h, bottom: 30.h, right: 300.w, left: 20.w);
       messageColor = remitentMessagesColor;
     }
     return FadeTransition(
@@ -67,22 +67,21 @@ class _TextMessageState extends State<TextMessage> {
                           color: messageColor,
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Padding(
-                          padding: EdgeInsets.all(30.h),
-                          child: Center(
-                              child: widget.message.messageType ==
-                                      MessageType.TEXT
-                                  ? Text(widget.message.data)
-                                  : Container(
-                                      height: 700.w,
-                                      width: 700.w,
-                                      decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              scale: 1,
-                                              image: CachedNetworkImageProvider(
-                                                widget.message.data,
-                                              ))),
-                                    ))),
+                          padding: EdgeInsets.all(40.h),
+                          child: widget.message.messageType ==
+                                  MessageType.TEXT
+                              ? Text(widget.message.data)
+                              : Container(
+                                  height: 700.w,
+                                  width: 700.w,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          scale: 1,
+                                          image: CachedNetworkImageProvider(
+                                            widget.message.data,
+                                          ))),
+                                )),
                     ),
                     Padding(
                       padding: EdgeInsets.all(10.h),
@@ -95,7 +94,6 @@ class _TextMessageState extends State<TextMessage> {
               )
             : Container(
                 width: ScreenUtil().screenWidth,
-                color: Colors.green,
                 child: Center(
                   child: Padding(
                     padding: EdgeInsets.only(top: 60.h, bottom: 30.h),

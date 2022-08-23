@@ -5,6 +5,7 @@ import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
+import 'package:citasnuevo/presentation/dialogs.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 import 'package:flutter/material.dart';
 
@@ -20,43 +21,58 @@ class HomeScreenPresentation extends ChangeNotifier
         ShouldUpdateData<HomeScreenInformationSender>,
         Presentation,
         ModuleCleaner {
+  HomeScreenPresentation({required this.homeScreenController});
+
+  @override
+  StreamSubscription<HomeScreenInformationSender>? updateSubscription;
   ProfileListState _profileListState = ProfileListState.empty;
   HomeScreenController homeScreenController;
+
   int _newChats = 0;
   int _newMessages = 0;
   int _newReactions = 0;
-  int get getNewChats => this._newChats;
 
   set setNewChats(int value) {
     this._newChats = value;
     notifyListeners();
   }
 
-  int get getNewMessages => this._newMessages;
+  set profileListState(profileState) {
+    _profileListState = profileState;
+    notifyListeners();
+  }
 
   set setNewMessages(int value) {
     this._newMessages = value;
     notifyListeners();
   }
 
-  int get getNewReactions => this._newReactions;
-
   set setNewreactions(int value) {
     this._newReactions = value;
     notifyListeners();
   }
 
-  @override
-  late StreamSubscription<HomeScreenInformationSender>? updateSubscription;
+  int get getNewMessages => this._newMessages;
 
-  HomeScreenPresentation({required this.homeScreenController});
-  get profileListState => this._profileListState;
-  set profileListState(profileState) {
-    _profileListState = profileState;
-    notifyListeners();
-  }
+  int get getNewReactions => this._newReactions;
+
+  int get getNewChats => this._newChats;
+
+  ProfileListState get profileListState => this._profileListState;
 
   ///Call this method from widgets to send a reaction to a user
+  ///
+  ///Parameters:
+  ///
+  ///reactionValue: represented by a double between 1-10, it is how the user rates a profile
+  ///
+  ///
+  ///
+  ///listIndex: after reacting to a profile, we should know the index of the reaction in the reaction list
+  ///
+  ///so we can remove it from the reactionList in the controller and remove it also from the Screen
+  ///
+  ///constrains: to remove the reaction from the animated list, we need the reaction card size
 
   void sendReaction(
       double reactionValue, int listIndex, BoxConstraints constraints) async {
@@ -70,6 +86,7 @@ class HomeScreenPresentation extends ChangeNotifier
               boxConstraints: constraints,
               listIndex: listIndex,
               needRatingWidget: true,
+              showDistance: true,
             ),
         duration: Duration(milliseconds: 300));
 
@@ -83,9 +100,10 @@ class HomeScreenPresentation extends ChangeNotifier
       HomeAppScreen.profilesKey.currentState?.insertItem(0);
 
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
-        showErrorDialog(
+        PresentationDialogs.instance.showErrorDialog(
             title: "Error",
             content: "Error enviar reaccion",
             context: startKey.currentContext);
@@ -93,6 +111,17 @@ class HomeScreenPresentation extends ChangeNotifier
     }, (succes) {});
   }
 
+  /// Once the app checks for location permission and is denied, we could use this method to request permission
+  ///
+  /// to use the location services of the device.
+  ///
+  /// Caution:if the succes parameter is equal  to [LocationPermission.deniedForever]
+  ///
+  /// we cant ask for permission again,we should aswk the user to go into settings and give
+  ///
+  /// the location permission from there
+  ///
+  ///
   void requestPermission() async {
     var result = await homeScreenController.requestPermission();
     result.fold((failure) {}, (succes) {
@@ -103,7 +132,7 @@ class HomeScreenPresentation extends ChangeNotifier
         if (succes == LocationPermission.deniedForever) {
           profileListState = ProfileListState.location_forever_denied;
           print("LOCATION_PERMISSION_DENIED_FOREVER");
-          showErrorDialog(
+          PresentationDialogs.instance.showErrorDialog(
               title: "Permiso de localizacion",
               content:
                   "La aplicacion no tiene permiso para acceder su ubicacion",
@@ -112,7 +141,7 @@ class HomeScreenPresentation extends ChangeNotifier
 
         if (succes == LocationPermission.denied) {
           profileListState = ProfileListState.location_denied;
-          showErrorDialog(
+          PresentationDialogs.instance.showErrorDialog(
               title: "Permiso de localizacion",
               content:
                   "La aplicacion no tiene permiso para acceder su ubicacion",
@@ -128,10 +157,16 @@ class HomeScreenPresentation extends ChangeNotifier
     });
   }
 
+  /// When asking for location permission an the user denies it for ever, we should
+  ///
+  /// ask the user to go into settings and give the permission from there
+  ///
+  /// with this method we take the user to location settings
+
   void openLocationSettings() async {
     var result = await homeScreenController.goToLocationSettings();
     result.fold((failure) {
-      showErrorDialog(
+      PresentationDialogs.instance.showErrorDialog(
           title: "No se puede acceder a los ajustes de ubicacion",
           content:
               "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
@@ -139,7 +174,7 @@ class HomeScreenPresentation extends ChangeNotifier
     }, (succes) {
       if (succes == true) {
       } else {
-        showErrorDialog(
+        PresentationDialogs.instance.showErrorDialog(
             title: "No se puede acceder a los ajustes de ubicacion",
             content:
                 "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
@@ -148,15 +183,23 @@ class HomeScreenPresentation extends ChangeNotifier
     });
   }
 
+  /// Method used go get users from the servers,
+  ///
+  /// this method also checks the location and the profile visibility, it returns error if
+  ///
+  /// location services are not enabled or if the app does not have permission to use it
+  ///
+  ///
   void getProfiles() async {
-    showLoadingDialog();
+    profileListState = ProfileListState.loading;
 
     var fetchedList = await homeScreenController.fetchProfileList();
 
     fetchedList.fold((fail) {
       profileListState = ProfileListState.error;
       if (fail is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       }
       if (fail is LocationServiceFailure) {
         if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {
@@ -165,7 +208,7 @@ class HomeScreenPresentation extends ChangeNotifier
 
         if (fail.message == "LOCATION_PERMISSION_DENIED") {
           profileListState = ProfileListState.location_denied;
-          showErrorDialog(
+          PresentationDialogs.instance.showErrorDialog(
               title: "Permiso de localizacion",
               content:
                   "La aplicacion no tiene permiso para acceder su ubicacion",
@@ -179,8 +222,8 @@ class HomeScreenPresentation extends ChangeNotifier
           profileListState = ProfileListState.location_disabled;
         }
       }
-      if(fail is FetchUserFailure){
-         if (fail.message == "PROFILE_NOT_VISIBLE") {
+      if (fail is FetchUserFailure) {
+        if (fail.message == "PROFILE_NOT_VISIBLE") {
           profileListState = ProfileListState.profile_not_visible;
         }
       }
@@ -196,56 +239,17 @@ class HomeScreenPresentation extends ChangeNotifier
     });
   }
 
-  void showErrorDialogs(
-      {required String errorName,
-      required String errorMessage,
-      required BuildContext context}) {
-    showDialog(context: context, builder: (context) => NetwortErrorWidget());
-  }
-
-  @override
-  void showLoadingDialog() {
-    profileListState = ProfileListState.loading;
-  }
-
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }
-  }
-
-  @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {
-    if (context != null) {
-      showDialog(
-          context: context,
-          builder: (context) => GenericErrorDialog(
-                content: content,
-                title: title,
-              ));
-    }
-  }
-
-  @override
-  void initialize() {
-    initializeModuleData();
-    getProfiles();
-  }
-
   @override
   void restart() {
     clearModuleData();
-    initialize();
+    initializeModuleData();
   }
 
   @override
   void clearModuleData() {
     profileListState = ProfileListState.empty;
     updateSubscription?.cancel();
+    updateSubscription = null;
 
     homeScreenController.clearModuleData();
   }
@@ -270,5 +274,6 @@ class HomeScreenPresentation extends ChangeNotifier
   void initializeModuleData() {
     homeScreenController.initializeModuleData();
     update();
+    getProfiles();
   }
 }

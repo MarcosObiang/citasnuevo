@@ -1,15 +1,20 @@
 import 'dart:async';
 
+import 'package:citasnuevo/domain/controller/appSettingsController.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/controller/rewardController.dart';
+import 'package:citasnuevo/domain/controller/userSettingsController.dart';
+import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
 
+import '../controller_bridges/RewardScreenControllerBridge.dart';
+import '../controller_bridges/SettingsToAppSettingsControllerBridge.dart';
+
 abstract class SettingsController
     implements
         ShouldControllerUpdateData<SettingsInformationSender>,
-        ExternalControllerDataSender<RewardController>,
         ModuleCleaner {
   late SettingsEntity? settingsEntity;
   late SettingsRepository settingsRepository;
@@ -25,19 +30,33 @@ class SettingsControllerImpl implements SettingsController {
   StreamController<SettingsInformationSender>? updateDataController =
       StreamController.broadcast();
 
+  AppSettingsToSettingsControllerBridge appSettingstoSettingscontrollerBridge;
+  UserSettingsToSettingsControllerBridge userSettingsToSettingsControllerBridge;
+
+  RewardScreenControllerBridge rewardScreenControllerBridge;
   @override
   SettingsRepository settingsRepository;
+  bool isAppSettingsUpdating = false;
+  bool isUserSettingsUpdating = false;
   SettingsControllerImpl(
       {required this.settingsRepository,
-      required this.controllerBridgeInformationSender});
+      required this.appSettingstoSettingscontrollerBridge,
+      required this.rewardScreenControllerBridge,
+      required this.userSettingsToSettingsControllerBridge});
 
   @override
   void initialize() {
     settingsRepository.settingsStream.stream.listen((event) {
       settingsEntity = event;
+      appSettingstoSettingscontrollerBridge.initializeStream();
+      userSettingsToSettingsControllerBridge.initializeStream();
       exteralInformationSender();
+      externalInformationRecieverFromAppSettings();
+      externalInformationRecieverFromUserSettings();
       if (settingsEntity != null) {
         updateDataController?.add(SettingsInformationSender(
+            isUserSettingsUpdating: null,
+            isAppSettingsUpdating: null,
             settingsEntity: settingsEntity as SettingsEntity));
       }
     }, onError: (error) {
@@ -75,18 +94,46 @@ class SettingsControllerImpl implements SettingsController {
     }
   }
 
-  @override
-  ControllerBridgeInformationSender<RewardController>?
-      controllerBridgeInformationSender;
-
   void exteralInformationSender() {
     String? productInfo = settingsEntity?.productInfoList
         .where((element) => element.productId == "premiumsemanal")
         .first
         .productPrice;
     if (productInfo != null) {
-      controllerBridgeInformationSender
-          ?.addInformation(information: {"data": productInfo});
+      appSettingstoSettingscontrollerBridge
+          .addInformation(information: {"data": productInfo});
     }
+  }
+
+  void externalInformationRecieverFromAppSettings() {
+    appSettingstoSettingscontrollerBridge
+        .controllerBridgeInformationSenderStream?.stream
+        .listen((event) {
+      bool data = event["updatingSettings"];
+
+      isAppSettingsUpdating = data;
+      if (settingsEntity != null) {
+        updateDataController?.add(SettingsInformationSender(
+            isAppSettingsUpdating: data,
+            isUserSettingsUpdating: null,
+            settingsEntity: settingsEntity as SettingsEntity));
+      }
+    });
+  }
+
+  void externalInformationRecieverFromUserSettings() {
+    userSettingsToSettingsControllerBridge
+        .controllerBridgeInformationSenderStream?.stream
+        .listen((event) {
+      bool data = event["isUpdating"];
+
+      isUserSettingsUpdating = data;
+      if (settingsEntity != null) {
+        updateDataController?.add(SettingsInformationSender(
+            isAppSettingsUpdating: null,
+            isUserSettingsUpdating: isUserSettingsUpdating,
+            settingsEntity: settingsEntity as SettingsEntity));
+      }
+    });
   }
 }

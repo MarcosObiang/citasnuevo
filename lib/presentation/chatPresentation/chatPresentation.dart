@@ -14,6 +14,7 @@ import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/emptyChatWidget.dart';
 
 import 'package:citasnuevo/domain/controller/chatController.dart';
+import 'package:citasnuevo/presentation/dialogs.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,7 +27,7 @@ enum ChatListState { loading, ready, empty, error }
 
 class ChatPresentation extends ChangeNotifier
     implements
-        Presentation<ChatInformationSender>,
+        Presentation,
         SouldAddData<ChatInformationSender>,
         ShouldRemoveData<ChatInformationSender>,
         ShouldUpdateData<ChatInformationSender>,
@@ -56,19 +57,17 @@ class ChatPresentation extends ChangeNotifier
       new StreamController.broadcast();
 
   @override
-  late StreamSubscription<ChatInformationSender>? addDataSubscription;
+  StreamSubscription<ChatInformationSender>? addDataSubscription;
 
   @override
-  late StreamSubscription<ChatInformationSender>? removeDataSubscription;
+  StreamSubscription<ChatInformationSender>? removeDataSubscription;
 
   @override
-  late StreamSubscription<ChatInformationSender>? updateSubscription;
+  StreamSubscription<ChatInformationSender>? updateSubscription;
 
   ChatPresentation({
     required this.chatController,
-  }) {
-    
-  }
+  });
 
   get anyChatOpen => chatController.getAnyChatOpen;
 
@@ -99,7 +98,7 @@ class ChatPresentation extends ChangeNotifier
       setChatListState = ChatListState.error;
 
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
       }
     }, (succes) {
       addData();
@@ -129,7 +128,7 @@ class ChatPresentation extends ChangeNotifier
         profileId: profileId, chatId: chatId);
     result.fold((failure) {
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
       }
       notifyListeners();
     }, (succes) {
@@ -147,7 +146,7 @@ class ChatPresentation extends ChangeNotifier
         remitentId: remitentId);
     result.fold((failure) {
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         showErrorDialog(
             title: "title",
@@ -170,15 +169,7 @@ class ChatPresentation extends ChangeNotifier
     }
   }
 
-  @override
-  void showLoadingDialog() {}
 
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }
-  }
 
   Future<void> deleteChat(
       {required String remitent1,
@@ -195,7 +186,7 @@ class ChatPresentation extends ChangeNotifier
       notifyListeners();
 
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+       PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         showErrorDialog(
             title: "Error",
@@ -205,12 +196,7 @@ class ChatPresentation extends ChangeNotifier
     }, (r) => null);
   }
 
-  @override
-  void initialize() {
-    initializeModuleData();
-    initializeChatListener();
-    initializeMessageListener();
-  }
+
 
   @override
   void restart() {
@@ -237,6 +223,7 @@ class ChatPresentation extends ChangeNotifier
     chatController.clearModuleData();
   }
 
+  ///***************** */ COMPROBAR QUE EL MENSAJE SE AÑADE AL CHAT NECESARIO
   @override
   void addData() {
     addDataSubscription = chatController.addDataController?.stream.listen(
@@ -247,17 +234,16 @@ class ChatPresentation extends ChangeNotifier
             bool isModified = event.isModified as bool;
             bool isRemoved = event.isDeleted as bool;
             bool isChat = event.isChat as bool;
-            bool isFirstQuery=event.firstQuery;
+            bool isFirstQuery = event.firstQuery;
             List<Chat> chatListFromStream = event.chatList as List<Chat>;
 
             if (isChat) {
               if (isRemoved == false &&
                   isModified == false &&
                   chatListFromStream.isNotEmpty) {
-                    if(isFirstQuery==false){
-                    showInAppNewConversation();
-
-                    }
+                if (isFirstQuery == false) {
+                  showInAppNewConversation();
+                }
                 setChatListState = ChatListState.ready;
                 ChatScreen.chatListState.currentState?.insertItem(0);
                 ChatScreen.newChatListState.currentState?.insertItem(0);
@@ -276,7 +262,9 @@ class ChatPresentation extends ChangeNotifier
                 }
               } else {
                 notifyListeners();
-                showInAppessageNotification(message);
+                if (message.messageType != MessageType.DATE) {
+                  showInAppessageNotification(message);
+                }
               }
             }
 
@@ -324,37 +312,35 @@ class ChatPresentation extends ChangeNotifier
     }
   }
 
-    void showInAppNewConversation() {
-    
-      Notify notify = Notify();
-      notify.show(
-          startKey.currentContext as BuildContext,
-          Padding(
-            padding: EdgeInsets.all(10.h),
-            child: Container(
-                height: 150.h,
-                width: ScreenUtil().screenWidth,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: Padding(
-                  padding: EdgeInsets.all(10.h),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Nueva conversacion",
-                        style: GoogleFonts.lato(fontSize: 60.sp),
-                      ),
-                      Text(
-                        "Tienes una nueva conversacion",
-                        style: GoogleFonts.lato(fontSize: 40.sp),
-                      ),
-                    ],
-                  ),
-                )),
-          ),
-          duration: 300);
-    
+  void showInAppNewConversation() {
+    Notify notify = Notify();
+    notify.show(
+        startKey.currentContext as BuildContext,
+        Padding(
+          padding: EdgeInsets.all(10.h),
+          child: Container(
+              height: 150.h,
+              width: ScreenUtil().screenWidth,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Padding(
+                padding: EdgeInsets.all(10.h),
+                child: Column(
+                  children: [
+                    Text(
+                      "Nueva conversacion",
+                      style: GoogleFonts.lato(fontSize: 60.sp),
+                    ),
+                    Text(
+                      "Tienes una nueva conversacion",
+                      style: GoogleFonts.lato(fontSize: 40.sp),
+                    ),
+                  ],
+                ),
+              )),
+        ),
+        duration: 300);
   }
 
   @override
@@ -402,5 +388,8 @@ class ChatPresentation extends ChangeNotifier
   @override
   void initializeModuleData() {
     chatController.initializeModuleData();
+
+    initializeChatListener();
+    initializeMessageListener();
   }
 }

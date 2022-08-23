@@ -5,12 +5,12 @@ abstract class ModuleCleaner {
   ///
   ///it is mandatory to leave every part in default mode to not mix any data
 
-  void clearModuleData();
+   clearModuleData();
 
   /// Used to  start any module after a module needed to be cleared because an error or because the user changed in the same device
   ///
   /// CAUTION: This method should be called after [clearModuleData] method, wich depending the case will need a different implementation
   /// 
   /// Make sure to call first [clearModuleData] to avoid errors and unexpected behaviour
-  void initializeModuleData();
+   initializeModuleData();
 }

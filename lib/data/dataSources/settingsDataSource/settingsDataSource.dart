@@ -87,9 +87,9 @@ class SettingsDataSourceImpl implements SettingsDataSource {
         throw SettingsException(message: e.toString());
       }
     } else {
-      onUserSettingsUpdate.addError(NetworkException());
+      onUserSettingsUpdate.addError(NetworkException(message:kNetworkErrorMessage ));
 
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -181,7 +181,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
         throw SettingsException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 }

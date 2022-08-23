@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 enum ReactionRevealigState { notRevealed, revealed, revealing, error }
 
@@ -16,6 +17,7 @@ class Reaction {
   int reactionExpirationDateInSeconds;
   bool stopCounter = false;
   bool revealingProcessStarted = false;
+  bool canShowAds=true;
   double reactioValue;
   String imageHash;
   String imageUrl;

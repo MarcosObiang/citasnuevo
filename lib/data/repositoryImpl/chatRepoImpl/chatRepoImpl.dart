@@ -20,7 +20,7 @@ class ChatRepoImpl implements ChatRepository {
   });
 
   @override
-  StreamController get getChatStream => chatDataSource.chatStream;
+  StreamController? get getChatStream => chatDataSource.chatStream;
 
   @override
   Future<Either<Failure, bool>> initializeChatListener() async {
@@ -30,9 +30,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -50,9 +50,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -69,9 +69,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -85,9 +85,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(value);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -102,9 +102,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(value);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -118,9 +118,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(value);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -141,9 +141,9 @@ class ChatRepoImpl implements ChatRepository {
       return Right(value);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(ChatFailure());
+        return Left(ChatFailure(message: e.toString()));
       }
     }
   }
@@ -154,7 +154,7 @@ class ChatRepoImpl implements ChatRepository {
       chatDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
-      return Left(ChatFailure());
+      return Left(ChatFailure(message: e.toString()));
     }
   }
 

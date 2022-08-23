@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
+import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../core/dependencies/error/Failure.dart';
@@ -16,15 +17,18 @@ class UserSettingsController
         ModuleCleaner {
   UserSettingsRepository userSettingsRepository;
 
-  UserSettingsController({required this.userSettingsRepository});
+  UserSettingsController(
+      {required this.userSettingsRepository,
+      required this.userSettingsToSettingsControllerBridge});
   late UserSettingsEntity userSettingsEntity;
   late UserSettingsEntity userSettingsEntityUpdate;
-
+  bool userSettingsUpdating = false;
 
   @override
   late StreamController<UserSettingsInformationSender>? updateDataController =
       StreamController.broadcast();
 
+  UserSettingsToSettingsControllerBridge userSettingsToSettingsControllerBridge;
 
   void insertImageFile(Uint8List imageBytes, int index) {
     this
@@ -39,14 +43,22 @@ class UserSettingsController
   }
 
   Future<Either<Failure, bool>> updateSettings() async {
-    var data = await UserSettingsMapper.toMap(userSettingsEntity);
+    userSettingsUpdating = true;
+          sendInformationViaBridge();
+
 
     Either<Failure, bool> settings =
-        await userSettingsRepository.updateSettings(data);
+        await userSettingsRepository.updateSettings(userSettingsEntity);
 
-     settings.fold((l) {
+    settings.fold((l) {
+      userSettingsUpdating = false;
+      sendInformationViaBridge();
+
       revertChanges();
-    }, (r) => null);
+    }, (r) {
+      userSettingsUpdating = false;
+      sendInformationViaBridge();
+    });
 
     return settings;
   }
@@ -76,7 +88,12 @@ class UserSettingsController
     initializeListener();
   }
 
-  void revertChanges()async{
+  void sendInformationViaBridge() {
+    userSettingsToSettingsControllerBridge
+        .addInformation(information: {"isUpdating": userSettingsUpdating});
+  }
+
+  void revertChanges() async {
     await userSettingsRepository.revertChanges();
   }
 }

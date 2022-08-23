@@ -1,17 +1,25 @@
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
-import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/presentation/homeReportScreenPresentation/homeReportScreenPresentation.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
-class ReportScreen extends StatefulWidget {
-  final String userId;
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/presentation/homeReportScreenPresentation/homeReportScreenPresentation.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
 
-  ReportScreen(this.userId);
+class ReportScreenArgs {
+  String userId;
+  ReportScreenArgs({
+    required this.userId,
+  });
+}
+
+class ReportScreen extends StatefulWidget {
+  static const routeName='/ReporScreen';
+
+  ReportScreen();
 
   @override
   State<StatefulWidget> createState() {
@@ -26,6 +34,8 @@ class _ReportScreenState extends State<ReportScreen> {
   String reportText = "";
   @override
   Widget build(BuildContext context) {
+    final args= ModalRoute.of(context)!.settings.arguments as ReportScreenArgs;
+    String userId=args.userId;
     return WillPopScope(
       onWillPop: () async {
         Dependencies.homeReportScreenPresentation.reportSendidnState =
@@ -71,7 +81,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                 reportText = textEditingController.text;
                               },
                               onEditingComplete: () =>
-                                  showSendReportDialog(context),
+                                  showSendReportDialog(context,userId),
                               style: GoogleFonts.lato(fontSize: 45.sp),
                               decoration: InputDecoration(
                                   fillColor: Colors.white,
@@ -95,7 +105,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                 if (textEditingController.text
                                     .trim()
                                     .isNotEmpty) {
-                                  showSendReportDialog(context);
+                                  showSendReportDialog(context,userId);
                                 } else {
                                   showTextfieldIsEmpty(context);
                                 }
@@ -126,7 +136,7 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  void showSendReportDialog(BuildContext contex) {
+  void showSendReportDialog(BuildContext contex,userId) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -138,8 +148,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                     Dependencies.homeReportScreenPresentation.sendReport(
-                        idReporter: widget.userId,
-                        idUserReported: widget.userId,
+                        idReporter: userId,
+                        idUserReported: userId,
                         reportDetails: reportText);
                   },
                   child: Text("Enviar")),

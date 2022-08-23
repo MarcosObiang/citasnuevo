@@ -2,24 +2,23 @@ import 'dart:async';
 
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 
-class RewardScreenControllerBridge<RewardController>
+class RewardScreenControllerBridge
     implements
-        ControllerBridgeInformationReciever<RewardController>,
-        ControllerBridgeInformationSender<RewardController> {
+        ControllerBridge {
   @override
-  late StreamController<Map<String, dynamic>>
+   StreamController<Map<String, dynamic>>?
       controllerBridgeInformationSenderStream;
 
   @override
   void addInformation({required Map<String, dynamic> information}) {
-    if (controllerBridgeInformationSenderStream.isClosed == false) {
-      controllerBridgeInformationSenderStream.add(information);
+    if (controllerBridgeInformationSenderStream?.isClosed == false) {
+      controllerBridgeInformationSenderStream?.add(information);
     }
   }
 
   @override
   void closeStream() {
-    controllerBridgeInformationSenderStream.close();
+    controllerBridgeInformationSenderStream?.close();
   }
 
   @override

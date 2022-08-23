@@ -29,9 +29,9 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
       return Right(result);
     } catch (e) {
       if (e is UserCreatorException) {
-        return Left(UserCreatorFailure());
+        return Left(UserCreatorFailure(message: e.toString()));
       } else {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       }
     }
   }
@@ -51,9 +51,9 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
       return Right(result);
     } catch (e) {
       if (e is UserCreatorException) {
-        return Left(UserCreatorFailure());
+        return Left(UserCreatorFailure(message: e.toString()));
       } else {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       }
     }  }
 }

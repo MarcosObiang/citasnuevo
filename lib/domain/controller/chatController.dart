@@ -16,6 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/dependencies/error/Failure.dart';
+import '../controller_bridges/HomeScreenCotrollerBridge.dart';
 import '../entities/ProfileEntity.dart';
 
 abstract class ChatController
@@ -23,8 +24,7 @@ abstract class ChatController
         ShouldControllerRemoveData<ChatInformationSender>,
         ShouldControllerUpdateData<ChatInformationSender>,
         ShouldControllerAddData<ChatInformationSender>,
-        ModuleCleaner,
-       ExternalControllerDataSender<HomeScreenController> {
+        ModuleCleaner {
   late ChatRepository chatRepository;
   late List<Chat> chatList;
   late bool anyChatOpen;
@@ -33,9 +33,9 @@ abstract class ChatController
   late int chatRemovedIndex;
 
   // ignore: cancel_subscriptions
-  late StreamSubscription<dynamic> chatListenerSubscription;
+  late StreamSubscription<dynamic>? chatListenerSubscription;
   // ignore: cancel_subscriptions
-  late StreamSubscription<dynamic> messageListenerSubscription;
+  late StreamSubscription<dynamic>? messageListenerSubscription;
   Future<Either<Failure, Profile>> getUserProfile(
       {required String profileId, required String chatId});
   Future<Either<Failure, bool>> initializeChatListener();
@@ -64,32 +64,41 @@ class ChatControllerImpl implements ChatController {
   bool anyChatOpen = false;
   String lastChatToRecieveMessageId = "NOT_AVAILABLE";
   String chatOpenId = "";
-  late StreamSubscription<dynamic> chatListenerSubscription;
-  late StreamSubscription<dynamic> messageListenerSubscription;
+  StreamSubscription<dynamic>? chatListenerSubscription;
+  StreamSubscription<dynamic>? messageListenerSubscription;
   @override
-  late StreamController<ChatInformationSender>? addDataController =
+  StreamController<ChatInformationSender>? addDataController =
       StreamController.broadcast();
 
   @override
-  late StreamController<ChatInformationSender>? removeDataController =
+  StreamController<ChatInformationSender>? removeDataController =
       StreamController.broadcast();
 
   @override
-  late StreamController<ChatInformationSender>? updateDataController =
+  StreamController<ChatInformationSender>? updateDataController =
       StreamController.broadcast();
 
-        @override
-  ControllerBridgeInformationSender<HomeScreenController>? controllerBridgeInformationSender;
+  HomeScreenControllerBridge homeScreenControllreBridge;
 
-  ChatControllerImpl(
-      {required this.chatRepository,
-      required this.controllerBridgeInformationSender});
-
-  StreamController get getChatStream => chatRepository.getChatStream;
+  StreamController? get getChatStream => chatRepository.getChatStream;
   StreamController<dynamic> get getMessageStream =>
       chatRepository.getMessageStream;
 
+  bool _checkIfChatExists({required String chatId}) {
+    bool itExists = false;
+    if (chatList.isNotEmpty) {
+      chatList.forEach((a) {
+        if (a.chatId == chatId) {
+          itExists = true;
+        }
+      });
+    }
+    return itExists;
+  }
+
   bool get getAnyChatOpen => this.anyChatOpen;
+  ChatControllerImpl(
+      {required this.chatRepository, required this.homeScreenControllreBridge});
 
   set setAnyChatOpen(bool value) {
     this.anyChatOpen = value;
@@ -114,17 +123,21 @@ class ChatControllerImpl implements ChatController {
 
   @protected
   void _initializeChatListener() {
-    chatListenerSubscription = getChatStream.stream.listen((event) {
+    chatListenerSubscription = getChatStream?.stream.listen((event) {
       if (event is ChatException) {
         addDataController?.addError(event);
-        chatListenerSubscription.cancel();
+        chatListenerSubscription?.cancel();
       } else {
         bool isModified = event["modified"];
         bool isRemoved = event["removed"];
         bool firstQuery = event["firstQuery"];
         List<Chat> chatListFromStream = event["chatList"];
         if (firstQuery == true) {
-          chatList.insertAll(0, chatListFromStream);
+          chatListFromStream.forEach((element) {
+            if (_checkIfChatExists(chatId: element.chatId) == false) {
+              chatList.add(element);
+            }
+          });
           addDataController?.add(ChatInformationSender(
               chatList: chatListFromStream,
               messageList: null,
@@ -133,12 +146,14 @@ class ChatControllerImpl implements ChatController {
               isChat: true,
               index: null,
               isDeleted: false));
-              sendChatData();
-              sendMessageData();
         }
 
         if (firstQuery == false && isRemoved == false && isModified == false) {
-          chatList.insertAll(0, chatListFromStream);
+          chatListFromStream.forEach((element) {
+            if (_checkIfChatExists(chatId: element.chatId) == false) {
+              chatList.add(element);
+            }
+          });
           addDataController?.add(ChatInformationSender(
               chatList: chatListFromStream,
               messageList: null,
@@ -154,6 +169,10 @@ class ChatControllerImpl implements ChatController {
             if (chatList[a].chatId == chatListFromStream.first.chatId) {
               chatList.removeAt(a);
               chatRemovedIndex = a;
+              for (int i = 0; i < chatList.length; i++) {
+                chatList[i].calculateUnreadMessages(
+                    GlobalDataContainer.userId as String);
+              }
               removeDataController?.add(ChatInformationSender(
                   chatList: chatListFromStream,
                   messageList: null,
@@ -170,127 +189,121 @@ class ChatControllerImpl implements ChatController {
 
         if (isModified) {
           for (int a = 0; a < chatList.length; a++) {
-            if (chatList[a].chatId == chatList.first.chatId) {
-              chatList[a].remitenrPicture = chatList.first.remitenrPicture;
-              chatList[a].remitentPictureHash =
-                  chatList.first.remitentPictureHash;
-              chatList[a].remitentName = chatList.first.remitentName;
-              chatList[a].notificationToken = chatList.first.notificationToken;
-              updateDataController?.add(ChatInformationSender(
-                  chatList: chatListFromStream,
-                  messageList: null,
-                  firstQuery: firstQuery,
-                  isChat: true,
-                  isModified: isModified,
-                  index: null,
-                  isDeleted: isRemoved));
+            for (int z = 0; z < chatListFromStream.length; z++) {
+              if (chatList[a].chatId == chatListFromStream[z].chatId) {
+                chatList[a].remitenrPicture =
+                    chatListFromStream[z].remitenrPicture;
+                chatList[a].remitentPictureHash =
+                    chatListFromStream[z].remitentPictureHash;
+                chatList[a].remitentName = chatListFromStream[z].remitentName;
+                chatList[a].notificationToken =
+                    chatListFromStream[z].notificationToken;
+                updateDataController?.add(ChatInformationSender(
+                    chatList: chatListFromStream,
+                    messageList: null,
+                    firstQuery: firstQuery,
+                    isChat: true,
+                    isModified: isModified,
+                    index: null,
+                    isDeleted: isRemoved));
 
-              break;
+                break;
+              }
             }
           }
         }
         sendChatData();
+        sendMessageData();
       }
     }, onError: (error) {
       addDataController?.addError(error);
-      chatListenerSubscription.cancel();
     });
+  }
+
+  Future<void> addDateMessageToChat(
+      {required Message message,
+      required int index,
+      required bool isModified}) async {
+    DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(message.messageDate);
+    var dateformat = DateFormat.yMEd();
+    String dateText = dateformat.format(tiempo);
+    chatList[index].messagesList.insert(
+        0,
+        Message(
+            messageDateText: dateText,
+            read: true,
+            isResponse: false,
+            data: "data",
+            chatId: message.chatId,
+            senderId: kNotAvailable,
+            messageId: "messageId",
+            messageDate: tiempo.millisecondsSinceEpoch,
+            messageType: MessageType.DATE));
+    addDataController?.add(ChatInformationSender(
+        chatList: chatList,
+        messageList: [
+          Message(
+              messageDateText: dateText,
+              read: true,
+              isResponse: false,
+              data: "data",
+              chatId: message.chatId,
+              senderId: kNotAvailable,
+              messageId: "messageId",
+              messageDate: tiempo.millisecondsSinceEpoch,
+              messageType: MessageType.DATE)
+        ],
+        firstQuery: false,
+        isModified: isModified,
+        isChat: false,
+        index: null,
+        isDeleted: false));
+    await Future.delayed(Duration(milliseconds: 200));
   }
 
   @protected
   void _initializeMessageListener() {
     messageListenerSubscription = getMessageStream.stream.listen((event) async {
       if (event is ChatException) {
-        chatListenerSubscription.cancel();
+        chatListenerSubscription?.cancel();
       } else {
         for (int i = 0; i < chatList.length; i++) {
           bool isModified = event["modified"];
           Message message = event["message"];
+
+          ///Looking for the chat the message is for
+          ///
+          ///
           if (chatList[i].chatId == message.chatId) {
+            /// The only way a message could be modified if it hsa been read by the remitent, so basically we are checking if a message has been read
+            ///
+            ///
             if (isModified == false) {
-              if (chatList[i].chatId == message.chatId) {
-                if (chatList[i].messagesList.length > 1) {
-                  if (checkMessageTime(message.messageDate,
-                      chatList[i].messagesList[0].messageDate)) {
-                    DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
-                        message.messageDate);
-                    var dateformat = DateFormat.yMEd();
-                    String dateText = dateformat.format(tiempo);
-
-                    chatList[i].messagesList.insert(
-                        0,
-                        Message(
-                            messageDateText: dateText,
-                            read: true,
-                            isResponse: false,
-                            data: "data",
-                            chatId: message.chatId,
-                            senderId: kNotAvailable,
-                            messageId: "messageId",
-                            messageDate: tiempo.millisecondsSinceEpoch,
-                            messageType: MessageType.DATE));
-                    addDataController?.add(ChatInformationSender(
-                        chatList: chatList,
-                        messageList: [message],
-                        firstQuery: false,
-                        isModified: isModified,
-                        isChat: false,
-                        index: null,
-                        isDeleted: false));
-                    await Future.delayed(Duration(milliseconds: 200));
-                  }
-                } else {
-                  DateTime tiempo =
-                      DateTime.fromMillisecondsSinceEpoch(message.messageDate);
-                  var dateformat = DateFormat.yMEd();
-                  String dateText = dateformat.format(tiempo);
-                  chatList[i].messagesList.insert(
-                      0,
-                      Message(
-                          messageDateText: dateText,
-                          read: true,
-                          isResponse: false,
-                          data: "data",
-                          chatId: message.chatId,
-                          senderId: kNotAvailable,
-                          messageId: "messageId",
-                          messageDate: tiempo.millisecondsSinceEpoch,
-                          messageType: MessageType.DATE));
-                  addDataController?.add(ChatInformationSender(
-                      chatList: chatList,
-                      messageList: [
-                        Message(
-                            messageDateText: dateText,
-                            read: true,
-                            isResponse: false,
-                            data: "data",
-                            chatId: message.chatId,
-                            senderId: kNotAvailable,
-                            messageId: "messageId",
-                            messageDate: tiempo.millisecondsSinceEpoch,
-                            messageType: MessageType.DATE)
-                      ],
-                      firstQuery: false,
-                      isModified: isModified,
-                      isChat: false,
-                      index: null,
-                      isDeleted: false));
-                  await Future.delayed(Duration(milliseconds: 200));
+              if (chatList[i].messagesList.length > 1) {
+                if (checkMessageTime(message.messageDate,
+                    chatList[i].messagesList[0].messageDate)) {
+                  await addDateMessageToChat(
+                      message: message, index: i, isModified: isModified);
                 }
+              }
 
-                chatList[i].messagesList.insert(0, message);
-                addDataController?.add(ChatInformationSender(
-                    chatList: chatList,
-                    messageList: [message],
-                    firstQuery: false,
-                    isModified: isModified,
-                    isChat: false,
-                    index: null,
-                    isDeleted: false));
+              if (chatList[i].messagesList.length <= 1) {
+                await addDateMessageToChat(
+                    message: message, index: i, isModified: isModified);
+              }
 
-                if (message.senderId != GlobalDataContainer.userId) {
-                  chatList[i].unreadMessages += 1;
-                }
+              chatList[i].messagesList.insert(0, message);
+              addDataController?.add(ChatInformationSender(
+                  chatList: chatList,
+                  messageList: [message],
+                  firstQuery: false,
+                  isModified: isModified,
+                  isChat: false,
+                  index: null,
+                  isDeleted: false));
+
+              if (message.senderId != GlobalDataContainer.userId) {
+                chatList[i].unreadMessages += 1;
               }
 
               if (chatList.length > 1) {
@@ -331,6 +344,7 @@ class ChatControllerImpl implements ChatController {
           }
         }
       }
+      sendChatData();
       sendMessageData();
     });
   }
@@ -451,6 +465,7 @@ class ChatControllerImpl implements ChatController {
     return result;
   }
 
+  /// Checks if two consecutive messages have the same date (ymd), if it returns true, it will mean we should add a new [Message] of type [MessageType.DATE] above the new message
   bool checkMessageTime(int currentMessageTime, int lastMessageTime) {
     bool addNewDateMessage = false;
 
@@ -475,8 +490,8 @@ class ChatControllerImpl implements ChatController {
     anyChatOpen = false;
     lastChatToRecieveMessageId = kNotAvailable;
     chatOpenId = "";
-    chatListenerSubscription.cancel();
-    messageListenerSubscription.cancel();
+    chatListenerSubscription?.cancel();
+    messageListenerSubscription?.cancel();
     addDataController?.close();
     addDataController = new StreamController.broadcast();
     removeDataController?.close();
@@ -500,9 +515,8 @@ class ChatControllerImpl implements ChatController {
       }
     }
 
-   
-
-        controllerBridgeInformationSender?.addInformation(information: {"header": "chat", "data": newChats});
+    homeScreenControllreBridge
+        .addInformation(information: {"header": "chat", "data": newChats});
   }
 
   void sendMessageData() {
@@ -514,12 +528,7 @@ class ChatControllerImpl implements ChatController {
       }
     }
 
-
-                controllerBridgeInformationSender?.addInformation(information: {"header": "message", "data": newMessages});
-
+    homeScreenControllreBridge.addInformation(
+        information: {"header": "message", "data": newMessages});
   }
-
-
-
-
 }

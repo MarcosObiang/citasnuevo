@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -11,6 +12,7 @@ import 'package:citasnuevo/presentation/presentationDef.dart';
 
 import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../core/dependencies/error/Failure.dart';
+import '../dialogs.dart';
 
 class HomeReportScreenPresentation extends ChangeNotifier implements Presentation {
 
@@ -43,13 +45,11 @@ ReportController reportController;
         idUserReported: idUserReported);
 
     result.fold((fail) {
-      reportSendidnState = ReportSendingState.error;
+      reportSendidnState = ReportSendingState.notSended;
       if (fail is NetworkFailure) {
-        var startKey;
-        showNetworkErrorDialog(context: startKey.currentContext);
+       PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
       } else {
-        var startKey;
-        showErrorDialog(
+       PresentationDialogs.instance. showErrorDialog(
             title: "Error",
             content: "Error enviar denuncia",
             context: startKey.currentContext);
@@ -77,26 +77,8 @@ void showThanksForReportingDialog(){
 }
 
 
-  @override
-  void showErrorDialog({required String title, required String content, required BuildContext? context}) {
-    // TODO: implement showErrorDialog
-  }
 
-  @override
-  void showLoadingDialog() {
-    // TODO: implement showLoadingDialog
-  }
 
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }  }
-
-  @override
-  void initialize() {
-    // TODO: implement initialize
-  }
 
   @override
   void restart() {

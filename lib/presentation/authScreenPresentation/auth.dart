@@ -1,6 +1,7 @@
 import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
+import 'package:citasnuevo/presentation/dialogs.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorScreen.dart';
@@ -53,18 +54,13 @@ class AuthScreenPresentation extends ChangeNotifier
 
   void goToMainScreenApp(BuildContext? context) {
     if (context != null) {
-      Navigator.push(context, GoToRoute(page: HomeAppScreen()));
+      Navigator.pushNamed(context, HomeAppScreen.routeName,);
     }
   }
 
   void goToCreateUserPage(BuildContext? context) {
     if (context != null) {
-      Navigator.push(
-          context,
-          GoToRoute(
-              page: UserCreatorScreen(
-            userName: GlobalDataContainer.userName,
-          )));
+      Navigator.pushNamed(context, UserCreatorScreen.routeName,arguments: UserCreatorScreenArgs(userName: GlobalDataContainer.userName));
     }
   }
 
@@ -77,7 +73,7 @@ class AuthScreenPresentation extends ChangeNotifier
 
     data.fold((failure) {
       if (failure is NetworkFailure) {
-        showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
       }
 
       authState = AuthState.error;
@@ -112,7 +108,7 @@ class AuthScreenPresentation extends ChangeNotifier
       authState = AuthState.error;
 
       if (failure is NetworkFailure) {
-        showNetworkError();
+        PresentationDialogs.instance.showNetworkErrorDialog(context: startKey.currentContext);
       }
     }, (authResponseEnity) async {
       authState = AuthState.succes;
@@ -131,30 +127,5 @@ class AuthScreenPresentation extends ChangeNotifier
     });
   }
 
-  @override
-  void showLoadingDialog() {}
 
-  @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }
-  }
-
-  void showNetworkError() {}
-
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(context: context, builder: (context) => NetwortErrorWidget());
-    }
-  }
-
-  @override
-  void initialize() {
-    // TODO: implement initialize
-  }
 }

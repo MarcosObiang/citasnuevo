@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -18,20 +19,20 @@ abstract class UserSettingsDataSource implements DataSource {
   // ignore: close_sinks
   late StreamController<UserSettingsInformationSender> listenAppSettingsUpdate;
 
-  Future<bool> updateAppSettings(Map<String, dynamic> data);
+  Future<bool> updateAppSettings(UserSettingsEntity userSettingsEntity);
   Future<bool> revertChanges();
 }
 
 class UserSettingsDataSourceImpl implements UserSettingsDataSource {
   @override
-   StreamController<UserSettingsInformationSender> listenAppSettingsUpdate =
+  StreamController<UserSettingsInformationSender> listenAppSettingsUpdate =
       StreamController.broadcast();
 
   @override
   ApplicationDataSource source;
 
   @override
-   StreamSubscription? sourceStreamSubscription;
+  StreamSubscription? sourceStreamSubscription;
   UserSettingsDataSourceImpl({
     required this.source,
   });
@@ -50,31 +51,23 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
   @override
   void subscribeToMainDataSource() async {
-    Map<String, dynamic> userFilters = source.getData["filtros usuario"];
     bool firstInitialized = true;
+    Map<String,dynamic> oldData=source.getData;
+
 
     listenAppSettingsUpdate
         .add(await UserSettingsMapper.fromMap(source.getData));
 
     source.dataStream.stream.listen((event) async {
       try {
-        bool shouldUpdate = false;
-
-        Map<String, dynamic> userFiltersUpdated = event["filtros usuario"];
-
-        userFilters.forEach((key, value) {
-          if (userFiltersUpdated[key] != value) {
-            shouldUpdate = true;
-          }
-        });
+        bool shouldUpdate = shouldUpdateUserSettings(event, oldData);
 
         if (shouldUpdate == true) {
           listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(event));
-          userFilters = userFiltersUpdated;
+          oldData=event;
         }
         if (firstInitialized == true) {
           listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(event));
-          userFilters = userFiltersUpdated;
           firstInitialized = false;
         }
       } catch (e) {
@@ -83,10 +76,63 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
     });
   }
 
+  bool shouldUpdateUserSettings(
+      Map<String, dynamic> newData, Map<String, dynamic> oldData) {
+    bool shouldUpdate = false;
+    Map<String, dynamic> userFiltersUpdated = newData["filtros usuario"];
+    Map<String, dynamic> oldUserFilters = oldData["filtros usuario"];
+
+    String? newImage1 = newData["IMAGENPERFIL1"]!["Imagen"];
+    String? newImage2 = newData["IMAGENPERFIL2"]!["Imagen"];
+    String? newImage3 = newData["IMAGENPERFIL3"]!["Imagen"];
+    String? newImage4 = newData["IMAGENPERFIL4"]!["Imagen"];
+    String? newImage5 = newData["IMAGENPERFIL5"]!["Imagen"];
+    String? newImage6 = newData["IMAGENPERFIL6"]!["Imagen"];
+    String? oldImage1 = oldData["IMAGENPERFIL1"]!["Imagen"];
+    String? oldImage2 = oldData["IMAGENPERFIL2"]!["Imagen"];
+    String? oldImage3 = oldData["IMAGENPERFIL3"]!["Imagen"];
+    String? oldImage4 = oldData["IMAGENPERFIL4"]!["Imagen"];
+    String? oldImage5 = oldData["IMAGENPERFIL5"]!["Imagen"];
+    String? oldImage6 = oldData["IMAGENPERFIL6"]!["Imagen"];
+    List<String?> newImageDataList = [
+      newImage1,
+      newImage2,
+      newImage3,
+      newImage4,
+      newImage5,
+      newImage6
+    ];
+    List<String?> oldImageDataList = [
+      oldImage1,
+      oldImage2,
+      oldImage3,
+      oldImage4,
+      oldImage5,
+      oldImage6
+    ];
+
+    for (int i = 0; i < newImageDataList.length; i++) {
+      if (newImageDataList[i] != null && oldImageDataList[i] != null) {
+        if (newImageDataList[i]==oldImageDataList[i]) {
+        } else {
+          shouldUpdate = true;
+        }
+      }
+    }
+    oldUserFilters.forEach((key, value) {
+      if (userFiltersUpdated[key] != value) {
+        shouldUpdate = true;
+      }
+    });
+    return shouldUpdate;
+  }
+
   @override
-  Future<bool> updateAppSettings(Map<String, dynamic> data) async {
+  Future<bool> updateAppSettings(UserSettingsEntity userSettingsEntity) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
+        var data = await UserSettingsMapper.toMap(userSettingsEntity);
+
         List<Map<String, dynamic>> pictureData = data["images"];
         Map<String, dynamic> userCharacteristicsData = data["userFilters"];
         String userBio = data["userBio"];
@@ -106,7 +152,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
             Uint8List imageFile = pictureData[i]["data"];
             String pictureHash = pictureData[i]["hash"];
             String image =
-                "${GlobalDataContainer.userId}/Perfil/imagenes/Image$pictureIndex.jpg";
+                "${GlobalDataContainer.userId}/Perfil/imagenes/${IdGenerator.instancia.createId()}_Image$pictureIndex.jpg";
             Reference referenciaImagen = storageRef.child(image);
             // File file = new File.fromRawPath(imageFile);
 
@@ -129,7 +175,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
             Uint8List imageFile = pictureData[i]["data"];
             String pictureHash = pictureData[i]["hash"];
             String image =
-                "${GlobalDataContainer.userId}/Perfil/imagenes/Image$pictureIndex.jpg";
+                "${GlobalDataContainer.userId}/Perfil/imagenes/${IdGenerator.instancia.createId()}_Image$pictureIndex.jpg";
             Reference referenciaImagen = storageRef.child(image);
             // File file = new File.fromRawPath(imageFile);
 
@@ -146,22 +192,19 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
             });
           }
           if (userPicutreBoxState == UserPicutreBoxState.empty) {
-            final storageRef = FirebaseStorage.instance.ref();
 
-            String image =
-                "${GlobalDataContainer.userId}/Perfil/imagenes/Image$pictureIndex.jpg";
-            Reference referenciaImagen = storageRef.child(image);
-            //   await referenciaImagen.delete();
 
             parsedImages.add({
-              "Imagen": "downloadUrl",
-              "hash": "pictureHash",
+              "Imagen": "vacio",
+              "hash": "vacio",
               "index": pictureIndex,
               "pictureName": pictureName,
               "removed": true,
             });
           }
         }
+
+        print(parsedImages);
         dataToCloud["imagenes"] = parsedImages;
         dataToCloud["descripcion"] = userBio;
         dataToCloud["filtros usuario"] = userCharacteristicsData;
@@ -187,7 +230,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
     } else {
       listenAppSettingsUpdate
           .add(await UserSettingsMapper.fromMap(source.getData));
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 

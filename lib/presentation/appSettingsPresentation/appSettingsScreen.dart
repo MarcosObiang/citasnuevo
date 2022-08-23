@@ -234,7 +234,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text("Mostrar ambos seos"),
+                                    Text("Mostrar ambos sexos"),
                                     Switch.adaptive(
                                         value: showBothSexes,
                                         onChanged: (value) {

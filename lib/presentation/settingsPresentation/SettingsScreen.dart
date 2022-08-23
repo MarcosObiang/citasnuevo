@@ -17,7 +17,10 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../Routes.dart';
 
+
 class SettingsScreen extends StatefulWidget {
+      static const routeName = '/SettingsScreen';
+
   SettingsScreen();
 
   @override
@@ -88,7 +91,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       page:
                                                           AppSettingsScreen()));
                                             },
-                                            child: Text("Ajustes")),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  settingsScreenPresentation
+                                                          .getIsAppSettingsUpdating
+                                                      ? MainAxisAlignment
+                                                          .spaceAround
+                                                      : MainAxisAlignment
+                                                          .center,
+                                              children: [
+                                                Text("Ajustes"),
+                                                settingsScreenPresentation
+                                                        .getIsAppSettingsUpdating
+                                                    ? Container(
+                                                        height: 50.h,
+                                                        width: 50.h,
+                                                        child: LoadingIndicator(
+                                                          indicatorType:
+                                                              Indicator.orbit,
+                                                          colors: [
+                                                            Colors.white
+                                                          ],
+                                                        ),
+                                                      )
+                                                    : Container()
+                                              ],
+                                            )),
                                       ),
                                       Container(
                                         width: 500.w,
@@ -100,7 +128,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       page:
                                                           UserSettingsScreen()));
                                             },
-                                            child: Text("Editar perfil")),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  settingsScreenPresentation
+                                                          .getIsUserSettingsUpdating
+                                                      ? MainAxisAlignment
+                                                          .spaceAround
+                                                      : MainAxisAlignment
+                                                          .center,
+                                              children: [
+                                                Text("Editar perfil"),
+                                                settingsScreenPresentation
+                                                        .getIsUserSettingsUpdating
+                                                    ? Container(
+                                                        height: 50.h,
+                                                        width: 50.h,
+                                                        child: LoadingIndicator(
+                                                          indicatorType:
+                                                              Indicator.orbit,
+                                                          colors: [
+                                                            Colors.white
+                                                          ],
+                                                        ),
+                                                      )
+                                                    : Container()
+                                              ],
+                                            )),
                                       )
                                     ],
                                   ))
@@ -183,7 +236,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     context,
                                                     GoToRoute(
                                                         page:
-                                                            SubscriptionScreen()));
+                                                            SubscriptionsMenu()));
                                               },
                                               child: Row(
                                                 mainAxisAlignment:
@@ -242,14 +295,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-class SubscriptionScreen extends StatefulWidget {
-  const SubscriptionScreen({Key? key}) : super(key: key);
+class SubscriptionsMenu extends StatefulWidget {
+  const SubscriptionsMenu({Key? key}) : super(key: key);
 
   @override
-  State<SubscriptionScreen> createState() => _SubscriptionScreenState();
+  State<SubscriptionsMenu> createState() => _SubscriptionsMenuState();
 }
 
-class _SubscriptionScreenState extends State<SubscriptionScreen> {
+class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
   var format = DateFormat("EEEEE, M/d/y HH:mm");
 
   @override
@@ -424,8 +477,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             "${format.format(DateTime.fromMillisecondsSinceEpoch(settingsScreenPresentation.settingsEntity.activeSubscription!.subscriptionExpireTime))}"),
         ElevatedButton(
             onPressed: () {
-              settingsScreenPresentation.purchase(settingsScreenPresentation
-                  .settingsEntity.activeSubscription!.offerId,true);
+              settingsScreenPresentation.purchase(
+                  settingsScreenPresentation
+                      .settingsEntity.activeSubscription!.offerId,
+                  true);
             },
             child: Text("Volver a suscribirme"))
       ],
@@ -485,7 +540,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     backgroundColor: MaterialStateProperty.all(buttonColor)),
                 onPressed: () async {
                   Dependencies.settingsScreenPresentation
-                      .purchase(productInfo.offerId,false);
+                      .purchase(productInfo.offerId, false);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

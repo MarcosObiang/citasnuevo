@@ -35,9 +35,12 @@ abstract class HomeScreenDataSource implements DataSource {
   Future<LocationPermission> requestPermission();
   Future<bool> goToLocationSettings();
 
+  /// Sends the profile rating the user has given to a profile
+  ///
   Future<void> sendRating(
       {required double ratingValue, required String idProfileRated});
 
+  /// Sned a report to the current profile the user is rating
   Future<bool> sendReport(
       {required String idReporter,
       required String idUserReported,
@@ -60,6 +63,43 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
     required this.source,
   });
 
+  Future<Map<dynamic, dynamic>> fetchProfilesFromTheServer({
+    required Map<String, dynamic> positionData,
+  }) async {
+    Map<dynamic, dynamic> functionResult = Map();
+
+    List<Map<dynamic, dynamic>> profilesCache = [];
+    HttpsCallableResult result = await fetchProfilesCloudFunction.call({
+      "edadFinal": dataSourceStreamData["Ajustes"]["edadFinal"],
+      "edadInicial": dataSourceStreamData["Ajustes"]["edadInicial"],
+      "ambosSexos": source.getData["Ajustes"]["mostrarAmbosSexos"],
+      "sexo": dataSourceStreamData["Ajustes"]["mostrarMujeres"],
+      "latitud": positionData["lat"],
+      "longitud": positionData["lon"],
+      "distancia": dataSourceStreamData["Ajustes"]["distanciaMaxima"] / 10
+    });
+    if (result.data["estado"] == "correcto") {
+      List<Object?> objectResult = result.data["mensaje"];
+      objectResult.forEach((element) {
+        profilesCache.add(element as Map<dynamic, dynamic>);
+      });
+
+      functionResult["userCharacteristicsData"] =
+          source.getData["filtros usuario"];
+      functionResult["profilesList"] = profilesCache;
+      functionResult["todayDateTime"] = await DateNTP.instance.getTime();
+      return functionResult;
+    } else if (result.data["estado"] == "error") {
+      if (result.data["mensaje"] == "error_perfil_invisible") {
+        throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
+      } else {
+        throw FetchProfilesException(message: "INTERNAL_ERROR");
+      }
+    } else {
+      throw FetchProfilesException(message: "PROFILES_FETCHING_FAILED");
+    }
+  }
+
   /// Fetch profiles from the backend, make sure to call [subscribeToMainDataSource] first in the same object
   ///
   /// where you are going to call the [fetchProfiles] function
@@ -80,42 +120,11 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
 
           if (permission == LocationPermission.always ||
               permission == LocationPermission.whileInUse) {
-            Map<dynamic, dynamic> functionResult = Map();
             Map<String, dynamic> positionData =
                 await LocationService.instance.determinePosition();
-            List<Map<dynamic, dynamic>> profilesCache = [];
-            HttpsCallableResult result = await fetchProfilesCloudFunction.call({
-              "edadFinal": dataSourceStreamData["Ajustes"]["edadFinal"],
-              "edadInicial": dataSourceStreamData["Ajustes"]["edadInicial"],
-              "ambosSexos": source.getData["Ajustes"]["mostrarAmbosSexos"],
-              "sexo": dataSourceStreamData["Ajustes"]["mostrarMujeres"],
-              "latitud": positionData["lat"],
-              "longitud": positionData["lon"],
-              "distancia":
-                  dataSourceStreamData["Ajustes"]["distanciaMaxima"] / 10
-            });
-            if (result.data["estado"] == "correcto") {
-              List<Object?> objectResult = result.data["mensaje"];
-              objectResult.forEach((element) {
-                profilesCache.add(element as Map<dynamic, dynamic>);
-              });
-
-              functionResult["userCharacteristicsData"] =
-                  source.getData["filtros usuario"];
-              functionResult["profilesList"] = profilesCache;
-              functionResult["todayDateTime"] =
-                  await DateNTP.instance.getTime();
-              return functionResult;
-            } else if (result.data["estado"] == "error") {
-              if (result.data["mensaje"] == "error_perfil_invisible") {
-                throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
-              } else {
-                throw FetchProfilesException(
-                    message: "INTERNAL_ERROR");
-              }
-            } else {
-              throw FetchProfilesException(message: "PROFILES_FETCHING_FAILED");
-            }
+            Map<dynamic, dynamic> profileData =
+                await fetchProfilesFromTheServer(positionData: positionData);
+            return profileData;
           } else {
             if (permission == LocationPermission.deniedForever) {
               throw LocationServiceException(
@@ -136,7 +145,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         throw e;
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -167,7 +176,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         RatingProfilesException(message: 'PROFILE_RATING_FAILED');
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 
@@ -188,7 +197,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         throw ReportException(message: e.toString());
       }
     } else {
-      throw NetworkException();
+      throw NetworkException(message:kNetworkErrorMessage );
     }
   }
 

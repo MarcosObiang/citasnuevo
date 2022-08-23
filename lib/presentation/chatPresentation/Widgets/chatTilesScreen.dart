@@ -11,6 +11,7 @@ import '../../../main.dart';
 import '../chatPresentation.dart';
 
 class ChatScreen extends StatefulWidget {
+  static const routeName="/ChatScreen";
   const ChatScreen({Key? key}) : super(key: key);
   static GlobalKey<AnimatedListState> chatListState = GlobalKey();
   static GlobalKey<AnimatedListState> newChatListState = GlobalKey();

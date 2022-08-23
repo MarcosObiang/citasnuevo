@@ -11,6 +11,7 @@ import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSou
 import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/data/dataSources/reportDataSource/reportDataSource.dart';
 import 'package:citasnuevo/data/dataSources/rewardsDataSource/rewardDataSource.dart';
+import 'package:citasnuevo/data/dataSources/sanctionsDataSource.dart/sanctionsDataSource.dart';
 import 'package:citasnuevo/data/dataSources/settingsDataSource/settingsDataSource.dart';
 import 'package:citasnuevo/data/dataSources/userCreatorDataSource/userCreator.DataSource.dart';
 import 'package:citasnuevo/data/dataSources/userSettingsDataSource/userSettingsDataSource.dart';
@@ -21,6 +22,7 @@ import 'package:citasnuevo/data/repositoryImpl/homeScreenRepoImpl.dart/homeScree
 import 'package:citasnuevo/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/reportRepoImpl/reportRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/rewardRepoImpl/rewardRepoImpl.dart';
+import 'package:citasnuevo/data/repositoryImpl/sanctionsRepoImpl/sanctionsRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/settingsRepoImpl/settingsRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/userSettingsRepoImpl.dart/userSettingsRepoImpl.dart';
@@ -32,10 +34,13 @@ import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/domain/controller/reportController.dart';
 import 'package:citasnuevo/domain/controller/rewardController.dart';
+import 'package:citasnuevo/domain/controller/sanctionsController.dart';
 import 'package:citasnuevo/domain/controller/userCreatorController.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
 import 'package:citasnuevo/domain/controller_bridges/HomeScreenCotrollerBridge.dart';
 import 'package:citasnuevo/domain/controller_bridges/RewardScreenControllerBridge.dart';
+import 'package:citasnuevo/domain/controller_bridges/SettingsToAppSettingsControllerBridge.dart';
+import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/userSettingsRepo.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
@@ -44,6 +49,7 @@ import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart'
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';
+import 'package:citasnuevo/domain/repository/sanctionsRepo/sanctionsRepo.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
 import 'package:citasnuevo/main.dart';
@@ -56,6 +62,7 @@ import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentatio
 
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/presentation/rewardScreenPresentation/rewardScreenPresentation.dart';
+import 'package:citasnuevo/presentation/sanctionsPresentation/sanctionsPresentation.dart';
 import 'package:citasnuevo/presentation/settingsPresentation/settingsScreenPresentation.dart';
 import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorPresentation.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentation.dart';
@@ -73,17 +80,26 @@ class Dependencies {
       ApplicationDataSource(userId: GlobalDataContainer.userId);
 
   static late final AuthService authService = AuthServiceImpl();
-  static late final AuthDataSource authDataSource =
-      AuthDataSourceImpl(authService: authService);
+  static late final AuthScreenDataSource authDataSource =
+      AuthScreenDataSourceImpl(authService: authService);
 
   static late final AuthRepository authRepository;
+  ///SANCTIONS SCREEN
+  ///
+  ///
+  ///
+  ///
+  static late final SanctionsDataSource sanctionsDataSource=SanctionsDataSourceImpl(source: applicationDataSource,authService: authService);
+  static late final SanctionsRepository sanctionsRepository=SanctionsRepoImpl(sanctionsDataSource: sanctionsDataSource);
+  static late final SanctionsController sanctionsController= SanctionsControllerImpl( sanctionsRepository: sanctionsRepository);
+  static late final SanctionsPresentation sanctionsPresentation=SanctionsPresentation(sanctionsController: sanctionsController);
 
   /// REWARD SCREEN
   ///
   ///
   ///
   ///
-  static late final RewardScreenControllerBridge<RewardController>
+  static late final RewardScreenControllerBridge
       rewardScreenControllerBridge = new RewardScreenControllerBridge();
 
   static late final RewardDataSource rewardDataSource =
@@ -92,7 +108,7 @@ class Dependencies {
       RewardRepoImpl(rewardDataSource: rewardDataSource);
   static late final RewardController rewardController = RewardControllerImpl(
       rewardRepository: rewardRepository,
-      controllerBridgeInformationReciever: rewardScreenControllerBridge);
+      rewardScreenControlBridge: rewardScreenControllerBridge);
   static late final RewardScreenPresentation rewardScreenPresentation =
       RewardScreenPresentation(rewardController: rewardController);
 
@@ -112,7 +128,7 @@ class Dependencies {
   static late final HomeScreenController homeScreenController =
       HomeScreenController(
           homeScreenRepository: homeScreenRepository,
-          controllerBridgeInformationReciever: homeScreenControllerBridge);
+          homeScreenControllerBridge: homeScreenControllerBridge);
   static late final HomeScreenPresentation homeScreenPresentation =
       HomeScreenPresentation(homeScreenController: homeScreenController);
 
@@ -129,7 +145,7 @@ class Dependencies {
   static late final ReactionsControllerImpl reactionsController =
       ReactionsControllerImpl(
           reactionRepository: reactionRepository,
-          controllerBridgeInformationSender: homeScreenControllerBridge);
+          homeScreencontrollerbridge: homeScreenControllerBridge);
 
   static late final ReactionPresentation reactionPresentation =
       new ReactionPresentation(reactionsController: reactionsController);
@@ -158,13 +174,15 @@ class Dependencies {
       new ChatRepoImpl(chatDataSource: chatDataSource);
   static late final ChatControllerImpl chatController = new ChatControllerImpl(
       chatRepository: chatRepository,
-      controllerBridgeInformationSender: homeScreenControllerBridge);
+      homeScreenControllreBridge: homeScreenControllerBridge);
   static late final chatPresentation =
       new ChatPresentation(chatController: chatController);
 
   ///SETTINGS
   ///
   ///
+  static late final AppSettingsToSettingsControllerBridge settingsControllerBridge= new AppSettingsToSettingsControllerBridge();
+  static late final UserSettingsToSettingsControllerBridge userSettingsToSettingsControllerBridge= UserSettingsToSettingsControllerBridge();
 
   static late final SettingsDataSource settingsDataSource =
       new SettingsDataSourceImpl(source: applicationDataSource);
@@ -172,12 +190,14 @@ class Dependencies {
       new SettingsRepoImpl(settingsDataSource: settingsDataSource);
   static late final SettingsController settingsController =
       new SettingsControllerImpl(
+        userSettingsToSettingsControllerBridge: userSettingsToSettingsControllerBridge,
           settingsRepository: settingsRepository,
-          controllerBridgeInformationSender: rewardScreenControllerBridge);
+          appSettingstoSettingscontrollerBridge: settingsControllerBridge,rewardScreenControllerBridge: rewardScreenControllerBridge);
   static late final SettingsScreenPresentation settingsScreenPresentation =
       new SettingsScreenPresentation(settingsController: settingsController);
 
   ///APP_SETTINGS
+  ///
   ///
   ///
 
@@ -188,20 +208,19 @@ class Dependencies {
       ApplicationSettingsRepositoryImpl(
           appSettingsDataSource: applicationSettingsDataSource);
   static late final AppSettingsController appSettingsController =
-      AppSettingsController(appSettingsRepository: appSettingsRepository);
+      AppSettingsController(appSettingsRepository: appSettingsRepository,settingsToAppSettingsControllerBridge: settingsControllerBridge);
   static late final AppSettingsPresentation appSettingsPresentation =
       new AppSettingsPresentation(appSettingsController: appSettingsController);
 
   ///USER_SETTINGS
   ///
   ///
-
   static late final UserSettingsDataSource userSettingsDataSource =
       new UserSettingsDataSourceImpl(source: applicationDataSource);
   static late final UserSettingsRepository userSettingsRepository =
       new UserSettingsRepoImpl(appSettingsDataSource: userSettingsDataSource);
   static late final UserSettingsController userSettingsController =
-      new UserSettingsController(
+      new UserSettingsController(userSettingsToSettingsControllerBridge: userSettingsToSettingsControllerBridge,
           userSettingsRepository: userSettingsRepository);
   static late final UserSettingsPresentation userSettingsPresentation =
       new UserSettingsPresentation(
@@ -253,8 +272,8 @@ class Dependencies {
     settingsScreenPresentation.clearModuleData();
     appSettingsPresentation.clearModuleData();
     userSettingsPresentation.clearModuleData();
-    Navigator.of(startKey.currentContext as BuildContext)
-        .popUntil((route) => route.isFirst);
+    sanctionsPresentation.clearModuleData();
+
   }
 
   static Future<void> restartDependencies() async {
@@ -263,13 +282,14 @@ class Dependencies {
     applicationDataSource.initializeMainDataSource();
 
     reactionPresentation.initialize();
-    homeScreenPresentation.initialize();
+    homeScreenPresentation.initializeModuleData();
     // authScreenPresentation.clearModuleData();
-    homeReportScreenPresentation.initialize();
-    chatPresentation.initialize();
-    settingsScreenPresentation.initialize();
-    appSettingsPresentation.initialize();
-    userSettingsPresentation.initialize();
+    homeReportScreenPresentation.initializeModuleData();
+    chatPresentation.initializeModuleData();
+    settingsScreenPresentation.initializeModuleData();
+    appSettingsPresentation.initializeModuleData();
+    userSettingsPresentation.initializeModuleData();
+    sanctionsPresentation.initializeModuleData();
   }
 
   static void clearDependenciesAfterCreateUser() {
@@ -287,17 +307,18 @@ class Dependencies {
         await PurchasesServices.purchasesServices.initService();
         NotificationService instance = new NotificationService();
         await instance.startBackgroundNotificationHandler();
-        homeScreenPresentation.initialize();
-        chatPresentation.initialize();
+        homeScreenPresentation.initializeModuleData();
+        chatPresentation.initializeModuleData();
         reactionPresentation.initialize();
 
         authScreenPresentation.clearModuleData();
-        homeReportScreenPresentation.initialize();
-        settingsScreenPresentation.initialize();
-        appSettingsPresentation.initialize();
-        userSettingsPresentation.initialize();
+        homeReportScreenPresentation.initializeModuleData();
+        settingsScreenPresentation.initializeModuleData();
+        appSettingsPresentation.initializeModuleData();
+        userSettingsPresentation.initializeModuleData();
         advertisingServices.initializeAdsService();
         rewardScreenPresentation.initializeModuleData();
+        sanctionsPresentation.initializeModuleData();
 
         return true;
       } else {

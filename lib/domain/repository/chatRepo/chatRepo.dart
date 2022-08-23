@@ -26,6 +26,6 @@ abstract class ChatRepository implements ModuleCleaner {
       {required Message message,
       required String messageNotificationToken,
       required String remitentId});
-  StreamController<dynamic> get getChatStream;
+  StreamController<dynamic>? get getChatStream;
   StreamController<Map<String, dynamic>> get getMessageStream;
 }

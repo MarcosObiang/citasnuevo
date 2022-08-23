@@ -11,9 +11,14 @@ import 'package:citasnuevo/presentation/presentationDef.dart';
 enum SettingsScreenState { loading, loaded, error }
 
 class SettingsScreenPresentation extends ChangeNotifier
-    implements ShouldUpdateData<SettingsInformationSender>, Presentation,ModuleCleaner {
+    implements
+        ShouldUpdateData<SettingsInformationSender>,
+        Presentation,
+        ModuleCleaner {
   SettingsController settingsController;
   late SettingsEntity settingsEntity;
+  bool _isAppSettingsUpdating = false;
+  bool _isUSerSettingsUpdating = false;
   SettingsScreenState settingsScreenState = SettingsScreenState.loading;
 
   @override
@@ -22,46 +27,38 @@ class SettingsScreenPresentation extends ChangeNotifier
     required this.settingsController,
   });
 
-  void purchase(String productId,bool renewPurchase) {
-    settingsController.purchase(productId,renewPurchase);
+  void purchase(String productId, bool renewPurchase) {
+    settingsController.purchase(productId, renewPurchase);
   }
 
   set setSettingsScreenState(SettingsScreenState settingsScreenState) {
     this.settingsScreenState = settingsScreenState;
-    notifyListeners();
   }
 
-  @override
-  void initialize() {
-    settingsController.initializeModuleData();
-
-    setSettingsScreenState = SettingsScreenState.loading;
-
-    update();
+  set setIsAppSettingsUpdating(bool isAppSettingsUpdating) {
+    this._isAppSettingsUpdating = isAppSettingsUpdating;
+    WidgetsBinding.instance.addPostFrameCallback((data) {
+      notifyListeners();
+    });
   }
+
+  set setIsUserSettingsUpdating(bool isUserSettingsUpdating) {
+    this._isUSerSettingsUpdating = isUserSettingsUpdating;
+    WidgetsBinding.instance.addPostFrameCallback((data) {
+      notifyListeners();
+    });
+  }
+
+  bool get getIsAppSettingsUpdating => _isAppSettingsUpdating;
+  bool get getIsUserSettingsUpdating => _isUSerSettingsUpdating;
+
+
 
   @override
   void restart() {
-    setSettingsScreenState = SettingsScreenState.loading;
-    updateSubscription?.cancel();
+    clearModuleData();
 
-    settingsController.clearModuleData();
-initializeModuleData();  }
-
-  @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {}
-
-  @override
-  void showLoadingDialog() {
-    // TODO: implement showLoadingDialog
-  }
-
-  @override
-  void showNetworkErrorDialog({required BuildContext? context}) {
-    // TODO: implement showNetworkErrorDialog
+    initializeModuleData();
   }
 
   @override
@@ -71,6 +68,12 @@ initializeModuleData();  }
       setSettingsScreenState = SettingsScreenState.loaded;
 
       settingsEntity = event.settingsEntity;
+      if (event.isAppSettingsUpdating != null) {
+        setIsAppSettingsUpdating = event.isAppSettingsUpdating as bool;
+      }
+      if (event.isUserSettingsUpdating != null) {
+        setIsUserSettingsUpdating = event.isUserSettingsUpdating as bool;
+      }
       notifyListeners();
     }, onError: (error) {
       setSettingsScreenState = SettingsScreenState.error;
@@ -83,9 +86,14 @@ initializeModuleData();  }
     updateSubscription?.cancel();
 
     settingsController.clearModuleData();
- }
+  }
 
   @override
   void initializeModuleData() {
-initialize();  }
+    settingsController.initializeModuleData();
+
+    setSettingsScreenState = SettingsScreenState.loading;
+
+    update();
+  }
 }

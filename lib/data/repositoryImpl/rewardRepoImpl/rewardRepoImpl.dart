@@ -27,15 +27,15 @@ class RewardRepoImpl implements RewardRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(RewardFailure());
+        return Left(RewardFailure(message: e.toString()));
       }
     }
   }
 
   @override
-  StreamController<Rewards> get getRewardsStream =>
+  StreamController<Rewards>? get getRewardsStream =>
       rewardDataSource.rewardStream;
 
   @override
@@ -50,9 +50,23 @@ class RewardRepoImpl implements RewardRepository {
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(RewardFailure());
+        return Left(RewardFailure(message: e.toString()));
+      }
+    }
+  }
+  
+  @override
+  Future<Either<Failure, String>> getSharingLink()async {
+     try {
+     var result= await rewardDataSource.getDynamicLink();
+      return Right(result);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else {
+        return Left(RewardFailure(message: e.toString()));
       }
     }
   }

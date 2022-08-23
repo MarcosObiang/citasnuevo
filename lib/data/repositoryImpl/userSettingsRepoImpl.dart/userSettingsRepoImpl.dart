@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
@@ -31,19 +32,19 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
 
   @override
   Future<Either<Failure, bool>> updateSettings(
-      Map<String, dynamic> data) async {
+      UserSettingsEntity userSettingsEntity) async {
     try {
-      var datas = await appSettingsDataSource.updateAppSettings(data);
+      var datas = await appSettingsDataSource.updateAppSettings(userSettingsEntity);
       if (datas) {
         return Right(datas);
       } else {
-        return Left(UserSettingsFailure());
+        return Left(UserSettingsFailure(message: "Error"));
       }
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(UserSettingsFailure());
+        return Left(UserSettingsFailure(message: e.toString()));
       }
     }
   }
@@ -56,9 +57,9 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
       return Right(datas);
     } catch (e) {
       if (e is NetworkException) {
-        return Left(NetworkFailure());
+        return Left(NetworkFailure(message: e.toString()));
       } else {
-        return Left(UserSettingsFailure());
+        return Left(UserSettingsFailure(message: e.toString()));
       }
     }
   }

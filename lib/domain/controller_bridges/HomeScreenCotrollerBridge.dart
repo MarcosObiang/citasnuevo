@@ -4,16 +4,16 @@ import '../controller/controllerDef.dart';
 
 class HomeScreenControllerBridge<HomeScreenController>
     implements
-        ControllerBridgeInformationReciever<HomeScreenController>,
-        ControllerBridgeInformationSender<HomeScreenController> {
+ 
+        ControllerBridge {
   @override
-  late StreamController<Map<String, dynamic>>
+   StreamController<Map<String, dynamic>>?
       controllerBridgeInformationSenderStream;
 
   @override
   void addInformation({required Map<String, dynamic> information}) {
-    if(controllerBridgeInformationSenderStream.isClosed==false){
-    controllerBridgeInformationSenderStream.add(information);
+    if(controllerBridgeInformationSenderStream?.isClosed==false){
+    controllerBridgeInformationSenderStream?.add(information);
 
     }
   }
@@ -22,7 +22,7 @@ class HomeScreenControllerBridge<HomeScreenController>
 
   @override
   void closeStream() {
-    controllerBridgeInformationSenderStream.close();
+    controllerBridgeInformationSenderStream?.close();
   }
 
   @override

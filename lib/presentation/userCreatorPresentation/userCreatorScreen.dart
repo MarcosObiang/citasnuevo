@@ -25,10 +25,19 @@ import '../../domain/entities/UserSettingsEntity.dart';
 import '../../reordableList.dart';
 import '../userSettingsPresentation/userSettingsScreen.dart';
 
+class UserCreatorScreenArgs{
+  String? userName;
+  UserCreatorScreenArgs({required this.userName});
+
+}
+
+
 class UserCreatorScreen extends StatefulWidget {
+    static const routeName = '/UserCreatorScreen';
+
   String? userName;
 
-  UserCreatorScreen({required this.userName});
+  UserCreatorScreen();
 
   @override
   State<UserCreatorScreen> createState() => _UserCreatorScreenState();
@@ -37,6 +46,7 @@ class UserCreatorScreen extends StatefulWidget {
 class _UserCreatorScreenState extends State<UserCreatorScreen> {
 
   Future<bool> showGoToMainScreenDialog(BuildContext context) async {
+
     bool goToMainScreen = false;
 
     await showDialog(
@@ -65,6 +75,8 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final args=ModalRoute.of(context)!.settings.arguments as UserCreatorScreenArgs;
+    widget.userName= args.userName;
     return WillPopScope(
       onWillPop: () async {
         if (Dependencies.userCreatorPresentation.goBackUserCreated==true) {
