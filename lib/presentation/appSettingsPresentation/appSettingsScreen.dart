@@ -19,15 +19,7 @@ class AppSettingsScreen extends StatefulWidget {
 }
 
 class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
-  late double distance;
-  late double maxAge;
-  late double minAge;
-  late bool inCm;
-  late bool inKm;
-  late bool showBothSexes;
-  late bool showWoman;
-  late bool showProfile;
-  late bool showProfilePoints;
+
   @override
   void didChangeDependencies() {
     print("Change dependencies!!!!");
@@ -57,14 +49,14 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
   void didPop() {
     Dependencies.appSettingsPresentation.updateSettings(
         ApplicationSettingsEntity(
-            distance: distance.toInt(),
-            maxAge: maxAge.toInt(),
-            minAge: minAge.toInt(),
-            inCm: inCm,
-            inKm: inKm,
-            showBothSexes: showBothSexes,
-            showWoman: showWoman,
-            showProfile: showProfile));
+            distance:  Dependencies.appSettingsPresentation.applicationSettingsEntity.distance.toInt(),
+            maxAge:  Dependencies.appSettingsPresentation.applicationSettingsEntity.maxAge.toInt(),
+            minAge:  Dependencies.appSettingsPresentation.applicationSettingsEntity.minAge.toInt(),
+            inCm:  Dependencies.appSettingsPresentation.applicationSettingsEntity.inCm,
+            inKm:  Dependencies.appSettingsPresentation.applicationSettingsEntity.inKm,
+            showBothSexes: Dependencies. appSettingsPresentation.applicationSettingsEntity.showBothSexes,
+            showWoman:  Dependencies.appSettingsPresentation.applicationSettingsEntity.showWoman,
+            showProfile:  Dependencies.appSettingsPresentation.applicationSettingsEntity.showProfile));
     Dependencies.homeScreenPresentation.restart();
     super.didPop();
   }
@@ -72,26 +64,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
-    distance = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.distance
-        .toDouble();
-    maxAge = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.maxAge
-        .toDouble();
-    minAge = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.minAge
-        .toDouble();
-    inCm = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.inCm;
-    inKm = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.inKm;
-    showBothSexes = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.showBothSexes;
-    showWoman = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.showWoman;
-    showProfile = Dependencies.appSettingsPresentation.appSettingsController
-        .applicationSettingsEntity.showProfile;
+
+
+
   }
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -114,14 +92,14 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                           onPressed: () async {
                             Dependencies.appSettingsPresentation.updateSettings(
                                 ApplicationSettingsEntity(
-                                    distance: distance.toInt(),
-                                    maxAge: maxAge.toInt(),
-                                    minAge: minAge.toInt(),
-                                    inCm: inCm,
-                                    inKm: inKm,
-                                    showBothSexes: showBothSexes,
-                                    showWoman: showWoman,
-                                    showProfile: showProfile));
+                                    distance: appSettingsPresentation.applicationSettingsEntity.distance.toInt() ,
+                                    maxAge:  appSettingsPresentation.applicationSettingsEntity.maxAge.toInt(),
+                                    minAge: appSettingsPresentation.applicationSettingsEntity.minAge.toInt(),
+                                    inCm: appSettingsPresentation.applicationSettingsEntity.inCm,
+                                    inKm: appSettingsPresentation.applicationSettingsEntity.inKm,
+                                    showBothSexes: appSettingsPresentation.applicationSettingsEntity.showBothSexes,
+                                    showWoman: appSettingsPresentation.applicationSettingsEntity.showWoman,
+                                    showProfile: appSettingsPresentation.applicationSettingsEntity.showProfile));
 
                             Navigator.pop(context);
                           },
@@ -148,9 +126,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                         Text("Distancia"),
                                         Slider(
                                           divisions: 14,
-                                          value: distance,
+                                          value: appSettingsPresentation.applicationSettingsEntity.distance.toDouble(),
                                           onChanged: (value) {
-                                            distance = value;
+                                            appSettingsPresentation.applicationSettingsEntity.distance = value.toInt();
                                             setState(() {});
                                           },
                                           min: 10,
@@ -158,7 +136,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                         ),
                                       ],
                                     ),
-                                    Text(distance.toStringAsFixed(0)),
+                                    Text(appSettingsPresentation.applicationSettingsEntity.distance.toStringAsFixed(0)),
                                   ],
                                 ),
                               ),
@@ -173,13 +151,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                         height: 200.h,
                                         child: FlutterSlider(
                                           rangeSlider: true,
-                                          values: [minAge, maxAge],
+                                          values: [appSettingsPresentation.applicationSettingsEntity.minAge.toDouble(), appSettingsPresentation.applicationSettingsEntity.maxAge.toDouble()],
                                           max: 70,
                                           min: 18,
                                           onDragging:
                                               (index, minValue, maxValue) {
-                                            minAge = minValue;
-                                            maxAge = maxValue;
+                                            appSettingsPresentation.applicationSettingsEntity.minAge = minValue.toInt();
+                                            appSettingsPresentation.applicationSettingsEntity.maxAge = maxValue.toInt();
                                             setState(() {});
                                           },
                                         ),
@@ -190,7 +168,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                       fit: FlexFit.tight,
                                       child: Container(
                                         child: Text(
-                                            "${minAge.toStringAsFixed(0)} - ${maxAge.toStringAsFixed(0)}"),
+                                            "${appSettingsPresentation.applicationSettingsEntity.minAge.toStringAsFixed(0)} - ${appSettingsPresentation.applicationSettingsEntity.maxAge.toStringAsFixed(0)}"),
                                       ),
                                     ),
                                   ],
@@ -204,9 +182,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                   children: [
                                     Text("Altura en cm"),
                                     Switch.adaptive(
-                                        value: inCm,
+                                        value: appSettingsPresentation.applicationSettingsEntity.inCm,
                                         onChanged: (value) {
-                                          inCm = value;
+                                          appSettingsPresentation.applicationSettingsEntity.inCm = value;
                                           setState(() {});
                                         })
                                   ],
@@ -220,9 +198,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                   children: [
                                     Text("distancia en Km"),
                                     Switch.adaptive(
-                                        value: inKm,
+                                        value: appSettingsPresentation.applicationSettingsEntity.inKm,
                                         onChanged: (value) {
-                                          inKm = value;
+                                          appSettingsPresentation.applicationSettingsEntity.inKm = value;
                                           setState(() {});
                                         })
                                   ],
@@ -236,9 +214,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                   children: [
                                     Text("Mostrar ambos sexos"),
                                     Switch.adaptive(
-                                        value: showBothSexes,
+                                        value: appSettingsPresentation.applicationSettingsEntity.showBothSexes,
                                         onChanged: (value) {
-                                          showBothSexes = value;
+                                          appSettingsPresentation.applicationSettingsEntity.showBothSexes = value;
                                           setState(() {});
                                         })
                                   ],
@@ -252,9 +230,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                   children: [
                                     Text("Mostrar mujeres"),
                                     Switch.adaptive(
-                                        value: showWoman,
+                                        value: appSettingsPresentation.applicationSettingsEntity.showWoman,
                                         onChanged: (value) {
-                                          showWoman = value;
+                                          appSettingsPresentation.applicationSettingsEntity.showWoman = value;
                                           setState(() {});
                                         })
                                   ],
@@ -268,9 +246,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                   children: [
                                     Text("Mostrar perfil"),
                                     Switch.adaptive(
-                                        value: showProfile,
+                                        value: appSettingsPresentation.applicationSettingsEntity.showProfile,
                                         onChanged: (value) {
-                                          showProfile = value;
+                                          appSettingsPresentation.applicationSettingsEntity.showProfile = value;
                                           setState(() {});
                                         })
                                   ],

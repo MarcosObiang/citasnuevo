@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
+import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../domain/entities/ReactionEntity.dart';
@@ -196,73 +197,105 @@ class _ReactionCardState extends State<ReactionCard>
       stream: widget.reaction.secondsRemainingStream.stream,
       initialData: widget.reaction.secondsUntilExpiration,
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        return Container(
-          decoration: BoxDecoration(
-              color: Color.fromARGB(255, 61, 12, 194),
-              borderRadius: BorderRadius.all(Radius.circular(10))),
-          height: widget.boxConstraints.biggest.height,
-          width: widget.boxConstraints.biggest.width,
-          child: Center(
-              child: widget.reaction.reactionRevealigState !=
-                      ReactionRevealigState.revealing
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        return Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 61, 12, 194),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              height: widget.boxConstraints.biggest.height,
+              width: widget.boxConstraints.biggest.width,
+              child: Center(
+                  child: widget.reaction.reactionRevealigState !=
+                          ReactionRevealigState.revealing
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text(
+                                  reactionTimeFormat.format(DateTime(
+                                      0, 0, 0, 0, 0, snapshot.data as int)),
+                                  style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                    fontSize: 90.sp,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.timer,
+                                  color: Colors.white,
+                                )
+                              ],
+                            ),
+                            Divider(height: 50.h, color: Colors.transparent),
+                            Text("Disponible hasta:",
+                                style: GoogleFonts.lato(
+                                  color: Colors.white,
+                                  fontSize: 50.sp,
+                                )),
+                            Divider(height: 50.h, color: Colors.transparent),
                             Text(
-                              reactionTimeFormat.format(DateTime(
-                                  0, 0, 0, 0, 0, snapshot.data as int)),
+                              expireTimeFormat.format(reactionExpireTime),
                               style: GoogleFonts.lato(
                                 color: Colors.white,
-                                fontSize: 90.sp,
+                                fontSize: 50.sp,
                               ),
                             ),
-                            Icon(
-                              Icons.timer,
-                              color: Colors.white,
-                            )
+                            Divider(height: 50.h, color: Colors.transparent),
+                            widget.reaction.secondsUntilExpiration >= 5
+                                ? ElevatedButton(
+                                    onPressed: () {
+                                      if (widget
+                                              .reaction.secondsUntilExpiration >
+                                          5) {
+                                        Dependencies.reactionPresentation
+                                            .revealReaction(
+                                                reactionId:
+                                                    widget.reaction.idReaction);
+                                      }
+                                    },
+                                    child: Text("Revelar"))
+                                : Container(),
                           ],
-                        ),
-                        Divider(height: 100.h, color: Colors.transparent),
-                        Text("Disponible hasta:",
-                            style: GoogleFonts.lato(
-                              color: Colors.white,
-                              fontSize: 50.sp,
-                            )),
-                        Divider(height: 50.h, color: Colors.transparent),
-                        Text(
-                          expireTimeFormat.format(reactionExpireTime),
-                          style: GoogleFonts.lato(
-                            color: Colors.white,
-                            fontSize: 50.sp,
-                          ),
-                        ),
-                        Divider(height: 100.h, color: Colors.transparent),
-                        widget.reaction.secondsUntilExpiration >= 5
-                            ? ElevatedButton(
-                                onPressed: () {
-                                  if (widget.reaction.secondsUntilExpiration >
-                                      5) {
-                                    Dependencies.reactionPresentation
-                                        .revealReaction(
-                                            reactionId:
-                                                widget.reaction.idReaction);
-                                  }
-                                },
-                                child: Text("Revelar"))
-                            : Container(),
-                      ],
-                    )
-                  : Column(
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            LoadingIndicator(
+                                indicatorType: Indicator.semiCircleSpin),
+                            Text("Revelando")
+                          ],
+                        )),
+            ),
+            widget.reaction.userBlocked
+                ? Container(
+                    height: widget.boxConstraints.biggest.height,
+                    width: widget.boxConstraints.biggest.width,
+                    color: Colors.black,
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        LoadingIndicator(
-                            indicatorType: Indicator.semiCircleSpin),
-                        Text("Revelando")
+                        Icon(
+                          Icons.lock,
+                          color: Colors.white,
+                          size: 500.sp,
+                        ),
+                        Text(
+                          "Usuario bloqueado",
+                          style: GoogleFonts.lato(
+                              color: Colors.white, fontSize: 70.sp),
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              Dependencies.reactionPresentation.rejectReaction(
+                                  reactionId: widget.reaction.idReaction);
+                            },
+                            child: Text("Eliminar reaccion"))
                       ],
-                    )),
+                    ))
+                : Container(),
+          ],
         );
       },
     );
@@ -335,7 +368,34 @@ class _ReactionCardState extends State<ReactionCard>
                         ),
                       ),
                     )
-                  : Container()
+                  : Container(),
+          reaction.userBlocked
+              ? Container(
+                  height: widget.boxConstraints.biggest.height,
+                  width: widget.boxConstraints.biggest.width,
+                  color: Colors.black,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.lock,
+                        color: Colors.white,
+                        size: 500.sp,
+                      ),
+                      Text(
+                        "Usuario bloqueado",
+                        style: GoogleFonts.lato(
+                            color: Colors.white, fontSize: 70.sp),
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            Dependencies.reactionPresentation.rejectReaction(
+                                reactionId: widget.reaction.idReaction);
+                          },
+                          child: Text("Eliminar reaccion"))
+                    ],
+                  ))
+              : Container(),
         ],
       ),
     );

@@ -28,7 +28,7 @@ class UserCreatorPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<UserCreatorInformationSender>,
         Presentation,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   @override
   late StreamSubscription<UserCreatorInformationSender>? updateSubscription;
   UserCreatorController userCreatorController;

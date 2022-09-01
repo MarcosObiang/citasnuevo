@@ -11,7 +11,9 @@ import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
-abstract class ReactionDataSource implements DataSource {
+import '../../../domain/repository/DataManager.dart';
+
+abstract class ReactionDataSource implements DataSource ,ModuleCleanerDataSource{
 // ignore: close_sinks
   late StreamController<Map<String, dynamic>> reactionListener;
   // ignore: close_sinks
@@ -59,12 +61,11 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   void _addReaction({required DocumentChange<Map<String, dynamic>> element}) {
-    Reaction reaction =
-        ReactionConverter.fromMap(element.doc.data() as Map<String, dynamic>);
+    
 
     reactionListener.add({
       "modified": false,
-      "reaction": reaction,
+      "reaction": element.doc.data(),
       "deleted": false,
       "notify": element.doc.metadata.isFromCache == true ? false : true
     });
@@ -72,11 +73,10 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   void _modifyReaction(
       {required DocumentChange<Map<String, dynamic>> element}) {
-    Reaction reaction =
-        ReactionConverter.fromMap(element.doc.data() as Map<String, dynamic>);
+   
     reactionListener.add({
       "modified": true,
-      "reaction": reaction,
+      "reaction": element.doc.data(),
       "deleted": false,
       "notify": false
     });
@@ -84,11 +84,10 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   void _deleteReaction(
       {required DocumentChange<Map<String, dynamic>> element}) {
-    Reaction reaction =
-        ReactionConverter.fromMap(element.doc.data() as Map<String, dynamic>);
+ 
     reactionListener.add({
       "modified": true,
-      "reaction": reaction,
+      "reaction": element.doc.data(),
       "deleted": true,
       "notify": false
     });

@@ -2,10 +2,11 @@ import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
 import 'package:dartz/dartz.dart';
 
-class AuthScreenController implements Controller {
+class AuthScreenController implements ModuleCleanerController {
   final AuthRepository authRepository;
 
   AuthScreenController({required this.authRepository});
@@ -21,12 +22,10 @@ class AuthScreenController implements Controller {
   
 
   @override
-  void clearModuleData() {
-    // TODO: implement clearModuleData
-  }
+  Either<Failure,bool> clearModuleData() {
+throw UnimplementedError();  }
 
   @override
-  void initializeModuleData() {
-    // TODO: implement initializeModuleData
-  }
+   Either<Failure,bool> initializeModuleData() {
+throw UnimplementedError();  }
 }

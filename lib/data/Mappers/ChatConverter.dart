@@ -15,12 +15,12 @@ class ChatConverter {
     data.forEach((element) {
       bool firstDateMEssageAdded = false;
       Map<String, dynamic> chatData = element["chat"];
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
-          element["messages"];
+      
       List<Message> messagesList = [];
       String userId = element["userId"];
 
       Chat chat = new Chat(
+        userBlocked: chatData["bloqueado"],
         unreadMessages: 0,
         matchCreated: true,
         chatId: chatData["idConversacion"],
@@ -32,101 +32,16 @@ class ChatConverter {
         notificationToken: chatData["tokenNotificacion"],
       );
 
-      for (int i = 0; i < chatMessages.length; i++) {
-        if (chatMessages.length > 1) {
-          if (i + 1 < chatMessages.length) {
-            int horaMensajeActual = chatMessages[i]["horaMensaje"];
 
-            int horaMensajeSiguiente = chatMessages[i + 1]["horaMensaje"];
 
-            DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
-                    horaMensajeActual,
-                    isUtc: true)
-                .toLocal();
-            DateTime tiempoSiguiente = DateTime.fromMillisecondsSinceEpoch(
-                    horaMensajeSiguiente,
-                    isUtc: true)
-                .toLocal();
-
-            bool addMessageDate =
-                shouldAddDateMessage(horaMensajeActual, horaMensajeSiguiente);
-            if (addMessageDate == true) {
-              var dateformat = DateFormat.yMEd();
-              String dateText = dateformat.format(tiempo);
-              messagesList.add(MessageConverter.fromMap(chatMessages[i]));
-              messagesList.add(Message(
-                  messageDateText: dateText,
-                  read: true,
-                  isResponse: false,
-                  data: "data",
-                  chatId: chat.chatId,
-                  senderId: "NOT_AVAILABLE",
-                  messageId: "messageId",
-                  messageDate: tiempoSiguiente.millisecondsSinceEpoch,
-                  messageType: MessageType.DATE));
-            }
-            if (addMessageDate == false) {
-              messagesList.add(MessageConverter.fromMap(chatMessages[i]));
-            }
-          } else {
-            messagesList.add(MessageConverter.fromMap(chatMessages[i]));
-          }
-          if (firstDateMEssageAdded == false && i == chatMessages.length - 1) {
-            int horaMensajeActual = chatMessages[i]["horaMensaje"];
-
-            DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
-                    horaMensajeActual,
-                    isUtc: true)
-                .toLocal();
-
-            var dateformat = DateFormat.yMEd();
-            String dateText = dateformat.format(tiempo);
-
-            messagesList.add(Message(
-                messageDateText: dateText,
-                read: true,
-                isResponse: false,
-                data: "data",
-                chatId: chat.chatId,
-                senderId: "NOT_AVAILABLE",
-                messageId: "messageId",
-                messageDate: tiempo.millisecondsSinceEpoch,
-                messageType: MessageType.DATE));
-            firstDateMEssageAdded = true;
-          }
-        } else {
-          int horaMensajeActual = chatMessages[i]["horaMensaje"];
-
-          DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
-                  horaMensajeActual,
-                  isUtc: true)
-              .toLocal();
-
-          var dateformat = DateFormat.yMEd();
-          String dateText = dateformat.format(tiempo);
-
-          messagesList.add(MessageConverter.fromMap(chatMessages[i]));
-          messagesList.add(Message(
-              messageDateText: dateText,
-              read: true,
-              isResponse: false,
-              data: "data",
-              chatId: chat.chatId,
-              senderId: "NOT_AVAILABLE",
-              messageId: "messageId",
-              messageDate: tiempo.millisecondsSinceEpoch,
-              messageType: MessageType.DATE));
-        }
-      }
-
-      chat.messagesList.addAll(messagesList);
-      chat.calculateUnreadMessages(userId);
+      //chat.messagesList.addAll(messagesList);
+      //chat.calculateUnreadMessages(userId);
       chatList.add(chat);
     });
 
-    chatListToReturn = _orderChatList(chatList);
+   // chatListToReturn = _orderChatList(chatList);
 
-    return chatListToReturn;
+    return chatList;
   }
 
   static bool shouldAddDateMessage(
@@ -147,12 +62,14 @@ class ChatConverter {
     return addNewDateMessage;
   }
 
-  @protected
+/*  @protected
   static List<Chat> _orderChatList(List<Chat> chatList) {
     List<Chat> chatListToReturn = chatList;
     List<Chat> chatsWithMessages = [];
 
     for (int i = 0; i < chatListToReturn.length; i++) {
+if(chatListToReturn[i].lastMessage)
+
       if (chatListToReturn[i].messagesList.length > 0) {
         Chat chat = chatListToReturn[i];
         chatsWithMessages.add(chat);
@@ -167,5 +84,5 @@ class ChatConverter {
 
     chatListToReturn.insertAll(0, chatsWithMessages);
     return chatListToReturn;
-  }
+  }*/
 }

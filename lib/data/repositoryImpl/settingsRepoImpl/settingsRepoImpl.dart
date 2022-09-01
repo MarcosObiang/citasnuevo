@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:citasnuevo/data/dataSources/settingsDataSource/settingsDataSource.dart';
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
+import 'package:dartz/dartz.dart';
+
+import '../../../core/dependencies/error/Failure.dart';
 
 class SettingsRepoImpl implements SettingsRepository {
   @override
@@ -16,13 +19,25 @@ class SettingsRepoImpl implements SettingsRepository {
       settingsDataSource.onUserSettingsUpdate;
 
   @override
-  void clearModuleData() {
-    settingsDataSource.clearModuleData();
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      settingsDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
   }
 
-  @override
-  void initializeModuleData() {
-    settingsDataSource.initializeModuleData();
+   @override
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      settingsDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+      
+    }
   }
 
   @override

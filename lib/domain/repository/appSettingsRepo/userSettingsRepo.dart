@@ -8,7 +8,7 @@ import '../../../data/dataSources/userSettingsDataSource/userSettingsDataSource.
 import '../../controller/controllerDef.dart';
 import '../DataManager.dart';
 
-abstract class UserSettingsRepository implements ModuleCleaner {
+abstract class UserSettingsRepository implements ModuleCleanerRepository {
   late UserSettingsDataSource appSettingsDataSource;
   Future<Either<Failure, bool>> updateSettings(UserSettingsEntity userSettingsEntity);
 

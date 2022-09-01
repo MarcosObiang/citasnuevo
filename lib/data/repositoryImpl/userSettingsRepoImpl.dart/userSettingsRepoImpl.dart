@@ -20,14 +20,26 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
   StreamController<UserSettingsInformationSender> get appSettingsStream =>
       appSettingsDataSource.listenAppSettingsUpdate;
 
-  @override
-  void clearModuleData() {
-    appSettingsDataSource.clearModuleData();
+   @override
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      appSettingsDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
   }
 
-  @override
-  void initializeModuleData() {
-    appSettingsDataSource.initializeModuleData();
+   @override
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      appSettingsDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+      
+    }
   }
 
   @override

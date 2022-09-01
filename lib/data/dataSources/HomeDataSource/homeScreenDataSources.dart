@@ -10,8 +10,9 @@ import 'package:flutter/animation.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/common/commonUtils/getUserImage.dart';
+import '../../../domain/repository/DataManager.dart';
 
-abstract class HomeScreenDataSource implements DataSource {
+abstract class HomeScreenDataSource implements DataSource,ModuleCleanerDataSource {
   /// Fetch profiles from the backend
   ///
   /// Throws [FetchProfilesException] when no users are found
@@ -63,7 +64,10 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
     required this.source,
   });
 
-  Future<Map<dynamic, dynamic>> fetchProfilesFromTheServer({
+
+  
+
+  Future<Map<dynamic, dynamic>> callProfilesFromTheServer({
     required Map<String, dynamic> positionData,
   }) async {
     Map<dynamic, dynamic> functionResult = Map();
@@ -114,7 +118,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         bool isLocationEnabled =
             await LocationService.instance.isLocationServiceEnabled();
 
-        if (isLocationEnabled) {
+        if (isLocationEnabled == true) {
           LocationPermission permission =
               await LocationService.instance.locationPermissionStatus();
 
@@ -123,7 +127,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
             Map<String, dynamic> positionData =
                 await LocationService.instance.determinePosition();
             Map<dynamic, dynamic> profileData =
-                await fetchProfilesFromTheServer(positionData: positionData);
+                await callProfilesFromTheServer(positionData: positionData);
             return profileData;
           } else {
             if (permission == LocationPermission.deniedForever) {
@@ -145,7 +149,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         throw e;
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -176,7 +180,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         RatingProfilesException(message: 'PROFILE_RATING_FAILED');
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -197,19 +201,27 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         throw ReportException(message: e.toString());
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
   @override
   void clearModuleData() {
-    dataSourceStreamData = Map();
-    sourceStreamSubscription?.cancel();
+    try {
+      dataSourceStreamData = Map();
+      sourceStreamSubscription?.cancel();
+    } catch (e) {
+      throw ModuleCleanException(message: e.toString());
+    }
   }
 
   @override
   void initializeModuleData() {
-    subscribeToMainDataSource();
+    try {
+      subscribeToMainDataSource();
+    } catch (e) {
+      throw ModuleInitializeException(message: e.toString());
+    }
   }
 
   @override

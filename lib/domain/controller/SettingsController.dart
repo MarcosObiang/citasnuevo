@@ -8,14 +8,16 @@ import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsContr
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
+import 'package:dartz/dartz.dart';
 
+import '../../core/dependencies/error/Failure.dart';
 import '../controller_bridges/RewardScreenControllerBridge.dart';
 import '../controller_bridges/SettingsToAppSettingsControllerBridge.dart';
 
 abstract class SettingsController
     implements
         ShouldControllerUpdateData<SettingsInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerController {
   late SettingsEntity? settingsEntity;
   late SettingsRepository settingsRepository;
   void initialize();
@@ -65,17 +67,26 @@ class SettingsControllerImpl implements SettingsController {
   }
 
   @override
-  void clearModuleData() {
-    updateDataController?.close();
-    updateDataController = new StreamController.broadcast();
-    settingsRepository.clearModuleData();
+  Either<Failure, bool> clearModuleData() {
+    try {
+      updateDataController?.close();
+      updateDataController = new StreamController.broadcast();
+      var result = settingsRepository.clearModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   @override
-  void initializeModuleData() {
-    initialize();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      initialize();
 
-    settingsRepository.initializeModuleData();
+      return settingsRepository.initializeModuleData();
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
 
   void purchase(String productId, bool renewPurchase) {
@@ -100,7 +111,7 @@ class SettingsControllerImpl implements SettingsController {
         .first
         .productPrice;
     if (productInfo != null) {
-      appSettingstoSettingscontrollerBridge
+      rewardScreenControllerBridge
           .addInformation(information: {"data": productInfo});
     }
   }

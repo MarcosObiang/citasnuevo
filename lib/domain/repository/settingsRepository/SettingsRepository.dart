@@ -5,7 +5,7 @@ import 'package:citasnuevo/domain/repository/DataManager.dart';
 
 import '../../../data/dataSources/settingsDataSource/settingsDataSource.dart';
 
-abstract class SettingsRepository implements ModuleCleaner{
+abstract class SettingsRepository implements ModuleCleanerRepository{
 
   late SettingsDataSource settingsDataSource;
 

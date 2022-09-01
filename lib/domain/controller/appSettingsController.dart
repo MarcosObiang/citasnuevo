@@ -16,11 +16,10 @@ enum AppSettingsState { loading, updating, loaded, noLoaded }
 class AppSettingsController
     implements
         ShouldControllerUpdateData<ApplicationSettingsInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerController {
   AppSettingsRepository appSettingsRepository;
-  late ApplicationSettingsEntity applicationSettingsEntity;
-  AppSettingsToSettingsControllerBridge?
-      settingsToAppSettingsControllerBridge;
+   ApplicationSettingsEntity? applicationSettingsEntity;
+  AppSettingsToSettingsControllerBridge? settingsToAppSettingsControllerBridge;
 
   @override
   late StreamController<ApplicationSettingsInformationSender>?
@@ -41,6 +40,8 @@ class AppSettingsController
           showWoman: event.showWoman,
           showProfile: event.showProfile);
       updateDataController?.add(event);
+    }, onError: (error) {
+      updateDataController?.addError(error);
     });
   }
 
@@ -83,15 +84,30 @@ class AppSettingsController
   }
 
   @override
-  void clearModuleData() {
-    updateDataController?.close();
-    updateDataController = new StreamController.broadcast();
+  Either<Failure, bool> clearModuleData() {
+    try {
+      updateDataController?.close();
+      updateDataController = new StreamController.broadcast();
+
+      var result = appSettingsRepository.clearModuleData();
+
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   @override
-  void initializeModuleData() {
-    appSettingsRepository.initializeModuleData();
-    initializeListener();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      initializeListener();
+
+      var result = appSettingsRepository.initializeModuleData();
+
+      return result;
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
 
   void sendInfo({required bool updatingSettings}) {

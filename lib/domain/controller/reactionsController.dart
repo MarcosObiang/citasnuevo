@@ -19,7 +19,7 @@ abstract class ReactionController
         ShouldControllerRemoveData<ReactionInformationSender>,
         ShouldControllerUpdateData<ReactionInformationSender>,
         ShouldControllerAddData<ReactionInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerController {
   ///Saves the reactions in a list
   late List<Reaction> reactions;
 
@@ -104,42 +104,49 @@ class ReactionsControllerImpl implements ReactionController {
   StreamSubscription? coinsStreamSubscription;
   StreamSubscription? expiredReactionSubscription;
   StreamSubscription? reactionSubscription;
-
   @override
-  void clearModuleData() {
-    reactions.clear();
-
-    expiredReactionsListener.close();
-    streamExpiredReactions.close();
-    streamRevealedReactionId.close();
-    addDataController?.close();
-    removeDataController?.close();
-    updateDataController?.close();
-    coinsStreamSubscription?.cancel();
-    expiredReactionSubscription?.cancel();
-    reactionSubscription?.cancel();
-    streamRevealedReactionId = new StreamController.broadcast();
-    streamExpiredReactions = StreamController.broadcast();
-    expiredReactionsListener = StreamController.broadcast();
-    addDataController = new StreamController.broadcast();
-    removeDataController = new StreamController.broadcast();
-
-    updateDataController = new StreamController.broadcast();
-
-    listenerInitialized = false;
-    reactionsAverage = 0;
-    coins = 0;
-    reactionRepository.clearModuleData();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      initReactionStream();
+      initializeExpiredTimeListener();
+      var result = reactionRepository.initializeModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
-  /*bool shouldNotifyReactions(Reaction reaction)async{
-    bool shouldNotify=false;
-    DateTime timeNow=await DateNTP.instance.getTime();
-    int timeNowSeconds=timeNow.millisecondsSinceEpoch~/1000;
-    if(reaction.secondsUntilExpiration-timeNowSeconds>5){
+  @override
+  Either<Failure, bool> clearModuleData() {
+    try {
+      reactions.clear();
 
+      expiredReactionsListener.close();
+      streamExpiredReactions.close();
+      streamRevealedReactionId.close();
+      addDataController?.close();
+      removeDataController?.close();
+      updateDataController?.close();
+      coinsStreamSubscription?.cancel();
+      expiredReactionSubscription?.cancel();
+      reactionSubscription?.cancel();
+      streamRevealedReactionId = new StreamController.broadcast();
+      streamExpiredReactions = StreamController.broadcast();
+      expiredReactionsListener = StreamController.broadcast();
+      addDataController = new StreamController.broadcast();
+      removeDataController = new StreamController.broadcast();
+
+      updateDataController = new StreamController.broadcast();
+
+      listenerInitialized = false;
+      reactionsAverage = 0;
+      coins = 0;
+      var result = reactionRepository.clearModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
     }
-  }*/
+  }
 
   bool checkIfReactionCanShowAds(String reactionId) {
     bool canShowAds = true;
@@ -154,8 +161,7 @@ class ReactionsControllerImpl implements ReactionController {
   void initReactionStream() {
     initCoinListener();
 
-    reactionSubscription =
-        reactionRepository.reactionListener.stream.listen((event) {
+    reactionSubscription = reactionRepository.reactionStream().listen((event) {
       bool isModified = event["modified"];
       Reaction reaction = event["reaction"];
       bool isDeleted = event["deleted"];
@@ -175,14 +181,22 @@ class ReactionsControllerImpl implements ReactionController {
               isModified: isModified,
               isDeleted: isDeleted,
               coins: coins));
-        } else {
+        }
+        if (isModified == true) {
           for (int i = 0; i < reactions.length; i++) {
             if (reactions[i].idReaction == reaction.idReaction) {
-              reactions[i].setName = reaction.getName;
-              reactions[i].imageHash = reaction.imageHash;
-              reactions[i].imageUrl = reaction.imageUrl;
-              reactions[i].setReactionRevealigState =
-                  ReactionRevealigState.revealed;
+              if (reaction.revealed == false) {
+                reactions[i].userBlocked = reaction.userBlocked;
+              }
+              if (reaction.revealed == true) {
+                reactions[i].userBlocked = reaction.userBlocked;
+
+                reactions[i].setName = reaction.getName;
+                reactions[i].imageHash = reaction.imageHash;
+                reactions[i].imageUrl = reaction.imageUrl;
+                reactions[i].setReactionRevealigState =
+                    ReactionRevealigState.revealed;
+              }
             }
           }
         }
@@ -411,13 +425,6 @@ class ReactionsControllerImpl implements ReactionController {
       }
     });
     return result;
-  }
-
-  @override
-  void initializeModuleData() async {
-    reactionRepository.initializeModuleData();
-    initReactionStream();
-    initializeExpiredTimeListener();
   }
 
   void sendReactionData() {

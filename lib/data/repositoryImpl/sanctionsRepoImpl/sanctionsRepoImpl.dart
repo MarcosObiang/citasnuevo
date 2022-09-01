@@ -15,18 +15,32 @@ class SanctionsRepoImpl implements SanctionsRepository {
     required this.sanctionsDataSource,
   });
 
-  @override
-  void clearModuleData() {
-    sanctionsDataSource.clearModuleData();
-  }
+
 
   @override
   StreamController<SanctionsEntity>? get getSanctionsUpdate =>
       sanctionsDataSource.sanctionsUpdate;
 
-  @override
-  void initializeModuleData() {
-    sanctionsDataSource.initializeModuleData();
+   @override
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      sanctionsDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
+  }
+
+   @override
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      sanctionsDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+      
+    }
   }
 
   @override

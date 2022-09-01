@@ -48,7 +48,7 @@ class RewardScreenPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<RewardInformationSender>,
         Presentation,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   RewardController rewardController;
   DailyRewardState _dailyRewardState = DailyRewardState.done;
   FirstRewards _firstRewards = FirstRewards.done;

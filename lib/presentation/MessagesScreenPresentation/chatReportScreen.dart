@@ -110,7 +110,7 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
               TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                     Dependencies.chatPresentation.deleteChat(
+                     Dependencies.messagesPresentation.deleteChat(
                         remitent1: GlobalDataContainer.userId as String,
                         remitent2: widget.remitent,
                         reportDetails: textEditingController.text,

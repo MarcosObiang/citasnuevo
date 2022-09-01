@@ -8,10 +8,11 @@ import 'package:dartz/dartz.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../controller_bridges/HomeScreenCotrollerBridge.dart';
+import '../repository/DataManager.dart';
 
 class HomeScreenController
     implements
-        Controller,
+        ModuleCleanerController,
         ShouldControllerUpdateData<HomeScreenInformationSender> {
   @override
   StreamController<HomeScreenInformationSender>? updateDataController =
@@ -33,22 +34,16 @@ class HomeScreenController
   /// it handels fails
 
   Future<Either<Failure, void>> fetchProfileList() async {
-    bool succes = false;
     var response = await homeScreenRepository.fetchProfiles();
-    response.fold((fail) {
-      succes = false;
-    }, (profileData) {
+    response.fold((fail) {}, (profileData) {
       profileData.forEach((element) {
         bool profileExists = profileAlreadyExists(element);
         if (profileExists == false) {
           profilesList.add(element);
         }
       });
-
-      succes = true;
     });
     return response;
-  
   }
 
   bool profileAlreadyExists(Profile profile) {
@@ -63,14 +58,23 @@ class HomeScreenController
     return exists;
   }
 
+  /// Removes profiel from the [profilesList]
   Profile removeProfileFromList({required int profileIndex}) {
     return profilesList.removeAt(profileIndex);
   }
 
+  /// Inserts [profiles] objects into [profileList]
+  ///
+  ///
   void insertAtList({required Profile profile}) {
     profilesList.insert(0, profile);
   }
 
+  /// Sends rating
+  ///
+  /// Sends rating after the user has rated the user in the [homeScreen]
+  ///
+  ///
   Future<Either<Failure, void>> sendRating(
       {required double ratingValue, required String idProfileRated}) async {
     profilesList.removeWhere((element) => element.id == idProfileRated);
@@ -78,32 +82,61 @@ class HomeScreenController
         ratingValue: ratingValue, idProfileRated: idProfileRated);
   }
 
+  ///
+  ///
+  /// Request location permission to the user
+  ///
+
   Future<Either<Failure, LocationPermission>> requestPermission() async {
     return await homeScreenRepository.requestLocationPermission();
   }
+
+  /// Opens the system settings to activate location
+  ///
+  /// When the user has permanently denied the location service to the app
+  ///
+  /// the location must permission must be given to the app in the system settings
 
   Future<Either<Failure, bool>> goToLocationSettings() async {
     return await homeScreenRepository.goToAppSettings();
   }
 
   @override
-  void clearModuleData() {
-    profilesList.clear();
-    updateDataController?.close();
-    controllerBridgeSubscription?.cancel();
-    homeScreenControllerBridge.closeStream();
-    homeScreenRepository.clearModuleData();
+  Either<Failure, bool> clearModuleData() {
+    try {
+      profilesList.clear();
+      updateDataController?.close();
+      controllerBridgeSubscription?.cancel();
+      homeScreenControllerBridge.reinitializeStream();
+      updateDataController = StreamController.broadcast();
+
+      var result = homeScreenRepository.clearModuleData();
+
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   @override
-  void initializeModuleData() {
-    updateDataController = StreamController.broadcast();
-    homeScreenControllerBridge.initializeStream();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      listenControllerBridge();
 
-    homeScreenRepository.initializeModuleData();
-    listenControllerBridge();
+      var result = homeScreenRepository.initializeModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
 
+  /// Recieves information from other controllers
+  ///
+  /// Information like the number of new chats, new reactions or new messages are needed in the [HomeScreenPresentation],
+  ///
+  /// to ascces to that information, instead of accesing directly to the variables of other controllers
+  ///
+  /// we listen to the information those controllers send via [ControllerBridge]
   void listenControllerBridge() {
     controllerBridgeSubscription = homeScreenControllerBridge
         .controllerBridgeInformationSenderStream?.stream

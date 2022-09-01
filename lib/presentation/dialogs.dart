@@ -42,7 +42,7 @@ class PresentationDialogs {
           builder: (context) => AlertDialog(
                 title: Text(dialogTitle),
                 content: Text(dialogText),
-                actions: [],
+                actions: buttons,
               ));
     }
   }

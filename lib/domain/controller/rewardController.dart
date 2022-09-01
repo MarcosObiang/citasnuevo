@@ -13,7 +13,7 @@ import '../repository/DataManager.dart';
 abstract class RewardController
     implements
         ShouldControllerUpdateData<RewardInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerController {
   Rewards? rewards;
   late int secondsUntilDailyReward;
   late bool firstReward;
@@ -24,7 +24,7 @@ abstract class RewardController
   late String? sharingLink;
   Future<Either<Failure, bool>> askDailyReward();
   Future<Either<Failure, bool>> askFirstReward();
-  Future<Either<Failure,String>>getSharingLink();
+  Future<Either<Failure, String>> getSharingLink();
   void _rewardStateListener();
 }
 
@@ -51,7 +51,8 @@ class RewardControllerImpl implements RewardController {
   int secondsUntilDailyReward = 0;
 
   @override
-  StreamController<RewardInformationSender>? updateDataController;
+  StreamController<RewardInformationSender>?       updateDataController = StreamController.broadcast();
+
 
   @override
   bool waitingDailyReward = false;
@@ -63,27 +64,33 @@ class RewardControllerImpl implements RewardController {
   bool isRewardCounterRunning = false;
 
   @override
-  void clearModuleData() {
+  Either<Failure, bool> clearModuleData() {
     try {
       rewardStreamSubscription?.cancel();
       updateDataController?.close();
       externalSubscription?.cancel();
-    } catch (e) {}
+            updateDataController = StreamController.broadcast();
+
+      var result = rewardRepository.clearModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   @override
-  void initializeModuleData() {
-    updateDataController = StreamController.broadcast();
-    rewardRepository.initializeModuleData();
-    rewardScreenControlBridge.initializeStream();
-    recieveExternalInformation();
-
-    initialize();
-  }
-
-  void initialize() {
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      recieveExternalInformation();
     _rewardStateListener();
+      var result = rewardRepository.initializeModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
+
+ 
 
   void recieveExternalInformation() {
     externalSubscription = rewardScreenControlBridge
@@ -175,13 +182,12 @@ class RewardControllerImpl implements RewardController {
       updateDataController?.addError(error);
     });
   }
-  
+
   @override
   Future<Either<Failure, String>> getSharingLink() {
-      return rewardRepository.getSharingLink();
-
+    return rewardRepository.getSharingLink();
   }
-  
+
   @override
   String? sharingLink;
 }

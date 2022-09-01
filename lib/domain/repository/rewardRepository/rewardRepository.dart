@@ -7,7 +7,7 @@ import 'package:dartz/dartz.dart';
 
 import '../DataManager.dart';
 
-abstract class RewardRepository  implements ModuleCleaner{
+abstract class RewardRepository  implements ModuleCleanerRepository{
   late RewardDataSource rewardDataSource;
 
    StreamController<Rewards>? get getRewardsStream;

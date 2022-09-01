@@ -2,24 +2,22 @@ import 'dart:async';
 
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 
-class UserSettingsToSettingsControllerBridge implements ControllerBridge{
+class MessagesToChatControllerBridge implements ControllerBridge {
   @override
-   StreamController<Map<String, dynamic>>? controllerBridgeInformationSenderStream;
+  StreamController<Map<String, dynamic>>?
+      controllerBridgeInformationSenderStream =
+      new StreamController.broadcast();
 
   @override
   void addInformation({required Map<String, dynamic> information}) {
-if (controllerBridgeInformationSenderStream?.isClosed == false) {
+    if (controllerBridgeInformationSenderStream?.isClosed == false) {
       controllerBridgeInformationSenderStream?.add(information);
-    }  }
+    }
+  }
 
   @override
   void reinitializeStream() {
     controllerBridgeInformationSenderStream?.close();
-  }
-
-  @override
-  void initializeStream() {
     controllerBridgeInformationSenderStream = new StreamController.broadcast();
   }
-  
 }

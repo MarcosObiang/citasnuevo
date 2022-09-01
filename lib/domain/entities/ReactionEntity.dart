@@ -18,12 +18,14 @@ class Reaction {
   bool stopCounter = false;
   bool revealingProcessStarted = false;
   bool canShowAds=true;
+  bool userBlocked=false;
   double reactioValue;
   String imageHash;
   String imageUrl;
   String name;
   String idReaction;
   String senderId;
+  bool revealed;
   ReactionRevealigState reactionRevealigState;
   ReactionAceptingState reactionAceptingState =
       ReactionAceptingState.notAccepted;
@@ -101,7 +103,7 @@ class Reaction {
       required this.imageUrl,
       required this.name,
       required this.idReaction,
-      required this.reactionRevealigState}) {
+      required this.reactionRevealigState,required this.userBlocked,required this.revealed}) {
     this.getExpirationSeconds();
   }
 

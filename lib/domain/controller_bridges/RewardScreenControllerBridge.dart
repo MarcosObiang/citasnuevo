@@ -7,7 +7,7 @@ class RewardScreenControllerBridge
         ControllerBridge {
   @override
    StreamController<Map<String, dynamic>>?
-      controllerBridgeInformationSenderStream;
+      controllerBridgeInformationSenderStream = new StreamController.broadcast();
 
   @override
   void addInformation({required Map<String, dynamic> information}) {
@@ -17,12 +17,8 @@ class RewardScreenControllerBridge
   }
 
   @override
-  void closeStream() {
+  void reinitializeStream() {
     controllerBridgeInformationSenderStream?.close();
   }
 
-  @override
-  void initializeStream() {
-    controllerBridgeInformationSenderStream = new StreamController.broadcast();
-  }
-}
+        }

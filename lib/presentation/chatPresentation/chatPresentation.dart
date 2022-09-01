@@ -8,7 +8,7 @@ import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatScreen.dart';
+import 'package:citasnuevo/presentation/MessagesScreenPresentation/chatScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTile.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/emptyChatWidget.dart';
@@ -28,10 +28,10 @@ enum ChatListState { loading, ready, empty, error }
 class ChatPresentation extends ChangeNotifier
     implements
         Presentation,
-        SouldAddData<ChatInformationSender>,
+        ShouldAddData<ChatInformationSender>,
         ShouldRemoveData<ChatInformationSender>,
         ShouldUpdateData<ChatInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   ChatController chatController;
   ChatReportSendingState chatReportSendingState =
       ChatReportSendingState.notSended;
@@ -69,7 +69,7 @@ class ChatPresentation extends ChangeNotifier
     required this.chatController,
   });
 
-  get anyChatOpen => chatController.getAnyChatOpen;
+  /*get anyChatOpen => chatController.getAnyChatOpen;
 
   set setAnyChatOpen(bool value) {
     chatController.setAnyChatOpen = value;
@@ -79,15 +79,13 @@ class ChatPresentation extends ChangeNotifier
       });
     }
   }
-
+*/
   set setChatListState(ChatListState chatListStateData) {
     this.chatListState = chatListStateData;
     notifyListeners();
   }
 
-  void setMessagesOnSeen({required String chatId}) async {
-    await chatController.setMessagesOnSeen(chatId: chatId);
-  }
+
 
   ///Initializes Chat listener to update chat tiles when needed
 
@@ -98,7 +96,8 @@ class ChatPresentation extends ChangeNotifier
       setChatListState = ChatListState.error;
 
       if (failure is NetworkFailure) {
-        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       }
     }, (succes) {
       addData();
@@ -107,12 +106,6 @@ class ChatPresentation extends ChangeNotifier
     });
   }
 
-  /// Here we start the MESSAGE LISTENER and if it succeds we call [_initializeMessageStream] method
-  @protected
-  void initializeMessageListener() async {
-    var result = await chatController.initializeMessageListener();
-    result.fold((failure) {}, (succes) {});
-  }
 
   void closeStreams() {
     updateMessageListNotification.close();
@@ -128,7 +121,8 @@ class ChatPresentation extends ChangeNotifier
         profileId: profileId, chatId: chatId);
     result.fold((failure) {
       if (failure is NetworkFailure) {
-        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       }
       notifyListeners();
     }, (succes) {
@@ -136,42 +130,11 @@ class ChatPresentation extends ChangeNotifier
     });
   }
 
-  void sendMessage(
-      {required Message message,
-      required String messageNotificationToken,
-      required String remitentId}) async {
-    var result = await chatController.sendMessage(
-        message: message,
-        messageNotificationToken: messageNotificationToken,
-        remitentId: remitentId);
-    result.fold((failure) {
-      if (failure is NetworkFailure) {
-        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
-      } else {
-        showErrorDialog(
-            title: "title",
-            content: "content",
-            context: startKey.currentContext);
-      }
-    }, (succes) {});
-  }
-
-  @override
-  void showErrorDialog(
-      {required String title,
-      required String content,
-      required BuildContext? context}) {
-    if (context != null) {
-      showDialog(
-          context: context,
-          builder: (context) =>
-              GenericErrorDialog(content: content, title: title));
-    }
-  }
 
 
 
-  Future<void> deleteChat(
+
+/*  Future<void> deleteChat(
       {required String remitent1,
       required String remitent2,
       required String reportDetails,
@@ -186,41 +149,47 @@ class ChatPresentation extends ChangeNotifier
       notifyListeners();
 
       if (failure is NetworkFailure) {
-       PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
-        showErrorDialog(
+       PresentationDialogs.instance
+            . showErrorDialog(
             title: "Error",
             content: "Error al intentar eliminar la conversacion",
             context: startKey.currentContext);
       }
     }, (r) => null);
-  }
-
-
+  }*/
 
   @override
   void restart() {
     clearModuleData();
     initializeModuleData();
-    initializeChatListener();
-    initializeMessageListener();
+    if (chatListState != ChatListState.error) {
+      initializeChatListener();
+    }
   }
 
   @override
   @protected
   void clearModuleData() {
-    updateMessageListNotification.close();
-    addDataSubscription?.cancel();
-    removeDataSubscription?.cancel();
-    updateSubscription?.cancel();
-    chatDeletedNotification.close();
-    updateMessageListNotification = new StreamController.broadcast();
-    chatDeletedNotification = new StreamController.broadcast();
+    try {
+      updateMessageListNotification.close();
+      addDataSubscription?.cancel();
+      removeDataSubscription?.cancel();
+      updateSubscription?.cancel();
+      chatDeletedNotification.close();
+      updateMessageListNotification = new StreamController.broadcast();
+      chatDeletedNotification = new StreamController.broadcast();
 
-    chatReportSendingState = ChatReportSendingState.notSended;
-    chatListState = ChatListState.empty;
-    currentOpenChat = kNotAvailable;
-    chatController.clearModuleData();
+      chatReportSendingState = ChatReportSendingState.notSended;
+      chatListState = ChatListState.empty;
+      currentOpenChat = kNotAvailable;
+      var result = chatController.clearModuleData();
+      result.fold((l) => setChatListState = ChatListState.error, (r) {});
+    } catch (e) {
+      setChatListState = ChatListState.error;
+    }
   }
 
   ///***************** */ COMPROBAR QUE EL MENSAJE SE AÑADE AL CHAT NECESARIO
@@ -253,20 +222,7 @@ class ChatPresentation extends ChangeNotifier
                 setChatListState = ChatListState.empty;
               }
             }
-            if (isChat == false) {
-              Message message = event.messageList?.first as Message;
-              if (ChatMessagesScreen.chatMessageScreenState.currentState !=
-                  null) {
-                if (isModified == false) {
-                  updateMessageListNotification.add(message);
-                }
-              } else {
-                notifyListeners();
-                if (message.messageType != MessageType.DATE) {
-                  showInAppessageNotification(message);
-                }
-              }
-            }
+          
 
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               notifyListeners();
@@ -351,6 +307,8 @@ class ChatPresentation extends ChangeNotifier
       List<Chat> chatListFromStream = event.chatList as List<Chat>;
 
       if (isRemoved) {
+
+
         chatDeletedNotification.add(chatListFromStream.first.chatId);
 
         ChatScreen.newChatListState.currentState?.removeItem(
@@ -381,15 +339,20 @@ class ChatPresentation extends ChangeNotifier
   void update() {
     updateSubscription =
         chatController.updateDataController?.stream.listen((event) {
+
+          
       notifyListeners();
     });
   }
 
   @override
   void initializeModuleData() {
-    chatController.initializeModuleData();
-
-    initializeChatListener();
-    initializeMessageListener();
+    try {
+      initializeChatListener();
+      var result = chatController.initializeModuleData();
+      result.fold((l) => setChatListState = ChatListState.error, (r) => {});
+    } catch (e) {
+      setChatListState = ChatListState.error;
+    }
   }
 }

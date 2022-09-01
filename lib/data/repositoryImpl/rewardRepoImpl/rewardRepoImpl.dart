@@ -15,10 +15,7 @@ class RewardRepoImpl implements RewardRepository {
     required this.rewardDataSource,
   });
 
-  @override
-  void clearModuleData() {
-    rewardDataSource.clearModuleData();
-  }
+
 
   @override
   Future<Either<Failure, bool>> getDailyReward() async {
@@ -38,9 +35,26 @@ class RewardRepoImpl implements RewardRepository {
   StreamController<Rewards>? get getRewardsStream =>
       rewardDataSource.rewardStream;
 
-  @override
-  void initializeModuleData() {
-    rewardDataSource.initializeModuleData();
+    @override
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      rewardDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
+  }
+
+   @override
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      rewardDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+      
+    }
   }
   
   @override

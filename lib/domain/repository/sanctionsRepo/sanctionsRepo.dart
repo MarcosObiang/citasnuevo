@@ -7,7 +7,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../core/dependencies/error/Failure.dart';
 
-abstract class SanctionsRepository implements ModuleCleaner{
+abstract class SanctionsRepository implements ModuleCleanerRepository{
   late SanctionsDataSource sanctionsDataSource;
     Future<Either<Failure,bool>> logOut();
     Future<Either<Failure,bool>> unlockProfile();

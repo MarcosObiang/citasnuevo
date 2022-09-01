@@ -8,7 +8,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../core/dependencies/error/Failure.dart';
 
-abstract class AppSettingsRepository implements ModuleCleaner {
+abstract class AppSettingsRepository implements ModuleCleanerRepository {
   late ApplicationSettingsDataSource appSettingsDataSource;
   Future<Either<Failure, bool>> updateSettings(Map<String,dynamic> data);
     Future<Either<Failure, bool>> deleteAccount();

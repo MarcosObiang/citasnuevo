@@ -117,43 +117,7 @@ class UserSettingsFailure implements Failure {
     required this.message,
   });
 
-  UserSettingsFailure copyWith({
-    String? message,
-  }) {
-    return UserSettingsFailure(
-      message: message ?? this.message,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'message': message,
-    };
-  }
-
-  factory UserSettingsFailure.fromMap(Map<String, dynamic> map) {
-    return UserSettingsFailure(
-      message: map['message'] ?? '',
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory UserSettingsFailure.fromJson(String source) =>
-      UserSettingsFailure.fromMap(json.decode(source));
-
-  @override
-  String toString() => 'UserSettingsFailure(message: $message)';
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is UserSettingsFailure && other.message == message;
-  }
-
-  @override
-  int get hashCode => message.hashCode;
+  
 }
 
 class UserCreatorFailure implements Failure {
@@ -175,6 +139,29 @@ class LocationServiceFailure implements Failure {
   @override
   String message;
   LocationServiceFailure({
+    required this.message,
+  });
+}
+
+class MessagesFailure implements Failure {
+  @override
+  String message;
+  MessagesFailure({
+    required this.message,
+  });
+}
+
+class ModuleInitializeFailure implements Failure {
+  @override
+  String message;
+  ModuleInitializeFailure({
+    required this.message,
+  });
+}
+class ModuleClearFailure implements Failure {
+  @override
+  String message;
+  ModuleClearFailure({
     required this.message,
   });
 }

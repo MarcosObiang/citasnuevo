@@ -2,13 +2,17 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 
-class ReactionRepositoryImpl implements ReactionRepository {
+import '../../../domain/entities/ReactionEntity.dart';
+import '../../../domain/repository/DataManager.dart';
+
+class ReactionRepositoryImpl implements ReactionRepository,ModuleCleanerDataSource  {
   @override
   ReactionDataSource reactionDataSource;
   ReactionRepositoryImpl({
@@ -24,8 +28,6 @@ class ReactionRepositoryImpl implements ReactionRepository {
   Either<Failure, Map> getAdditionalValues() {
     return Right(reactionDataSource.getAdditionalData());
   }
-
-
 
   @override
   Future<Either<Failure, void>> revealReaction(
@@ -90,12 +92,53 @@ class ReactionRepositoryImpl implements ReactionRepository {
   }
 
   @override
-  void clearModuleData() {
-    reactionDataSource.clearModuleData();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      reactionDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
 
   @override
-  void initializeModuleData() {
-    reactionDataSource.initializeModuleData();
+  Either<Failure, bool> clearModuleData() {
+    try {
+      reactionDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
+  }
+
+ 
+
+  @override
+  Stream reactionStream() async* {
+
+    await for (final event in reactionDataSource.reactionListener.stream) {
+      try{
+   if (event is Exception) {
+        yield event;
+      } else {
+        bool isModified = event["modified"];
+        bool deleted = event["deleted"];
+        bool notify = event["notify"];
+        Map<dynamic, dynamic> reactionData = event["reaction"];
+
+        Reaction reaction = ReactionMapper.fromMap(reactionData);
+
+      yield  {
+      "modified": isModified,
+      "reaction": reaction,
+      "deleted": deleted,
+      "notify": notify
+    };
+      }
+      }catch(e){
+yield e;
+      }
+   
+    }
   }
 }

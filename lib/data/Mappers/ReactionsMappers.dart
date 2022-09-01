@@ -1,13 +1,14 @@
-
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 
-class ReactionConverter {
+class ReactionMapper {
   static Reaction fromMap(Map data) {
     bool revealed = data["revelada"];
 
     if (revealed) {
       return Reaction(
+          userBlocked: data["bloqueado"],
+          revealed: data["revelada"],
           age: 20,
           reactionExpirationDateInSeconds: data["caducidad"],
           reactioValue: double.parse(data["Valoracion"].toString()),
@@ -21,6 +22,9 @@ class ReactionConverter {
               : ReactionRevealigState.notRevealed);
     } else {
       return Reaction(
+                  revealed: data["revelada"],
+
+          userBlocked: data["bloqueado"],
           age: 20,
           reactionExpirationDateInSeconds: data["caducidad"],
           senderId: data["idEmisor"],
@@ -34,6 +38,4 @@ class ReactionConverter {
               : ReactionRevealigState.notRevealed);
     }
   }
-
-
 }

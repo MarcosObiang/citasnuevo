@@ -15,9 +15,13 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../core/globalData.dart';
+import '../../../domain/repository/DataManager.dart';
 
 abstract class UserCreatorDataSource
-    implements DataSource, AuthenticationSignOutCapacity {
+    implements
+        DataSource,
+        AuthenticationSignOutCapacity,
+        ModuleCleanerDataSource {
   Future<bool> createUser({required Map<String, dynamic> userData});
   // ignore: close_sinks
   late StreamController<UserCreatorInformationSender> userCreatorDataStream;
@@ -28,11 +32,14 @@ abstract class UserCreatorDataSource
 class UserCreatorDataSourceImpl implements UserCreatorDataSource {
   @override
   ApplicationDataSource source;
-
   @override
-   StreamSubscription? sourceStreamSubscription;
-   StreamSubscription? userCreatorDataStreamSubscription;
-
+  late StreamController<UserCreatorInformationSender> userCreatorDataStream =
+      StreamController.broadcast();
+  @override
+  StreamSubscription? sourceStreamSubscription;
+  StreamSubscription? userCreatorDataStreamSubscription;
+  @override
+  AuthService authService;
   UserCreatorDataSourceImpl({required this.source, required this.authService});
 
   @override
@@ -135,7 +142,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
         UserCreatorException(message: e.toString());
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
     // TODO: implement createUser
     throw UnimplementedError();
@@ -152,10 +159,6 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
   }
 
   @override
-  late StreamController<UserCreatorInformationSender> userCreatorDataStream =
-      StreamController.broadcast();
-
-  @override
   Future<void> _initialize() async {
     DateTime dateTime = await _createMinDatetime();
     kUserCreatorMockData["minBirthDate"] = dateTime;
@@ -168,9 +171,6 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
     DateTime actualTime = await DateNTP.instance.getTime();
     return actualTime.subtract(const Duration(days: 365 * 18));
   }
-
-  @override
-  AuthService authService;
 
   @override
   Future<bool> logOut() async {

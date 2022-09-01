@@ -24,7 +24,7 @@ class UserSettingsPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<UserSettingsInformationSender>,
         Presentation,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   UserSettingsController userSettingsController;
 
   UserSettingsPresentation({required this.userSettingsController});

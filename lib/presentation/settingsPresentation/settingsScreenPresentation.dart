@@ -14,7 +14,7 @@ class SettingsScreenPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<SettingsInformationSender>,
         Presentation,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   SettingsController settingsController;
   late SettingsEntity settingsEntity;
   bool _isAppSettingsUpdating = false;

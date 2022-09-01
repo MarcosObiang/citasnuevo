@@ -5,7 +5,7 @@ import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:dartz/dartz.dart';
 import 'package:geolocator/geolocator.dart';
 
-abstract class HomeScreenRepository implements ModuleCleaner {
+abstract class HomeScreenRepository implements ModuleCleanerRepository {
   late HomeScreenDataSource homeScreenDataSource;
   Future<Either<Failure, List<Profile>>> fetchProfiles();
   Future<Either<Failure, LocationPermission>> requestLocationPermission();

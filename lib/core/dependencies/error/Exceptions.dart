@@ -133,6 +133,36 @@ class SanctionException implements Exception {
   }
 }
 
+class MessagesException implements Exception {
+  String message;
+  MessagesException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+
+class ModuleInitializeException implements Exception {
+  String message;
+  ModuleInitializeException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+class ModuleCleanException implements Exception {
+  String message;
+  ModuleCleanException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
+
+
+
 
 class LateInitErrorChecker {
   /// Used to check if the error is caused due to not initialized variables in the code

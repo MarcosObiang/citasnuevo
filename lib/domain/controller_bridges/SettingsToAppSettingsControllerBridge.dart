@@ -15,7 +15,7 @@ if (controllerBridgeInformationSenderStream?.isClosed == false) {
     }  }
 
   @override
-  void closeStream() {
+  void reinitializeStream() {
     controllerBridgeInformationSenderStream?.close();
   }
 

@@ -13,7 +13,10 @@ import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 
 import 'package:flutter/cupertino.dart';
 
-abstract class SettingsDataSource implements DataSource {
+import '../../../domain/repository/DataManager.dart';
+
+abstract class SettingsDataSource
+    implements DataSource, ModuleCleanerDataSource {
   /// Emits any update of the user settings
   late StreamController<SettingsEntity> onUserSettingsUpdate;
 
@@ -37,14 +40,14 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   };
 
   @override
-   StreamController<SettingsEntity> onUserSettingsUpdate =
+  StreamController<SettingsEntity> onUserSettingsUpdate =
       StreamController.broadcast();
 
   @override
   ApplicationDataSource source;
 
   @override
-   StreamSubscription? sourceStreamSubscription;
+  StreamSubscription? sourceStreamSubscription;
 
   SettingsDataSourceImpl({
     required this.source,
@@ -52,9 +55,13 @@ class SettingsDataSourceImpl implements SettingsDataSource {
 
   @override
   void clearModuleData() {
-    latestSettings = new Map<String, dynamic>();
-    onUserSettingsUpdate = StreamController.broadcast();
-    sourceStreamSubscription?.cancel();
+    try {
+      latestSettings = new Map<String, dynamic>();
+      onUserSettingsUpdate = StreamController.broadcast();
+      sourceStreamSubscription?.cancel();
+    } catch (e) {
+      throw ModuleCleanException(message: e.toString());
+    }
   }
 
   @override
@@ -67,6 +74,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
           } catch (e) {
             onUserSettingsUpdate
                 .addError(SettingsException(message: e.toString()));
+            throw SettingsException(message: e.toString());
           }
         }
         sourceStreamSubscription = source.dataStream.stream.listen((event) {
@@ -78,18 +86,12 @@ class SettingsDataSourceImpl implements SettingsDataSource {
             onUserSettingsUpdate
                 .addError(SettingsException(message: e.toString()));
           }
-        }, onError: (error) {
-          onUserSettingsUpdate.addError(error);
         });
       } catch (e) {
         onUserSettingsUpdate.addError(e);
-
-        throw SettingsException(message: e.toString());
       }
     } else {
-      onUserSettingsUpdate.addError(NetworkException(message:kNetworkErrorMessage ));
-
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -167,7 +169,11 @@ class SettingsDataSourceImpl implements SettingsDataSource {
 
   @override
   void initializeModuleData() async {
-    subscribeToMainDataSource();
+    try {
+      subscribeToMainDataSource();
+    } catch (e) {
+      throw ModuleInitializeException(message: e.toString());
+    }
   }
 
   @override
@@ -181,7 +187,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
         throw SettingsException(message: e.toString());
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 }

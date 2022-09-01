@@ -75,7 +75,7 @@ class ApplicationDataSource {
   }
 }
 
-abstract class DataSource implements ModuleCleaner {
+abstract class DataSource {
   /// Subscribe to the source to get the data from the backend
   late ApplicationDataSource source;
 

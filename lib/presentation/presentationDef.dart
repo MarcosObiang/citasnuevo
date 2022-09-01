@@ -37,7 +37,7 @@ abstract class ShouldUpdateData<InformationSender> {
   void update();
 }
 
-abstract class SouldAddData<InformationSender> {
+abstract class ShouldAddData<InformationSender> {
   /// Needs to listen to a [Controller.addDataController] and implement the presentation logic for new data
   late StreamSubscription<InformationSender>? addDataSubscription;
 

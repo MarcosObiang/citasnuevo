@@ -1,11 +1,12 @@
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
+import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 
 import '../../core/dependencies/error/Failure.dart';
 
-class ReportController implements Controller  {
+class ReportController implements ModuleCleanerController {
   ReportRepository reportRepository;
   ReportController({
     required this.reportRepository,
@@ -22,12 +23,12 @@ class ReportController implements Controller  {
   }
 
   @override
-  void clearModuleData() {
-    // TODO: implement clearModuleData
+  Either<Failure, bool> clearModuleData() {
+    throw UnimplementedError();
   }
 
   @override
-  void initializeModuleData() {
-    // TODO: implement initializeModuleData
+  Either<Failure, bool> initializeModuleData() {
+    throw UnimplementedError();
   }
 }

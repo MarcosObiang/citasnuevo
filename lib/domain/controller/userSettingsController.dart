@@ -14,7 +14,7 @@ import 'controllerDef.dart';
 class UserSettingsController
     implements
         ShouldControllerUpdateData<UserSettingsInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerController {
   UserSettingsRepository userSettingsRepository;
 
   UserSettingsController(
@@ -44,8 +44,7 @@ class UserSettingsController
 
   Future<Either<Failure, bool>> updateSettings() async {
     userSettingsUpdating = true;
-          sendInformationViaBridge();
-
+    sendInformationViaBridge();
 
     Either<Failure, bool> settings =
         await userSettingsRepository.updateSettings(userSettingsEntity);
@@ -77,15 +76,27 @@ class UserSettingsController
   }
 
   @override
-  void clearModuleData() {
-    updateDataController!.close();
-    updateDataController = new StreamController.broadcast();
+  Either<Failure, bool> clearModuleData() {
+    try {
+      updateDataController?.close();
+      updateDataController = null;
+      updateDataController = new StreamController.broadcast();
+      var result = userSettingsRepository.clearModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   @override
-  void initializeModuleData() {
-    userSettingsRepository.initializeModuleData();
-    initializeListener();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      initializeListener();
+      var result = userSettingsRepository.initializeModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
 
   void sendInformationViaBridge() {

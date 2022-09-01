@@ -9,8 +9,10 @@ import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../../../domain/repository/DataManager.dart';
+
 abstract class ApplicationSettingsDataSource
-    implements DataSource, AuthenticationSignOutCapacity {
+    implements DataSource, AuthenticationSignOutCapacity ,ModuleCleanerDataSource{
   /// Send the current state of app settings
   StreamController<ApplicationSettingsInformationSender>?
       // ignore: close_sinks
@@ -47,45 +49,55 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void clearModuleData() {
-    sourceStreamSubscription?.cancel();
-    sourceStreamSubscription = null;
+    try {
+      sourceStreamSubscription?.cancel();
+      sourceStreamSubscription = null;
 
-    listenAppSettingsUpdate?.close();
-    listenAppSettingsUpdate = null;
-    listenAppSettingsUpdate = new StreamController.broadcast();
+      listenAppSettingsUpdate?.close();
+      listenAppSettingsUpdate = null;
+      listenAppSettingsUpdate = new StreamController.broadcast();
+    } catch (e) {
+      throw ModuleCleanException(message: e.toString());
+    }
   }
 
   @override
   void initializeModuleData() {
-    subscribeToMainDataSource();
+    try {
+      subscribeToMainDataSource();
+    } catch (e) {
+              listenAppSettingsUpdate?.addError(e);
+
+      throw ModuleInitializeException(message: e.toString());
+    }
+  }
+
+  void _addDataToStream(Map<String, dynamic> data) {
+    listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
+        distance: data["Ajustes"]["distanciaMaxima"],
+        maxAge: data["Ajustes"]["edadFinal"],
+        minAge: data["Ajustes"]["edadInicial"],
+        inCm: data["Ajustes"]["enCm"],
+        inKm: data["Ajustes"]["enMillas"],
+        showBothSexes: data["Ajustes"]["mostrarAmbosSexos"],
+        showWoman: data["Ajustes"]["mostrarMujeres"],
+        showProfile: data["Ajustes"]["mostrarPerfil"]));
   }
 
   @override
   void subscribeToMainDataSource() {
     try {
-      listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
-          distance: source.getData["Ajustes"]["istanciaMaxima"],
-          maxAge: source.getData["Ajustes"]["edadFinal"],
-          minAge: source.getData["Ajustes"]["edadInicial"],
-          inCm: source.getData["Ajustes"]["enCm"],
-          inKm: source.getData["Ajustes"]["enMillas"],
-          showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
-          showWoman: source.getData["Ajustes"]["mostrarMujeres"],
-          showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
+      _addDataToStream(source.getData);
     } catch (e) {
       throw AppSettingsException(message: e.toString());
     }
 
     sourceStreamSubscription = source.dataStream.stream.listen((event) {
-      listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
-          distance: event["Ajustes"]["distanciaMaxima"],
-          maxAge: event["Ajustes"]["edadFinal"],
-          minAge: event["Ajustes"]["edadInicial"],
-          inCm: event["Ajustes"]["enCm"],
-          inKm: event["Ajustes"]["enMillas"],
-          showBothSexes: event["Ajustes"]["mostrarAmbosSexos"],
-          showWoman: event["Ajustes"]["mostrarMujeres"],
-          showProfile: event["Ajustes"]["mostrarPerfil"]));
+      try {
+        _addDataToStream(event);
+      } catch (e) {
+        listenAppSettingsUpdate?.addError(e);
+      }
     }, onError: (error) {
       listenAppSettingsUpdate?.addError(error);
     });

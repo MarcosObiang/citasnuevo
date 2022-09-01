@@ -13,7 +13,6 @@ import '../entities/ChatEntity.dart';
 import '../entities/RewardsEntity.dart';
 //ignore_for_file: close_sinks
 
-abstract class Controller implements ModuleCleaner {}
 
 class InformationSender {}
 
@@ -212,8 +211,7 @@ abstract class ControllerBridge {
    StreamController<Map<String, dynamic>>?
       controllerBridgeInformationSenderStream;
 
-      void initializeStream();
-      void closeStream();
+      void reinitializeStream();
 }
 
 

@@ -23,12 +23,12 @@ class AppSettingsPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<ApplicationSettingsInformationSender>,
         Presentation,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   AppSettingsController appSettingsController;
   late AppSettingsScreenState appSettingsScreenState;
   late AppSettingsScreenUpdateState appSettingsScreenUpdateState =
       AppSettingsScreenUpdateState.done;
-
+late ApplicationSettingsEntity applicationSettingsEntity;
   AppSettingsPresentation({required this.appSettingsController});
   @override
   late StreamSubscription<ApplicationSettingsInformationSender>?
@@ -47,16 +47,32 @@ class AppSettingsPresentation extends ChangeNotifier
 
   @override
   void clearModuleData() {
-    setAppSettingsScreenState = AppSettingsScreenState.loading;
-    updateSubscription?.cancel();
-    appSettingsController.clearModuleData();
+    try {
+      setAppSettingsScreenState = AppSettingsScreenState.loading;
+      updateSubscription?.cancel();
+      updateSubscription = null;
+
+      var result = appSettingsController.clearModuleData();
+      result.fold(
+          (l) => setAppSettingsScreenState = AppSettingsScreenState.error,
+          (r) => null);
+    } catch (e) {
+      setAppSettingsScreenState = AppSettingsScreenState.error;
+    }
   }
 
   @override
   void initializeModuleData() {
-    appSettingsController.initializeModuleData();
-    setAppSettingsScreenState = AppSettingsScreenState.loading;
-    update();
+    try {
+      setAppSettingsScreenState = AppSettingsScreenState.loading;
+      update();
+      var result = appSettingsController.initializeModuleData();
+      result.fold(
+          (l) => setAppSettingsScreenState = AppSettingsScreenState.error,
+          (r) => null);
+    } catch (e) {
+      setAppSettingsScreenState = AppSettingsScreenState.error;
+    }
   }
 
   @override
@@ -120,6 +136,16 @@ class AppSettingsPresentation extends ChangeNotifier
   void update() {
     updateSubscription =
         appSettingsController.updateDataController?.stream.listen((event) {
+
+ applicationSettingsEntity = new ApplicationSettingsEntity(
+          distance: event.distance,
+          maxAge: event.maxAge,
+          minAge: event.minAge,
+          inCm: event.inCm,
+          inKm: event.inKm,
+          showBothSexes: event.showBothSexes,
+          showWoman: event.showWoman,
+          showProfile: event.showProfile);
       setAppSettingsScreenState = AppSettingsScreenState.loaded;
     }, onError: (error) {
       setAppSettingsScreenState = AppSettingsScreenState.error;

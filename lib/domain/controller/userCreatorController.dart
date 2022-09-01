@@ -13,7 +13,7 @@ import '../repository/DataManager.dart';
 abstract class UserCreatorController
     implements
         ShouldControllerUpdateData<UserCreatorInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerController {
   late UserCreatorEntity userCreatorEntity;
   StreamController<UserCreatorInformationSender>? get getDataStream;
   void insertImageFile(Uint8List imageBytes, int index);
@@ -34,9 +34,15 @@ class UserCreatorControllerImpl implements UserCreatorController {
   });
 
   @override
-  void clearModuleData() {
-    updateDataController?.close();
-    streamSubscription?.cancel();
+  Either<Failure, bool> clearModuleData() {
+    try {
+      updateDataController?.close();
+      streamSubscription?.cancel();
+      var result = userCreatorRepo.clearModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   @override
@@ -72,11 +78,19 @@ class UserCreatorControllerImpl implements UserCreatorController {
   }
 
   @override
-  void initializeModuleData() {
-    initializeListener();
+    Either<Failure, bool> initializeModuleData() {
+      try{
+            initializeListener();
 
-    userCreatorRepo.initializeModuleData();
     updateDataController = StreamController.broadcast();
+     var result=   userCreatorRepo.initializeModuleData();
+
+return result;
+      }catch(e){
+        return Left(ModuleInitializeFailure(message: e.toString()));
+
+      }
+
   }
 
   @override

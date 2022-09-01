@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart';
 import '../../../core/dependencies/error/Failure.dart';
 import '../DataManager.dart';
 
-abstract class UserCreatorRepo  implements ModuleCleaner{
+abstract class UserCreatorRepo  implements ModuleCleanerRepository{
 
   Future<Either<Failure,bool>>createUser({required Map<String,dynamic>userData});
    StreamController<UserCreatorInformationSender> get getUserCreatorDataStream;

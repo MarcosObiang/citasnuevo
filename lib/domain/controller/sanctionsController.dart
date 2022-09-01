@@ -10,7 +10,9 @@ import '../repository/DataManager.dart';
 import 'controllerDef.dart';
 
 abstract class SanctionsController
-    implements ShouldControllerUpdateData<SanctionsEntity>, ModuleCleaner {
+    implements
+        ShouldControllerUpdateData<SanctionsEntity>,
+        ModuleCleanerController {
   late SanctionsEntity? sanctionsEntity;
   Future<Either<Failure, bool>> logOut();
   Future<Either<Failure, bool>> unlockProfile();
@@ -31,12 +33,19 @@ class SanctionsControllerImpl implements SanctionsController {
 
   StreamSubscription? streamSubscription;
   @override
-  void clearModuleData() {
-    updateDataController?.close();
-    sanctionsRepository.clearModuleData();
-    streamSubscription?.cancel();
-    streamSubscription = null;
-    sanctionsEntity = null;
+  Either<Failure, bool> clearModuleData() {
+    try {
+      updateDataController?.close();
+      streamSubscription?.cancel();
+      streamSubscription = null;
+      sanctionsEntity = null;
+            updateDataController = StreamController.broadcast();
+
+      var result = sanctionsRepository.clearModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+    }
   }
 
   void listenSanctionsData() {
@@ -58,11 +67,14 @@ class SanctionsControllerImpl implements SanctionsController {
   }
 
   @override
-  void initializeModuleData() {
-    updateDataController = StreamController.broadcast();
-    sanctionsRepository.initializeModuleData();
-
-    listenSanctionsData();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      listenSanctionsData();
+      var result = sanctionsRepository.initializeModuleData();
+      return result;
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
 
   @override

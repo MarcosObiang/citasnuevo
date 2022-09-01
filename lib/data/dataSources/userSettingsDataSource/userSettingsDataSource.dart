@@ -14,8 +14,10 @@ import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 
 import '../../../core/globalData.dart';
 import '../../../domain/controller/controllerDef.dart';
+import '../../../domain/repository/DataManager.dart';
 
-abstract class UserSettingsDataSource implements DataSource {
+abstract class UserSettingsDataSource
+    implements DataSource, ModuleCleanerDataSource {
   // ignore: close_sinks
   late StreamController<UserSettingsInformationSender> listenAppSettingsUpdate;
 
@@ -39,32 +41,39 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
   @override
   void clearModuleData() {
-    sourceStreamSubscription?.cancel();
-    listenAppSettingsUpdate.close();
-    listenAppSettingsUpdate = new StreamController.broadcast();
+    try {
+      sourceStreamSubscription?.cancel();
+      listenAppSettingsUpdate.close();
+      listenAppSettingsUpdate = new StreamController.broadcast();
+    } catch (e) {
+      throw ModuleCleanException(message: e.toString());
+    }
   }
 
   @override
   void initializeModuleData() {
-    subscribeToMainDataSource();
+    try {
+      subscribeToMainDataSource();
+    } catch (e) {
+      throw ModuleInitializeException(message: e.toString());
+    }
   }
 
   @override
   void subscribeToMainDataSource() async {
     bool firstInitialized = true;
-    Map<String,dynamic> oldData=source.getData;
-
+    Map<String, dynamic> oldData = source.getData;
 
     listenAppSettingsUpdate
         .add(await UserSettingsMapper.fromMap(source.getData));
 
-    source.dataStream.stream.listen((event) async {
+    sourceStreamSubscription = source.dataStream.stream.listen((event) async {
       try {
         bool shouldUpdate = shouldUpdateUserSettings(event, oldData);
 
         if (shouldUpdate == true) {
           listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(event));
-          oldData=event;
+          oldData = event;
         }
         if (firstInitialized == true) {
           listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(event));
@@ -113,7 +122,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
     for (int i = 0; i < newImageDataList.length; i++) {
       if (newImageDataList[i] != null && oldImageDataList[i] != null) {
-        if (newImageDataList[i]==oldImageDataList[i]) {
+        if (newImageDataList[i] == oldImageDataList[i]) {
         } else {
           shouldUpdate = true;
         }
@@ -192,8 +201,6 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
             });
           }
           if (userPicutreBoxState == UserPicutreBoxState.empty) {
-
-
             parsedImages.add({
               "Imagen": "vacio",
               "hash": "vacio",
@@ -230,7 +237,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
     } else {
       listenAppSettingsUpdate
           .add(await UserSettingsMapper.fromMap(source.getData));
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 

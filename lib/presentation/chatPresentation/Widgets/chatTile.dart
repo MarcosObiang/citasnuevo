@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatScreen.dart';
+import 'package:citasnuevo/presentation/MessagesScreenPresentation/chatScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,6 +39,7 @@ class _ChatCardState extends State<ChatCard> {
                 GoToRoute(
                     page: ChatMessagesScreen(
                   chatId: widget.chatData.chatId,
+                  userBlocked: widget.chatData.userBlocked,
                   imageHash: widget.chatData.remitentPictureHash,
                   imageUrl: widget.chatData.remitenrPicture,
                   remitentName: widget.chatData.remitentName,
@@ -107,13 +108,13 @@ class _ChatCardState extends State<ChatCard> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(widget.chatData.remitentName),
-                if (widget.chatData.messagesList.length > 0) ...[
-                  if (widget.chatData.messagesList.first.messageType ==
+                if (widget.chatData.lastMessage!=null) ...[
+                  if (widget.chatData.lastMessage?.messageType ==
                       MessageType.TEXT) ...[
                     Container(
                                   width: boxConstraints.maxWidth,
 
-                      child: Text(widget.chatData.messagesList.first.data,
+                      child: Text(widget.chatData.lastMessage!.data,
                       overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.lato(
                               color: widget.chatData.unreadMessages > 0
@@ -121,7 +122,7 @@ class _ChatCardState extends State<ChatCard> {
                                   : defaultTextColor)),
                     ),
                   ],
-                  if (widget.chatData.messagesList.first.messageType !=
+                  if (widget.chatData.lastMessage?.messageType !=
                       MessageType.TEXT) ...[
                     Text("GIF",
                         style: GoogleFonts.lato(

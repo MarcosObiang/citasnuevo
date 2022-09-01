@@ -48,6 +48,8 @@ void main() async {
         Provider(create: (_) => Dependencies.settingsScreenPresentation),
         Provider(create: (_) => Dependencies.rewardScreenPresentation),
         Provider(create: (_) => Dependencies.chatPresentation),
+                Provider(create: (_) => Dependencies.messagesPresentation),
+
         Provider(create: (_) => Dependencies.homeReportScreenPresentation),
         Provider(create: (_) => Dependencies.authScreenPresentation),
         Provider(create: (_) => Dependencies.homeScreenPresentation),

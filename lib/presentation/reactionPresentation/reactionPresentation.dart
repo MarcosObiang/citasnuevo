@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
@@ -47,10 +48,10 @@ enum AdShowingState {
 class ReactionPresentation extends ChangeNotifier
     implements
         Presentation,
-        SouldAddData<ReactionInformationSender>,
+        ShouldAddData<ReactionInformationSender>,
         ShouldRemoveData<ReactionInformationSender>,
         ShouldUpdateData<ReactionInformationSender>,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   int _coins = 0;
   bool additionalDataRecieverIsInitialized = false;
   double _reactionsAverage = 0;
@@ -69,18 +70,35 @@ class ReactionPresentation extends ChangeNotifier
 
   @override
   StreamSubscription<ReactionInformationSender>? removeDataSubscription;
+  @override
+  void initializeModuleData() {
+    try {
+      addData();
+      removeData();
+      update();
+      setReactionListState = ReactionListState.loading;
+
+      reactionsController.initializeModuleData();
+    } catch (e) {
+      this._reactionListState = ReactionListState.error;
+    }
+  }
 
   @override
   void clearModuleData() {
-    lastSincronizationTimeInSeconds = 0;
-    _coins = 0;
-    additionalDataRecieverIsInitialized = false;
-    _reactionsAverage = 0;
-    _reactionListState = ReactionListState.empty;
-    updateSubscription?.cancel();
-    addDataSubscription?.cancel();
-    removeDataSubscription?.cancel();
-    reactionsController.clearModuleData();
+    try {
+      lastSincronizationTimeInSeconds = 0;
+      _coins = 0;
+      additionalDataRecieverIsInitialized = false;
+      _reactionsAverage = 0;
+      _reactionListState = ReactionListState.empty;
+      updateSubscription?.cancel();
+      addDataSubscription?.cancel();
+      removeDataSubscription?.cancel();
+      reactionsController.clearModuleData();
+    } catch (e) {
+      this._reactionListState = ReactionListState.error;
+    }
   }
 
   set setReactionListState(ReactionListState reactionListState) {
@@ -130,7 +148,7 @@ class ReactionPresentation extends ChangeNotifier
             context: ReactionScreen.reactionsListKey.currentContext);
       }
       if (failure is ReactionFailure) {
-       PresentationDialogs.instance. showErrorDialog(
+        PresentationDialogs.instance.showErrorDialog(
             content: "Error al intentar realizar la operacion",
             context: ReactionScreen.reactionsListKey.currentContext,
             title: "Error");
@@ -220,7 +238,7 @@ class ReactionPresentation extends ChangeNotifier
                   context: ReactionScreen.reactionsListKey.currentContext);
             }
             if (failure is ReactionFailure) {
-             PresentationDialogs.instance. showErrorDialog(
+              PresentationDialogs.instance.showErrorDialog(
                   content: "Error al intentar realizar la operacion",
                   context: ReactionScreen.reactionsListKey.currentContext,
                   title: "Error");
@@ -233,7 +251,7 @@ class ReactionPresentation extends ChangeNotifier
             dialogText: "Abre recompensas y ve opciones para ganar creditos",
             dialogTitle: "Gemas Insuficientes",
             dialogOptionsList: [
-              DialogOptions(function: Navigator.pop, text: "Ahota no"),
+              DialogOptions(function: Navigator.pop, text: "Ahora no"),
               DialogOptions(function: this.goTorewards, text: "Ver recompensas")
             ]);
       }
@@ -261,49 +279,10 @@ class ReactionPresentation extends ChangeNotifier
   }
 
   @override
-  void showErrorDialogWithOptions({required BuildContext? context}) {
-    if (context != null) {
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text("Creditos insuficientes"),
-                content:
-                    Text("Abre recompensas y ve opciones para ganar creditos"),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text("Ahora no")),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-
-                        Navigator.push(
-                            context, GoToRoute(page: RewardScreen()));
-                      },
-                      child: Text("Abrir recompensas"))
-                ],
-              ));
-    }
-  }
-
-  @override
-  void showLoadingDialog() {}
-
-  @override
-  void initialize() async {
-    addData();
-    removeData();
-    update();
-    initializeModuleData();
-    DateTime dateTime = await DateNTP().getTime();
-    lastSincronizationTimeInSeconds = dateTime.millisecondsSinceEpoch ~/ 1000;
-  }
-
-  @override
   void restart() {
     clearModuleData();
 
-    initialize();
+    initializeModuleData();
   }
 
   @override
@@ -315,6 +294,8 @@ class ReactionPresentation extends ChangeNotifier
       } else {
         setReactionListState = ReactionListState.ready;
       }
+
+      
 
       if (event.coins != null) {
         setCoins = event.coins as int;
@@ -408,12 +389,6 @@ class ReactionPresentation extends ChangeNotifier
             onError: (_) {
               setReactionListState = ReactionListState.error;
             });
-  }
-
-  @override
-  void initializeModuleData() {
-    setReactionListState = ReactionListState.loading;
-    reactionsController.initializeModuleData();
   }
 
   void showInAppNotification() {

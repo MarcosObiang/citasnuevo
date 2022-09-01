@@ -19,7 +19,7 @@ import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/globalData.dart';
 
 class AuthScreenPresentation extends ChangeNotifier
-    implements Presentation, ModuleCleaner {
+    implements Presentation, ModuleCleanerPresentation {
   AuthState _authState = AuthState.notSignedIn;
   AuthScreenController authScreenController;
 

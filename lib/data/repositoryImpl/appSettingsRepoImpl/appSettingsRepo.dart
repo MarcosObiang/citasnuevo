@@ -7,6 +7,7 @@ import 'package:citasnuevo/core/dependencies/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 
+import '../../../domain/repository/DataManager.dart';
 import '../../dataSources/appSettings/ApplicationSettingsDataSource.dart';
 
 class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
@@ -17,18 +18,29 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   });
 
   @override
-  // TODO: implement appSettingsStream
   StreamController<ApplicationSettingsInformationSender>?
       get appSettingsStream => appSettingsDataSource.listenAppSettingsUpdate;
 
   @override
-  void clearModuleData() {
-    appSettingsDataSource.clearModuleData();
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      appSettingsDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
   }
 
   @override
-  void initializeModuleData() {
-    appSettingsDataSource.initializeModuleData();
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      appSettingsDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
   }
 
   @override
@@ -47,8 +59,8 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> deleteAccount()async {
-try {
+  Future<Either<Failure, bool>> deleteAccount() async {
+    try {
       var result = await appSettingsDataSource.deleteAccount();
       return Right(result);
     } catch (e) {
@@ -57,14 +69,14 @@ try {
       } else {
         return Left(AppSettingsFailure(message: e.toString()));
       }
-    }  }
+    }
+  }
 
   @override
-  Future<Either<Failure, bool>> logOut()async {
+  Future<Either<Failure, bool>> logOut() async {
     // TODO: implement logOut
-   try {
-      bool authData =
-          await appSettingsDataSource.logOut();
+    try {
+      bool authData = await appSettingsDataSource.logOut();
 
       return Right(authData);
     } catch (e) {
@@ -76,5 +88,6 @@ try {
       } else {
         return Left(ServerFailure(message: e.toString()));
       }
-    }  }
+    }
+  }
 }

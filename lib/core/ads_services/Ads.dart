@@ -47,6 +47,9 @@ class AdvertisingServices {
     Appodeal.muteVideosIfCallsMuted(true);
     Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
     Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
+
+ 
+
     adsInitialized = true;
   }
 
@@ -124,15 +127,13 @@ class AdvertisingServices {
     }, onRewardedVideoShown: () {
       print("onRewardedVideoShown");
     }, onRewardedVideoShowFailed: () {
-
       print("onRewardedVideoShowFailed");
 
       rewardedAdvertismentStateStream?.add({"status": "FAILED"});
     }, onRewardedVideoFinished: (amount, reward) {
       print("onRewardedVideoFinished");
-
     }, onRewardedVideoClosed: (isFinished) {
-      if (isFinished==true) {
+      if (isFinished == true) {
         rewardedAdvertismentStateStream?.add({"status": "CLOSED"});
       } else {
         rewardedAdvertismentStateStream?.add({"status": "INCOMPLETE"});

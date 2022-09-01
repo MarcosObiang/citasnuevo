@@ -58,21 +58,31 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       }
     }
   }
-
   @override
-  void clearModuleData() {
-    homeScreenDataSource.clearModuleData();
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      homeScreenDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
   }
 
-  @override
-  void initializeModuleData() {
-    homeScreenDataSource.initializeModuleData();
+   @override
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      homeScreenDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+      
+    }
   }
 
   @override
   Future<Either<Failure, LocationPermission>>
       requestLocationPermission() async {
-    // TODO: implement requestLocationPermission
     try {
       var result = await homeScreenDataSource.requestPermission();
       return Right(result);

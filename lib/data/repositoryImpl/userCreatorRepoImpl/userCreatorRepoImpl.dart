@@ -16,10 +16,7 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
   });
 
 
-  @override
-  void clearModuleData() {
-    userCreatorDataSource.clearModuleData();
-  }
+
 
   @override
   Future<Either<Failure, bool>> createUser(
@@ -37,10 +34,26 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
   }
 
   @override
-  void initializeModuleData()async {
-    userCreatorDataSource.initializeModuleData();
+  Either<Failure,bool>  initializeModuleData()  {
+    try {
+      userCreatorDataSource.initializeModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+      
+    }
   }
 
+   @override
+  Either<Failure,bool>  clearModuleData()  {
+    try {
+      userCreatorDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleClearFailure(message: e.toString()));
+      
+    }
+  }
   @override
   StreamController<UserCreatorInformationSender> get getUserCreatorDataStream => userCreatorDataSource.userCreatorDataStream;
 

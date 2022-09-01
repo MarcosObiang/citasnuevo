@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/presentation/MessagesScreenPresentation/messagesPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:giphy_get/giphy_get.dart';
@@ -10,15 +11,15 @@ import 'package:provider/provider.dart';
 
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatMessage.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatProfileDetailScreen.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatReportScreen.dart';
+import 'package:citasnuevo/presentation/MessagesScreenPresentation/chatProfileDetailScreen.dart';
+import 'package:citasnuevo/presentation/MessagesScreenPresentation/chatReportScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
 import 'package:citasnuevo/presentation/routes.dart';
 
-import '../../../core/dependencies/dependencyCreator.dart';
-import '../../../core/globalData.dart';
-import '../../../domain/entities/ChatEntity.dart';
-import '../../../domain/entities/MessageEntity.dart';
+import '../../core/dependencies/dependencyCreator.dart';
+import '../../core/globalData.dart';
+import '../../domain/entities/ChatEntity.dart';
+import '../../domain/entities/MessageEntity.dart';
 
 // ignore: must_be_immutable
 class ChatMessagesScreen extends StatefulWidget {
@@ -28,12 +29,14 @@ class ChatMessagesScreen extends StatefulWidget {
   String imageUrl;
   String imageHash;
   String remitentName;
-  static GlobalKey chatMessageScreenKey = GlobalKey();
-  static GlobalKey<AnimatedListState> chatMessageScreenState = GlobalKey();
+  bool userBlocked;
+  static GlobalKey messageScreenKey = GlobalKey();
+  static GlobalKey<AnimatedListState> messageListState = GlobalKey();
 
   ChatMessagesScreen(
       {required this.chatId,
       required this.remitentId,
+      required this.userBlocked,
       required this.imageUrl,
       required this.imageHash,
       required this.remitentName,
@@ -84,8 +87,8 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
       }
     });
     chatLitIndex = getIndex(chatId: widget.chatId);
-    Dependencies.chatPresentation.setMessagesOnSeen(chatId: widget.chatId);
-    Dependencies.chatPresentation.chatController.chatOpenId = widget.chatId;
+    Dependencies.messagesPresentation.setMessagesOnSeen(chatId: widget.chatId);
+    Dependencies.messagesPresentation.openChatId = widget.chatId;
   }
 
   @override
@@ -97,8 +100,9 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   void dispose() {
     lastMessageId = kNotAvailable;
 
-    Dependencies.chatPresentation.setAnyChatOpen = false;
-    Dependencies.chatPresentation.chatController.chatOpenId = "";
+    // Dependencies.chatPresentation.setAnyChatOpen = false;
+   Dependencies.messagesPresentation.openChatId =kNotAvailable;
+   
     super.dispose();
   }
 
@@ -106,18 +110,22 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
     controller.animateTo(0,
         duration: Duration(milliseconds: 400), curve: Curves.easeInSine);
   }
+
   /// Searches for the rigth chat to open in the chatList
-  /// 
-  /// When the user opens a chat, before anything is painted, 
+  ///
+  /// When the user opens a chat, before anything is painted,
   /// we need to know the index of the chat we want to access
 
   int getIndex({required String chatId}) {
     int index = -1;
 
     for (int i = 0;
-        i < Dependencies.chatPresentation.chatController.chatList.length;
+        i <
+            Dependencies.messagesPresentation.messagesController
+                .messageGroupList.length;
         i++) {
-      if (Dependencies.chatPresentation.chatController.chatList[i].chatId ==
+      if (Dependencies.messagesPresentation.messagesController
+              .messageGroupList[i].chatId ==
           widget.chatId) {
         index = i;
       }
@@ -185,82 +193,59 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: Dependencies.chatPresentation,
-      key: ChatMessagesScreen.chatMessageScreenKey,
-      child: StreamBuilder(
-          stream: Dependencies.chatPresentation.chatDeletedNotification.stream,
-          initialData: "",
-          builder: (BuildContext context, AsyncSnapshot<String> data) {
-            if (data.data == widget.chatId) {
-              focusNode.unfocus();
-              chatdeleted = true;
-            }
-            return SafeArea(
-                child: chatdeleted == false
-                    ? Scaffold(
-                        appBar: chatScreenAppBAr(),
-                        resizeToAvoidBottomInset: true,
-                        body: StreamBuilder<Message>(
-                            initialData: null,
-                            stream: Dependencies.chatPresentation
-                                .updateMessageListNotification.stream,
-                            builder: (BuildContext context,
-                                AsyncSnapshot<Message> data) {
-                              if (data.data?.chatId == widget.chatId) {
-                                if (lastMessageId != data.data?.messageId) {
-                                  ChatMessagesScreen
-                                      .chatMessageScreenState.currentState
-                                      ?.insertItem(0);
-                                  print(DateTime.now().microsecondsSinceEpoch);
-
-                                  lastMessageId =
-                                      data.data?.messageId as String;
-                                  Dependencies.chatPresentation
-                                      .setMessagesOnSeen(chatId: widget.chatId);
-                                }
-                              }
-                              return Consumer<ChatPresentation>(builder:
-                                  (BuildContext context,
-                                      ChatPresentation chatPresentation,
-                                      Widget? child) {
-                                return LayoutBuilder(
-                                    builder: (context, constraints) {
-                                  return Container(
-                                    height: constraints.biggest.height,
+        value: Dependencies.messagesPresentation,
+        key: ChatMessagesScreen.messageScreenKey,
+        child: SafeArea(
+            child: Consumer<MessagesPresentation>(builder:
+                        (BuildContext context,
+                            MessagesPresentation messagesPresentation,
+                            Widget? child)
+             {
+                return Stack(
+          children: [
+                Scaffold(
+                    appBar: chatScreenAppBar(),
+                    resizeToAvoidBottomInset: true,
+                    body:  LayoutBuilder(builder: (context, constraints) {
+                        return Container(
+                          height: constraints.biggest.height,
+                          width: constraints.biggest.width,
+                          child: SingleChildScrollView(
+                            physics: NeverScrollableScrollPhysics(),
+                            reverse: true,
+                            child: Column(
+                              children: [
+                                Container(
+                                    height: constraints.biggest.height -
+                                        (kBottomNavigationBarHeight * 1.75),
                                     width: constraints.biggest.width,
-                                    child: SingleChildScrollView(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      reverse: true,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                              height: constraints
-                                                      .biggest.height -
-                                                  (kBottomNavigationBarHeight *
-                                                      1.75),
-                                              width: constraints.biggest.width,
-                                              child: Stack(
-                                                children: [
-                                                  messageList(chatPresentation),
-                                                  RepaintBoundary(
-                                                    child: showForceScrollDownButton
-                                                        ? forceScrollDownButton()
-                                                        : Container(),
-                                                  )
-                                                ],
-                                              )),
-                                          messageSenderBar(constraints)
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                });
-                              });
-                            }),
-                      )
-                    : chatDeletedDialog(context));
-          }),
-    );
+                                    child: Stack(
+                                      children: [
+                                        messageList(
+                                            messagesPresentation:
+                                                messagesPresentation),
+                                        RepaintBoundary(
+                                          child: showForceScrollDownButton
+                                              ? forceScrollDownButton()
+                                              : Container(),
+                                        )
+                                      ],
+                                    )),
+                                messageSenderBar(constraints)
+                              ],
+                            ),
+                          ),
+                        );
+                      })
+                    ),
+                messagesPresentation.messagesController.messageGroupList[chatLitIndex].userBlocked == true
+                    ? userBlockedDialog(context)
+                    : Container(),
+                 messagesPresentation.messagesController.messageGroupList[chatLitIndex].isBeingDeleted == true ? chatDeletedDialog(context) : Container()
+          ],
+        );
+              }
+     ) ));
   }
 
   Material chatDeletedDialog(BuildContext context) {
@@ -279,6 +264,35 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
               ),
               ElevatedButton(
                   onPressed: () => Navigator.pop(context), child: Text("Atras"))
+            ],
+          ),
+        ),
+      ),
+    ));
+  }
+
+  Material userBlockedDialog(BuildContext context) {
+    return Material(
+        child: Container(
+      color: Colors.black,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "El usuario ha sido bloqueado por infringir las normas de la comunidad",
+                style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+              ),
+              ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Atras")),
+              ElevatedButton(
+                  onPressed: () {
+                    showDeleteChatDialog();
+                  },
+                  child: Text("Eliminar conversacion"))
             ],
           ),
         ),
@@ -307,23 +321,24 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
     );
   }
 
-  AnimatedList messageList(ChatPresentation chatPresentation) {
+  AnimatedList messageList(
+      {required MessagesPresentation messagesPresentation}) {
     return AnimatedList(
         physics: BouncingScrollPhysics(),
-        key: ChatMessagesScreen.chatMessageScreenState,
+        key: ChatMessagesScreen.messageListState,
         reverse: true,
         controller: controller,
-        initialItemCount: chatPresentation
-            .chatController.chatList[chatLitIndex].messagesList.length,
+        initialItemCount: messagesPresentation.messagesController
+            .messageGroupList[chatLitIndex].messagesList.length,
         itemBuilder: (context, index, animation) {
           return TextMessage(
-              message: chatPresentation
-                  .chatController.chatList[chatLitIndex].messagesList[index],
+              message: messagesPresentation.messagesController
+                  .messageGroupList[chatLitIndex].messagesList[index],
               animation: animation);
         });
   }
 
-  AppBar chatScreenAppBAr() {
+  AppBar chatScreenAppBar() {
     return AppBar(
         title: Row(
           children: [
@@ -425,7 +440,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   void sendMessage({required String? text, required bool isGif}) {
     if (text != null) {
       if (text.length > 0) {
-        Dependencies.chatPresentation.sendMessage(
+        Dependencies.messagesPresentation.sendMessage(
             message: new Message(
                 messageDateText: kNotAvailable,
                 read: false,
@@ -453,7 +468,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
             actions: [
               TextButton(
                   onPressed: () {
-                    Dependencies.chatPresentation.deleteChat(
+                    Dependencies.messagesPresentation.deleteChat(
                         remitent1: GlobalDataContainer.userId as String,
                         remitent2: widget.remitentId,
                         reportDetails: "NOT_AVAILABLE",
@@ -463,9 +478,11 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                     Navigator.pop(context);
                   },
                   child: Text("Si")),
-              TextButton(onPressed: () {
-                Navigator.pop(context);
-              }, child: Text("No"))
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("No"))
             ],
           );
         });

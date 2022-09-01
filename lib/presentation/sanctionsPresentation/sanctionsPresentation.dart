@@ -22,7 +22,7 @@ enum SanctionScreenMode { waitingModeration, sanctioned, sanctionEnded }
 enum UnlockProcessState { done, inProcess }
 
 class SanctionsPresentation extends ChangeNotifier
-    implements ShouldUpdateData<SanctionsEntity>, Presentation, ModuleCleaner {
+    implements ShouldUpdateData<SanctionsEntity>, Presentation, ModuleCleanerPresentation {
   SanctionsController sanctionsController;
   @override
   StreamSubscription<SanctionsEntity>? updateSubscription;

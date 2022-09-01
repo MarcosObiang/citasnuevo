@@ -20,7 +20,7 @@ class HomeScreenPresentation extends ChangeNotifier
     implements
         ShouldUpdateData<HomeScreenInformationSender>,
         Presentation,
-        ModuleCleaner {
+        ModuleCleanerPresentation {
   HomeScreenPresentation({required this.homeScreenController});
 
   @override
@@ -247,11 +247,16 @@ class HomeScreenPresentation extends ChangeNotifier
 
   @override
   void clearModuleData() {
-    profileListState = ProfileListState.empty;
-    updateSubscription?.cancel();
-    updateSubscription = null;
-
-    homeScreenController.clearModuleData();
+    try {
+      profileListState = ProfileListState.empty;
+      updateSubscription = null;
+      updateSubscription?.cancel();
+      var result = homeScreenController.clearModuleData();
+      result.fold(
+          (l) => profileListState = ProfileListState.error, (r) => null);
+    } catch (e) {
+      profileListState = ProfileListState.empty;
+    }
   }
 
   @override
@@ -272,8 +277,14 @@ class HomeScreenPresentation extends ChangeNotifier
 
   @override
   void initializeModuleData() {
-    homeScreenController.initializeModuleData();
-    update();
-    getProfiles();
+    try {
+      update();
+      getProfiles();
+      var result = homeScreenController.initializeModuleData();
+      result.fold(
+          (l) => profileListState = ProfileListState.error, (r) => null);
+    } catch (e) {
+      profileListState = ProfileListState.error;
+    }
   }
 }
