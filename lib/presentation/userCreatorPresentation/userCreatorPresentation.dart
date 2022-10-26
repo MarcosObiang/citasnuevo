@@ -15,7 +15,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../core/dependencies/dependencyCreator.dart';
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../../core/globalData.dart';
 import '../../domain/repository/DataManager.dart';
 import '../homeScreenPresentation/Screens/HomeScreen.dart';

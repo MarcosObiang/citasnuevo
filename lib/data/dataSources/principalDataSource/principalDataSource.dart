@@ -71,6 +71,7 @@ class ApplicationDataSource {
   void clearAppDataSource() {
     if (appSubscription != null) {
       appSubscription!.cancel();
+      appSubscription=null;
     }
   }
 }

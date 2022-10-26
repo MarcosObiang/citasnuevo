@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
@@ -13,11 +13,11 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../domain/repository/DataManager.dart';
 
-abstract class ReactionDataSource implements DataSource ,ModuleCleanerDataSource{
+abstract class ReactionDataSource
+    implements DataSource, ModuleCleanerDataSource {
 // ignore: close_sinks
-  late StreamController<Map<String, dynamic>> reactionListener;
+  late StreamController<Map<String, dynamic>>? reactionListener;
   // ignore: close_sinks
-  late StreamController<Map<dynamic, dynamic>> additionalDataSender;
 
   Future<void> revealReaction(String reactionId);
 
@@ -32,10 +32,7 @@ abstract class ReactionDataSource implements DataSource ,ModuleCleanerDataSource
 
 class ReactionDataSourceImpl implements ReactionDataSource {
   @override
-  StreamController<Map<String, dynamic>> reactionListener =
-      new StreamController.broadcast();
-  @override
-  StreamController<Map<dynamic, dynamic>> additionalDataSender =
+  StreamController<Map<String, dynamic>>? reactionListener =
       new StreamController.broadcast();
 
   @override
@@ -61,36 +58,68 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   void _addReaction({required DocumentChange<Map<String, dynamic>> element}) {
-    
-
-    reactionListener.add({
-      "modified": false,
-      "reaction": element.doc.data(),
-      "deleted": false,
-      "notify": element.doc.metadata.isFromCache == true ? false : true
-    });
+    if (reactionListener != null) {
+      reactionListener?.add({
+        "payloadType": "reaction",
+        "modified": false,
+        "reaction": element.doc.data(),
+        "deleted": false,
+        "notify": element.doc.metadata.isFromCache == true ? false : true
+      });
+    } else {
+      throw Exception("REACTION_LISTENER_CANNOT_BE_NULL");
+    }
   }
 
   void _modifyReaction(
       {required DocumentChange<Map<String, dynamic>> element}) {
-   
-    reactionListener.add({
-      "modified": true,
-      "reaction": element.doc.data(),
-      "deleted": false,
-      "notify": false
-    });
+    if (reactionListener == null) {
+      reactionListener?.add({
+        "payloadType": "reaction",
+        "modified": true,
+        "reaction": element.doc.data(),
+        "deleted": false,
+        "notify": false
+      });
+    } else {
+      throw Exception("REACTION_LISTENER_CANNOT_BE_NULL");
+    }
   }
 
   void _deleteReaction(
       {required DocumentChange<Map<String, dynamic>> element}) {
- 
-    reactionListener.add({
-      "modified": true,
-      "reaction": element.doc.data(),
-      "deleted": true,
-      "notify": false
-    });
+    if (reactionListener != null) {
+      reactionListener?.add({
+        "payloadType": "reaction",
+        "modified": true,
+        "reaction": element.doc.data(),
+        "deleted": true,
+        "notify": false
+      });
+    } else {
+      throw Exception(kStreamParserNullError);
+    }
+  }
+
+  void _sendAdditionalData() {
+    if (reactionListener != null) {
+      reactionListener!.add({
+        "payloadType": "additionalData",
+        "reactionsAverage": reactionsAverage,
+        "coins": coins,
+        "isPremium": isPremium
+      });
+    } else {
+      throw Exception(kStreamParserNullError);
+    }
+  }
+
+  void _addErrorReaction({required dynamic e}) {
+    if (reactionListener != null) {
+      reactionListener!.addError(Exception(e));
+    } else {
+      throw Exception(kStreamParserNullError);
+    }
   }
 
   void initializeReactionListener() async {
@@ -121,18 +150,18 @@ class ReactionDataSourceImpl implements ReactionDataSource {
               if (element.type == DocumentChangeType.removed) {
                 _deleteReaction(element: element);
               }
-            } catch (e, s) {
-              reactionListener.addError(Exception());
-
-              throw ReactionException(message: e.toString(), stackTrace: s);
+            } catch (e) {
+              _addErrorReaction(e: e);
             }
           });
         });
-      } catch (e, s) {
-        throw ReactionException(message: e.toString(), stackTrace: s);
+      } catch (e) {
+        throw ReactionException(
+          message: e.toString(),
+        );
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -149,11 +178,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         coins = event["creditos"];
         isPremium = event["monedasInfinitas"];
 
-        additionalDataSender.add({
-          "reactionsAverage": reactionsAverage,
-          "coins": coins,
-          "isPremium": isPremium
-        });
+        _sendAdditionalData();
       });
       userID = source.getData["id"];
       isPremium = source.getData["monedasInfinitas"];
@@ -163,15 +188,11 @@ class ReactionDataSourceImpl implements ReactionDataSource {
             double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
       }
       coins = source.getData["creditos"];
-      additionalDataSender.add({
-        "reactionsAverage": reactionsAverage,
-        "coins": coins,
-        "isPremium": isPremium
-      });
+      _sendAdditionalData();
 
       initializeReactionListener();
     } catch (e) {
-      additionalDataSender.addError(e);
+      _addErrorReaction(e: e);
     }
   }
 
@@ -187,16 +208,17 @@ class ReactionDataSourceImpl implements ReactionDataSource {
           "idUsuario": userID,
           "primeraSolicitud": false
         });
-        if (result.data["estado"] == "correcto") {}
 
         if (result.data["estado"] != "correcto") {
           throw Exception(["FAILED"]);
         }
-      } catch (e, S) {
-        throw ReactionException(message: e.toString(), stackTrace: S);
+      } catch (e) {
+        throw ReactionException(
+          message: e.toString(),
+        );
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -217,13 +239,15 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         if (httpsCallableResult.data["estado"] == "correcto") {
           return true;
         } else {
-          throw Exception(["NOT_ALLOWED"]);
+          throw ReactionException(message: "NOT_ALLOWED");
         }
-      } catch (e, s) {
-        throw ReactionException(message: e.toString(), stackTrace: s);
+      } catch (e) {
+        throw ReactionException(
+          message: e.toString(),
+        );
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -234,31 +258,39 @@ class ReactionDataSourceImpl implements ReactionDataSource {
         FirebaseFirestore instance = FirebaseFirestore.instance;
         await instance.collection("valoraciones").doc(reactionId).delete();
         return true;
-      } catch (e, s) {
-        throw ReactionException(message: e.toString(), stackTrace: s);
+      } catch (e) {
+        throw ReactionException(
+          message: e.toString(),
+        );
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
   @override
   void initializeModuleData() {
-    subscribeToMainDataSource();
+    try {
+      subscribeToMainDataSource();
+    } catch (e) {
+      throw ModuleInitializeException(message: e.toString());
+    }
   }
 
   @override
   void clearModuleData() {
-    reactionListener.close();
-    additionalDataSender.close();
-    sourceStreamSubscription?.cancel();
-    reactionSubscriptionListener?.cancel();
-    coins = 0;
-    aditionalData = new Map();
-    reactionsAverage = 0;
-    userID = kNotAvailable;
-    reactionListener = new StreamController.broadcast();
-
-    additionalDataSender = new StreamController.broadcast();
+    try {
+      reactionListener?.close();
+      reactionListener = null;
+      sourceStreamSubscription?.cancel();
+      reactionSubscriptionListener?.cancel();
+      coins = 0;
+      aditionalData = new Map();
+      reactionsAverage = 0;
+      userID = kNotAvailable;
+      reactionListener = new StreamController.broadcast();
+    } catch (e) {
+      throw ModuleCleanException(message: e.toString());
+    }
   }
 }

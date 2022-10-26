@@ -1,16 +1,14 @@
 import 'dart:async';
 
-import 'package:citasnuevo/domain/controller/appSettingsController.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
-import 'package:citasnuevo/domain/controller/rewardController.dart';
-import 'package:citasnuevo/domain/controller/userSettingsController.dart';
+
 import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
 import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../controller_bridges/RewardScreenControllerBridge.dart';
 import '../controller_bridges/SettingsToAppSettingsControllerBridge.dart';
 
@@ -48,7 +46,8 @@ class SettingsControllerImpl implements SettingsController {
 
   @override
   void initialize() {
-    settingsRepository.settingsStream.stream.listen((event) {
+    settingsRepository.getStreamParserController?.stream.listen((event) {
+      String payloadType=event["pauloadtype"];
       settingsEntity = event;
       appSettingstoSettingscontrollerBridge.initializeStream();
       userSettingsToSettingsControllerBridge.initializeStream();

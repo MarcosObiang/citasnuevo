@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';

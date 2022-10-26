@@ -1,5 +1,5 @@
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/AuthScreenEntity.dart';

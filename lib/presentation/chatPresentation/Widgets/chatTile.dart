@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/presentation/Routes.dart';
-import 'package:citasnuevo/presentation/MessagesScreenPresentation/chatScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,50 +33,68 @@ class _ChatCardState extends State<ChatCard> {
       opacity: widget.animationValue,
       child: GestureDetector(
         onTap: () {
-          if (widget.chatData.isBeingDeleted == false) {
+          if (widget.chatData.isBeingDeleted == false&&widget.chatData.userBlocked==false) {
             Navigator.push(
                 context,
                 GoToRoute(
                     page: ChatMessagesScreen(
                   chatId: widget.chatData.chatId,
-                  userBlocked: widget.chatData.userBlocked,
-                  imageHash: widget.chatData.remitentPictureHash,
-                  imageUrl: widget.chatData.remitenrPicture,
-                  remitentName: widget.chatData.remitentName,
-                  messageTokenNotification: widget.chatData.notificationToken,
                   remitentId: widget.chatData.remitentId,
                 )));
           }
         },
         child: Card(
-            color: widget.chatData.unreadMessages > 0
-                ? unreadMessagesColor
-                : defaultColor,
-            child: widget.chatData.isBeingDeleted == false
-                ? Container(
-                    height: 200.h,
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            chatCardImage(),
-                            chatLastMessageShower(),
-                            unreadMessagesCounter(),
-                          ],
-                        )))
-                : Container(
-                    height: 200.h,
-                    color: Colors.black,
-                    child: Row(
-                      children: [
-                        Text(
-                          "Eliminando conversacion",
-                          style: GoogleFonts.lato(color: Colors.white),
-                        ),
-                        LoadingIndicator(indicatorType: Indicator.ballBeat)
-                      ],
-                    ),
-                  )),
+          color: widget.chatData.unreadMessages > 0
+              ? unreadMessagesColor
+              : defaultColor,
+          child: Stack(
+            children: [
+              Container(
+                  height: 200.h,
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          chatCardImage(),
+                          chatLastMessageShower(),
+                          unreadMessagesCounter(),
+                        ],
+                      ))),
+                                 widget.chatData.userBlocked == true
+                  ? Container(
+                      height: 200.h,
+                      color: Colors.black,
+                      child: Row(
+                        children: [
+                          Text(
+                            "Usuario bloqueado",
+                            style: GoogleFonts.lato(color: Colors.white),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {}, child: Text("Eliminar"))
+                        ],
+                      ),
+                    )
+                  : Container(),
+              widget.chatData.isBeingDeleted == true
+                  ? Container(
+                      height: 200.h,
+                      color: Colors.black,
+                      child: Row(
+                        children: [
+                          Text(
+                            "Eliminando conversacion",
+                            style: GoogleFonts.lato(color: Colors.white),
+                          ),
+                          LoadingIndicator(indicatorType: Indicator.ballBeat)
+                        ],
+                      ),
+                    )
+                  : Container(),
+   
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -101,41 +119,37 @@ class _ChatCardState extends State<ChatCard> {
       flex: 9,
       fit: FlexFit.tight,
       child: LayoutBuilder(
-        builder: (BuildContext context,BoxConstraints boxConstraints) {
-          return Container(
-            width: boxConstraints.maxWidth,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(widget.chatData.remitentName),
-                if (widget.chatData.lastMessage!=null) ...[
-                  if (widget.chatData.lastMessage?.messageType ==
-                      MessageType.TEXT) ...[
-                    Container(
-                                  width: boxConstraints.maxWidth,
-
-                      child: Text(widget.chatData.lastMessage!.data,
+          builder: (BuildContext context, BoxConstraints boxConstraints) {
+        return Container(
+          width: boxConstraints.maxWidth,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(widget.chatData.remitentName),
+              if (widget.chatData.messagesList.first.messageType ==
+                  MessageType.TEXT) ...[
+                Container(
+                  width: boxConstraints.maxWidth,
+                  child: Text(widget.chatData.messagesList.first.data,
                       overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.lato(
-                              color: widget.chatData.unreadMessages > 0
-                                  ? unreadMessagesTextColor
-                                  : defaultTextColor)),
-                    ),
-                  ],
-                  if (widget.chatData.lastMessage?.messageType !=
-                      MessageType.TEXT) ...[
-                    Text("GIF",
-                        style: GoogleFonts.lato(
-                            color: widget.chatData.unreadMessages > 0
-                                ? unreadMessagesTextColor
-                                : defaultTextColor)),
-                  ]
-                ],
+                      style: GoogleFonts.lato(
+                          color: widget.chatData.unreadMessages > 0
+                              ? unreadMessagesTextColor
+                              : defaultTextColor)),
+                ),
               ],
-            ),
-          );
-        }
-      ),
+              if (widget.chatData.messagesList.first.messageType !=
+                  MessageType.TEXT) ...[
+                Text("GIF",
+                    style: GoogleFonts.lato(
+                        color: widget.chatData.unreadMessages > 0
+                            ? unreadMessagesTextColor
+                            : defaultTextColor)),
+              ]
+            ],
+          ),
+        );
+      }),
     );
   }
 

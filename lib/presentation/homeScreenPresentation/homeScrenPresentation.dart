@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';
@@ -51,8 +51,8 @@ class RewardControllerImpl implements RewardController {
   int secondsUntilDailyReward = 0;
 
   @override
-  StreamController<RewardInformationSender>?       updateDataController = StreamController.broadcast();
-
+  StreamController<RewardInformationSender>? updateDataController =
+      StreamController.broadcast();
 
   @override
   bool waitingDailyReward = false;
@@ -69,7 +69,7 @@ class RewardControllerImpl implements RewardController {
       rewardStreamSubscription?.cancel();
       updateDataController?.close();
       externalSubscription?.cancel();
-            updateDataController = StreamController.broadcast();
+      updateDataController = StreamController.broadcast();
 
       var result = rewardRepository.clearModuleData();
       return result;
@@ -82,15 +82,13 @@ class RewardControllerImpl implements RewardController {
   Either<Failure, bool> initializeModuleData() {
     try {
       recieveExternalInformation();
-    _rewardStateListener();
+      _rewardStateListener();
       var result = rewardRepository.initializeModuleData();
       return result;
     } catch (e) {
       return Left(ModuleInitializeFailure(message: e.toString()));
     }
   }
-
- 
 
   void recieveExternalInformation() {
     externalSubscription = rewardScreenControlBridge
@@ -153,30 +151,34 @@ class RewardControllerImpl implements RewardController {
   @override
   void _rewardStateListener() {
     rewardStreamSubscription =
-        rewardRepository.getRewardsStream?.stream.listen((event) {
-      if (rewards != null) {
-        this.isPremium = rewards!.isPremium;
+        rewardRepository.getStreamParserController?.stream.listen((event) {
+      String payloadType = event["payloadType"];
 
-        if (this.rewards?.waitingReward == false &&
-            event.waitingReward == true) {
-          stardDailyRewardCounter();
+      if (payloadType == "reward") {
+        if (rewards != null) {
+          this.isPremium = rewards!.isPremium;
+
+          if (this.rewards?.waitingReward == false &&
+              event.waitingReward == true) {
+            stardDailyRewardCounter();
+          }
         }
-      }
 
-      if (isRewardCounterRunning == false) {
-        stardDailyRewardCounter();
-        isRewardCounterRunning = true;
-      }
-      this.rewards = event;
+        if (isRewardCounterRunning == false) {
+          stardDailyRewardCounter();
+          isRewardCounterRunning = true;
+        }
+        this.rewards = event;
 
-      if (rewards != null) {
-        this.isPremium = rewards!.isPremium;
+        if (rewards != null) {
+          this.isPremium = rewards!.isPremium;
 
-        updateDataController?.add(RewardInformationSender(
-            premiumPrice: this.premiumPrice ?? "0",
-            rewards: this.rewards,
-            isPremium: this.isPremium,
-            secondsToDailyReward: secondsUntilDailyReward));
+          updateDataController?.add(RewardInformationSender(
+              premiumPrice: this.premiumPrice ?? "0",
+              rewards: this.rewards,
+              isPremium: this.isPremium,
+              secondsToDailyReward: secondsUntilDailyReward));
+        }
       }
     }, onError: (error) {
       updateDataController?.addError(error);

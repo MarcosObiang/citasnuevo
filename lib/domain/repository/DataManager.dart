@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 
 abstract class ModuleCleanerRepository {
   /// #From the presetation to the data source, every module needs to implement this method.

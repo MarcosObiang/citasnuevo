@@ -37,6 +37,7 @@ class Chat {
   String notificationToken;
   Message? lastMessage;
   Profile? senderProfile;
+  List<Message> messagesList = [];
   AdditionalMessagesLoadState additionalMessagesLoadState =
       AdditionalMessagesLoadState.NOT_LOADED_YET;
 
@@ -47,6 +48,7 @@ class Chat {
 
 
   Chat({
+    required this.userBlocked,
     required this.unreadMessages,
     required this.matchCreated,
     required this.chatId,
@@ -56,7 +58,6 @@ class Chat {
     required this.remitentPictureHash,
     required this.remitentName,
     required this.notificationToken,
-    required this.userBlocked
   });
 
   Future<AdditionalMessagesLoadState> stateTimer(
@@ -70,5 +71,17 @@ class Chat {
     return newState2;
   }
 
-
+  // ignore: unused_element
+  void calculateUnreadMessages(String userId) {
+    unreadMessages=0;
+    for (int i = 0; i < messagesList.length; i++) {
+      if (messagesList[i].read == false &&
+          messagesList[i].senderId != userId&&messagesList[i].messageType!=MessageType.DATE) {
+        unreadMessages = unreadMessages + 1;
+      }
+      if (messagesList[i].read == true) {
+        break;
+      }
+    }
+  }
 }

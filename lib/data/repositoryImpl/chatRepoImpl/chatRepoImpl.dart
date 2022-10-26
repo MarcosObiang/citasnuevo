@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'dart:ffi';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/data/Mappers/MessajeConverter.dart';
 import 'package:citasnuevo/data/Mappers/ProfilesMapper.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/data/dataSources/chatDataSource/chatDataSource.dart';
 import 'package:citasnuevo/domain/repository/chatRepo/chatRepo.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../domain/entities/MessageEntity.dart';
 import '../../Mappers/ChatConverter.dart';
 
 class ChatRepoImpl implements ChatRepository {
@@ -21,11 +23,14 @@ class ChatRepoImpl implements ChatRepository {
   ChatRepoImpl({
     required this.chatDataSource,
   });
+  @override
+  StreamController? get getStreamParserController => streamParserController;
+ 
+ @override
+  StreamController? streamParserController= StreamController();
 
   @override
-  StreamController? get getChatStream => chatDataSource.chatStream;
-  StreamSubscription? streamSubscriptionChat;
-
+  StreamSubscription? streamParserSubscription;
   @override
   Future<Either<Failure, bool>> initializeChatListener() async {
     try {
@@ -41,22 +46,82 @@ class ChatRepoImpl implements ChatRepository {
     }
   }
 
-
+  @override
+  Future<Either<Failure, bool>> sendMessages(
+      {required Message message,
+      required String messageNotificationToken,
+      required String remitentId}) async {
+    try {
+      await chatDataSource.sendMessages(
+          message: MessageConverter.toMap(message),
+          messageNotificationToken: messageNotificationToken,
+          remitentId: remitentId);
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else {
+        return Left(ChatFailure(message: e.toString()));
+      }
+    }
+  }
 
   @override
-  StreamController<Map<String, dynamic>> get getMessageStream =>
-      chatDataSource.messageStream;
+  Future<Either<Failure, bool>> initializeMessageListener() async {
+    try {
+      chatDataSource.listenToMessages();
 
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else {
+        return Left(ChatFailure(message: e.toString()));
+      }
+    }
+  }
 
+  @override
+  Future<Either<Failure, bool>> setMessagesOnSeen(
+      {required List<String> data}) async {
+    try {
+      bool value = await chatDataSource.messagesSeen(data: data);
 
+      return Right(value);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else {
+        return Left(ChatFailure(message: e.toString()));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Message>>> loadMoreMessages(
+      {required String chatId, required String lastMessageId}) async {
+    try {
+      List<Message> value = await chatDataSource.loadMoreMessages(
+          chatId: chatId, lastMessageId: lastMessageId);
+
+      return Right(value);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else {
+        return Left(ChatFailure(message: e.toString()));
+      }
+    }
+  }
+
+  @override
   @override
   Future<Either<Failure, Profile>> getUserProfile(
       {required String profileId, required String chatId}) async {
     try {
-      Map<String,dynamic> value = await chatDataSource.getUserProfile(profileId: profileId);
-      Profile profile= ProfileMapper.fromMap(value).first;
+      Profile value = await chatDataSource.getUserProfile(profileId: profileId);
 
-      return Right(profile);
+      return Right(value);
     } catch (e) {
       if (e is NetworkException) {
         return Left(NetworkFailure(message: e.toString()));
@@ -89,13 +154,15 @@ class ChatRepoImpl implements ChatRepository {
     }
   }
 
-
-
   @override
   Either<Failure, bool> clearModuleData() {
     try {
-      streamSubscriptionChat?.cancel();
-      streamSubscriptionChat = null;
+
+      streamParserSubscription?.cancel();
+      streamParserSubscription=null;
+      streamParserController?.close();
+      streamParserController=null;
+      streamParserController=StreamController();
       chatDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
@@ -113,8 +180,7 @@ class ChatRepoImpl implements ChatRepository {
   @override
   Either<Failure, bool> initializeModuleData() {
     try {
-      chatStream();
-
+      parseStreams();
       chatDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
@@ -129,93 +195,120 @@ class ChatRepoImpl implements ChatRepository {
     }
   }
 
+  Future<Map<String, dynamic>> _chatParser(Map<String, dynamic> event) async {
+    Map<String, dynamic> returnData = Map();
+
+    bool isModified = event["modified"];
+    bool isRemoved = event["removed"];
+    bool firstQuery = event["firstQuery"];
+    bool isAdded = event["added"];
+    bool isEmpty = event["chatListIsEmpty"];
+
+    if (firstQuery) {
+      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Chat> processedChats =
+          await compute(ChatConverter.fromMap, chatDataList);
+      returnData = {
+        "payloadType": "chat",
+        "modified": isModified,
+        "removed": isRemoved,
+        "added": isAdded,
+        "chatDataList": processedChats,
+        "chatListIsEmpty": isEmpty,
+        "firstQuery": firstQuery
+      };
+    }
+    if (isRemoved) {
+      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
+      returnData = {
+        "payloadType": "chat",
+        "modified": isModified,
+        "removed": isRemoved,
+        "added": isAdded,
+        "chatDataList": processedChats,
+        "chatListIsEmpty": isEmpty,
+        "firstQuery": firstQuery
+      };
+    }
+    if (isModified) {
+      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
+      returnData = {
+        "payloadType": "chat",
+        "modified": isModified,
+        "removed": isRemoved,
+        "added": isAdded,
+        "chatDataList": processedChats,
+        "chatListIsEmpty": isEmpty,
+        "firstQuery": firstQuery
+      };
+    }
+    if (isAdded) {
+      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
+      returnData = {
+        "payloadType": "chat",
+        "modified": isModified,
+        "removed": isRemoved,
+        "added": isAdded,
+        "chatDataList": processedChats,
+        "chatListIsEmpty": isEmpty,
+        "firstQuery": firstQuery
+      };
+    }
+    if (isEmpty) {
+      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
+      returnData = {
+        "payloadType": "chat",
+        "modified": isModified,
+        "removed": isRemoved,
+        "added": isAdded,
+        "chatDataList": processedChats,
+        "chatListIsEmpty": isEmpty,
+        "firstQuery": firstQuery
+      };
+    }
+
+    return returnData;
+  }
+
+  Future<Map<String, dynamic>> _messageParser(
+      Map<String, dynamic> event) async {
+    Map<String, dynamic> messageData = event["message"];
+    bool modified = event["modified"];
+    Message message = MessageConverter.fromMap(messageData);
+
+    return {
+      "payloadType": "chatMessage",
+      "message": message,
+      "modified": modified
+    };
+  }
+
+ 
+
+
+
   @override
-  Stream? chatStream() async* {
-    if (chatDataSource.chatStream != null) {
-      await for (final event in chatDataSource.chatStream!.stream) {
- if(event is Exception){
-          yield Exception();
+  void parseStreams() async {
+    if (chatDataSource.chatStream != null && streamParserController != null) {
+      streamParserSubscription =
+          chatDataSource.chatStream!.stream.listen((event) async {
+        String payloadType = event["payloadType"];
+        if (payloadType == "chat") {
+          Map<String, dynamic> chatData = await _chatParser(event);
+          streamParserController?.add(chatData);
+        } else {
+          Map<String, dynamic> messageData = await _messageParser(event);
+          streamParserController?.add(messageData);
         }
-        else{
-        bool isModified = event["modified"];
-        bool isRemoved = event["removed"];
-        bool firstQuery = event["firstQuery"];
-        bool isAdded = event["added"];
-        bool isEmpty=event["chatListIsEmpty"];
-
-        if (firstQuery) {
-          List<Map<String, dynamic>> chatDataList = event["chatDataList"];
-          List<Chat> processedChats =
-              await compute(ChatConverter.fromMap, chatDataList);
-          yield {
-            "modified": isModified,
-            "removed": isRemoved,
-            "added": isAdded,
-            "chatDataList": processedChats,
-            "chatListIsEmpty":isEmpty,
-            "firstQuery": firstQuery
-          };
-        }
-        if (isRemoved) {
-          List<Map<String, dynamic>> chatDataList = event["chatDataList"];
-          List<Chat> processedChats =
-              ChatConverter.fromMap(chatDataList);
-           yield {
-            "modified": isModified,
-            "removed": isRemoved,
-            "added": isAdded,
-            "chatDataList": processedChats,
-            "chatListIsEmpty":isEmpty,
-            "firstQuery": firstQuery
-          };
-        }
-        if (isModified) {
-          List<Map<String, dynamic>> chatDataList = event["chatDataList"];
-          List<Chat> processedChats =
-              ChatConverter.fromMap(chatDataList);
-           yield {
-            "modified": isModified,
-            "removed": isRemoved,
-            "added": isAdded,
-            "chatDataList": processedChats,
-            "chatListIsEmpty":isEmpty,
-            "firstQuery": firstQuery
-          };
-        }
-        if (isAdded) {
-          List<Map<String, dynamic>> chatDataList = event["chatDataList"];
-      List<Chat> processedChats =
-              ChatConverter.fromMap(chatDataList);
-           yield {
-            "modified": isModified,
-            "removed": isRemoved,
-            "added": isAdded,
-            "chatDataList": processedChats,
-            "chatListIsEmpty":isEmpty,
-            "firstQuery": firstQuery
-          };
-        }
-         if (isEmpty) {
-          List<Map<String, dynamic>> chatDataList = event["chatDataList"];
-      List<Chat> processedChats =
-              ChatConverter.fromMap(chatDataList);
-            yield {
-            "modified": isModified,
-            "removed": isRemoved,
-            "added": isAdded,
-            "chatDataList": processedChats,
-            "chatListIsEmpty":isEmpty,
-            "firstQuery": firstQuery
-          };
-        }
-        }
-
-
-
-       
-      }
+      },onError: (error){
+        streamParserController!.addError(error);
+      });
+    } else {
+      throw Exception(kStreamParserNullError);
     }
   }
-  
-
 }

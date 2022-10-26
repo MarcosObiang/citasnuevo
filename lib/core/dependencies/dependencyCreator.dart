@@ -4,7 +4,6 @@ import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:citasnuevo/data/dataSources/HomeDataSource/homeScreenDataSources.dart';
-import 'package:citasnuevo/data/dataSources/MessaagesDataSource/MessagesDataSource.dart';
 import 'package:citasnuevo/data/dataSources/appSettings/ApplicationSettingsDataSource.dart';
 import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
 import 'package:citasnuevo/data/dataSources/chatDataSource/chatDataSource.dart';
@@ -16,11 +15,11 @@ import 'package:citasnuevo/data/dataSources/sanctionsDataSource.dart/sanctionsDa
 import 'package:citasnuevo/data/dataSources/settingsDataSource/settingsDataSource.dart';
 import 'package:citasnuevo/data/dataSources/userCreatorDataSource/userCreator.DataSource.dart';
 import 'package:citasnuevo/data/dataSources/userSettingsDataSource/userSettingsDataSource.dart';
+import 'package:citasnuevo/data/dataSources/verificationDataSource/verificationDataSource.dart';
 import 'package:citasnuevo/data/repositoryImpl/appSettingsRepoImpl/appSettingsRepo.dart';
 import 'package:citasnuevo/data/repositoryImpl/authRepoImpl/authRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/chatRepoImpl/chatRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/homeScreenRepoImpl.dart/homeScreenRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/messaggesRepoImpl/messagesRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/reportRepoImpl/reportRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/rewardRepoImpl/rewardRepoImpl.dart';
@@ -28,18 +27,19 @@ import 'package:citasnuevo/data/repositoryImpl/sanctionsRepoImpl/sanctionsRepoIm
 import 'package:citasnuevo/data/repositoryImpl/settingsRepoImpl/settingsRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart';
 import 'package:citasnuevo/data/repositoryImpl/userSettingsRepoImpl.dart/userSettingsRepoImpl.dart';
+import 'package:citasnuevo/data/repositoryImpl/verificationRepoImpl/verificationRepoImpl.dart';
 import 'package:citasnuevo/domain/controller/SettingsController.dart';
 import 'package:citasnuevo/domain/controller/appSettingsController.dart';
 import 'package:citasnuevo/domain/controller/authScreenController.dart';
 import 'package:citasnuevo/domain/controller/chatController.dart';
 import 'package:citasnuevo/domain/controller/homeScreenController.dart';
-import 'package:citasnuevo/domain/controller/messagesController.dart';
 import 'package:citasnuevo/domain/controller/reactionsController.dart';
 import 'package:citasnuevo/domain/controller/reportController.dart';
 import 'package:citasnuevo/domain/controller/rewardController.dart';
 import 'package:citasnuevo/domain/controller/sanctionsController.dart';
 import 'package:citasnuevo/domain/controller/userCreatorController.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
+import 'package:citasnuevo/domain/controller/verificationController.dart';
 import 'package:citasnuevo/domain/controller_bridges/ChatToMessagesController.dart';
 import 'package:citasnuevo/domain/controller_bridges/HomeScreenCotrollerBridge.dart';
 import 'package:citasnuevo/domain/controller_bridges/MessagesToChatControllerBridge.dart';
@@ -51,15 +51,14 @@ import 'package:citasnuevo/domain/repository/appSettingsRepo/userSettingsRepo.da
 import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
 import 'package:citasnuevo/domain/repository/chatRepo/chatRepo.dart';
 import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
-import 'package:citasnuevo/domain/repository/messagesRepo/messagesRepo.dart';
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';
 import 'package:citasnuevo/domain/repository/sanctionsRepo/sanctionsRepo.dart';
 import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
+import 'package:citasnuevo/domain/repository/verificationRepository/verificationRepository.dart';
 import 'package:citasnuevo/main.dart';
-import 'package:citasnuevo/presentation/MessagesScreenPresentation/messagesPresentation.dart';
 import 'package:citasnuevo/presentation/appSettingsPresentation/appSettingsPresentation.dart';
 import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
 import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
@@ -73,6 +72,7 @@ import 'package:citasnuevo/presentation/sanctionsPresentation/sanctionsPresentat
 import 'package:citasnuevo/presentation/settingsPresentation/settingsScreenPresentation.dart';
 import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorPresentation.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentation.dart';
+import 'package:citasnuevo/presentation/verificationPresentation/verificationPresentation.dart';
 import 'package:flutter/material.dart';
 
 import '../iapPurchases/iapPurchases.dart';
@@ -112,6 +112,17 @@ class Dependencies {
       UserSettingsToSettingsControllerBridge();
 
       static late final ChatToMessagesControllerBridge chatToMessagesControllerBridge=ChatToMessagesControllerBridge();
+
+static late final VerificationDataSource verificationDataSource= new VerificationDataSourceImpl(source: applicationDataSource);
+static late final VerificationRepository verificationRepository = VerificationRepoImpl(verificationDataSource: verificationDataSource);
+static late final VerificationController verificationController =VerificationControllerImpl(verificationRepository: verificationRepository);
+static late final VerificationPresentation verificationPresentation= VerificationPresentation(verificationController: verificationController);
+
+
+
+
+
+
 
   ///SANCTIONS SCREEN
   ///
@@ -199,8 +210,7 @@ class Dependencies {
 
   static late final ChatRepository chatRepository =
       new ChatRepoImpl(chatDataSource: chatDataSource);
-  static late final ChatControllerImpl chatController = new ChatControllerImpl(chatToMessagesControllerBridge: chatToMessagesControllerBridge,
-    messagesToChatControllerBridge: messagesToChatControllerBridge,
+  static late final ChatControllerImpl chatController = new ChatControllerImpl(
       chatRepository: chatRepository,
       homeScreenControllreBridge: homeScreenControllerBridge);
   static late final chatPresentation =
@@ -224,19 +234,7 @@ class Dependencies {
   static late final SettingsScreenPresentation settingsScreenPresentation =
       new SettingsScreenPresentation(settingsController: settingsController);
 
-  ///Messages
-  ///
-  ///
 
-  static late final MessagesDataSource messagesDataSource =
-      MessagesDataSourceImpl(source: applicationDataSource);
-  static late final MessagesRepo messagesRepo =
-      MessagesRepoImpl(messagesDataSource: messagesDataSource);
-  static late final MessagesController messagesController =
-      MessagesControllerImpl(chatToMessagesControllerBridge: chatToMessagesControllerBridge,
-          messagesRepository: messagesRepo,
-          messagesToChatControllerBridge: messagesToChatControllerBridge);
-  static late final MessagesPresentation messagesPresentation=MessagesPresentation(messagesController: messagesController);
 
   ///APP_SETTINGS
   ///
@@ -338,6 +336,8 @@ class Dependencies {
     appSettingsPresentation.initializeModuleData();
     userSettingsPresentation.initializeModuleData();
     sanctionsPresentation.initializeModuleData();
+        verificationPresentation.initializeModuleData();
+
   }
 
   static void clearDependenciesAfterCreateUser() {
@@ -366,7 +366,8 @@ class Dependencies {
         advertisingServices.initializeAdsService();
         rewardScreenPresentation.initializeModuleData();
         sanctionsPresentation.initializeModuleData();
-        messagesPresentation.initializeModuleData();
+                verificationPresentation.initializeModuleData();
+
 
         return true;
       } else {

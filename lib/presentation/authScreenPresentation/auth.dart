@@ -8,7 +8,7 @@ import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorScree
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/controller/authScreenController.dart';
 import 'package:citasnuevo/main.dart';

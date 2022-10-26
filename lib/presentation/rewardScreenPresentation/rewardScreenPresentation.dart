@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/rewardController.dart';
 import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';

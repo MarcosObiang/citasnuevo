@@ -5,7 +5,7 @@ import 'package:citasnuevo/domain/entities/SanctionsEntity.dart';
 import 'package:citasnuevo/domain/repository/sanctionsRepo/sanctionsRepo.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../repository/DataManager.dart';
 import 'controllerDef.dart';
 
@@ -50,7 +50,13 @@ class SanctionsControllerImpl implements SanctionsController {
 
   void listenSanctionsData() {
     streamSubscription =
-        sanctionsRepository.getSanctionsUpdate?.stream.listen((event) {
+        sanctionsRepository.getStreamParserController?.stream.listen((event) {
+String payloadType=event["payloadType"];
+
+if(payloadType=="sanctions"){
+  
+}
+
       if (sanctionsEntity == null) {
         sanctionsEntity = event;
         updateDataController?.add(event);

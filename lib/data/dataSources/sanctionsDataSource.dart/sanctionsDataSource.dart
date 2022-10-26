@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/domain/entities/SanctionsEntity.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../domain/controller/controllerDef.dart';
 import '../../../domain/repository/DataManager.dart';
@@ -19,7 +21,7 @@ abstract class SanctionsDataSource
         AuthenticationSignOutCapacity,
         ModuleCleanerDataSource {
   // ignore: close_sinks
-  late StreamController<SanctionsEntity> sanctionsUpdate;
+  late StreamController<Map<String, dynamic>>? sanctionsUpdate;
   Future<bool> unlockProfile();
 }
 
@@ -29,7 +31,7 @@ class SanctionsDataSourceImpl implements SanctionsDataSource {
   @override
   AuthService authService;
   @override
-  StreamController<SanctionsEntity> sanctionsUpdate =
+  StreamController<Map<String, dynamic>>? sanctionsUpdate =
       StreamController.broadcast();
 
   @override
@@ -39,7 +41,7 @@ class SanctionsDataSourceImpl implements SanctionsDataSource {
   @override
   void clearModuleData() {
     try {
-      sanctionsUpdate.close();
+      sanctionsUpdate?.close();
       sourceStreamSubscription?.cancel();
       sourceStreamSubscription = null;
       sanctionsUpdate = new StreamController.broadcast();
@@ -68,60 +70,56 @@ class SanctionsDataSourceImpl implements SanctionsDataSource {
     }
   }
 
-  void _sendFirstSanctionObject(
-      {required SanctionsEntity oldSanctionsEntity}) async {
-    DateTime dateTime = await DateNTP.instance.getTime();
-    int actualTimeInMilliseconds = dateTime.millisecondsSinceEpoch;
-    oldSanctionsEntity.sanctionTimerStart(
-        actualTimeInMilliseconds: actualTimeInMilliseconds);
-    sanctionsUpdate.add(oldSanctionsEntity);
+
+
+  void _addData(Map<String, dynamic> data) {
+    if (sanctionsUpdate != null) {
+      sanctionsUpdate?.add(data);
+    } else {
+      throw Exception(kStreamParserNullError);
+    }
+  }
+
+  void _addError(dynamic e) {
+    if (sanctionsUpdate != null) {
+      sanctionsUpdate?.addError(e);
+    } else {
+      throw Exception(kStreamParserNullError);
+    }
   }
 
   @override
   void subscribeToMainDataSource() async {
-    SanctionsEntity? oldSanctionsEntity = SanctionsEntity(
-        sanctionConfirmed: source.getData["sancionado"]["moderado"],
-        sanctionTimeStamp: source.getData["sancionado"]["finSancion"],
-        isUserSanctioned: source.getData["sancionado"]["usuarioSancionado"]);
+    Map<String, dynamic>? oldSanctionsEntity = {
+      "sanctionConfirmed": source.getData["sancionado"]["moderado"],
+      "sanctionTimeStamp": source.getData["sancionado"]["finSancion"],
+      "isUserSanctioned": source.getData["sancionado"]["usuarioSancionado"]
+    };
 
-    _sendFirstSanctionObject(oldSanctionsEntity: oldSanctionsEntity);
+    _addData(oldSanctionsEntity);
     sourceStreamSubscription = source.dataStream.stream.listen((event) async {
       try {
-        SanctionsEntity? newSanctionsEntity = SanctionsEntity(
-            sanctionConfirmed: event["sancionado"]["moderado"],
-            sanctionTimeStamp: event["sancionado"]["finSancion"],
-            isUserSanctioned: event["sancionado"]["usuarioSancionado"]);
+        Map<String, dynamic> newSanctionsEntity = {
+          "sanctionConfirmed": source.getData["sancionado"]["moderado"],
+          "sanctionTimeStamp": source.getData["sancionado"]["finSancion"],
+          "isUserSanctioned": source.getData["sancionado"]["usuarioSancionado"]
+        };
 
         if (oldSanctionsEntity == null) {
           oldSanctionsEntity = newSanctionsEntity;
 
-          DateTime dateTime = await DateNTP.instance.getTime();
-          int actualTimeInMilliseconds = dateTime.millisecondsSinceEpoch;
-
-          newSanctionsEntity.sanctionTimerStart(
-              actualTimeInMilliseconds: actualTimeInMilliseconds);
-          sanctionsUpdate.add(newSanctionsEntity);
+          _addData(newSanctionsEntity);
         }
         // ignore: unnecessary_null_comparison
         if (oldSanctionsEntity != null && newSanctionsEntity != null) {
-          if ((oldSanctionsEntity!.isUserSanctioned !=
-                  newSanctionsEntity.isUserSanctioned) ||
-              (oldSanctionsEntity!.sanctionConfirmed !=
-                  newSanctionsEntity.sanctionConfirmed) ||
-              (oldSanctionsEntity!.sanctionTimeStamp !=
-                  newSanctionsEntity.sanctionTimeStamp)) {
+          if (!mapEquals(oldSanctionsEntity, newSanctionsEntity)) {
             oldSanctionsEntity = newSanctionsEntity;
 
-            DateTime dateTime = await DateNTP.instance.getTime();
-            int actualTimeInMilliseconds = dateTime.millisecondsSinceEpoch;
-
-            newSanctionsEntity.sanctionTimerStart(
-                actualTimeInMilliseconds: actualTimeInMilliseconds);
-            sanctionsUpdate.add(newSanctionsEntity);
+            _addData(newSanctionsEntity);
           }
         }
       } catch (e) {
-        sanctionsUpdate.addError(e);
+        _addError(e);
       }
     });
   }

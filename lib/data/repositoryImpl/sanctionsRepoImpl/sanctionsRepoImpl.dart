@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
+import 'package:citasnuevo/data/Mappers/SanctionsMapper.dart';
 import 'package:citasnuevo/data/dataSources/sanctionsDataSource.dart/sanctionsDataSource.dart';
 import 'package:citasnuevo/domain/entities/SanctionsEntity.dart';
 import 'package:citasnuevo/domain/repository/sanctionsRepo/sanctionsRepo.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../core/dependencies/error/Exceptions.dart';
+import '../../../core/error/Exceptions.dart';
 
 class SanctionsRepoImpl implements SanctionsRepository {
   @override
@@ -15,31 +16,56 @@ class SanctionsRepoImpl implements SanctionsRepository {
     required this.sanctionsDataSource,
   });
 
-
+  @override
+  StreamController? streamParserController = StreamController();
 
   @override
-  StreamController<SanctionsEntity>? get getSanctionsUpdate =>
-      sanctionsDataSource.sanctionsUpdate;
+  StreamSubscription? streamParserSubscription;
 
-   @override
-  Either<Failure,bool>  initializeModuleData()  {
+  @override
+  StreamController? get getStreamParserController =>
+      this.streamParserController;
+
+  @override
+  void parseStreams() {
+    if (this.sanctionsDataSource.sanctionsUpdate != null &&
+        streamParserController != null) {
+      streamParserSubscription =
+          sanctionsDataSource.sanctionsUpdate!.stream.listen((event) {
+        SanctionsEntity sanctionsEntity = SanctionMapper.fromMap(event);
+        streamParserController!.add({
+          "payloadType": "sanctionsEntity",
+          "settingsEntity": sanctionsEntity
+        });
+      }, onError: (error) {
+        streamParserController!.addError(error);
+      });
+    }
+  }
+
+  @override
+  Either<Failure, bool> initializeModuleData() {
     try {
+      parseStreams();
       sanctionsDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleInitializeFailure(message: e.toString()));
-      
     }
   }
 
-   @override
-  Either<Failure,bool>  clearModuleData()  {
+  @override
+  Either<Failure, bool> clearModuleData() {
     try {
+      streamParserController?.close();
+      streamParserSubscription?.cancel();
+      streamParserController = null;
+      streamParserSubscription = null;
+      streamParserController = new StreamController();
       sanctionsDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleClearFailure(message: e.toString()));
-      
     }
   }
 

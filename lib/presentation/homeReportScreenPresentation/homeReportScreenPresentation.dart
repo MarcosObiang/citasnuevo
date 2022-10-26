@@ -11,7 +11,7 @@ import 'package:citasnuevo/domain/controller/reportController.dart';
 import 'package:citasnuevo/presentation/presentationDef.dart';
 
 import '../../core/common/common_widgets.dart/errorWidget.dart';
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../dialogs.dart';
 
 class HomeReportScreenPresentation extends ChangeNotifier implements Presentation {

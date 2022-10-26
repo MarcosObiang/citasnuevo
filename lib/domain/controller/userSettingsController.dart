@@ -5,7 +5,7 @@ import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
 import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../entities/UserSettingsEntity.dart';
 import '../repository/DataManager.dart';
 import '../repository/appSettingsRepo/userSettingsRepo.dart';

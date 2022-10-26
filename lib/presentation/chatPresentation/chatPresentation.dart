@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/main.dart';
-import 'package:citasnuevo/presentation/MessagesScreenPresentation/chatScreen.dart';
+import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTile.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/emptyChatWidget.dart';
@@ -22,6 +22,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:notify_inapp/notify_inapp.dart';
 import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../domain/entities/ChatEntity.dart';
+import 'Widgets/chatScreen.dart';
 
 enum ChatListState { loading, ready, empty, error }
 
@@ -69,7 +70,7 @@ class ChatPresentation extends ChangeNotifier
     required this.chatController,
   });
 
-  /*get anyChatOpen => chatController.getAnyChatOpen;
+  get anyChatOpen => chatController.getAnyChatOpen;
 
   set setAnyChatOpen(bool value) {
     chatController.setAnyChatOpen = value;
@@ -79,16 +80,17 @@ class ChatPresentation extends ChangeNotifier
       });
     }
   }
-*/
+
   set setChatListState(ChatListState chatListStateData) {
     this.chatListState = chatListStateData;
     notifyListeners();
   }
 
-
+  void setMessagesOnSeen({required String chatId}) async {
+    await chatController.setMessagesOnSeen(chatId: chatId);
+  }
 
   ///Initializes Chat listener to update chat tiles when needed
-
   void initializeChatListener() async {
     setChatListState = ChatListState.loading;
     var result = await chatController.initializeChatListener();
@@ -106,6 +108,12 @@ class ChatPresentation extends ChangeNotifier
     });
   }
 
+  /// Here we start the MESSAGE LISTENER and if it succeds we call [_initializeMessageStream] method
+  @protected
+  void initializeMessageListener() async {
+    var result = await chatController.initializeMessageListener();
+    result.fold((failure) {}, (succes) {});
+  }
 
   void closeStreams() {
     updateMessageListNotification.close();
@@ -130,11 +138,31 @@ class ChatPresentation extends ChangeNotifier
     });
   }
 
+  void sendMessage(
+      {required Message message,
+      required String messageNotificationToken,
+      required String remitentId}) async {
+    var result = await chatController.sendMessage(
+        message: message,
+        messageNotificationToken: messageNotificationToken,
+        remitentId: remitentId);
+    result.fold((failure) {
+      if (failure is NetworkFailure) {
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+         PresentationDialogs.instance
+            . showErrorDialog(
+            title: "title",
+            content: "content",
+            context: startKey.currentContext);
+      }
+    }, (succes) {});
+  }
 
 
 
-
-/*  Future<void> deleteChat(
+  Future<void> deleteChat(
       {required String remitent1,
       required String remitent2,
       required String reportDetails,
@@ -152,22 +180,21 @@ class ChatPresentation extends ChangeNotifier
         PresentationDialogs.instance
             .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
-       PresentationDialogs.instance
+         PresentationDialogs.instance
             . showErrorDialog(
             title: "Error",
             content: "Error al intentar eliminar la conversacion",
             context: startKey.currentContext);
       }
     }, (r) => null);
-  }*/
+  }
 
   @override
   void restart() {
     clearModuleData();
     initializeModuleData();
-    if (chatListState != ChatListState.error) {
-      initializeChatListener();
-    }
+    initializeChatListener();
+    initializeMessageListener();
   }
 
   @override
@@ -186,7 +213,9 @@ class ChatPresentation extends ChangeNotifier
       chatListState = ChatListState.empty;
       currentOpenChat = kNotAvailable;
       var result = chatController.clearModuleData();
-      result.fold((l) => setChatListState = ChatListState.error, (r) {});
+      result.fold((l) {
+        setChatListState = ChatListState.error;
+      }, (r) => null);
     } catch (e) {
       setChatListState = ChatListState.error;
     }
@@ -222,7 +251,20 @@ class ChatPresentation extends ChangeNotifier
                 setChatListState = ChatListState.empty;
               }
             }
-          
+            if (isChat == false) {
+              Message message = event.messageList?.first as Message;
+              if (ChatMessagesScreen.messageListState.currentState != null) {
+                if (isModified == false) {
+                  ChatMessagesScreen.messageListState.currentState!
+                      .insertItem(0, duration: Duration(milliseconds: 200));
+                }
+              } else {
+                notifyListeners();
+                if (message.messageType != MessageType.DATE) {
+                  showInAppessageNotification(message);
+                }
+              }
+            }
 
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               notifyListeners();
@@ -307,8 +349,6 @@ class ChatPresentation extends ChangeNotifier
       List<Chat> chatListFromStream = event.chatList as List<Chat>;
 
       if (isRemoved) {
-
-
         chatDeletedNotification.add(chatListFromStream.first.chatId);
 
         ChatScreen.newChatListState.currentState?.removeItem(
@@ -339,20 +379,15 @@ class ChatPresentation extends ChangeNotifier
   void update() {
     updateSubscription =
         chatController.updateDataController?.stream.listen((event) {
-
-          
       notifyListeners();
     });
   }
 
   @override
   void initializeModuleData() {
-    try {
-      initializeChatListener();
-      var result = chatController.initializeModuleData();
-      result.fold((l) => setChatListState = ChatListState.error, (r) => {});
-    } catch (e) {
-      setChatListState = ChatListState.error;
-    }
+    chatController.initializeModuleData();
+
+    initializeChatListener();
+    initializeMessageListener();
   }
 }

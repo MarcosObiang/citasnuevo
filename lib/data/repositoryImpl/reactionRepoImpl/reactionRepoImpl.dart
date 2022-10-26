@@ -1,29 +1,34 @@
 import 'dart:async';
 import 'dart:ffi';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 
 import '../../../domain/entities/ReactionEntity.dart';
 import '../../../domain/repository/DataManager.dart';
 
-class ReactionRepositoryImpl implements ReactionRepository,ModuleCleanerDataSource  {
+class ReactionRepositoryImpl
+    implements ReactionRepository, ModuleCleanerDataSource {
   @override
   ReactionDataSource reactionDataSource;
   ReactionRepositoryImpl({
     required this.reactionDataSource,
   });
+
   @override
-  StreamController<Map> get additionalDataStream =>
-      this.reactionDataSource.additionalDataSender;
+  StreamController?  streamParserController = StreamController();
+
   @override
-  StreamController<Map<String, dynamic>> get reactionListener =>
-      this.reactionDataSource.reactionListener;
+  StreamSubscription? streamParserSubscription;
+
+  @override
+  StreamController? get getStreamParserController =>
+      this.streamParserController;
 
   Either<Failure, Map> getAdditionalValues() {
     return Right(reactionDataSource.getAdditionalData());
@@ -81,19 +86,12 @@ class ReactionRepositoryImpl implements ReactionRepository,ModuleCleanerDataSour
     }
   }
 
-  @override
-  Either<Failure, bool> clearData() {
-    try {
-      reactionDataSource.clearModuleData();
-      return Right(true);
-    } catch (e) {
-      return Left(ChatFailure(message: e.toString()));
-    }
-  }
+
 
   @override
   Either<Failure, bool> initializeModuleData() {
     try {
+      parseStreams();
       reactionDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
@@ -104,41 +102,54 @@ class ReactionRepositoryImpl implements ReactionRepository,ModuleCleanerDataSour
   @override
   Either<Failure, bool> clearModuleData() {
     try {
+        streamParserController?.close();
+      streamParserSubscription?.cancel();
+      streamParserController = null;
+      streamParserSubscription = null;
+      streamParserController = new StreamController();
       reactionDataSource.clearModuleData();
-      return Right(true);
+
+      return Right(true);      
     } catch (e) {
       return Left(ModuleClearFailure(message: e.toString()));
     }
   }
 
- 
-
   @override
-  Stream reactionStream() async* {
+  void parseStreams() {
+    if (reactionDataSource.reactionListener != null &&
+        this.streamParserController != null) {
+      streamParserSubscription =
+          reactionDataSource.reactionListener!.stream.listen((event) {
+        String payloadType = event["payloadType"];
+        if (payloadType == "reaction") {
+          bool isModified = event["modified"];
+          bool deleted = event["deleted"];
+          bool notify = event["notify"];
+          Map<dynamic, dynamic> reactionData = event["reaction"];
 
-    await for (final event in reactionDataSource.reactionListener.stream) {
-      try{
-   if (event is Exception) {
-        yield event;
-      } else {
-        bool isModified = event["modified"];
-        bool deleted = event["deleted"];
-        bool notify = event["notify"];
-        Map<dynamic, dynamic> reactionData = event["reaction"];
-
-        Reaction reaction = ReactionMapper.fromMap(reactionData);
-
-      yield  {
-      "modified": isModified,
-      "reaction": reaction,
-      "deleted": deleted,
-      "notify": notify
-    };
-      }
-      }catch(e){
-yield e;
-      }
-   
+          Reaction reaction = ReactionMapper.fromMap(reactionData);
+          this.streamParserController!.add({
+            "payloadType": payloadType,
+            "modified": isModified,
+            "reaction": reaction,
+            "deleted": deleted,
+            "notify": notify
+          });
+        } else {
+          double? reactionsAverage = event["reactionAverage"];
+          int? coins = event["coins"];
+          bool? isPremium = event["isPremium"];
+          this.streamParserController!.add({
+            "payloadType": "additionalData",
+            "reactionsAverage": reactionsAverage,
+            "coins": coins,
+            "isPremium": isPremium
+          });
+        }
+      }, onError: (error) {
+        this.streamParserController!.addError(error);
+      });
     }
   }
 }

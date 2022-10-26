@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/userSettingsController.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
 import 'package:citasnuevo/main.dart';

@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
@@ -275,7 +275,7 @@ class ReactionPresentation extends ChangeNotifier
 
   void goTorewards(BuildContext context) {
     Navigator.pop(context);
-    Navigator.pushNamed(context, RewardScreen.routeName);
+    Navigator.of(context,rootNavigator: false).pushNamed( RewardScreen.routeName);
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 
 import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
@@ -6,9 +7,11 @@ import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen
 import 'package:citasnuevo/presentation/homeReportScreenPresentation/ReportScreen.dart';
 import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
 import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
+import 'package:citasnuevo/presentation/rewardScreenPresentation/rewardScreen.dart';
 import 'package:citasnuevo/presentation/sanctionsPresentation/sanctionsScreen.dart';
 import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorScreen.dart';
 import 'package:citasnuevo/presentation/userSettingsPresentation/userSettingsScreen.dart';
+import 'package:citasnuevo/presentation/verificationPresentation/verificationScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
@@ -24,11 +27,14 @@ import 'package:provider/provider.dart';
 
 GlobalKey startKey = new GlobalKey();
 GlobalKey sanctionKey = new GlobalKey();
+GlobalKey verificationScreenKey= new GlobalKey();
+List<CameraDescription> cameras=[];
 
 final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  cameras= await availableCameras();
 
   Intl.defaultLocale = await findSystemLocale();
   await initializeDateFormatting(Intl.defaultLocale);
@@ -48,8 +54,7 @@ void main() async {
         Provider(create: (_) => Dependencies.settingsScreenPresentation),
         Provider(create: (_) => Dependencies.rewardScreenPresentation),
         Provider(create: (_) => Dependencies.chatPresentation),
-                Provider(create: (_) => Dependencies.messagesPresentation),
-
+        Provider(create: (_) => Dependencies.verificationPresentation),
         Provider(create: (_) => Dependencies.homeReportScreenPresentation),
         Provider(create: (_) => Dependencies.authScreenPresentation),
         Provider(create: (_) => Dependencies.homeScreenPresentation),
@@ -76,6 +81,8 @@ void main() async {
           ChatScreen.routeName: (context) => ChatScreen(),
           ReactionScreen.routeName: (context) => ReactionScreen(),
           ReportScreen.routeName: (context) => ReportScreen(),
+          RewardScreen.routeName: (context) => RewardScreen(),
+          VerificationScreen.routeName: (context) => VerificationScreen(),
         },
         debugShowCheckedModeBanner: false,
       )));
@@ -115,3 +122,5 @@ class _StartState extends State<Start> {
         });
   }
 }
+
+

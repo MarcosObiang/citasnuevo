@@ -1,4 +1,4 @@
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 
 import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
@@ -8,8 +8,7 @@ import 'package:citasnuevo/domain/controller/controllerDef.dart';
 abstract class AuthScreenDataSource
     implements
         AuthenticationLogInCapacity,
-        AuthenticationUserAlreadySignedInCapacity
-         {}
+        AuthenticationUserAlreadySignedInCapacity {}
 
 class AuthScreenDataSourceImpl implements AuthScreenDataSource {
   AuthService authService;
@@ -30,7 +29,7 @@ class AuthScreenDataSourceImpl implements AuthScreenDataSource {
         throw AuthException(message: e.toString());
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -38,14 +37,22 @@ class AuthScreenDataSourceImpl implements AuthScreenDataSource {
   Future<bool> logIn({required SignInProviders signInProviders}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        Map<String, dynamic> userData = await authService.logUserFromGoogle();
-        GlobalDataContainer.userId = userData["userId"];
+        if (signInProviders == SignInProviders.GOOGLE) {
+          Map<String, dynamic> userData = await authService.logUserFromGoogle();
+          GlobalDataContainer.userId = userData["userId"];
+        }
+        if (signInProviders == SignInProviders.FACEABOOK) {
+          Map<String, dynamic> userData =
+              await authService.logUserFromFacebook();
+          GlobalDataContainer.userId = userData["userId"];
+        }
+
         return true;
       } catch (e) {
         throw AuthException(message: e.toString());
       }
     } else {
-      throw NetworkException(message:kNetworkErrorMessage );
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 }

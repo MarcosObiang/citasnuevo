@@ -41,23 +41,52 @@ class LocationService {
     return {"lon": position.longitude, "lat": position.latitude};
   }
 
-  Future<bool> isLocationServiceEnabled() async {
+  Future<bool> _isLocationServiceEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
   }
 
-  Future<LocationPermission> locationPermissionStatus() async {
+  Future<LocationPermission> _locationPermissionStatus() async {
     LocationPermission permission = await Geolocator.checkPermission();
 
     return permission;
   }
 
-  Future<LocationPermission> requestLocationPermission()async{
-     return await Geolocator.requestPermission();
-
+  Future<LocationPermission> requestLocationPermission() async {
+    return await Geolocator.requestPermission();
   }
 
-  Future<bool> gotoLocationSettings()async{
-     return await Geolocator.openLocationSettings();
+  Future<bool> gotoLocationSettings() async {
+    return await Geolocator.openLocationSettings();
+  }
 
+  Future<Map<String, dynamic>> locationServicesState() async {
+    Map<String, dynamic> locationData = new Map();
+    bool isLocationEnabled =
+        await LocationService.instance._isLocationServiceEnabled();
+    if (isLocationEnabled) {
+      LocationPermission permission =
+          await LocationService.instance._locationPermissionStatus();
+      if (permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse) {
+        Map<String, dynamic> positionData =
+            await LocationService.instance.determinePosition();
+        locationData["status"] = "correct";
+
+        locationData["lon"] = positionData["lon"];
+        locationData["lat"] = positionData["lat"];
+      } else {
+        if (permission == LocationPermission.deniedForever) {
+          locationData["status"] = "LOCATION_PERMISSION_DENIED_FOREVER";
+        }
+        if (permission == LocationPermission.denied) {
+          locationData["status"] = "LOCATION_PERMISSION_DENIED";
+        } else {
+          locationData["status"] = "UNABLE_TO_DETERMINE_LOCATION_STATUS";
+        }
+      }
+    } else {
+      locationData["status"] = "LOCATION_SERVICE_DISABLED";
+    }
+    return locationData;
   }
 }

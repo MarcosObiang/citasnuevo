@@ -8,38 +8,31 @@ import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../repository/DataManager.dart';
 
 enum AppSettingsState { loading, updating, loaded, noLoaded }
 
 class AppSettingsController
-    implements
-        ShouldControllerUpdateData<ApplicationSettingsInformationSender>,
-        ModuleCleanerController {
+    implements ShouldControllerUpdateData, ModuleCleanerController {
   AppSettingsRepository appSettingsRepository;
-   ApplicationSettingsEntity? applicationSettingsEntity;
+  ApplicationSettingsEntity? applicationSettingsEntity;
   AppSettingsToSettingsControllerBridge? settingsToAppSettingsControllerBridge;
+  StreamSubscription? streamParserSubscription;
 
   @override
-  late StreamController<ApplicationSettingsInformationSender>?
-      updateDataController = StreamController.broadcast();
+  late StreamController? updateDataController = StreamController.broadcast();
   AppSettingsController(
       {required this.appSettingsRepository,
       required this.settingsToAppSettingsControllerBridge});
 
   void initializeListener() {
-    appSettingsRepository.appSettingsStream?.stream.listen((event) {
-      applicationSettingsEntity = new ApplicationSettingsEntity(
-          distance: event.distance,
-          maxAge: event.maxAge,
-          minAge: event.minAge,
-          inCm: event.inCm,
-          inKm: event.inKm,
-          showBothSexes: event.showBothSexes,
-          showWoman: event.showWoman,
-          showProfile: event.showProfile);
-      updateDataController?.add(event);
+    streamParserSubscription =
+        appSettingsRepository.getStreamParserController?.stream.listen((event) {
+      if (event is ApplicationSettingsEntity) {
+        applicationSettingsEntity = event;
+        updateDataController?.add(event);
+      }
     }, onError: (error) {
       updateDataController?.addError(error);
     });
@@ -86,6 +79,8 @@ class AppSettingsController
   @override
   Either<Failure, bool> clearModuleData() {
     try {
+      streamParserSubscription?.cancel();
+      streamParserSubscription = null;
       updateDataController?.close();
       updateDataController = new StreamController.broadcast();
 

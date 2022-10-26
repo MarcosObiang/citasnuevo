@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'dart:ffi';
 
-import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
-import 'package:citasnuevo/core/platform/networkInfo.dart';
-import 'package:citasnuevo/domain/controller/homeScreenController.dart';
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../controller_bridges/HomeScreenCotrollerBridge.dart';
 import 'controllerDef.dart';
 
@@ -90,13 +85,8 @@ class ReactionsControllerImpl implements ReactionController {
       {required this.reactionRepository,
       required this.homeScreencontrollerbridge});
 
-  StreamController<Map> get getAdditionalData =>
-      reactionRepository.additionalDataStream;
   StreamController<Map<String, dynamic>> get streamIdExpiredReactions =>
       this.streamExpiredReactions;
-
-  StreamController<Map<String, dynamic>> get getReactions =>
-      this.reactionRepository.reactionListener;
 
   StreamController<String> streamRevealedReactionId =
       new StreamController.broadcast();
@@ -158,21 +148,54 @@ class ReactionsControllerImpl implements ReactionController {
     return canShowAds;
   }
 
-  void initReactionStream() {
-    initCoinListener();
+  void _reactionDataProcessing(Map<String, dynamic> event) {
+    Reaction reaction = event["reaction"];
+    bool isDeleted = event["deleted"];
+    bool notify = event["notify"];
+    bool isModified = event["modified"];
 
-    reactionSubscription = reactionRepository.reactionStream().listen((event) {
-      bool isModified = event["modified"];
-      Reaction reaction = event["reaction"];
-      bool isDeleted = event["deleted"];
-      bool notify = event["notify"];
+    if (isDeleted == false) {
+      if (isModified == false) {
+        reaction.reactionExpiredId = this.expiredReactionsListener;
+        reactions.add(reaction);
+        addDataController?.add(ReactionInformationSender(
+            index: null,
+            reaction: reaction,
+            reactionAverage: reactionsAverage,
+            isPremium: isPremium,
+            notify: notify,
+            sync: false,
+            isModified: isModified,
+            isDeleted: isDeleted,
+            coins: coins));
+      }
+      if (isModified == true) {
+        for (int i = 0; i < reactions.length; i++) {
+          if (reactions[i].idReaction == reaction.idReaction) {
+            if (reaction.revealed == false) {
+              reactions[i].userBlocked = reaction.userBlocked;
+            }
+            if (reaction.revealed == true) {
+              reactions[i].userBlocked = reaction.userBlocked;
 
-      if (isDeleted == false) {
-        if (isModified == false) {
-          reaction.reactionExpiredId = this.expiredReactionsListener;
-          reactions.add(reaction);
-          addDataController?.add(ReactionInformationSender(
-              index: null,
+              reactions[i].setName = reaction.getName;
+              reactions[i].imageHash = reaction.imageHash;
+              reactions[i].imageUrl = reaction.imageUrl;
+              reactions[i].setReactionRevealigState =
+                  ReactionRevealigState.revealed;
+            }
+          }
+        }
+      }
+    } else {
+      if (reactions.isNotEmpty == true) {
+        int index = reactions
+            .indexWhere((element) => element.idReaction == reaction.idReaction);
+        if (index >= 0) {
+          reactions.removeAt(index);
+
+          removeDataController?.add(ReactionInformationSender(
+              index: index,
               reaction: reaction,
               reactionAverage: reactionsAverage,
               isPremium: isPremium,
@@ -182,46 +205,22 @@ class ReactionsControllerImpl implements ReactionController {
               isDeleted: isDeleted,
               coins: coins));
         }
-        if (isModified == true) {
-          for (int i = 0; i < reactions.length; i++) {
-            if (reactions[i].idReaction == reaction.idReaction) {
-              if (reaction.revealed == false) {
-                reactions[i].userBlocked = reaction.userBlocked;
-              }
-              if (reaction.revealed == true) {
-                reactions[i].userBlocked = reaction.userBlocked;
-
-                reactions[i].setName = reaction.getName;
-                reactions[i].imageHash = reaction.imageHash;
-                reactions[i].imageUrl = reaction.imageUrl;
-                reactions[i].setReactionRevealigState =
-                    ReactionRevealigState.revealed;
-              }
-            }
-          }
-        }
-      } else {
-        if (reactions.isNotEmpty == true) {
-          int index = reactions.indexWhere(
-              (element) => element.idReaction == reaction.idReaction);
-          if (index >= 0) {
-            reactions.removeAt(index);
-
-            removeDataController?.add(ReactionInformationSender(
-                index: index,
-                reaction: reaction,
-                reactionAverage: reactionsAverage,
-                isPremium: isPremium,
-                notify: notify,
-                sync: false,
-                isModified: isModified,
-                isDeleted: isDeleted,
-                coins: coins));
-          }
-        }
       }
+    }
 
-      sendReactionData();
+    sendReactionData();
+  }
+
+  void initReactionStream() {
+    reactionSubscription =
+        reactionRepository.streamParserController?.stream.listen((event) {
+      String payloadType = event["payload"];
+
+      if (payloadType == "reactions") {
+        _reactionDataProcessing(event);
+      } else {
+        _additionalDataProcessing(event);
+      }
     }, onError: (error) {
       addDataController?.addError(error);
     });
@@ -252,32 +251,26 @@ class ReactionsControllerImpl implements ReactionController {
     });
   }
 
-  void initCoinListener() {
-    coinsStreamSubscription = reactionRepository
-        .reactionDataSource.additionalDataSender.stream
-        .listen((event) {
-      try {
-        reactionsAverage = event["reactionsAverage"];
-        coins = event["coins"];
-        isPremium = event["isPremium"];
+  void _additionalDataProcessing(Map<String, dynamic> event) {
+    try {
+      reactionsAverage = event["reactionsAverage"];
+      coins = event["coins"];
+      isPremium = event["isPremium"];
 
-        updateDataController?.add(ReactionInformationSender(
-            reaction: null,
-            reactionAverage: reactionsAverage,
-            sync: false,
-            notify: false,
-            isModified: null,
-            isPremium: isPremium,
-            isDeleted: null,
-            coins: coins,
-            index: null));
-        sendReactionData();
-      } catch (e) {
-        updateDataController?.addError(e);
-      }
-    }, onError: (error) {
-      updateDataController?.addError(error);
-    });
+      updateDataController?.add(ReactionInformationSender(
+          reaction: null,
+          reactionAverage: reactionsAverage,
+          sync: false,
+          notify: false,
+          isModified: null,
+          isPremium: isPremium,
+          isDeleted: null,
+          coins: coins,
+          index: null));
+      sendReactionData();
+    } catch (e) {
+      updateDataController?.addError(e);
+    }
   }
 
   void syncReactions() {

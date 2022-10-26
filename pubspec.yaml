@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -23,7 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
- 
+
   drag_and_drop_gridview: ^1.0.8
   geolocator: ^8.0.5
   image_picker: ^0.8.4+11
@@ -32,7 +32,7 @@ dependencies:
   firebase_core: ^1.10.0
   firebase_auth: ^3.3.6
   google_sign_in: ^5.2.3
-  flutter_facebook_auth: '^4.0.0'
+  flutter_facebook_auth: "^4.0.0"
   firebase_database: ^9.0.6
   cloud_firestore: ^3.1.7
   giphy_picker: ^2.0.0
@@ -63,10 +63,8 @@ dependencies:
   stack_appodeal_flutter: ^1.2.2
   giphy_get: ^3.0.4
   gdpr_dialog: ^2.1.1
-  
+
   sliver_header_delegate: ^0.0.1
-
-
 
   async: ^2.4.2
   flash: ^2.0.3+2
@@ -79,7 +77,7 @@ dependencies:
   ntp: ^2.0.0
   another_xlider: ^1.0.1+2
   wechat_assets_picker: ^7.0.5
-  
+
   reorderable_grid_view: ^2.2.2
   firebase_storage: ^10.2.11
   flutter_cache_manager: ^3.3.0
@@ -93,63 +91,48 @@ dependencies:
   numberpicker: ^2.1.1
   image_compare: ^1.1.2
   firebase_dynamic_links: ^4.3.4
-
-
-
-
- 
-
-
-  
-
-  
+  flutter_svg: ^1.1.5
+  camera: ^0.10.0+1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 cupertino_icons: ^0.1.3
-
-
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
- 
+
   build_runner: ^2.1.8
- 
 
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/presente.png"
 
-
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
-
-    # To add assets to your application, add an assets section, like this:
+  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/presente.png
-    - assets/verificacion1.jpg
-    - assets/verificacion2.jpg
-    - assets/verificacion3.jpg
-    - assets/verificacion4.jpg
-    - assets/verificacion5.jpg
-    - assets/verificacion6.jpg
-
-    
+    - assets/raised_punch_gesture.svg
+    - assets/ok_gesture.svg
+    - assets/pinching_hand_gesture.svg
+    - assets/raised_hand_gesture.svg
+    - assets/thumbs_down_gesture.svg
+    - assets/thumbs_up_gesture.svg
+    - assets/victory_gesture.svg
+    - assets/woman_face.svg
+    - assets/man_face.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

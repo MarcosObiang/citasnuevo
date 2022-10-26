@@ -7,7 +7,7 @@ import 'package:citasnuevo/domain/entities/UserCreatorEntity.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../repository/DataManager.dart';
 
 abstract class UserCreatorController

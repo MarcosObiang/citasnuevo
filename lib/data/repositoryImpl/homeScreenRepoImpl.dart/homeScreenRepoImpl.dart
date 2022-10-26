@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/data/Mappers/ProfilesMapper.dart';
 import 'package:citasnuevo/data/dataSources/HomeDataSource/homeScreenDataSources.dart';
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';

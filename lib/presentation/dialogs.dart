@@ -32,7 +32,7 @@ class PresentationDialogs {
     dialogOptionsList.forEach((element) {
       buttons.add(TextButton(
         child: Text(element.text),
-        onPressed: () => element.function,
+        onPressed: () => element.function(context),
       ));
     });
 

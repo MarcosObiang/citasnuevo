@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -19,16 +20,17 @@ import '../../../domain/repository/DataManager.dart';
 abstract class UserSettingsDataSource
     implements DataSource, ModuleCleanerDataSource {
   // ignore: close_sinks
-  late StreamController<UserSettingsInformationSender> listenAppSettingsUpdate;
+  late StreamController<Map<String, dynamic>>? listenAppSettingsUpdate;
 
-  Future<bool> updateAppSettings(UserSettingsEntity userSettingsEntity);
+  Future<bool> updateAppSettings(Map<String, dynamic> data);
   Future<bool> revertChanges();
 }
 
 class UserSettingsDataSourceImpl implements UserSettingsDataSource {
   @override
-  StreamController<UserSettingsInformationSender> listenAppSettingsUpdate =
+  StreamController<Map<String, dynamic>>? listenAppSettingsUpdate =
       StreamController.broadcast();
+  String? userID;
 
   @override
   ApplicationDataSource source;
@@ -43,7 +45,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
   void clearModuleData() {
     try {
       sourceStreamSubscription?.cancel();
-      listenAppSettingsUpdate.close();
+      listenAppSettingsUpdate?.close();
       listenAppSettingsUpdate = new StreamController.broadcast();
     } catch (e) {
       throw ModuleCleanException(message: e.toString());
@@ -59,30 +61,40 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
     }
   }
 
+  void _addData({required dynamic data}) {
+    if (listenAppSettingsUpdate != null) {
+      listenAppSettingsUpdate!.add(data);
+    } else {
+      throw Exception(kStreamParserNullError);
+    }
+  }
+
   @override
   void subscribeToMainDataSource() async {
-    bool firstInitialized = true;
-    Map<String, dynamic> oldData = source.getData;
+    try {
+      bool firstInitialized = true;
+      Map<String, dynamic> oldData = source.getData;
 
-    listenAppSettingsUpdate
-        .add(await UserSettingsMapper.fromMap(source.getData));
+      _addData(data: source.getData);
+      sourceStreamSubscription = source.dataStream.stream.listen((event) async {
+        try {
+          bool shouldUpdate = shouldUpdateUserSettings(event, oldData);
 
-    sourceStreamSubscription = source.dataStream.stream.listen((event) async {
-      try {
-        bool shouldUpdate = shouldUpdateUserSettings(event, oldData);
-
-        if (shouldUpdate == true) {
-          listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(event));
-          oldData = event;
+          if (shouldUpdate == true) {
+            _addData(data: event);
+            oldData = event;
+          }
+          if (firstInitialized == true) {
+            _addData(data: event);
+            firstInitialized = false;
+          }
+        } catch (e) {
+          _addData(data: e);
         }
-        if (firstInitialized == true) {
-          listenAppSettingsUpdate.add(await UserSettingsMapper.fromMap(event));
-          firstInitialized = false;
-        }
-      } catch (e) {
-        listenAppSettingsUpdate.addError(e);
-      }
-    });
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   bool shouldUpdateUserSettings(
@@ -137,114 +149,115 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
   }
 
   @override
-  Future<bool> updateAppSettings(UserSettingsEntity userSettingsEntity) async {
+  Future<bool> updateAppSettings(Map<String, dynamic> data) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
-      try {
-        var data = await UserSettingsMapper.toMap(userSettingsEntity);
+      if (userID != null) {
+        try {
+          // var data = await UserSettingsMapper.toMap(userSettingsEntity);
 
-        List<Map<String, dynamic>> pictureData = data["images"];
-        Map<String, dynamic> userCharacteristicsData = data["userFilters"];
-        String userBio = data["userBio"];
+          List<Map<String, dynamic>> pictureData = data["images"];
+          Map<String, dynamic> userCharacteristicsData = data["userFilters"];
+          String userBio = data["userBio"];
 
-        List<Map<String, dynamic>> parsedImages = [];
+          List<Map<String, dynamic>> parsedImages = [];
 
-        Map<String, dynamic> dataToCloud = Map();
+          Map<String, dynamic> dataToCloud = Map();
 
-        for (int i = 0; i < pictureData.length; i++) {
-          UserPicutreBoxState userPicutreBoxState = pictureData[i]["type"];
-          String pictureIndex = pictureData[i]["index"];
-          String pictureName = "IMAGENPERFIL$pictureIndex";
+          for (int i = 0; i < pictureData.length; i++) {
+            UserPicutreBoxState userPicutreBoxState = pictureData[i]["type"];
+            String pictureIndex = pictureData[i]["index"];
+            String pictureName = "IMAGENPERFIL$pictureIndex";
 
-          if (userPicutreBoxState == UserPicutreBoxState.pictureFromBytes) {
-            final storageRef = FirebaseStorage.instance.ref();
+            if (userPicutreBoxState == UserPicutreBoxState.pictureFromBytes) {
+              final storageRef = FirebaseStorage.instance.ref();
 
-            Uint8List imageFile = pictureData[i]["data"];
-            String pictureHash = pictureData[i]["hash"];
-            String image =
-                "${GlobalDataContainer.userId}/Perfil/imagenes/${IdGenerator.instancia.createId()}_Image$pictureIndex.jpg";
-            Reference referenciaImagen = storageRef.child(image);
-            // File file = new File.fromRawPath(imageFile);
+              Uint8List imageFile = pictureData[i]["data"];
+              String pictureHash = pictureData[i]["hash"];
+              String image = "$userID/Perfil/imagenes/Image$pictureIndex.jpeg";
+              Reference referenciaImagen = storageRef.child(image);
+              // File file = new File.fromRawPath(imageFile);
 
-            await referenciaImagen.putData(imageFile);
+              await referenciaImagen.putData(imageFile);
 
-            String downloadUrl = await referenciaImagen.getDownloadURL();
+              String downloadUrl = await referenciaImagen.getDownloadURL();
 
-            parsedImages.add({
-              "Imagen": downloadUrl,
-              "hash": pictureHash,
-              "index": pictureIndex,
-              "pictureName": pictureName,
-              "removed": false,
-            });
+              parsedImages.add({
+                "Imagen": downloadUrl,
+                "hash": pictureHash,
+                "index": pictureIndex,
+                "pictureName": pictureName,
+                "removed": false,
+              });
+            }
+
+            if (userPicutreBoxState == UserPicutreBoxState.pictureFromNetwork) {
+              final storageRef = FirebaseStorage.instance.ref();
+
+              Uint8List imageFile = pictureData[i]["data"];
+              String pictureHash = pictureData[i]["hash"];
+              String image = "$userID/Perfil/imagenes/Image$pictureIndex.jpeg";
+              Reference referenciaImagen = storageRef.child(image);
+              // File file = new File.fromRawPath(imageFile);
+
+              await referenciaImagen.putData(imageFile);
+
+              String downloadUrl = await referenciaImagen.getDownloadURL();
+
+              parsedImages.add({
+                "Imagen": downloadUrl,
+                "hash": pictureHash,
+                "index": pictureIndex,
+                "pictureName": pictureName,
+                "removed": false,
+              });
+            }
+            if (userPicutreBoxState == UserPicutreBoxState.empty) {
+              parsedImages.add({
+                "Imagen": "vacio",
+                "hash": "vacio",
+                "index": pictureIndex,
+                "pictureName": pictureName,
+                "removed": true,
+              });
+            }
           }
 
-          if (userPicutreBoxState == UserPicutreBoxState.pictureFromNetwork) {
-            final storageRef = FirebaseStorage.instance.ref();
+          dataToCloud["imagenes"] = parsedImages;
+          dataToCloud["descripcion"] = userBio;
+          dataToCloud["filtros usuario"] = userCharacteristicsData;
+          HttpsCallable fetchProfilesCloudFunction =
+              FirebaseFunctions.instance.httpsCallable("editUser");
 
-            Uint8List imageFile = pictureData[i]["data"];
-            String pictureHash = pictureData[i]["hash"];
-            String image =
-                "${GlobalDataContainer.userId}/Perfil/imagenes/${IdGenerator.instancia.createId()}_Image$pictureIndex.jpg";
-            Reference referenciaImagen = storageRef.child(image);
-            // File file = new File.fromRawPath(imageFile);
+          HttpsCallableResult httpsCallableResult =
+              await fetchProfilesCloudFunction.call(dataToCloud);
 
-            await referenciaImagen.putData(imageFile);
+          if (httpsCallableResult.data["estado"] == "correcto") {
+            return true;
+          } else {
+            _addData(data: source.getData);
 
-            String downloadUrl = await referenciaImagen.getDownloadURL();
-
-            parsedImages.add({
-              "Imagen": downloadUrl,
-              "hash": pictureHash,
-              "index": pictureIndex,
-              "pictureName": pictureName,
-              "removed": false,
-            });
+            throw UserSettingsException(message: "function_error");
           }
-          if (userPicutreBoxState == UserPicutreBoxState.empty) {
-            parsedImages.add({
-              "Imagen": "vacio",
-              "hash": "vacio",
-              "index": pictureIndex,
-              "pictureName": pictureName,
-              "removed": true,
-            });
-          }
+        } catch (e) {
+          _addData(data: source.getData);
+          throw UserSettingsException(message: e.toString());
         }
-
-        print(parsedImages);
-        dataToCloud["imagenes"] = parsedImages;
-        dataToCloud["descripcion"] = userBio;
-        dataToCloud["filtros usuario"] = userCharacteristicsData;
-        HttpsCallable fetchProfilesCloudFunction =
-            FirebaseFunctions.instance.httpsCallable("editUser");
-
-        HttpsCallableResult httpsCallableResult =
-            await fetchProfilesCloudFunction.call(dataToCloud);
-
-        if (httpsCallableResult.data["estado"] == "correcto") {
-          return true;
-        } else {
-          listenAppSettingsUpdate
-              .add(await UserSettingsMapper.fromMap(source.getData));
-
-          throw UserSettingsException(message: "function_error");
-        }
-      } catch (e) {
-        listenAppSettingsUpdate
-            .add(await UserSettingsMapper.fromMap(source.getData));
-        throw UserSettingsException(message: e.toString());
+      } else {
+        throw UserSettingsException(message: kUserIdNullError);
       }
     } else {
-      listenAppSettingsUpdate
-          .add(await UserSettingsMapper.fromMap(source.getData));
+      _addData(data: source.getData);
       throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
   @override
   Future<bool> revertChanges() async {
-    listenAppSettingsUpdate
-        .add(await UserSettingsMapper.fromMap(source.getData));
+    try {
+      _addData(data: source.getData);
+    } catch (e) {
+      throw UserSettingsException(message: e.toString());
+    }
     return true;
   }
 }

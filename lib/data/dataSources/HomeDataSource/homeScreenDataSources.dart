@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/location_services/locatio_service.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -12,7 +12,8 @@ import 'package:geolocator/geolocator.dart';
 import '../../../core/common/commonUtils/getUserImage.dart';
 import '../../../domain/repository/DataManager.dart';
 
-abstract class HomeScreenDataSource implements DataSource,ModuleCleanerDataSource {
+abstract class HomeScreenDataSource
+    implements DataSource, ModuleCleanerDataSource {
   /// Fetch profiles from the backend
   ///
   /// Throws [FetchProfilesException] when no users are found
@@ -64,10 +65,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
     required this.source,
   });
 
-
-  
-
-  Future<Map<dynamic, dynamic>> callProfilesFromTheServer({
+  Future<Map<dynamic, dynamic>> _callProfilesFromTheServer({
     required Map<String, dynamic> positionData,
   }) async {
     Map<dynamic, dynamic> functionResult = Map();
@@ -115,35 +113,16 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   Future<Map<dynamic, dynamic>> fetchProfiles() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        bool isLocationEnabled =
-            await LocationService.instance.isLocationServiceEnabled();
+        Map<String, dynamic> locationServicesStatus =
+            await LocationService.instance.locationServicesState();
 
-        if (isLocationEnabled == true) {
-          LocationPermission permission =
-              await LocationService.instance.locationPermissionStatus();
-
-          if (permission == LocationPermission.always ||
-              permission == LocationPermission.whileInUse) {
-            Map<String, dynamic> positionData =
-                await LocationService.instance.determinePosition();
-            Map<dynamic, dynamic> profileData =
-                await callProfilesFromTheServer(positionData: positionData);
-            return profileData;
-          } else {
-            if (permission == LocationPermission.deniedForever) {
-              throw LocationServiceException(
-                  message: "LOCATION_PERMISSION_DENIED_FOREVER");
-            }
-            if (permission == LocationPermission.denied) {
-              throw LocationServiceException(
-                  message: "LOCATION_PERMISSION_DENIED");
-            } else {
-              throw LocationServiceException(
-                  message: "UNABLE_TO_DETERMINE_LOCATION_STATUS");
-            }
-          }
+        if (locationServicesStatus["status"] == "correct") {
+          Map<dynamic, dynamic> profileData = await _callProfilesFromTheServer(
+              positionData: locationServicesStatus);
+          return profileData;
         } else {
-          throw LocationServiceException(message: "LOCATION_SERVICE_DISABLED");
+          throw LocationServiceException(
+              message: locationServicesStatus["status"]);
         }
       } catch (e) {
         throw e;
@@ -155,10 +134,14 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
 
   @override
   void subscribeToMainDataSource() {
-    dataSourceStreamData = source.getData;
-    sourceStreamSubscription = source.dataStream.stream.listen((event) {
-      dataSourceStreamData = event;
-    });
+    try {
+      dataSourceStreamData = source.getData;
+      sourceStreamSubscription = source.dataStream.stream.listen((event) {
+        dataSourceStreamData = event;
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:citasnuevo/data/dataSources/reportDataSource/reportDataSource.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../core/dependencies/error/Failure.dart';
+import '../../../core/error/Failure.dart';
 
 abstract class ReportRepository {
     late ReportDataSource reportDataSource;

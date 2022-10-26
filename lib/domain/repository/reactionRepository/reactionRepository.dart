@@ -1,18 +1,17 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
+import 'package:citasnuevo/core/streamParser/streamPareser.dart';
 import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:dartz/dartz.dart';
 
-abstract class ReactionRepository implements ModuleCleanerRepository {
+abstract class ReactionRepository implements ModuleCleanerRepository,StreamParser {
   late ReactionDataSource reactionDataSource;
 
-  ///Data such as gems and the average reaction on the user`s profile are streamed here
-  StreamController<Map> get additionalDataStream;
 
-  ///Reactions are streamed here
-  StreamController<Map<String, dynamic>> get reactionListener;
+
+
 
   ///Get first addidional values (gems and reaction average)
   Either<Failure, Map> getAdditionalValues();
@@ -26,7 +25,5 @@ abstract class ReactionRepository implements ModuleCleanerRepository {
 
   Future<Either<Failure, bool>> rejectReaction({required String reactionId});
 
-  Either<Failure, bool> clearData();
 
-  Stream<dynamic> reactionStream();
 }

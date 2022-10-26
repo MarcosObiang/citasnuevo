@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:citasnuevo/data/Mappers/RewardMapper.dart';
@@ -13,12 +13,12 @@ import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
-import '../../../core/dependencies/error/Failure.dart';
+import '../../../core/error/Failure.dart';
 import '../../../domain/repository/DataManager.dart';
 
 abstract class RewardDataSource implements DataSource, ModuleCleanerDataSource {
   // ignore: close_sinks
-  late StreamController<Rewards>? rewardStream;
+  late StreamController<Map<String, dynamic>>? rewardStream;
 
   /// Used for get a link so the user can share it and get rewarded with coins
   Future<String> getDynamicLink();
@@ -39,7 +39,12 @@ class RewardDataSourceImpl implements RewardDataSource {
   RewardDataSourceImpl({
     required this.source,
   });
+  @override
+  StreamSubscription? sourceStreamSubscription;
 
+  @override
+  StreamController<Map<String, dynamic>>? rewardStream =
+      new StreamController.broadcast();
   @override
   Future<void> getDailyReward() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
@@ -58,7 +63,7 @@ class RewardDataSourceImpl implements RewardDataSource {
         throw RewardException(message: "Error");
       }
     } else {
-      Dependencies.advertisingServices.closeStream();
+      //  Dependencies.advertisingServices.closeStream();
       throw NetworkException(message: kNetworkErrorMessage);
     }
   }
@@ -87,7 +92,7 @@ class RewardDataSourceImpl implements RewardDataSource {
         return uri.shortUrl.toString();
       } catch (e) {
         throw RewardException(
-            message: "ERROR_BUILDING_SHARING_LINHK:[message: ${e.toString()}]");
+            message: "ERROR_BUILDING_SHARING_LINK:[message: ${e.toString()}]");
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
@@ -95,17 +100,16 @@ class RewardDataSourceImpl implements RewardDataSource {
   }
 
   @override
-  Future<Either<Failure, bool>> getVerificationReward() {
-    throw UnimplementedError();
-  }
-
-  @override
   void subscribeToMainDataSource() {
-    rewardStream?.add(RewardMapper.instance.fromMap(data: source.getData));
+    try {
+      rewardStream?.add(source.getData);
 
-    sourceStreamSubscription = source.dataStream.stream.listen((event) {
-      rewardStream?.add(RewardMapper.instance.fromMap(data: event));
-    });
+      sourceStreamSubscription = source.dataStream.stream.listen((event) {
+        rewardStream?.add(event);
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   @override
@@ -128,11 +132,7 @@ class RewardDataSourceImpl implements RewardDataSource {
     }
   }
 
-  @override
-  StreamSubscription? sourceStreamSubscription;
 
-  @override
-  StreamController<Rewards>? rewardStream = new StreamController.broadcast();
 
   @override
   Future<bool> getFrstReward() async {

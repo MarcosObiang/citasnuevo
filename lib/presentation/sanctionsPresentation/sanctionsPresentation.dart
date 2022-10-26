@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../core/dependencies/dependencyCreator.dart';
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 import '../../domain/controller/controllerDef.dart';
 
 enum SanctionsScreenState { loading, loaded, error }

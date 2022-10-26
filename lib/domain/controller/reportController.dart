@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
 
-import '../../core/dependencies/error/Failure.dart';
+import '../../core/error/Failure.dart';
 
 class ReportController implements ModuleCleanerController {
   ReportRepository reportRepository;

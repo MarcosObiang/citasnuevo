@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/appSettingsController.dart';
 import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
@@ -20,19 +20,15 @@ enum AppSettingsScreenState { loading, loaded, error }
 enum AppSettingsScreenUpdateState { loading, loaded, error, done }
 
 class AppSettingsPresentation extends ChangeNotifier
-    implements
-        ShouldUpdateData<ApplicationSettingsInformationSender>,
-        Presentation,
-        ModuleCleanerPresentation {
+    implements ShouldUpdateData, Presentation, ModuleCleanerPresentation {
   AppSettingsController appSettingsController;
   late AppSettingsScreenState appSettingsScreenState;
   late AppSettingsScreenUpdateState appSettingsScreenUpdateState =
       AppSettingsScreenUpdateState.done;
-late ApplicationSettingsEntity applicationSettingsEntity;
+  late ApplicationSettingsEntity applicationSettingsEntity;
   AppSettingsPresentation({required this.appSettingsController});
   @override
-  late StreamSubscription<ApplicationSettingsInformationSender>?
-      updateSubscription;
+  late StreamSubscription? updateSubscription;
   get getAppSettingsEntity => appSettingsController.applicationSettingsEntity;
   set setAppSettingsScreenState(AppSettingsScreenState appSettingsScreenState) {
     this.appSettingsScreenState = appSettingsScreenState;
@@ -77,8 +73,12 @@ late ApplicationSettingsEntity applicationSettingsEntity;
 
   @override
   void restart() {
-    clearModuleData();
-    initializeModuleData();
+    try {
+      clearModuleData();
+      initializeModuleData();
+    } catch (e) {
+      setAppSettingsScreenState = AppSettingsScreenState.error;
+    }
   }
 
   void logOut() async {
@@ -87,6 +87,11 @@ late ApplicationSettingsEntity applicationSettingsEntity;
       if (failure is NetworkFailure) {
         PresentationDialogs.instance
             .showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+        PresentationDialogs.instance.showErrorDialog(
+            title: "Error",
+            content: "Error al intentar cerrar sesion",
+            context: startKey.currentContext);
       }
     }, (authResponseEnity) async {
       Dependencies.clearDependencies();
@@ -101,6 +106,11 @@ late ApplicationSettingsEntity applicationSettingsEntity;
       if (failure is NetworkFailure) {
         PresentationDialogs.instance
             .showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+        PresentationDialogs.instance.showErrorDialog(
+            title: "Error",
+            content: "Error al intentar borrar usuario",
+            context: startKey.currentContext);
       }
     }, (authResponseEnity) async {
       Dependencies.clearDependencies();
@@ -136,17 +146,18 @@ late ApplicationSettingsEntity applicationSettingsEntity;
   void update() {
     updateSubscription =
         appSettingsController.updateDataController?.stream.listen((event) {
-
- applicationSettingsEntity = new ApplicationSettingsEntity(
-          distance: event.distance,
-          maxAge: event.maxAge,
-          minAge: event.minAge,
-          inCm: event.inCm,
-          inKm: event.inKm,
-          showBothSexes: event.showBothSexes,
-          showWoman: event.showWoman,
-          showProfile: event.showProfile);
-      setAppSettingsScreenState = AppSettingsScreenState.loaded;
+      if (event is ApplicationSettingsEntity) {
+        applicationSettingsEntity = new ApplicationSettingsEntity(
+            distance: event.distance,
+            maxAge: event.maxAge,
+            minAge: event.minAge,
+            inCm: event.inCm,
+            inKm: event.inKm,
+            showBothSexes: event.showBothSexes,
+            showWoman: event.showWoman,
+            showProfile: event.showProfile);
+        setAppSettingsScreenState = AppSettingsScreenState.loaded;
+      }
     }, onError: (error) {
       setAppSettingsScreenState = AppSettingsScreenState.error;
     });

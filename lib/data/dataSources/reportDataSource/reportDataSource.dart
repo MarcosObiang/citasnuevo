@@ -4,7 +4,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 
-import '../../../core/dependencies/error/Exceptions.dart';
+import '../../../core/error/Exceptions.dart';
 import '../../../core/platform/networkInfo.dart';
 
 abstract class ReportDataSource implements DataSource {
@@ -14,12 +14,7 @@ abstract class ReportDataSource implements DataSource {
       required String reportDetails,
       required bool blockUser});
 
-  Future<bool> sendReportWithMessages(
-      {required String idReporter,
-      required String idUserReported,
-      required String reportDetails,
-      required String messageId,
-      required bool blockUser});
+
 }
 
 class ReportDataSourceImpl implements ReportDataSource {
@@ -57,16 +52,7 @@ class ReportDataSourceImpl implements ReportDataSource {
     }
   }
 
-  @override
-  Future<bool> sendReportWithMessages(
-      {required String idReporter,
-      required String idUserReported,
-      required String reportDetails,
-      required String messageId,
-      required bool blockUser}) {
-    // TODO: implement sendReportWithMessages
-    throw UnimplementedError();
-  }
+
 
   @override
   void subscribeToMainDataSource() {

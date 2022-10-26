@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:core';
 
 import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
 
 import 'package:citasnuevo/core/platform/networkInfo.dart';
-import 'package:citasnuevo/data/Mappers/SettingsMapper.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
-import 'package:citasnuevo/domain/entities/SettingsEntity.dart';
 
 import 'package:flutter/cupertino.dart';
 
@@ -18,7 +15,7 @@ import '../../../domain/repository/DataManager.dart';
 abstract class SettingsDataSource
     implements DataSource, ModuleCleanerDataSource {
   /// Emits any update of the user settings
-  late StreamController<SettingsEntity> onUserSettingsUpdate;
+  late StreamController<Map<String,dynamic>>? onUserSettingsUpdate;
 
   Future<bool> purchaseSubscription(String offerId);
 
@@ -40,7 +37,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   };
 
   @override
-  StreamController<SettingsEntity> onUserSettingsUpdate =
+  StreamController<Map<String,dynamic>>? onUserSettingsUpdate =
       StreamController.broadcast();
 
   @override
@@ -53,10 +50,18 @@ class SettingsDataSourceImpl implements SettingsDataSource {
     required this.source,
   });
 
+  void _addErrorToStream(dynamic e) {
+    if (onUserSettingsUpdate != null) {
+      onUserSettingsUpdate!.addError(SettingsException(message: e.toString()));
+    }
+  }
+
   @override
   void clearModuleData() {
     try {
       latestSettings = new Map<String, dynamic>();
+      onUserSettingsUpdate?.close();
+      onUserSettingsUpdate = null;
       onUserSettingsUpdate = StreamController.broadcast();
       sourceStreamSubscription?.cancel();
     } catch (e) {
@@ -72,23 +77,26 @@ class SettingsDataSourceImpl implements SettingsDataSource {
           try {
             sendFirst();
           } catch (e) {
-            onUserSettingsUpdate
-                .addError(SettingsException(message: e.toString()));
+            _addErrorToStream(e);
             throw SettingsException(message: e.toString());
           }
         }
+
+        ///
+        ///
+        ///
         sourceStreamSubscription = source.dataStream.stream.listen((event) {
           try {
             if (shouldSettingsUpdate(event)) {
               sendFirst();
             }
           } catch (e) {
-            onUserSettingsUpdate
-                .addError(SettingsException(message: e.toString()));
+            _addErrorToStream(e);
           }
         });
       } catch (e) {
-        onUserSettingsUpdate.addError(e);
+        _addErrorToStream(e);
+        throw SettingsException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
@@ -160,7 +168,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
       latestSettings["pausedModeExpirationTime"] =
           dataFromSource["finPausaSuscripcion"];
 
-      onUserSettingsUpdate.add(SettingsMapper.fromMap(latestSettings));
+      onUserSettingsUpdate?.add(latestSettings);
     } catch (e) {
       print(e);
       throw e;

@@ -1,9 +1,12 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:async/async.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/data/Mappers/AplicationDataSettingsMapper.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
 
@@ -18,28 +21,51 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   });
 
   @override
-  StreamController<ApplicationSettingsInformationSender>?
-      get appSettingsStream => appSettingsDataSource.listenAppSettingsUpdate;
+  StreamController? streamParserController = new StreamController();
 
   @override
-  Either<Failure,bool>  clearModuleData()  {
-    try {
-      appSettingsDataSource.clearModuleData();
-      return Right(true);
-    } catch (e) {
-      return Left(ModuleInitializeFailure(message: e.toString()));
-      
+  StreamController? get getStreamParserController => streamParserController;
+
+  @override
+  StreamSubscription? streamParserSubscription;
+
+  @override
+  void parseStreams() {
+    if (appSettingsDataSource.listenAppSettingsUpdate != null) {
+      streamParserSubscription =
+          appSettingsDataSource.listenAppSettingsUpdate?.stream.listen((event) {
+        streamParserController
+            ?.add(ApplicationSettingsMapper.fromMap(data: event));
+      }, onError: (error) {
+        streamParserController?.addError(error);
+      });
+    } else {
+      throw AppSettingsException(message: kStreamParserNullError);
     }
   }
 
   @override
-  Either<Failure,bool>  initializeModuleData()  {
+  Either<Failure, bool> clearModuleData() {
+    try {
+      streamParserSubscription?.cancel();
+      streamParserController = null;
+      streamParserController?.close();
+      streamParserSubscription = null;
+      streamParserController = new StreamController();
+      appSettingsDataSource.clearModuleData();
+      return Right(true);
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Either<Failure, bool> initializeModuleData() {
     try {
       appSettingsDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleInitializeFailure(message: e.toString()));
-      
     }
   }
 
@@ -74,7 +100,6 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
 
   @override
   Future<Either<Failure, bool>> logOut() async {
-    // TODO: implement logOut
     try {
       bool authData = await appSettingsDataSource.logOut();
 

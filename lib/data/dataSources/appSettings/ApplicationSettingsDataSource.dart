@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -14,7 +14,7 @@ import '../../../domain/repository/DataManager.dart';
 abstract class ApplicationSettingsDataSource
     implements DataSource, AuthenticationSignOutCapacity ,ModuleCleanerDataSource{
   /// Send the current state of app settings
-  StreamController<ApplicationSettingsInformationSender>?
+  StreamController<Map<String,dynamic>>?
       // ignore: close_sinks
       listenAppSettingsUpdate;
 
@@ -40,7 +40,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   @override
   AuthService authService;
   @override
-  StreamController<ApplicationSettingsInformationSender>?
+  StreamController<Map<String,dynamic>>?
       listenAppSettingsUpdate = new StreamController.broadcast();
 
   @override
@@ -73,15 +73,15 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   }
 
   void _addDataToStream(Map<String, dynamic> data) {
-    listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
-        distance: data["Ajustes"]["distanciaMaxima"],
-        maxAge: data["Ajustes"]["edadFinal"],
-        minAge: data["Ajustes"]["edadInicial"],
-        inCm: data["Ajustes"]["enCm"],
-        inKm: data["Ajustes"]["enMillas"],
-        showBothSexes: data["Ajustes"]["mostrarAmbosSexos"],
-        showWoman: data["Ajustes"]["mostrarMujeres"],
-        showProfile: data["Ajustes"]["mostrarPerfil"]));
+    listenAppSettingsUpdate?.add({
+        "distance": data["Ajustes"]["distanciaMaxima"],
+        "maxAge": data["Ajustes"]["edadFinal"],
+        "minAge": data["Ajustes"]["edadInicial"],
+        "inCm": data["Ajustes"]["enCm"],
+        "inKm": data["Ajustes"]["enMillas"],
+        "showBothSexes": data["Ajustes"]["mostrarAmbosSexos"],
+        "showWoman": data["Ajustes"]["mostrarMujeres"],
+        "showProfile": data["Ajustes"]["mostrarPerfil"]});
   }
 
   @override
@@ -131,15 +131,15 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   void revertChanges() {
-    listenAppSettingsUpdate?.add(ApplicationSettingsInformationSender(
-        distance: source.getData["Ajustes"]["distanciaMaxima"],
-        maxAge: source.getData["Ajustes"]["edadFinal"],
-        minAge: source.getData["Ajustes"]["edadInicial"],
-        inCm: source.getData["Ajustes"]["enCm"],
-        inKm: source.getData["Ajustes"]["enMillas"],
-        showBothSexes: source.getData["Ajustes"]["mostrarAmbosSexos"],
-        showWoman: source.getData["Ajustes"]["mostrarMujeres"],
-        showProfile: source.getData["Ajustes"]["mostrarPerfil"]));
+    listenAppSettingsUpdate?.add({
+        "distance": source.getData["Ajustes"]["distanciaMaxima"],
+        "maxAge": source.getData["Ajustes"]["edadFinal"],
+        "minAge": source.getData["Ajustes"]["edadInicial"],
+        "inCm": source.getData["Ajustes"]["enCm"],
+        "inKm": source.getData["Ajustes"]["enMillas"],
+        "showBothSexes": source.getData["Ajustes"]["mostrarAmbosSexos"],
+        "showWoman": source.getData["Ajustes"]["mostrarMujeres"],
+        "showProfile": source.getData["Ajustes"]["mostrarPerfil"]});
   }
 
   @override

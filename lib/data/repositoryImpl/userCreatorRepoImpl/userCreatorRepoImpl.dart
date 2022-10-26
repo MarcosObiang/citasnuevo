@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
 
 import '../../dataSources/userCreatorDataSource/userCreator.DataSource.dart';
@@ -47,6 +47,7 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
    @override
   Either<Failure,bool>  clearModuleData()  {
     try {
+      
       userCreatorDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
@@ -54,8 +55,6 @@ class UserCreatorRepoImpl implements UserCreatorRepo {
       
     }
   }
-  @override
-  StreamController<UserCreatorInformationSender> get getUserCreatorDataStream => userCreatorDataSource.userCreatorDataStream;
 
   @override
   Future<Either<Failure, bool>> logOut() async{

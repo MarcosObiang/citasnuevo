@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/dependencies/error/Exceptions.dart';
+import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/data/Mappers/RewardMapper.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:citasnuevo/core/dependencies/error/Failure.dart';
+import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/data/dataSources/rewardsDataSource/rewardDataSource.dart';
 import 'package:citasnuevo/domain/entities/RewardsEntity.dart';
 import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';
@@ -15,7 +16,14 @@ class RewardRepoImpl implements RewardRepository {
     required this.rewardDataSource,
   });
 
+  @override
+  StreamController? streamParserController = StreamController();
 
+  @override
+  StreamSubscription? streamParserSubscription;
+
+  @override
+  StreamController? get getStreamParserController => this.streamParserController;
 
   @override
   Future<Either<Failure, bool>> getDailyReward() async {
@@ -32,34 +40,34 @@ class RewardRepoImpl implements RewardRepository {
   }
 
   @override
-  StreamController<Rewards>? get getRewardsStream =>
-      rewardDataSource.rewardStream;
-
-    @override
-  Either<Failure,bool>  initializeModuleData()  {
+  Either<Failure, bool> initializeModuleData() {
     try {
+      parseStreams();
       rewardDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleInitializeFailure(message: e.toString()));
-      
     }
   }
 
-   @override
-  Either<Failure,bool>  clearModuleData()  {
+  @override
+  Either<Failure, bool> clearModuleData() {
     try {
+      streamParserController?.close();
+      streamParserSubscription?.cancel();
+      streamParserController = null;
+      streamParserSubscription = null;
+      streamParserController = new StreamController();
       rewardDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleClearFailure(message: e.toString()));
-      
     }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> getFirstReward()async {
-  try {
+  Future<Either<Failure, bool>> getFirstReward() async {
+    try {
       await rewardDataSource.getFrstReward();
       return Right(true);
     } catch (e) {
@@ -70,11 +78,11 @@ class RewardRepoImpl implements RewardRepository {
       }
     }
   }
-  
+
   @override
-  Future<Either<Failure, String>> getSharingLink()async {
-     try {
-     var result= await rewardDataSource.getDynamicLink();
+  Future<Either<Failure, String>> getSharingLink() async {
+    try {
+      var result = await rewardDataSource.getDynamicLink();
       return Right(result);
     } catch (e) {
       if (e is NetworkException) {
@@ -82,6 +90,22 @@ class RewardRepoImpl implements RewardRepository {
       } else {
         return Left(RewardFailure(message: e.toString()));
       }
+    }
+  }
+
+  @override
+  void parseStreams() {
+    if (this.streamParserController != null &&
+        rewardDataSource.rewardStream != null) {
+      this.streamParserSubscription =
+          rewardDataSource.rewardStream!.stream.listen((event) {
+        Rewards rewards = RewardMapper.instance.fromMap(data: event);
+
+        streamParserController!
+            .add({"payloadType": "rewards", "rewards": rewards});
+      },onError: (error){
+        streamParserController!.addError(error);
+      });
     }
   }
 }

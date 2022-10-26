@@ -159,7 +159,10 @@ class MessageConverter {
 
       chat.messagesList = messagesList;
        chat.calculateUnreadMessages(userId);
+       if(chat.messagesList.isNotEmpty){
       chat.lastMessage=messagesList.first;
+
+       }
       
       chatList.add(chat);
     });

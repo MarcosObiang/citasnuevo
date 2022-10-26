@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
         i < Dependencies.chatPresentation.chatController.chatList.length;
         i++) {
       if (Dependencies
-          .chatPresentation.chatController.chatList[i].lastMessage==null) {
+          .chatPresentation.chatController.chatList[i].messagesList.isEmpty) {
         reslult += 1;
       }
     }
@@ -81,7 +81,8 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
     for (int i = 0;
         i < Dependencies.chatPresentation.chatController.chatList.length;
         i++) {
-      if (Dependencies.chatPresentation.chatController.chatList[i].lastMessage==null) {
+      if (Dependencies
+          .chatPresentation.chatController.chatList[i].messagesList.isNotEmpty) {
         reslult += 1;
       }
     }
@@ -127,7 +128,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                             itemBuilder: (BuildContext context, int index,
                                 Animation<double> animation) {
                               return chatPresentation.chatController
-                                      .chatList[index].lastMessage==null
+                                      .chatList[index].messagesList.isEmpty
                                   ? EmptyChatWidget(
                                       index: index,
                                       animation: animation,
@@ -167,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                               itemBuilder: (BuildContext context, int index,
                                   Animation<double> animation) {
                                 return chatPresentation.chatController
-                                      .chatList[index].lastMessage!=null
+                                      .chatList[index].messagesList.isNotEmpty
                                       
                                     ? ChatCard(
                                         index: index,
