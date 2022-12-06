@@ -1,15 +1,16 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:citasnuevo/domain/entities/ChatEntity.dart';
-import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
-import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/profileWidget.dart';
 import 'package:flutter/material.dart';
-
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
+import 'package:citasnuevo/domain/entities/ChatEntity.dart';
+import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
+import 'package:citasnuevo/presentation/homeScreenPresentation/Widgets/profileWidget.dart';
+
+import '../../../domain/entities/ProfileEntity.dart';
 
 class ChatProfileDetailsScreen extends StatefulWidget {
   String remitentId;

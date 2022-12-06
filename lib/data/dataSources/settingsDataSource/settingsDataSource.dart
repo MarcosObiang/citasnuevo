@@ -15,7 +15,7 @@ import '../../../domain/repository/DataManager.dart';
 abstract class SettingsDataSource
     implements DataSource, ModuleCleanerDataSource {
   /// Emits any update of the user settings
-  late StreamController<Map<String,dynamic>>? onUserSettingsUpdate;
+  late StreamController<Map<String, dynamic>>? onUserSettingsUpdate;
 
   Future<bool> purchaseSubscription(String offerId);
 
@@ -37,8 +37,8 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   };
 
   @override
-  StreamController<Map<String,dynamic>>? onUserSettingsUpdate =
-      StreamController.broadcast();
+  StreamController<Map<String, dynamic>>? onUserSettingsUpdate =
+      StreamController();
 
   @override
   ApplicationDataSource source;
@@ -62,7 +62,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
       latestSettings = new Map<String, dynamic>();
       onUserSettingsUpdate?.close();
       onUserSettingsUpdate = null;
-      onUserSettingsUpdate = StreamController.broadcast();
+      onUserSettingsUpdate = StreamController();
       sourceStreamSubscription?.cancel();
     } catch (e) {
       throw ModuleCleanException(message: e.toString());
@@ -82,9 +82,6 @@ class SettingsDataSourceImpl implements SettingsDataSource {
           }
         }
 
-        ///
-        ///
-        ///
         sourceStreamSubscription = source.dataStream.stream.listen((event) {
           try {
             if (shouldSettingsUpdate(event)) {
@@ -110,28 +107,39 @@ class SettingsDataSourceImpl implements SettingsDataSource {
     if (latestSettings.isEmpty) {
       shoulUpdate = true;
     } else {
-      if (latestSettings["name"] != dataFromSource["Nombre"]) {
-        shoulUpdate = true;
-      }
-      if (latestSettings["age"] != dataFromSource["Edad"]) {
+      if (latestSettings["userName"] != dataFromSource["userName"]) {
         shoulUpdate = true;
       }
 
-      if (latestSettings["isPremium"] != dataFromSource["monedasInfinitas"]) {
+      if (latestSettings["isUserPremium"] != dataFromSource["isUserPremium"]) {
         shoulUpdate = true;
       }
-      if (latestSettings["userPicture"] !=
-          GetProfileImage.getProfileImage
-              .getProfileImageMap(dataFromSource)["image"]) {
+      if (latestSettings["userPicture1"]["hash"] !=
+          dataFromSource["userPicture1"]["hash"]) {
         shoulUpdate = true;
       }
-      if (latestSettings["hash"] !=
-          GetProfileImage.getProfileImage
-              .getProfileImageMap(dataFromSource)["hash"]) {
+      if (latestSettings["userPicture2"]["hash"] !=
+          dataFromSource["userPicture2"]["hash"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["userPicture3"]["hash"] !=
+          dataFromSource["userPicture3"]["hash"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["userPicture4"]["hash"] !=
+          dataFromSource["userPicture4"]["hash"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["userPicture5"]["hash"] !=
+          dataFromSource["userPicture5"]["hash"]) {
+        shoulUpdate = true;
+      }
+      if (latestSettings["userPicture6"]["hash"] !=
+          dataFromSource["userPicture6"]["hash"]) {
         shoulUpdate = true;
       }
 
-      if (latestSettings["subscriptionId"] != dataFromSource["idSuscripcion"]) {
+      /* if (latestSettings["subscriptionId"] != dataFromSource["idSuscripcion"]) {
         shoulUpdate = true;
       }
       if (latestSettings["paymentState"] !=
@@ -145,7 +153,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
       if (latestSettings["pausedModeExpirationTime"] !=
           dataFromSource["finPausaSuscripcion"]) {
         shoulUpdate = true;
-      }
+      }*/
     }
 
     return shoulUpdate;
@@ -154,19 +162,22 @@ class SettingsDataSourceImpl implements SettingsDataSource {
   void sendFirst() {
     try {
       Map<String, dynamic> dataFromSource = source.getData;
-      latestSettings["name"] = dataFromSource["Nombre"];
-      latestSettings["age"] = dataFromSource["Edad"];
-      latestSettings["isPremium"] = dataFromSource["monedasInfinitas"];
-      latestSettings["userPicture"] = GetProfileImage.getProfileImage
-          .getProfileImageMap(dataFromSource)["image"];
-      latestSettings["hash"] = GetProfileImage.getProfileImage
-          .getProfileImageMap(dataFromSource)["hash"];
-      latestSettings["subscriptionId"] = dataFromSource["idSuscripcion"];
+      latestSettings["name"] = dataFromSource["userName"];
+      latestSettings["age"] = 30;
+      latestSettings["isPremium"] = dataFromSource["isUserPremium"];
+      latestSettings["userPicture1"] = dataFromSource["userPicture1"];
+      latestSettings["userPicture2"] = dataFromSource["userPicture2"];
+      latestSettings["userPicture3"] = dataFromSource["userPicture3"];
+      latestSettings["userPicture4"] = dataFromSource["userPicture4"];
+      latestSettings["userPicture5"] = dataFromSource["userPicture5"];
+      latestSettings["userPicture6"] = dataFromSource["userPicture6"];
+
+      /*  latestSettings["subscriptionId"] = dataFromSource["idSuscripcion"];
       latestSettings["paymentState"] = dataFromSource["estadoPagoSuscripcion"];
       latestSettings["subscriptionExpirationTime"] =
           dataFromSource["caducidadSuscripcion"];
       latestSettings["pausedModeExpirationTime"] =
-          dataFromSource["finPausaSuscripcion"];
+          dataFromSource["finPausaSuscripcion"];*/
 
       onUserSettingsUpdate?.add(latestSettings);
     } catch (e) {

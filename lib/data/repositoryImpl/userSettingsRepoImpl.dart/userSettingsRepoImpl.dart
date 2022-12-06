@@ -16,40 +16,39 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
     required this.appSettingsDataSource,
   });
 
+  @override
+  StreamController? streamParserController = StreamController();
 
-        @override
-  StreamController? streamParserController=StreamController();
-  
   @override
   StreamSubscription? streamParserSubscription;
-  
+
   @override
   StreamController? get getStreamParserController => streamParserController;
 
-   @override
-  Either<Failure,bool>  initializeModuleData()  {
+  @override
+  Either<Failure, bool> initializeModuleData() {
     try {
       parseStreams();
       appSettingsDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleInitializeFailure(message: e.toString()));
-      
     }
   }
 
-   @override
-  Either<Failure,bool>  clearModuleData()  {
+  @override
+  Either<Failure, bool> clearModuleData() {
     try {
       streamParserController?.close();
       streamParserSubscription?.cancel();
-      streamParserController=null;
-      streamParserSubscription=null;
+      streamParserController = null;
+      streamParserSubscription = null;
       appSettingsDataSource.clearModuleData();
+            streamParserController= StreamController();
+
       return Right(true);
     } catch (e) {
       return Left(ModuleClearFailure(message: e.toString()));
-      
     }
   }
 
@@ -57,7 +56,8 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
   Future<Either<Failure, bool>> updateSettings(
       UserSettingsEntity userSettingsEntity) async {
     try {
-      var datas = await appSettingsDataSource.updateAppSettings( await UserSettingsMapper.toMap(userSettingsEntity));
+      var datas = await appSettingsDataSource.updateAppSettings(
+          await UserSettingsMapper.toMap(userSettingsEntity));
       if (datas) {
         return Right(datas);
       } else {
@@ -86,15 +86,18 @@ class UserSettingsRepoImpl implements UserSettingsRepository {
       }
     }
   }
-  
 
-  
   @override
   void parseStreams() {
-streamParserSubscription=this.appSettingsDataSource.listenAppSettingsUpdate?.stream.listen((event) {
-  streamParserController?.add(UserSettingsMapper.fromMap(event));
-  
-},onError: (error){
-        streamParserController!.addError(error);
-      });  }
+    streamParserSubscription = this
+        .appSettingsDataSource
+        .listenAppSettingsUpdate
+        ?.stream
+        .listen((event)async {
+          UserSettingsEntity userSettingsEntity=await UserSettingsMapper.fromMap(event);
+      streamParserController?.add({"payloadType":"UserSettingsEntity","payload":userSettingsEntity});
+    }, onError: (error) {
+      streamParserController!.addError(error);
+    });
+  }
 }

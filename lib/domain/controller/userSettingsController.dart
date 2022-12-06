@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
 import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
 import 'package:dartz/dartz.dart';
 
@@ -12,9 +11,7 @@ import '../repository/appSettingsRepo/userSettingsRepo.dart';
 import 'controllerDef.dart';
 
 class UserSettingsController
-    implements
-        ShouldControllerUpdateData<UserSettingsInformationSender>,
-        ModuleCleanerController {
+    implements ShouldControllerUpdateData, ModuleCleanerController {
   UserSettingsRepository userSettingsRepository;
 
   UserSettingsController(
@@ -25,7 +22,7 @@ class UserSettingsController
   bool userSettingsUpdating = false;
 
   @override
-  late StreamController<UserSettingsInformationSender>? updateDataController =
+  late StreamController<dynamic>? updateDataController =
       StreamController.broadcast();
 
   UserSettingsToSettingsControllerBridge userSettingsToSettingsControllerBridge;
@@ -63,11 +60,11 @@ class UserSettingsController
   }
 
   void initializeListener() async {
-    userSettingsRepository.appSettingsStream.stream.listen((event) async {
-      userSettingsEntity = new UserSettingsEntity(
-          userCharacteristics: event.userCharacteristic,
-          userBio: event.userBio,
-          userPicruresList: event.userPicruresList);
+    userSettingsRepository.getStreamParserController?.stream.listen(
+        (event) async {
+      UserSettingsEntity userSettingsEntityData = event["payload"];
+      userSettingsEntity = userSettingsEntityData;
+
       updateDataController!.add(event);
       userSettingsEntityUpdate = userSettingsEntity;
     }, onError: (error) {

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:citasnuevo/data/Mappers/VerificationTicketMapper.dart';
-import 'package:citasnuevo/data/dataSources/verificationDataSource/verificationDataSource.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/error/Failure.dart';
@@ -63,7 +62,7 @@ class VerificationControllerImpl implements VerificationController {
 
 
   void _dataListener() {
-    verificationRepository.getDataStream?.stream.listen((event) {
+    verificationRepository.getStreamParserController?.stream.listen((event) {
       if (event != null) {
         verificationTicketEntity =
             VerificationTIcketMapper.fromMap(data: event);

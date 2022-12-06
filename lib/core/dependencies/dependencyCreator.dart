@@ -1,4 +1,5 @@
 import 'package:citasnuevo/core/ads_services/Ads.dart';
+import 'package:citasnuevo/core/appwrite_services/appwrite_services.dart';
 import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
 import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
@@ -79,6 +80,7 @@ import '../iapPurchases/iapPurchases.dart';
 import '../notifications/notifications_service.dart';
 
 class Dependencies {
+  static late Server serverAPi = new Server();
   static late final AdvertisingServices advertisingServices =
       new AdvertisingServices();
 
@@ -111,18 +113,18 @@ class Dependencies {
       userSettingsToSettingsControllerBridge =
       UserSettingsToSettingsControllerBridge();
 
-      static late final ChatToMessagesControllerBridge chatToMessagesControllerBridge=ChatToMessagesControllerBridge();
+  static late final ChatToMessagesControllerBridge
+      chatToMessagesControllerBridge = ChatToMessagesControllerBridge();
 
-static late final VerificationDataSource verificationDataSource= new VerificationDataSourceImpl(source: applicationDataSource);
-static late final VerificationRepository verificationRepository = VerificationRepoImpl(verificationDataSource: verificationDataSource);
-static late final VerificationController verificationController =VerificationControllerImpl(verificationRepository: verificationRepository);
-static late final VerificationPresentation verificationPresentation= VerificationPresentation(verificationController: verificationController);
-
-
-
-
-
-
+  static late final VerificationDataSource verificationDataSource =
+      new VerificationDataSourceImpl(source: applicationDataSource);
+  static late final VerificationRepository verificationRepository =
+      VerificationRepoImpl(verificationDataSource: verificationDataSource);
+  static late final VerificationController verificationController =
+      VerificationControllerImpl(
+          verificationRepository: verificationRepository);
+  static late final VerificationPresentation verificationPresentation =
+      VerificationPresentation(verificationController: verificationController);
 
   ///SANCTIONS SCREEN
   ///
@@ -234,8 +236,6 @@ static late final VerificationPresentation verificationPresentation= Verificatio
   static late final SettingsScreenPresentation settingsScreenPresentation =
       new SettingsScreenPresentation(settingsController: settingsController);
 
-
-
   ///APP_SETTINGS
   ///
   ///
@@ -269,10 +269,11 @@ static late final VerificationPresentation verificationPresentation= Verificatio
   static late final UserSettingsPresentation userSettingsPresentation =
       new UserSettingsPresentation(
           userSettingsController: userSettingsController);
-/// USER CREATOR
-/// 
-/// 
-/// 
+
+  /// USER CREATOR
+  ///
+  ///
+  ///
   static late final UserCreatorDataSource userCreatorDataSource =
       new UserCreatorDataSourceImpl(
           source: applicationDataSource, authService: authService);
@@ -336,8 +337,7 @@ static late final VerificationPresentation verificationPresentation= Verificatio
     appSettingsPresentation.initializeModuleData();
     userSettingsPresentation.initializeModuleData();
     sanctionsPresentation.initializeModuleData();
-        verificationPresentation.initializeModuleData();
-
+    verificationPresentation.initializeModuleData();
   }
 
   static void clearDependenciesAfterCreateUser() {
@@ -353,7 +353,7 @@ static late final VerificationPresentation verificationPresentation= Verificatio
       if (userDataExists == true) {
         await PurchasesServices.purchasesServices.initService();
         NotificationService instance = new NotificationService();
-        await instance.startBackgroundNotificationHandler();
+        //   await instance.startBackgroundNotificationHandler();
         homeScreenPresentation.initializeModuleData();
         chatPresentation.initializeModuleData();
         reactionPresentation.initializeModuleData();
@@ -363,11 +363,10 @@ static late final VerificationPresentation verificationPresentation= Verificatio
         settingsScreenPresentation.initializeModuleData();
         appSettingsPresentation.initializeModuleData();
         userSettingsPresentation.initializeModuleData();
-        advertisingServices.initializeAdsService();
+          advertisingServices.initializeAdsService();
         rewardScreenPresentation.initializeModuleData();
-        sanctionsPresentation.initializeModuleData();
-                verificationPresentation.initializeModuleData();
-
+        //   sanctionsPresentation.initializeModuleData();
+        //         verificationPresentation.initializeModuleData();
 
         return true;
       } else {

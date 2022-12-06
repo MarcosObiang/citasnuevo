@@ -47,8 +47,8 @@ class SettingsControllerImpl implements SettingsController {
   @override
   void initialize() {
     settingsRepository.getStreamParserController?.stream.listen((event) {
-      String payloadType=event["pauloadtype"];
-      settingsEntity = event;
+      String payloadType=event["payloadType"];
+      settingsEntity = event["payload"];
       appSettingstoSettingscontrollerBridge.initializeStream();
       userSettingsToSettingsControllerBridge.initializeStream();
       exteralInformationSender();

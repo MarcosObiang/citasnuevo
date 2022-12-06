@@ -101,6 +101,7 @@ class UserCreatorMapper {
 
 
 
+  
 
 
 
@@ -133,7 +134,10 @@ class UserCreatorMapper {
 
 
 
-  static UserCreatorInformationSender fromMap(
+
+
+
+  static UserCreatorEntity fromMap(
       Map<String, dynamic> data)  {
     List<UserCharacteristic> userCharacteristics =
         _userCharacteristicParser(data["filtros usuario"]);
@@ -168,12 +172,12 @@ class UserCreatorMapper {
       }
     }
 
-    UserCreatorInformationSender userSettingsEntity =
-        new UserCreatorInformationSender(
-            minBirthDayInMilliseconds:minDateMilliseconds ,
+    UserCreatorEntity userSettingsEntity =
+        new UserCreatorEntity(
+            minBirthDate:minDateMilliseconds ,
             userBio: data["Descripcion"],
             userPicruresList: list,
-            userCharacteristic: userCharacteristics);
+            userCharacteristics: userCharacteristics);
 
     return userSettingsEntity;
   }

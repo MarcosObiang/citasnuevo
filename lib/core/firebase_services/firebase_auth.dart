@@ -1,3 +1,6 @@
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -51,52 +54,50 @@ class AuthServiceImpl implements AuthService {
   ///
   @override
   Future<Map<String, dynamic>> logUserFromGoogle() async {
-    this._googleSignIn = new GoogleSignIn();
-    late UserCredential userCredential;
     try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await _googleSignIn.signIn();
-      if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleAuth =
-            await googleSignInAccount.authentication;
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
 
-        userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+      await Dependencies.serverAPi.account
+          ?.createOAuth2Session(provider: "google", success: "", failure: "");
+
+      var userData = await Dependencies.serverAPi.account?.get();
+
+      if (userData != null) {
+        GlobalDataContainer.userId = userData.$id;
+        GlobalDataContainer.userName = userData.name;
+        GlobalDataContainer.userEmail = userData.email;
+
+        return {
+          "userId": userData.$id,
+          "email": userData.$id,
+        };
       } else {
-        throw AuthException(message: "GOOGLE_SIGN_IN_ACCOUNT_IS_NULL");
+        return {
+          "userId": "unknown",
+          "email": "unknown",
+        };
       }
-    } catch (e, s) {
-      print(e);
-      print(s);
-      throw AuthException(message: e.toString());
+    } catch (e) {
+      if (e is AppwriteException) {
+        throw Exception(e.message);
+      } else {
+        throw Exception(e.toString());
+      }
     }
-    GlobalDataContainer.userId = userCredential.user!.uid;
-    GlobalDataContainer.userName = userCredential.user!.displayName;
-
-    return {
-      "userId": userCredential.user?.uid,
-      "email": userCredential.user?.email
-    };
   }
 
   @override
   Future<Map<String, dynamic>> userAlreadySignedIn() async {
+    var userData = await Dependencies.serverAPi.account?.get();
+
     this._googleSignIn = new GoogleSignIn();
 
-    FirebaseAuth? user = FirebaseAuth.instance;
-
-    if (user.currentUser != null) {
-      GlobalDataContainer.userId = user.currentUser!.uid;
-          GlobalDataContainer.userName = user.currentUser!.displayName;
-
+    if (userData != null) {
+      GlobalDataContainer.userId = userData.$id;
+      GlobalDataContainer.userName = userData.name;
 
       return {
-        "userId": user.currentUser?.uid,
-        "email": user.currentUser?.email,
+        "userId": userData.$id,
+        "email": userData.$id,
       };
     } else {
       return {
@@ -109,17 +110,13 @@ class AuthServiceImpl implements AuthService {
   @override
   Future<Map<String, dynamic>> logOut() async {
     try {
-      FirebaseAuth user = FirebaseAuth.instance;
-
-      await user.signOut().then((value) async {
-        await this._googleSignIn.signOut();
-      });
+      await Dependencies.serverAPi.account?.deleteSessions();
 
       return {"status": "OK"};
-    } catch (e) {
+    } on AppwriteException {
       print("object");
 
-      throw AuthException(message: e.toString());
+      throw AuthException(message: "e.toString()");
     }
   }
 }

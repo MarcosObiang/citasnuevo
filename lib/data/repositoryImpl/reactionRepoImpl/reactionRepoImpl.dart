@@ -21,7 +21,7 @@ class ReactionRepositoryImpl
   });
 
   @override
-  StreamController?  streamParserController = StreamController();
+  StreamController? streamParserController = StreamController();
 
   @override
   StreamSubscription? streamParserSubscription;
@@ -73,7 +73,7 @@ class ReactionRepositoryImpl
   Future<Either<Failure, bool>> rejectReaction(
       {required String reactionId}) async {
     try {
-      await reactionDataSource.rejectReaction(reactionId: reactionId);
+      await reactionDataSource.rejectReaction(reactionId: [reactionId]);
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
@@ -85,8 +85,6 @@ class ReactionRepositoryImpl
       }
     }
   }
-
-
 
   @override
   Either<Failure, bool> initializeModuleData() {
@@ -102,14 +100,14 @@ class ReactionRepositoryImpl
   @override
   Either<Failure, bool> clearModuleData() {
     try {
-        streamParserController?.close();
+      streamParserController?.close();
       streamParserSubscription?.cancel();
       streamParserController = null;
       streamParserSubscription = null;
       streamParserController = new StreamController();
       reactionDataSource.clearModuleData();
 
-      return Right(true);      
+      return Right(true);
     } catch (e) {
       return Left(ModuleClearFailure(message: e.toString()));
     }
@@ -127,6 +125,7 @@ class ReactionRepositoryImpl
           bool deleted = event["deleted"];
           bool notify = event["notify"];
           Map<dynamic, dynamic> reactionData = event["reaction"];
+ 
 
           Reaction reaction = ReactionMapper.fromMap(reactionData);
           this.streamParserController!.add({
@@ -137,7 +136,7 @@ class ReactionRepositoryImpl
             "notify": notify
           });
         } else {
-          double? reactionsAverage = event["reactionAverage"];
+          double? reactionsAverage = event["reactionsAverage"];
           int? coins = event["coins"];
           bool? isPremium = event["isPremium"];
           this.streamParserController!.add({

@@ -1,31 +1,33 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:appwrite/appwrite.dart';
 import 'package:citasnuevo/domain/entities/UserSettingsEntity.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_compare/image_compare.dart';
 import '../../core/common/profileCharacteristics.dart';
+import '../../core/dependencies/dependencyCreator.dart';
 import '../../domain/controller/controllerDef.dart';
 import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:flutter_cache_manager_firebase/flutter_cache_manager_firebase.dart';
 
 class UserSettingsMapper {
-  static Future<UserSettingsInformationSender> fromMap(
-      Map<String, dynamic> data) async {
+  static final storage = Storage(Dependencies.serverAPi.client!);
+
+  static Future<UserSettingsEntity> fromMap(Map<String, dynamic> data) async {
     List<UserCharacteristic> userCharacteristics =
-        userCharacteristicParser(data["filtros usuario"]);
+        _userCharacteristicParser(data);
 
-    Map<String, dynamic>? profileImage1 = data["IMAGENPERFIL1"];
-    Map<String, dynamic>? profileImage2 = data["IMAGENPERFIL2"];
-
-    Map<String, dynamic>? profileImage3 = data["IMAGENPERFIL3"];
-    Map<String, dynamic>? profileImage4 = data["IMAGENPERFIL4"];
-    Map<String, dynamic>? profileImage5 = data["IMAGENPERFIL5"];
-    Map<String, dynamic>? profileImage6 = data["IMAGENPERFIL6"];
+    Map<String, dynamic>? profileImage1 = data["userPicture1"];
+    Map<String, dynamic>? profileImage2 = data["userPicture2"];
+    Map<String, dynamic>? profileImage3 = data["userPicture3"];
+    Map<String, dynamic>? profileImage4 = data["userPicture4"];
+    Map<String, dynamic>? profileImage5 = data["userPicture5"];
+    Map<String, dynamic>? profileImage6 = data["userPicture6"];
 
     List<UserPicture> list = [];
     List<Map<String, dynamic>?> userImages = [
@@ -39,11 +41,12 @@ class UserSettingsMapper {
 
     for (int i = 0; i < userImages.length; i++) {
       if (userImages[i] != null) {
-        if (userImages[i]!["Imagen"] != "vacio") {
+        if (userImages[i]!["imageId"] != "empty") {
           list.add(UserPicture(index: i)
             ..setNetworkPicture(
+                imageBytes: await _getImageData(userImages[i]!["imageId"]),
                 pictureHashData: userImages[i]!["hash"],
-                pictureUrlData: userImages[i]!["Imagen"]));
+                pictureUrlData: userImages[i]!["imageId"]));
         } else {
           list.add(UserPicture(index: i));
         }
@@ -52,13 +55,30 @@ class UserSettingsMapper {
       }
     }
 
-    UserSettingsInformationSender userSettingsEntity =
-        new UserSettingsInformationSender(
-            userBio: data["Descripcion"],
-            userPicruresList: list,
-            userCharacteristic: userCharacteristics);
+    UserSettingsEntity userSettingsEntity = new UserSettingsEntity(
+        userBio: data["userBio"],
+        userPicruresList: list,
+        userCharacteristics: userCharacteristics);
 
     return userSettingsEntity;
+  }
+
+  static Future<Uint8List> _getImageData(String imageId) async {
+    Uint8List? imageData;
+
+    try {
+      imageData = await storage.getFileDownload(
+        bucketId: '63712fd65399f32a5414',
+        fileId: imageId,
+      );
+      return imageData;
+    } catch (e) {
+      if (e is AppwriteException) {
+        throw Exception();
+      } else {
+        throw Exception();
+      }
+    }
   }
 
   static Future<Map<String, dynamic>> toMap(
@@ -70,7 +90,7 @@ class UserSettingsMapper {
 
     response["images"] = await _hashImage(userPictureList);
     response["userBio"] = userSettingsEntity.userBio;
-    response["userFilters"] = _userCharacteristicsToMap(userCharacteristicList);
+    response.addAll(_userCharacteristicsToMap(userCharacteristicList));
 
     return response;
   }
@@ -95,13 +115,7 @@ class UserSettingsMapper {
     for (int i = 0; i < userPictureList.length; i++) {
       if (userPictureList[i].getUserPictureBoxstate ==
           UserPicutreBoxState.pictureFromBytes) {
-        if (userPictureList[i].getPictureUrl != "vacio") {
-          String firebaseImage = FirebaseStorage.instance
-              .refFromURL(userPictureList[i].getPictureUrl)
-              .fullPath;
-
-          await FirebaseCacheManager().removeFile(firebaseImage);
-        }
+        if (userPictureList[i].getPictureUrl != "vacio") {}
         img.Image? imagex = img.decodeImage(userPictureList[i].getImageFile);
         bytesList.add({
           "Bytes": imagex,
@@ -123,13 +137,8 @@ class UserSettingsMapper {
       }
       if (userPictureList[i].getUserPictureBoxstate ==
           UserPicutreBoxState.pictureFromNetwork) {
-        String firebaseImage = FirebaseStorage.instance
-            .refFromURL(userPictureList[i].getPictureUrl)
-            .fullPath;
-
-        File file = await FirebaseCacheManager().getSingleFile(firebaseImage);
-        Uint8List dataFromNetwork = await file.readAsBytes();
-        await FirebaseCacheManager().removeFile(firebaseImage);
+        Uint8List dataFromNetwork =
+            await _getImageData(userPictureList[i].getPictureUrl);
         img.Image? imagex = img.decodeImage(dataFromNetwork);
         bytesList.add({
           "Bytes": imagex,
@@ -142,12 +151,12 @@ class UserSettingsMapper {
     }
 
     List<Map<String, dynamic>> computedImages =
-        await compute(blurHashImage, bytesList);
+        await compute(_blurHashImage, bytesList);
     response.addAll(computedImages);
     return response;
   }
 
-  static List<Map<String, dynamic>> blurHashImage(
+  static List<Map<String, dynamic>> _blurHashImage(
       List<Map<String, dynamic>> data) {
     List<Map<String, dynamic>> blredImagesHashes = [];
     for (int i = 0; i < data.length; i++) {
@@ -163,60 +172,35 @@ class UserSettingsMapper {
     return blredImagesHashes;
   }
 
-  static List<UserCharacteristic> userCharacteristicParser(
+  static List<UserCharacteristic> _userCharacteristicParser(
       Map<String, dynamic> data) {
     List<UserCharacteristic> userCharacteristics = [];
 
-    Iterable<MapEntry<String, dynamic>> characteristicData = data.entries;
-    List<MapEntry<String, dynamic>> rawUserCharacteristicsList =
-        characteristicData.toList();
+    List<String> attributes = [];
 
-    rawUserCharacteristicsList
-        .removeWhere((element) => element.key == "Altura");
-    rawUserCharacteristicsList
-        .removeWhere((element) => element.key == "Vegetariano");
-    rawUserCharacteristicsList
-        .removeWhere((element) => element.key == "orientacionSexual");
+    kProfileCharacteristics_ES.forEach((element) {
+      attributes.add(element.keys.first);
+    });
 
-    for (int i = 0; i < rawUserCharacteristicsList.length; i++) {
+    for (int i = 0; i < attributes.length; i++) {
+      int characterisitcValue = data[attributes[i]];
 
-      Map<String, IconData> characteristicIcon =
-          kProfileCharacteristics_Icons.firstWhere((element) =>
-              element.containsKey(rawUserCharacteristicsList[i].key));
-      IconData characteristicIconData = characteristicIcon.values.first;
-      Map<String, dynamic> characteristicValueMap =
-          kProfileCharacteristics_ES.firstWhere((element) =>
-              element.containsKey(rawUserCharacteristicsList[i].key));
-      List<Map<String, String>> listCharacteristics =
-          characteristicValueMap.entries.first.value;
-      String characteristicValue =
-          listCharacteristics[rawUserCharacteristicsList[i].value]
-              .entries
-              .first
-              .value;
-      if (rawUserCharacteristicsList[i].value != 0) {
-        userCharacteristics.add(UserCharacteristic(
-          characteristicIcon: characteristicIconData,
-          characteristicValueIndex: rawUserCharacteristicsList[i].value,
-          userHasValue: true,
-          positionIndex: i,
-          valuesList: listCharacteristics,
-          characteristicName: characteristicValueMap.entries.first.key,
-          characteristicValue: characteristicValue,
-        ));
-      }
-      if (rawUserCharacteristicsList[i].value == 0) {
+      String characteristicName = attributes[i];
+      List<Map<String, dynamic>> kProfileCharacteristicsCopy =
+          kProfileCharacteristics_ES[i].values.first;
+      String characteristicStringValue =
+          kProfileCharacteristicsCopy[characterisitcValue].values.first;
+
       userCharacteristics.add(UserCharacteristic(
-          characteristicIcon: characteristicIconData,
-          characteristicValueIndex: rawUserCharacteristicsList[i].value,
-          userHasValue: false,
-          positionIndex: i,
-          valuesList: listCharacteristics,
-          characteristicName: characteristicValueMap.entries.first.key,
-          characteristicValue: characteristicValue,
-        ));
-      }
+          characteristicValueIndex: characterisitcValue,
+          positionIndex: 0,
+          userHasValue: characterisitcValue != 0 ? true : false,
+          valuesList: kProfileCharacteristicsCopy,
+          characteristicName: characteristicName,
+          characteristicValue: characteristicStringValue,
+          characteristicIcon: kProfileCharacteristics_Icons[i].values.first));
     }
+
     return userCharacteristics;
   }
 }

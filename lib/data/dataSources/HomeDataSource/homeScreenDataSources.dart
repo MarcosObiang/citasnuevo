@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
+import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/location_services/locatio_service.dart';
 import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -10,6 +14,7 @@ import 'package:flutter/animation.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/common/commonUtils/getUserImage.dart';
+import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../domain/repository/DataManager.dart';
 
 abstract class HomeScreenDataSource
@@ -70,29 +75,26 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   }) async {
     Map<dynamic, dynamic> functionResult = Map();
 
-    List<Map<dynamic, dynamic>> profilesCache = [];
-    HttpsCallableResult result = await fetchProfilesCloudFunction.call({
-      "edadFinal": dataSourceStreamData["Ajustes"]["edadFinal"],
-      "edadInicial": dataSourceStreamData["Ajustes"]["edadInicial"],
-      "ambosSexos": source.getData["Ajustes"]["mostrarAmbosSexos"],
-      "sexo": dataSourceStreamData["Ajustes"]["mostrarMujeres"],
-      "latitud": positionData["lat"],
-      "longitud": positionData["lon"],
-      "distancia": dataSourceStreamData["Ajustes"]["distanciaMaxima"] / 10
-    });
-    if (result.data["estado"] == "correcto") {
-      List<Object?> objectResult = result.data["mensaje"];
-      objectResult.forEach((element) {
-        profilesCache.add(element as Map<dynamic, dynamic>);
-      });
+    String profilesCache;
+    Functions functions = Functions(Dependencies.serverAPi.client!);
 
-      functionResult["userCharacteristicsData"] =
-          source.getData["filtros usuario"];
+    Execution execution = await functions.createExecution(
+        functionId: "fetchUserProfiles",
+        data: jsonEncode({
+          "lat": positionData["lat"],
+          "lon": positionData["lon"],
+          "distance": 6,
+          "userId": GlobalDataContainer.userId
+        }));
+    if (jsonDecode(execution.response)["status"] == "correct") {
+      profilesCache = jsonDecode(execution.response)["payload"];
+
+      functionResult["userData"] = source.getData;
       functionResult["profilesList"] = profilesCache;
       functionResult["todayDateTime"] = await DateNTP.instance.getTime();
       return functionResult;
-    } else if (result.data["estado"] == "error") {
-      if (result.data["mensaje"] == "error_perfil_invisible") {
+    } else if (execution.status == "error") {
+      if (execution.status == "error_perfil_invisible") {
         throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
       } else {
         throw FetchProfilesException(message: "INTERNAL_ERROR");
@@ -149,18 +151,29 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       {required double ratingValue, required String idProfileRated}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        await sendProfileRating.call({
-          "idDestino": idProfileRated,
-          "imagenEmisor": GetProfileImage.getProfileImage
-              .getProfileImageMap(dataSourceStreamData)["image"],
-          "nombreEmisor": dataSourceStreamData["Nombre"],
-          "idEmisor": dataSourceStreamData["id"],
-          "valoracion": ratingValue,
-          "hash": GetProfileImage.getProfileImage
-              .getProfileImageMap(dataSourceStreamData)["hash"]
-        });
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+
+        Execution execution = await functions.createExecution(
+            functionId: "rateUsers",
+            data: jsonEncode({
+              "recieverId": idProfileRated,
+              "userPicture": GetProfileImage.getProfileImage
+                  .getProfileImageMap(dataSourceStreamData)["image"],
+              "senderName": dataSourceStreamData["userName"],
+              "userId": dataSourceStreamData["userId"],
+              "reactionValue": ratingValue,
+              "hash": GetProfileImage.getProfileImage
+                  .getProfileImageMap(dataSourceStreamData)["hash"]
+            }));
+
+        print(execution);
       } catch (e) {
-        RatingProfilesException(message: 'PROFILE_RATING_FAILED');
+        if (e is AppwriteException) {
+          throw RatingProfilesException(
+              message: e.message ?? "PROFILE_RATING_FAILED");
+        } else {
+          throw RatingProfilesException(message: 'PROFILE_RATING_FAILED');
+        }
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);

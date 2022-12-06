@@ -7,17 +7,17 @@ class SettingsMapper {
     List<ProductInfo> productInfoList = [];
     PurchasesServices.purchasesServices.product!.all
         .forEach((String key, Offering offering) {
-      String subscriptionId = latestSettings["subscriptionId"];
-      String paymentState = latestSettings["paymentState"];
+      String subscriptionId = "latestSettings";
+      String paymentState = "latestSettings";
       SubscriptionState subscriptionState = SubscriptionState.NOT_SUBSCRIBED;
       bool activeSubscription = false;
       int subscriptionExpirationTime = 0;
       int pausedAutoRenewalTime = 0;
 
-      if (offering.availablePackages.first.product.identifier ==
+      if (offering.availablePackages.first.identifier ==
           subscriptionId) {
         subscriptionExpirationTime =
-            latestSettings["subscriptionExpirationTime"];
+            0;
         activeSubscription = true;
         if (paymentState == "ACTIVA") {
           subscriptionState = SubscriptionState.ACTIVE;
@@ -39,18 +39,18 @@ class SettingsMapper {
           subscriptionExpireTime: subscriptionExpirationTime,
           subscriptionState: subscriptionState,
           productName: offering.identifier,
-          productPrice: offering.availablePackages.first.product.priceString,
+          productPrice: offering.availablePackages.first.storeProduct.priceString,
           productCurrency:
-              offering.availablePackages.first.product.currencyCode,
+              offering.availablePackages.first.storeProduct.currencyCode,
           productIsActive: activeSubscription,
           offerId: key,
-          productId: offering.availablePackages.first.product.identifier));
+          productId: offering.availablePackages.first.storeProduct.identifier));
     });
 
     SettingsEntity settingsEntity = SettingsEntity(
         userName: latestSettings["name"],
-        userPicture: latestSettings["userPicture"],
-        userPictureHash: latestSettings["hash"],
+        userPicture: latestSettings["userPicture1"]["imageId"],
+        userPictureHash: latestSettings["userPicture1"]["hash"],
         userAge: latestSettings["age"],
         weekSubscription: productInfoList.first,
         productInfoList: productInfoList,

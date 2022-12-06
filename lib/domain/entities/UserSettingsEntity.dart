@@ -19,7 +19,7 @@ class UserPicture {
   String _pictureUrl = "vacio";
   String _pictureHash = "vacio";
   bool useFile = false;
-  bool _deleteFromDatabase=false;
+  bool _deleteFromDatabase = false;
   int index;
 
   late Uint8List _imageFile = Uint8List(0);
@@ -34,12 +34,17 @@ class UserPicture {
   UserPicutreBoxState get getUserPictureBoxstate => _userPicutreBoxState;
 
   void setNetworkPicture(
-      {required String pictureUrlData, required String pictureHashData}) {
-    if (pictureUrlData != "vacio") {
+      {required String pictureUrlData,
+      required String pictureHashData,
+      required Uint8List imageBytes}) {
+    if (imageBytes.isNotEmpty) {
+      _imageFile = imageBytes;
       _pictureUrl = pictureUrlData;
       _pictureHash = pictureHashData;
       _userPicutreBoxState = UserPicutreBoxState.pictureFromNetwork;
     } else {
+      _imageFile = Uint8List(0);
+
       _pictureHash = "vacio";
       _pictureUrl = "vacio";
       _userPicutreBoxState = UserPicutreBoxState.empty;

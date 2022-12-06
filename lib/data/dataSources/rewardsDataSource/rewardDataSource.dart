@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
@@ -49,10 +52,12 @@ class RewardDataSourceImpl implements RewardDataSource {
   Future<void> getDailyReward() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        HttpsCallable callDailyReward =
-            FirebaseFunctions.instance.httpsCallable("solcitarCreditosDiarios");
-        HttpsCallableResult httpsCallable = await callDailyReward.call();
-        if (httpsCallable.data["estado"] == "correcto") {
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "giveDailyReward",
+            data: jsonEncode(
+                {"firstReward": false, "userId": GlobalDataContainer.userId}));
+        if (execution.statusCode == 200) {
           Dependencies.advertisingServices.closeStream();
         } else {
           Dependencies.advertisingServices.closeStream();
@@ -132,16 +137,16 @@ class RewardDataSourceImpl implements RewardDataSource {
     }
   }
 
-
-
   @override
   Future<bool> getFrstReward() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        HttpsCallable callDailyReward =
-            FirebaseFunctions.instance.httpsCallable("pedirPrimeraRecompensa");
-        HttpsCallableResult httpsCallable = await callDailyReward.call();
-        if (httpsCallable.data["estado"] == "correcto") {
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "giveDailyReward",
+            data: jsonEncode(
+                {"firstReward": true, "userId": GlobalDataContainer.userId}));
+        if (execution.statusCode == 200) {
           return true;
         } else {
           throw RewardException(message: "Error");

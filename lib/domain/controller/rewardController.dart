@@ -101,8 +101,9 @@ class RewardControllerImpl implements RewardController {
   void stardDailyRewardCounter() async {
     if (rewards != null) {
       DateTime todayTime = await DateNTP.instance.getTime();
-      int secondsToday = todayTime.millisecondsSinceEpoch ~/ 1000;
-      int secondsRemaining = this.rewards!.timeUntilDailyReward - secondsToday;
+      int secondsToday = todayTime.millisecondsSinceEpoch;
+      int secondsRemaining =
+          (this.rewards!.timeUntilDailyReward - secondsToday) ~/ 1000;
       secondsUntilDailyReward = secondsRemaining;
       late Timer dailyRewardTimer;
 
@@ -153,25 +154,12 @@ class RewardControllerImpl implements RewardController {
     rewardStreamSubscription =
         rewardRepository.getStreamParserController?.stream.listen((event) {
       String payloadType = event["payloadType"];
-
-      if (payloadType == "reward") {
+      rewards = event["rewards"];
+      if (payloadType == "rewards") {
         if (rewards != null) {
-          this.isPremium = rewards!.isPremium;
-
-          if (this.rewards?.waitingReward == false &&
-              event.waitingReward == true) {
-            stardDailyRewardCounter();
+          if (this.rewards?.waitingReward == false) {
+               stardDailyRewardCounter();
           }
-        }
-
-        if (isRewardCounterRunning == false) {
-          stardDailyRewardCounter();
-          isRewardCounterRunning = true;
-        }
-        this.rewards = event;
-
-        if (rewards != null) {
-          this.isPremium = rewards!.isPremium;
 
           updateDataController?.add(RewardInformationSender(
               premiumPrice: this.premiumPrice ?? "0",

@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -11,6 +15,7 @@ import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../../../core/globalData.dart';
 import '../../../domain/repository/DataManager.dart';
 
 abstract class ReactionDataSource
@@ -26,7 +31,7 @@ abstract class ReactionDataSource
     required String reactionSenderId,
   });
 
-  Future<bool> rejectReaction({required String reactionId});
+  Future<bool> rejectReaction({required List<String> reactionId});
   Map<String, dynamic> getAdditionalData();
 }
 
@@ -38,8 +43,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   @override
   StreamSubscription? sourceStreamSubscription;
 
-  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
-      reactionSubscriptionListener;
+  StreamSubscription<RealtimeMessage>? reactionSubscriptionListener;
   @override
   ApplicationDataSource source;
   String? userID = kNotAvailable;
@@ -57,27 +61,26 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     return {"coins": coins, "averageReactions": reactionsAverage};
   }
 
-  void _addReaction({required DocumentChange<Map<String, dynamic>> element}) {
+  void _addReaction({required Map<String, dynamic> element}) {
     if (reactionListener != null) {
       reactionListener?.add({
         "payloadType": "reaction",
         "modified": false,
-        "reaction": element.doc.data(),
+        "reaction": element,
         "deleted": false,
-        "notify": element.doc.metadata.isFromCache == true ? false : true
+        "notify": true
       });
     } else {
       throw Exception("REACTION_LISTENER_CANNOT_BE_NULL");
     }
   }
 
-  void _modifyReaction(
-      {required DocumentChange<Map<String, dynamic>> element}) {
-    if (reactionListener == null) {
+  void _modifyReaction({required Map<String, dynamic> element}) {
+    if (reactionListener != null) {
       reactionListener?.add({
         "payloadType": "reaction",
         "modified": true,
-        "reaction": element.doc.data(),
+        "reaction": element,
         "deleted": false,
         "notify": false
       });
@@ -86,13 +89,12 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     }
   }
 
-  void _deleteReaction(
-      {required DocumentChange<Map<String, dynamic>> element}) {
+  void _deleteReaction({required Map<String, dynamic> element}) {
     if (reactionListener != null) {
       reactionListener?.add({
         "payloadType": "reaction",
         "modified": true,
-        "reaction": element.doc.data(),
+        "reaction": element,
         "deleted": true,
         "notify": false
       });
@@ -122,39 +124,71 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     }
   }
 
+  Future<void> getReactions() async {
+    Databases databases = Databases(Dependencies.serverAPi.client!);
+    DateTime dateTime = await DateNTP.instance.getTime();
+    List<String> expiredReactions = [];
+
+    var documents = await databases.listDocuments(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "6374fe10e76d07bfe639");
+
+    documents.documents.forEach((element) {
+      if (dateTime.millisecondsSinceEpoch <
+          element.data["expirationTimestamp"]) {
+        _addReaction(element: element.data);
+      } else {
+        expiredReactions.add(element.$id);
+      }
+    });
+
+    await this.rejectReaction(reactionId: expiredReactions);
+  }
+
   void initializeReactionListener() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        FirebaseFirestore instance = FirebaseFirestore.instance;
+        await getReactions();
 
-        reactionSubscriptionListener = instance
-            .collection("valoraciones")
-            .where("idDestino", isEqualTo: userID)
-            .snapshots()
-            .listen((dato) {
-          dato.docChanges.forEach((element) async {
-            try {
-              DateTime dateTime = await DateNTP.instance.getTime();
-              int queryTime = dateTime.millisecondsSinceEpoch ~/ 1000;
-              int caducidadValoracion = element.doc.get("caducidad");
+        String reactionDataabseReference =
+            "databases.636d59d7a2f595323a79.collections.6374fe10e76d07bfe639.documents";
 
-              if (caducidadValoracion > queryTime) {
-                if (element.type == DocumentChangeType.added) {
-                  _addReaction(element: element);
+        Realtime realtime = new Realtime(Dependencies.serverAPi.client!);
+
+        reactionSubscriptionListener = realtime
+            .subscribe([reactionDataabseReference])
+            .stream
+            .listen((dato) async {
+              try {
+                DateTime dateTime = await DateNTP.instance.getTime();
+                int queryTime = dateTime.millisecondsSinceEpoch;
+                int caducidadValoracion = dato.payload["expirationTimestamp"];
+                String createEvent =
+                    "databases.636d59d7a2f595323a79.collections.6374fe10e76d07bfe639.documents.${dato.payload["reactionId"]}.create";
+                String updateEvent =
+                    "databases.636d59d7a2f595323a79.collections.6374fe10e76d07bfe639.documents.${dato.payload["reactionId"]}.update";
+                String deleteEvent =
+                    "databases.636d59d7a2f595323a79.collections.6374fe10e76d07bfe639.documents.${dato.payload["reactionId"]}.delete";
+                if (caducidadValoracion > queryTime) {
+                  if (dato.events.first.contains(createEvent)) {
+                    _addReaction(element: dato.payload);
+                  }
+                  if (dato.events.first.contains(updateEvent)) {
+                    _modifyReaction(element: dato.payload);
+                  }
                 }
-                if (element.type == DocumentChangeType.modified) {
-                  _modifyReaction(element: element);
+
+                if (dato.events.contains(deleteEvent)) {
+                  _deleteReaction(element: dato.payload);
+                }
+              } catch (e) {
+                if (e is AppwriteException) {
+                  _addErrorReaction(e: e);
+                } else {
+                  _addErrorReaction(e: e);
                 }
               }
-
-              if (element.type == DocumentChangeType.removed) {
-                _deleteReaction(element: element);
-              }
-            } catch (e) {
-              _addErrorReaction(e: e);
-            }
-          });
-        });
+            });
       } catch (e) {
         throw ReactionException(
           message: e.toString(),
@@ -170,24 +204,25 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     try {
       await Future.delayed(Duration(milliseconds: 200));
       sourceStreamSubscription = source.dataStream.stream.listen((event) {
-        reactionsAverage = double.parse(event["mediaTotal"].toString());
+        reactionsAverage = double.parse(event["averageRating"].toString());
         if (reactionsAverage != null) {
           reactionsAverage =
               double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
         }
-        coins = event["creditos"];
-        isPremium = event["monedasInfinitas"];
+        coins = event["userCoins"];
+        isPremium = event["isUserPremium"];
 
         _sendAdditionalData();
       });
-      userID = source.getData["id"];
-      isPremium = source.getData["monedasInfinitas"];
-      reactionsAverage = double.parse(source.getData["mediaTotal"].toString());
+      userID = source.getData["userId"];
+      isPremium = source.getData["isUserPremium"];
+      reactionsAverage =
+          double.parse(source.getData["averageRating"].toString());
       if (reactionsAverage != null) {
         reactionsAverage =
             double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
       }
-      coins = source.getData["creditos"];
+      coins = source.getData["userCoins"];
       _sendAdditionalData();
 
       initializeReactionListener();
@@ -200,6 +235,14 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   Future<void> revealReaction(String reactionId) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+
+        Execution execution = await functions.createExecution(
+            functionId: "revealreaction",
+            data: jsonEncode({
+              "reactionId": reactionId,
+              "userId": GlobalDataContainer.userId
+            }));
         HttpsCallable callToRevealReactionFunction =
             FirebaseFunctions.instance.httpsCallable("quitarCreditosUsuario");
 
@@ -209,7 +252,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
           "primeraSolicitud": false
         });
 
-        if (result.data["estado"] != "correcto") {
+        if (execution.statusCode != 200) {
           throw Exception(["FAILED"]);
         }
       } catch (e) {
@@ -227,16 +270,11 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       {required String reactionId, required String reactionSenderId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        HttpsCallable callToAcceptReactionFunction =
-            FirebaseFunctions.instance.httpsCallable("crearConversaciones");
-        HttpsCallableResult httpsCallableResult =
-            await callToAcceptReactionFunction.call({
-          "idEmisor": userID,
-          "idValoracion": reactionId,
-          "idDestino": reactionSenderId
-        });
-
-        if (httpsCallableResult.data["estado"] == "correcto") {
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "acceptReaction",
+            data: jsonEncode({"reactionId": reactionId}));
+        if (execution.statusCode == 200) {
           return true;
         } else {
           throw ReactionException(message: "NOT_ALLOWED");
@@ -252,12 +290,18 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   @override
-  Future<bool> rejectReaction({required String reactionId}) async {
+  Future<bool> rejectReaction({required List<String> reactionId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        FirebaseFirestore instance = FirebaseFirestore.instance;
-        await instance.collection("valoraciones").doc(reactionId).delete();
-        return true;
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "deleteReaction",
+            data: jsonEncode({"reactionIds": reactionId}));
+        if (execution.statusCode == 200) {
+          return true;
+        } else {
+          throw Exception("error_deleting_reaction");
+        }
       } catch (e) {
         throw ReactionException(
           message: e.toString(),

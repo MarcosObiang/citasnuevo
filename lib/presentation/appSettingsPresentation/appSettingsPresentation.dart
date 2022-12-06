@@ -120,7 +120,8 @@ class AppSettingsPresentation extends ChangeNotifier
   }
 
   void updateSettings(
-      ApplicationSettingsEntity applicationSettingsEntity) async {
+      ApplicationSettingsEntity applicationSettingsEntity, bool saveSettings) async {
+        if(saveSettings){
     setAppSettingsScreenUpdateState = AppSettingsScreenUpdateState.loading;
     var result = await appSettingsController
         .updateAppSettings(applicationSettingsEntity);
@@ -140,6 +141,8 @@ class AppSettingsPresentation extends ChangeNotifier
     }, (r) {
       setAppSettingsScreenUpdateState = AppSettingsScreenUpdateState.done;
     });
+        }
+
   }
 
   @override

@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:appwrite/appwrite.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/iapPurchases/iapPurchases.dart';
@@ -17,9 +20,10 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../Routes.dart';
 
-
 class SettingsScreen extends StatefulWidget {
-      static const routeName = '/SettingsScreen';
+  static const routeName = '/SettingsScreen';
+  Uint8List? imageData;
+  final storage = Storage(Dependencies.serverAPi.client!);
 
   SettingsScreen();
 
@@ -28,6 +32,28 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.imageData == null) {
+      _getImageData();
+    }
+  }
+
+  void _getImageData() async {
+    try {
+      widget.imageData = await widget.storage.getFileDownload(
+        bucketId: '63712fd65399f32a5414',
+        fileId:
+            Dependencies.settingsScreenPresentation.settingsEntity.userPicture,
+      );
+      setState(() {});
+    } catch (e) {
+      if (e is AppwriteException) {
+      } else {}
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -54,17 +80,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 flex: 4,
                                 fit: FlexFit.tight,
                                 child: Container(
-                                    child: OctoImage(
-                                  fadeInDuration: Duration(milliseconds: 50),
-                                  fit: BoxFit.fitHeight,
-                                  image: CachedNetworkImageProvider(
-                                      settingsScreenPresentation
-                                          .settingsEntity.userPicture),
-                                  placeholderBuilder: OctoPlaceholder.blurHash(
-                                      settingsScreenPresentation
-                                          .settingsEntity.userPictureHash,
-                                      fit: BoxFit.cover),
-                                )),
+                                    child: widget.imageData != null
+                                        ? Image.memory(
+                                            widget.imageData!,
+                                          )
+                                        : CircularProgressIndicator()),
                               ),
                               Flexible(
                                   flex: 7,

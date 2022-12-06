@@ -7,12 +7,12 @@ class RewardMapper{
   Rewards fromMap({required Map<String,dynamic> data}){
     
     return new Rewards(
-      isPremium: data["monedasInfinitas"],
-      coins: data["creditos"],
-            timeUntilDailyReward: data["siguienteRecompensa"],
-            waitingFirstReward: data["primeraRecompensa"],
+      isPremium: data["isUserPremium"],
+      coins: data["userCoins"],
+            timeUntilDailyReward: data["nextRewardTimestamp"],
+            waitingFirstReward: data["giveFirstReward"],
             rewardForShareRigth: false,
             rewardForVerificationRigth: false,
-            waitingReward: data["esperandoRecompensa"]);
+            waitingReward: data["waitingReward"]);
   }
 }

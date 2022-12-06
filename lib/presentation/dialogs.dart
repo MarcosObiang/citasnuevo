@@ -129,7 +129,7 @@ class AdsGenericErrorDialog extends StatelessWidget {
         TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ConsentManager.showAsDialogConsentForm();
+            //  ConsentManager.showAsDialogConsentForm();
             },
             child: Text("Entendido"))
       ],

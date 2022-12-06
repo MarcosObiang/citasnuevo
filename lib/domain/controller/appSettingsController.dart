@@ -29,9 +29,10 @@ class AppSettingsController
   void initializeListener() {
     streamParserSubscription =
         appSettingsRepository.getStreamParserController?.stream.listen((event) {
-      if (event is ApplicationSettingsEntity) {
-        applicationSettingsEntity = event;
-        updateDataController?.add(event);
+      String payloadType = event["payloadType"];
+      if (payloadType == "applicationSettingsEntity") {
+        applicationSettingsEntity = event["payload"];
+        updateDataController?.add(applicationSettingsEntity);
       }
     }, onError: (error) {
       updateDataController?.addError(error);
@@ -42,16 +43,7 @@ class AppSettingsController
       ApplicationSettingsEntity applicationSettingsEntity) async {
     sendInfo(updatingSettings: true);
 
-    var result = await appSettingsRepository.updateSettings({
-      "distanciaMaxima": applicationSettingsEntity.distance,
-      "edadFinal": applicationSettingsEntity.maxAge,
-      "edadInicial": applicationSettingsEntity.minAge,
-      "enCm": applicationSettingsEntity.inCm,
-      "enMillas": applicationSettingsEntity.inKm,
-      "mostrarAmbosSexos": applicationSettingsEntity.showBothSexes,
-      "mostrarMujeres": applicationSettingsEntity.showWoman,
-      "mostrarPerfil": applicationSettingsEntity.showProfile
-    });
+    var result = await appSettingsRepository.updateSettings(applicationSettingsEntity);
     result.fold((l) {
       sendInfo(updatingSettings: false);
     }, (r) {

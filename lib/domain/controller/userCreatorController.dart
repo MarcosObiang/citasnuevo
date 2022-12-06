@@ -2,20 +2,19 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:citasnuevo/data/Mappers/UserCreatorMapper.dart';
+import 'package:citasnuevo/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart';
 import 'package:citasnuevo/domain/controller/controllerDef.dart';
 import 'package:citasnuevo/domain/entities/UserCreatorEntity.dart';
 import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
 import 'package:dartz/dartz.dart';
 
+import '../../core/error/Exceptions.dart';
 import '../../core/error/Failure.dart';
 import '../repository/DataManager.dart';
 
 abstract class UserCreatorController
-    implements
-        ShouldControllerUpdateData<UserCreatorInformationSender>,
-        ModuleCleanerController {
+    implements ShouldControllerUpdateData, ModuleCleanerController {
   late UserCreatorEntity userCreatorEntity;
-  StreamController<UserCreatorInformationSender>? get getDataStream;
   void insertImageFile(Uint8List imageBytes, int index);
   void deleteImage(int index);
   Future<Either<Failure, bool>> createUser();
@@ -28,7 +27,7 @@ class UserCreatorControllerImpl implements UserCreatorController {
   StreamSubscription? streamSubscription;
 
   @override
-  StreamController<UserCreatorInformationSender>? updateDataController;
+  StreamController? updateDataController = StreamController();
   UserCreatorControllerImpl({
     required this.userCreatorRepo,
   });
@@ -38,6 +37,10 @@ class UserCreatorControllerImpl implements UserCreatorController {
     try {
       updateDataController?.close();
       streamSubscription?.cancel();
+      updateDataController = null;
+      streamSubscription = null;
+      updateDataController = StreamController.broadcast();
+
       var result = userCreatorRepo.clearModuleData();
       return result;
     } catch (e) {
@@ -67,35 +70,31 @@ class UserCreatorControllerImpl implements UserCreatorController {
   }
 
   void initializeListener() {
-    streamSubscription = getDataStream?.stream.listen((event) {
-      this.userCreatorEntity = new UserCreatorEntity(
-          minBirthDate: event.minBirthDayInMilliseconds,
-          userBio: event.userBio,
-          userCharacteristics: event.userCharacteristic,
-          userPicruresList: event.userPicruresList);
-      updateDataController?.add(event);
+    streamSubscription =
+        userCreatorRepo.getStreamParserController?.stream.listen((event) {
+      String payloadType = event["payload"];
+
+      if (payloadType == "userCreatorEntity") {
+        this.userCreatorEntity = event["data"];
+        updateDataController?.add(this.userCreatorEntity);
+      }
+    }, onError: (e) {
+      updateDataController?.addError(e);
     });
   }
 
   @override
-    Either<Failure, bool> initializeModuleData() {
-      try{
-            initializeListener();
+  Either<Failure, bool> initializeModuleData() {
+    try {
+      initializeListener();
 
-    updateDataController = StreamController.broadcast();
-     var result=   userCreatorRepo.initializeModuleData();
+      var result = userCreatorRepo.initializeModuleData();
 
-return result;
-      }catch(e){
-        return Left(ModuleInitializeFailure(message: e.toString()));
-
-      }
-
+      return result;
+    } catch (e) {
+      return Left(ModuleInitializeFailure(message: e.toString()));
+    }
   }
-
-  @override
-  StreamController<UserCreatorInformationSender>? get getDataStream =>
-      userCreatorRepo.getUserCreatorDataStream;
 
   @override
   Future<Either<Failure, bool>> logOut() {

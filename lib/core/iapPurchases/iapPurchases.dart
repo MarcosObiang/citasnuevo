@@ -12,7 +12,7 @@ class PurchasesServices {
     try {
       if (Platform.isAndroid) {
         await Purchases.setDebugLogsEnabled(true);
-        Purchases.addPurchaserInfoUpdateListener((purchaserInfo) {
+        Purchases.addCustomerInfoUpdateListener((purchaserInfo) {
           print(purchaserInfo);
         });
         await Purchases.setup("goog_gUQRNUmExxIGLyeAlZIQYwLfvSa",
@@ -41,8 +41,8 @@ class PurchasesServices {
     try {
       Offering? offering =
           PurchasesServices.purchasesServices.product?.all[offerId];
-      await Purchases.invalidatePurchaserInfoCache();
-      var purchaserData = await Purchases.getPurchaserInfo();
+      await Purchases.invalidateCustomerInfoCache();
+      var purchaserData = await Purchases.getCustomerInfo();
 
       if (offering != null) {
         if (purchaserData.activeSubscriptions.isEmpty) {

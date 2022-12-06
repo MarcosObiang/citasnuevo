@@ -1,4 +1,225 @@
 {
-    "projectId": "6358e206dcacdb1e8cf5",
-    "projectName": "datingapp"
+    "projectId": "636bd00b90e7666f0f6f",
+    "projectName": "hottyapp",
+    "functions": [
+        {
+            "$id": "createUser",
+            "name": "createUser",
+            "runtime": "dart-2.17",
+            "path": "functions/createUser",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "setMediaPermissions",
+            "name": "setMediaPermissions",
+            "runtime": "dart-2.17",
+            "path": "functions/setMediaPermissions",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "fetchUserProfiles",
+            "name": "fetchUserProfiles",
+            "runtime": "dart-2.17",
+            "path": "functions/fetchUserProfiles",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "rateUsers",
+            "name": "rateUsers",
+            "runtime": "dart-2.17",
+            "path": "functions/rateUsers",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "revealReaction",
+            "name": "revealReaction",
+            "runtime": "dart-2.17",
+            "path": "functions/revealReaction",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "deleteReaction",
+            "name": "deleteReaction",
+            "runtime": "dart-2.17",
+            "path": "functions/deleteReaction",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "acceptReaction",
+            "name": "acceptReaction",
+            "runtime": "dart-2.17",
+            "path": "functions/acceptReaction",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "sendMessages",
+            "name": "sendMessages",
+            "runtime": "dart-2.17",
+            "path": "functions/sendMessages",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "getSingleUserProfile",
+            "name": "getSingleUserProfile",
+            "runtime": "dart-2.17",
+            "path": "functions/getSingleUserProfile",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "deleteConversation",
+            "name": "deleteConversation",
+            "runtime": "dart-2.17",
+            "path": "functions/deleteConversation",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "giveDailyReward",
+            "name": "giveDailyReward",
+            "runtime": "dart-2.17",
+            "path": "functions/giveDailyReward",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "appSettingsUpdate",
+            "name": "appSettingsUpdate",
+            "runtime": "dart-2.17",
+            "path": "functions/appSettingsUpdate",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "updateUserData",
+            "name": "updateUserData",
+            "runtime": "dart-2.17",
+            "path": "functions/updateUserData",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        }
+    ]
 }

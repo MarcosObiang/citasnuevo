@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:appwrite/models.dart';
 import 'package:citasnuevo/data/Mappers/MessajeConverter.dart';
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
@@ -11,34 +14,44 @@ class ChatConverter {
   ) {
     List<Chat> chatList = [];
     List<Chat> chatListToReturn = [];
+    bool thisIsUser1 = false;
 
     data.forEach((element) {
       bool firstDateMEssageAdded = false;
       Map<String, dynamic> chatData = element["chat"];
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
-          element["messages"];
+      List<Document> chatMessages = element["messages"];
       List<Message> messagesList = [];
       String userId = element["userId"];
+
+      if (chatData["user1Id"] == userId) {
+        thisIsUser1 = true;
+      }
 
       Chat chat = new Chat(
         unreadMessages: 0,
         matchCreated: true,
-        userBlocked:chatData["bloqueado"] ,
-        chatId: chatData["idConversacion"],
-        remitentId: chatData["idRemitente"],
-        messagesId: chatData["idMensajes"],
-        remitenrPicture: chatData["imagenRemitente"],
-        remitentPictureHash: chatData["hash"],
-        remitentName: chatData["nombreRemitente"],
-        notificationToken: chatData["tokenNotificacion"],
+        userBlocked:
+            thisIsUser1 ? chatData["user2Blocked"] : chatData["user1Blocked"],
+        chatId: chatData["conversationId"],
+        remitentId: thisIsUser1 ? chatData["user1Id"] : chatData["user2Id"],
+        messagesId: chatData["conversationId"],
+        remitenrPicture: thisIsUser1
+            ? jsonDecode(chatData["user2Picture"])["imageId"]
+            : jsonDecode(chatData["user1Picture"])["imageId"],
+        remitentPictureHash: thisIsUser1
+            ? jsonDecode(chatData["user2Picture"])["hash"]
+            : jsonDecode(chatData["user1Picture"])["hash"],
+        remitentName:
+            thisIsUser1 ? chatData["user2Name"] : chatData["user1Name"],
+        notificationToken:    thisIsUser1 ? chatData["user2NotificationToken"] : chatData["user1NotificationToken"],
       );
 
       for (int i = 0; i < chatMessages.length; i++) {
         if (chatMessages.length > 1) {
           if (i + 1 < chatMessages.length) {
-            int horaMensajeActual = chatMessages[i]["horaMensaje"];
+            int horaMensajeActual = chatMessages[i].data["timestamp"];
 
-            int horaMensajeSiguiente = chatMessages[i + 1]["horaMensaje"];
+            int horaMensajeSiguiente = chatMessages[i + 1].data["timestamp"];
 
             DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
                     horaMensajeActual,
@@ -54,7 +67,8 @@ class ChatConverter {
             if (addMessageDate == true) {
               var dateformat = DateFormat.yMEd();
               String dateText = dateformat.format(tiempo);
-              messagesList.add(MessageConverter.fromMap(chatMessages[i].data()));
+              messagesList
+                  .add(MessageConverter.fromMap(chatMessages[i].data));
               messagesList.add(Message(
                   messageDateText: dateText,
                   read: true,
@@ -67,13 +81,14 @@ class ChatConverter {
                   messageType: MessageType.DATE));
             }
             if (addMessageDate == false) {
-              messagesList.add(MessageConverter.fromMap(chatMessages[i].data()));
+              messagesList
+                  .add(MessageConverter.fromMap(chatMessages[i].data));
             }
           } else {
-            messagesList.add(MessageConverter.fromMap(chatMessages[i].data()));
+            messagesList.add(MessageConverter.fromMap(chatMessages[i].data));
           }
           if (firstDateMEssageAdded == false && i == chatMessages.length - 1) {
-            int horaMensajeActual = chatMessages[i]["horaMensaje"];
+            int horaMensajeActual = chatMessages[i].data["timestamp"];
 
             DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
                     horaMensajeActual,
@@ -96,7 +111,7 @@ class ChatConverter {
             firstDateMEssageAdded = true;
           }
         } else {
-          int horaMensajeActual = chatMessages[i]["horaMensaje"];
+          int horaMensajeActual = chatMessages[i].data["timestamp"];
 
           DateTime tiempo = DateTime.fromMillisecondsSinceEpoch(
                   horaMensajeActual,
@@ -106,7 +121,7 @@ class ChatConverter {
           var dateformat = DateFormat.yMEd();
           String dateText = dateformat.format(tiempo);
 
-          messagesList.add(MessageConverter.fromMap(chatMessages[i].data()));
+          messagesList.add(MessageConverter.fromMap(chatMessages[i].data));
           messagesList.add(Message(
               messageDateText: dateText,
               read: true,

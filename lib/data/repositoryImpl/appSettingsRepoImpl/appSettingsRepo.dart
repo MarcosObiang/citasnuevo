@@ -4,6 +4,7 @@ import 'package:async/async.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/data/Mappers/AplicationDataSettingsMapper.dart';
+import 'package:citasnuevo/domain/entities/ApplicationSettingsEntity.dart';
 import 'package:dartz/dartz.dart';
 
 import 'package:citasnuevo/core/error/Failure.dart';
@@ -34,8 +35,16 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
     if (appSettingsDataSource.listenAppSettingsUpdate != null) {
       streamParserSubscription =
           appSettingsDataSource.listenAppSettingsUpdate?.stream.listen((event) {
-        streamParserController
-            ?.add(ApplicationSettingsMapper.fromMap(data: event));
+        try {
+          ApplicationSettingsEntity applicationSettingsEntity =
+              ApplicationSettingsMapper.fromMap(data: event);
+          streamParserController?.add({
+            "payloadType": "applicationSettingsEntity",
+            "payload": applicationSettingsEntity
+          });
+        } catch (e) {
+          streamParserController?.addError(e);
+        }
       }, onError: (error) {
         streamParserController?.addError(error);
       });
@@ -62,6 +71,7 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   @override
   Either<Failure, bool> initializeModuleData() {
     try {
+      parseStreams();
       appSettingsDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
@@ -71,9 +81,11 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
 
   @override
   Future<Either<Failure, bool>> updateSettings(
-      Map<String, dynamic> data) async {
+      ApplicationSettingsEntity applicationSettingsEntity) async {
     try {
-      var result = await appSettingsDataSource.updateAppSettings(data);
+      var userData = ApplicationSettingsMapper.toMap(
+          applicationSettingsEntity: applicationSettingsEntity);
+      var result = await appSettingsDataSource.updateAppSettings(userData);
       return Right(result);
     } catch (e) {
       if (e is NetworkException) {

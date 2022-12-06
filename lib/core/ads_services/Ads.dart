@@ -14,60 +14,41 @@ class AdvertisingServices {
   bool hasUserConsent = false;
   bool consentFormShowed = false;
 
-  Future<bool> shouldUserGiveCosent() async {
+  Future<void> shouldUserGiveCosent() async {
     return requestConsentInfoUpdate();
   }
 
-  Future<bool> checkConsent() async {
-    var consent = await ConsentManager.getConsentStatus();
-    if (consent == Status.PERSONALIZED) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   void initializeAdsService() async {
-    bool showDialog = await shouldUserGiveCosent();
+    await shouldUserGiveCosent();
 
-    if (showDialog) {
-      await showConsentForm(showDialog);
-    }
+    await showConsentForm();
+
+    Appodeal.setUseSafeArea(true);
+    Appodeal.muteVideosIfCallsMuted(true);
+    Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
+    Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
+    Appodeal.setChildDirectedTreatment(false);
+    Appodeal.disableNetwork("admob");
 
     Appodeal.setLogLevel(Appodeal.LogLevelDebug);
     Appodeal.setTesting(true);
 
     if (Platform.isAndroid) {
       await Appodeal.initialize(
-          androidAdsId, [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL],
-          boolConsent: await checkConsent());
+        appKey: androidAdsId,
+        adTypes: [Appodeal.REWARDED_VIDEO, Appodeal.INTERSTITIAL],
+      );
     }
-
-    Appodeal.setUseSafeArea(true);
-    Appodeal.muteVideosIfCallsMuted(true);
-    Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
-    Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
-
- 
 
     adsInitialized = true;
   }
 
-  Future<void> showConsentForm(bool shouldShowConsentForm) async {
-    if (shouldShowConsentForm == true) {
-      try {
-        await showDialog(
-            context: startKey.currentContext as BuildContext,
-            builder: (context) => AdsGenericErrorDialog(
-                  title: "Ads",
-                  content: "ads consent",
-                ));
-      } catch (e, s) {
-        print(e);
-        print(s);
-      }
-
-      consentFormShowed = true;
+  Future<void> showConsentForm() async {
+    try {
+  
+    } catch (e, s) {
+      print(e);
+      print(s);
     }
   }
 
@@ -155,25 +136,13 @@ class AdvertisingServices {
     }
   }
 
-  Future<bool> requestConsentInfoUpdate() async {
-    bool shouldShowGPDRDialog = false;
+  Future<void> requestConsentInfoUpdate() async {
+    Appodeal.updateGDPRUserConsent(GDPRUserConsent.NonPersonalized);
 
-    await ConsentManager.requestConsentInfoUpdate(androidAdsId);
-    Status consentStatus = await ConsentManager.getConsentStatus();
-    if (consentStatus == Status.UNKNOWN) {
-      ShouldShow shouldShow = await ConsentManager.shouldShowConsentDialog();
+// For users is CCPA region
+    Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptIn);
 
-      if (shouldShow == ShouldShow.TRUE) {
-        await ConsentManager.loadConsentForm();
-
-        shouldShowGPDRDialog = true;
-      } else {
-        shouldShowGPDRDialog = false;
-      }
-    } else {
-      shouldShowGPDRDialog = false;
-    }
-
-    return shouldShowGPDRDialog;
+    Appodeal.loadConsentForm(
+        appKey: androidAdsId, onLoaded: () {}, onLoadFailed: (error) {});
   }
 }

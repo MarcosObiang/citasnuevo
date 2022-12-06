@@ -1,9 +1,13 @@
 // ignore_for_file: cancel_subscriptions, close_sinks
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/common/commonUtils/idGenerator.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
@@ -15,14 +19,12 @@ import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSou
 import 'package:citasnuevo/domain/entities/ChatEntity.dart';
 import 'package:citasnuevo/domain/entities/MessageEntity.dart';
 import 'package:citasnuevo/domain/repository/DataManager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../domain/entities/ProfileEntity.dart';
 
 abstract class ChatDataSource implements DataSource, ModuleCleanerDataSource {
-  StreamSubscription<QuerySnapshot<Object?>>? chatListenerSbscription;
+  StreamSubscription<RealtimeMessage>? chatListenerSubscription;
   late List<Message> messagesWithOutChat;
 
   StreamController<dynamic>? chatStream;
@@ -43,7 +45,7 @@ abstract class ChatDataSource implements DataSource, ModuleCleanerDataSource {
 
   Future<dynamic> loadMoreMessages(
       {required String chatId, required String lastMessageId});
-  Future<Profile> getUserProfile({required String profileId});
+  Future<Map<String, dynamic>> getUserProfile({required String profileId});
 //void sendMessages()
 
 }
@@ -64,47 +66,28 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   StreamController? chatStream = new StreamController.broadcast();
   @override
-  StreamSubscription<QuerySnapshot<Object?>>? chatListenerSbscription;
+  StreamSubscription<RealtimeMessage>? chatListenerSubscription;
   @override
-  StreamSubscription<QuerySnapshot<Object?>>? messageListenerSubscription;
+  StreamSubscription<RealtimeMessage>? messageListenerSubscription;
   @override
   StreamController<Map<String, dynamic>> messageStream =
       new StreamController.broadcast();
-
-  HttpsCallable llamarDejarMensajesLedio =
-      FirebaseFunctions.instance.httpsCallable("dejarEnLeido");
 
   ChatDatsSourceImpl({
     required this.source,
   });
 
-  Future<void> _addCurrentConversations(
-      {required QuerySnapshot<Map<String, dynamic>> event}) async {
-    List<Map<String, dynamic>> chatDataList = [];
-
-    for (int i = 0; i < event.docChanges.length; i++) {
-      String chatId = event.docChanges[i].doc.get("idConversacion");
-
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
-          await readMessages(chatId);
-
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList = [];
-      Map<String, dynamic> chatData = {
-        "chat": event.docChanges[i].doc.data() as Map<String, dynamic>,
-        "messages": chatMessages.isNotEmpty ? chatMessages : emptyList,
-        "userId": GlobalDataContainer.userId,
-      };
-      chatDataList.add(chatData);
-      chatIds.add(chatId);
-    }
-
+  Future<void> _addCurrentConversations() async {
     try {
-      List<Chat> object = await compute(ChatConverter.fromMap, chatDataList);
+      List<Map<String, dynamic>> chatDataList = await loadChats();
+
       chatStream?.add({
         "modified": false,
         "removed": false,
-        "chatList": object,
+        "chatList": chatDataList,
+        "added": false,
         "firstQuery": true,
+        "chatListIsEmpty": false,
         "payloadType": "chat",
       });
 
@@ -130,18 +113,14 @@ class ChatDatsSourceImpl implements ChatDataSource {
     }
   }
 
-  Future<void> _addNewConversation(
-      {required DocumentSnapshot<Map<String, dynamic>> doc}) async {
-    String chatId = doc.get("idConversacion");
+  Future<void> _addNewConversation({required Map<String, dynamic> doc}) async {
+    String chatId = doc["idConversacion"];
     if (chatIds.contains(chatId) == false) {
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages =
-          await readMessages(chatId);
-
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> emptyList = [];
+      List<Map<String, dynamic>> emptyList = [];
 
       Map<String, dynamic> chatData = {
-        "chat": doc.data() as Map<String, dynamic>,
-        "messages": chatMessages.length > 0 ? chatMessages : emptyList,
+        "chat": doc,
+        "messages": emptyList,
         "userId": GlobalDataContainer.userId,
       };
       List<Map<String, dynamic>> singleChatDataList = [];
@@ -150,24 +129,25 @@ class ChatDatsSourceImpl implements ChatDataSource {
       chatIds.add(chatId);
 
       _addData(data: {
-        "payloadType": "chat",
         "modified": false,
         "removed": false,
         "chatList": singleChatDataList,
-        "firstQuery": false
+        "added": false,
+        "firstQuery": true,
+        "chatListIsEmpty": false,
+        "payloadType": "chat",
       });
     }
   }
 
-  void _removeConversation(
-      {required DocumentSnapshot<Map<String, dynamic>> doc}) {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages = [];
+  void _removeConversation({required Map<String, dynamic> doc}) {
+    List<Map<String, dynamic>> chatMessages = [];
     Map<String, dynamic> chatData = {
-      "chat": doc.data() as Map<String, dynamic>,
+      "chat": doc,
       "messages": chatMessages,
       "userId": GlobalDataContainer.userId,
     };
-    String? chatId = doc.data()?["idConversacion"];
+    String? chatId = doc["conversationId"];
     List<Map<String, dynamic>> singleChatDataList = [];
     singleChatDataList.add(chatData);
 
@@ -179,16 +159,17 @@ class ChatDatsSourceImpl implements ChatDataSource {
       "payloadType": "chat",
       "modified": false,
       "removed": true,
+      "added": false,
       "chatList": singleChatDataList,
-      "firstQuery": false
+      "firstQuery": false,
+      "chatListIsEmpty": false
     });
   }
 
-  void _modifyConversation(
-      {required DocumentSnapshot<Map<String, dynamic>> doc}) {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMessages = [];
+  void _modifyConversation({required Map<String, dynamic> doc}) {
+    List<Map<String, dynamic>> chatMessages = [];
     Map<String, dynamic> chatData = {
-      "chat": doc.data() as Map<String, dynamic>,
+      "chat": doc,
       "messages": chatMessages,
       "userId": GlobalDataContainer.userId,
     };
@@ -198,10 +179,45 @@ class ChatDatsSourceImpl implements ChatDataSource {
     _addData(data: {
       "payloadType": "chat",
       "modified": true,
+      "added": false,
       "removed": false,
       "chatList": singleChatDataList,
-      "firstQuery": false
+      "firstQuery": false,
+      "chatListIsEmpty": false
     });
+  }
+
+  Future<List<Map<String, dynamic>>> loadChats() async {
+    List<Map<String, dynamic>> data = [];
+    Databases databases = Databases(Dependencies.serverAPi.client!);
+    DocumentList documentList = await databases.listDocuments(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "637d10c17be1c3d1544d",
+        queries: [
+          Query.equal("user1Id", GlobalDataContainer.userId),
+        ]);
+    DocumentList documentList2 = await databases.listDocuments(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "637d10c17be1c3d1544d",
+        queries: [Query.equal("user2Id", GlobalDataContainer.userId)]);
+
+    documentList.documents.addAll(documentList2.documents);
+    for (int i = 0; i < documentList.documents.length; i++) {
+      var messages = await databases.listDocuments(
+          databaseId: "636d59d7a2f595323a79",
+          collectionId: "637d18ff8b3927cce18d",
+          queries: [
+            Query.orderDesc("timestamp"),
+            Query.equal("conversationId", documentList.documents[i].$id),
+          ]);
+
+      data.add({
+        "chat": documentList.documents[i].data,
+        "messages": messages.documents,
+        "userId": GlobalDataContainer.userId,
+      });
+    }
+    return data;
   }
 
   /// Keeps chats up to date
@@ -211,57 +227,43 @@ class ChatDatsSourceImpl implements ChatDataSource {
   void initializeChatListener() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        FirebaseFirestore instance = FirebaseFirestore.instance;
-
-        chatListenerSbscription = instance
-            .collection("usuarios")
-            .doc(userId)
-            .collection("conversaciones")
-            .orderBy("creacionConversacion", descending: true)
-            .snapshots()
-            .listen((event) async {
-          if (event.docChanges.isNotEmpty) {
-            if (event.docChanges.length > 0 && isInitializerFinished == false) {
-              await _addCurrentConversations(event: event);
-            }
-            if (event.docChanges.length > 0 && isInitializerFinished == true) {
+        await _addCurrentConversations();
+        Realtime realtime = Realtime(Dependencies.serverAPi.client!);
+        chatListenerSubscription = realtime
+            .subscribe([
+              "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents"
+            ])
+            .stream
+            .listen((dato) async {
               try {
-                for (int a = 0; a < event.docChanges.length; a++) {
-                  if (event.docChanges[a].type == DocumentChangeType.added) {
-                    await _addNewConversation(doc: event.docChanges[a].doc);
-                  }
-
-                  if (event.docChanges[a].type == DocumentChangeType.removed) {
-                    _removeConversation(doc: event.docChanges[a].doc);
-                  }
-
-                  if (event.docChanges[a].type == DocumentChangeType.modified) {
-                    _modifyConversation(doc: event.docChanges[a].doc);
-                  }
+                String createEvent =
+                    "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents.${dato.payload["reactionId"]}.create";
+                String updateEvent =
+                    "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents.${dato.payload["reactionId"]}.update";
+                String deleteEvent =
+                    "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents.${dato.payload["reactionId"]}.delete";
+                if (dato.events.first.contains(createEvent)) {
+                  await _addNewConversation(doc: dato.payload);
+                }
+                if (dato.events.first.contains(updateEvent)) {
+                  _modifyConversation(doc: dato.payload);
+                }
+                if (dato.events.first.contains(deleteEvent)) {
+                  _removeConversation(doc: dato.payload);
                 }
               } catch (e) {
-                chatStream?.addError(ChatException(message: e.toString()));
-
-                throw ChatException(message: e.toString());
+                if (e is AppwriteException) {
+                  chatStream
+                      ?.addError(ChatException(message: e.message.toString()));
+                } else {
+                  chatStream?.addError(ChatException(message: e.toString()));
+                }
               }
-            }
-          } else {
-            List<Map<String, dynamic>> emptyList = [];
-            _addData(data: {
-              "modified": false,
-              "removed": false,
-              "chatList": emptyList,
-              "firstQuery": true,
-              "chatListIsEmpty": true
+            }, onError: (error) {
+              _addError(e: ChatException(message: "ERROR_FROM_BACKEND"));
             });
-          }
-        }, onError: (error) {
-          _addError(e: ChatException(message: "ERROR_FROM_BACKEND"));
 
-          throw ChatException(message: "ERROR_FROM_BACKEND");
-        }, cancelOnError: true);
-
-        chatListenerSbscription?.onError((_) {
+        chatListenerSubscription?.onError((_) {
           _addError(e: ChatException(message: "ERROR_FROM_BACKEND"));
 
           throw ChatException(message: "ERROR_FROM_BACKEND");
@@ -276,22 +278,6 @@ class ChatDatsSourceImpl implements ChatDataSource {
     }
   }
 
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> readMessages(
-      String chatId) async {
-    FirebaseFirestore instance = FirebaseFirestore.instance;
-
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> data = [];
-
-    QuerySnapshot<Map<String, dynamic>> net = await instance
-        .collection("mensajes")
-        .where("idConversacion", isEqualTo: chatId)
-        .orderBy("horaMensaje", descending: true)
-        .get();
-    data.addAll(net.docs);
-
-    return data;
-  }
-
   void _addMessage({required Map<String, dynamic> data}) {
     _addData(data: data);
   }
@@ -300,38 +286,43 @@ class ChatDatsSourceImpl implements ChatDataSource {
   void listenToMessages() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
-
-        messageListenerSubscription = firestoreInstance
-            .collection("mensajes")
-            .where("interlocutores", arrayContains: userId)
-            .orderBy("horaMensaje", descending: true)
-            .snapshots()
-            .listen((event) {
-          if (isInitializerFinished) {
-            if (event.docChanges.isNotEmpty) {
+        Realtime realtime = Realtime(Dependencies.serverAPi.client!);
+        messageListenerSubscription = realtime
+            .subscribe([
+              "databases.636d59d7a2f595323a79.collections.637d18ff8b3927cce18d.documents"
+            ])
+            .stream
+            .listen((dato) {
               try {
-                if (event.docChanges.first.type ==
-                    DocumentChangeType.modified) {
+                String createEvent =
+                    "databases.636d59d7a2f595323a79.collections.637d18ff8b3927cce18d.documents.${dato.payload["messageId"]}.create";
+                String updateEvent =
+                    "databases.636d59d7a2f595323a79.collections.637d18ff8b3927cce18d.documents.${dato.payload["messageId"]}.update";
+
+                if (dato.events.first.contains(createEvent)) {
                   _addMessage(data: {
                     "payloadType": "message",
-                    "message": (event.docs.first.data()),
-                    "modified": true
-                  });
-                }
-                if (event.docChanges.first.type == DocumentChangeType.added) {
-                  _addMessage(data: {
-                    "payloadType": "message",
-                    "message": event.docs.first.data(),
+                    "message": dato.payload,
                     "modified": false
                   });
                 }
+                if (dato.events.first.contains(updateEvent)) {
+                  _addMessage(data: {
+                    "payloadType": "message",
+                    "message": (dato.payload),
+                    "modified": true
+                  });
+                }
               } catch (e) {
-                _addError(e: ChatException(message: e.toString()));
+                if (e is AppwriteException) {
+                  _addError(e: ChatException(message: e.message.toString()));
+                } else {
+                  _addError(e: ChatException(message: e.toString()));
+                }
               }
-            }
-          }
-        });
+            }, onError: (e) {
+              _addError(e: ChatException(message: e.toString()));
+            });
       } catch (e) {
         _addError(e: ChatException(message: e.toString()));
 
@@ -345,9 +336,9 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   void subscribeToMainDataSource() {
     try {
-      userId = source.getData["id"];
+      userId = source.getData["userId"];
       sourceStreamSubscription = source.dataStream.stream.listen((event) {
-        userId = event["id"];
+        userId = event["userId"];
       });
     } catch (e) {
       throw Exception(e);
@@ -364,31 +355,21 @@ class ChatDatsSourceImpl implements ChatDataSource {
       required String remitentId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        String messageId = IdGenerator.instancia.createId();
-        DateTime messageDate = await DateNTP.instance.getTime();
+        Functions functions = Functions(Dependencies.serverAPi.client!);
 
-        FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
-        Map<String, dynamic> messageData = message;
-        messageData["token"] = messageNotificationToken;
-        messageData["horaMensaje"] = messageDate.millisecondsSinceEpoch;
-        messageData["mensaje"] = message["mensaje"];
-        messageData["idMensaje"] = messageId;
-        messageData["mensajeLeido"] = false;
-        messageData["nombreEmisor"] = source.getData["Nombre"];
-        messageData["idConversacion"] = message["idConversacion"];
-        messageData["idTemporalMensaje"] = IdGenerator.instancia.createId();
-        messageData["entregado"] = true;
-        messageData["idEmisor"] = userId;
-        messageData["tipoMensaje"] = message["tipoMensaje"];
-        messageData["respuesta"] = false;
-        messageData["mensajeRespuesta"] = {};
-        messageData["cargaNotificacion"] = true;
-        messageData["notificarEsteUsuario"] = remitentId;
-        messageData["interlocutores"] = [userId, remitentId];
-        await firestoreInstance
-            .collection("mensajes")
-            .doc(messageId)
-            .set(messageData);
+        Execution execution = await functions.createExecution(
+            functionId: "sendMessages",
+            data: jsonEncode({
+              "senderId": GlobalDataContainer.userId,
+              "recieverId": remitentId,
+              "message": message["messageContent"],
+              "conversationId": message["conversationId"],
+              "messageType": message["messageType"],
+            }));
+
+        if (execution.statusCode == 200) {
+          print("excellent");
+        }
 
         return true;
       } catch (e) {
@@ -402,16 +383,9 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<bool> messagesSeen({required List<String> data}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
-      FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+      //   FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
 
       try {
-        for (int i = 0; i < data.length; i++) {
-          await firestoreInstance
-              .collection("mensajes")
-              .doc(data[i])
-              .update({"mensajeLeido": true});
-        }
-
         return true;
       } catch (e) {
         throw ChatException(message: e.toString());
@@ -425,26 +399,9 @@ class ChatDatsSourceImpl implements ChatDataSource {
   Future<List<Message>> loadMoreMessages(
       {required String chatId, required String lastMessageId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
-      FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
       List<Message> messagesList = [];
 
       try {
-        DocumentSnapshot lastMessage = await firestoreInstance
-            .collection("mensajes")
-            .doc(lastMessageId)
-            .get();
-
-        QuerySnapshot<Map<String, dynamic>> messages = await firestoreInstance
-            .collection("mensajes")
-            .where("idConversacion", isEqualTo: chatId)
-            .orderBy("horaMensaje", descending: true)
-            .startAfterDocument(lastMessage)
-            .limit(15)
-            .get();
-        messages.docs.forEach((element) {
-          messagesList.add(MessageConverter.fromMap(element.data()));
-        });
-
         return messagesList;
       } catch (e) {
         throw ChatException(message: e.toString());
@@ -455,24 +412,21 @@ class ChatDatsSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<Profile> getUserProfile({required String profileId}) async {
+  Future<Map<String, dynamic>> getUserProfile(
+      {required String profileId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        HttpsCallable solicitarUsuarioDeterminado = FirebaseFunctions.instance
-            .httpsCallable("solicitarUsuarioDeterminado");
-        List<Map<dynamic, dynamic>> profilesCache = [];
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "getSingleUserProfile",
+            data: jsonEncode({"userId": profileId}));
 
-        HttpsCallableResult httpsCallableResult =
-            await solicitarUsuarioDeterminado.call({"id": profileId});
-        if (httpsCallableResult.data["estado"] == "correcto") {
-          Object? objectT = httpsCallableResult.data["datos"];
-          profilesCache.add(objectT as Map<dynamic, dynamic>);
-
-          return ProfileMapper.fromMap({
-            "profilesList": [profilesCache.first],
-            "userCharacteristicsData": source.getData["filtros usuario"],
+        if (execution.status == "completed") {
+          return  {
+            "profileData": jsonDecode(execution.response)["payload"],
+            "userData": source.getData,
             "todayDateTime": await DateNTP.instance.getTime()
-          }).first;
+          };
         } else {
           throw ChatException(message: "PROFILE_COULD_NOT_BE_FETCHED");
         }
@@ -493,19 +447,12 @@ class ChatDatsSourceImpl implements ChatDataSource {
   }) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        HttpsCallable llamarEliminarConversacion =
-            FirebaseFunctions.instance.httpsCallable("eliminarConversaciones");
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "deleteConversation",
+            data: jsonEncode({"conversationId": chatId}));
 
-        HttpsCallableResult httpsCallableResult =
-            await llamarEliminarConversacion.call({
-          "idConversacion": chatId,
-          "idInterlocutor1": remitent1,
-          "idInterlocutor2": remitent2,
-          "idDenuncia": IdGenerator.instancia.createId(),
-          "detalles": reportDetails,
-        });
-
-        if (httpsCallableResult.data["estado"] == "correcto") {
+        if (jsonDecode(execution.response)["payload"] == "correcto") {
           return true;
         } else {
           throw ChatException(message: "CHAT_COULD_NOT_BE_DELETED");
@@ -521,12 +468,12 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   void clearModuleData() {
     try {
-      chatListenerSbscription?.cancel();
+      chatListenerSubscription?.cancel();
       chatStream?.close();
       messageListenerSubscription?.cancel();
       messageStream.close();
       chatIds.clear();
-      chatListenerSbscription = null;
+      chatListenerSubscription = null;
       chatStream = null;
       chatStream = new StreamController.broadcast();
       messageStream = new StreamController.broadcast();

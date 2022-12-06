@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:appwrite/appwrite.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/data/Mappers/UserSettingsMapper.dart';
 import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
@@ -23,9 +24,7 @@ import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentatio
 import '../../main.dart';
 import '../../reordableList.dart';
 
-class UserSettingsScreenArgs{
-  
-}
+class UserSettingsScreenArgs {}
 
 class UserSettingsScreen extends StatefulWidget {
   const UserSettingsScreen();
@@ -100,6 +99,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
   late List<Key> userPicturesListKeys;
   late List<UserCharacteristic> userCharacteristicsList = [];
   late List<UserCharacteristic> userCharacteristicsListEditing = [];
+  final storage = Storage(Dependencies.serverAPi.client!);
 
   FocusNode focusNode = new FocusNode();
   @override
@@ -161,6 +161,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                                       ScreenUtil.defaultSize.height + 3000.h,
                                   child: Column(
                                     children: [
+                                      AppBar(title: Text(" Editar perfil"),),
                                       Flexible(
                                           flex: 3,
                                           fit: FlexFit.tight,
@@ -392,20 +393,13 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
 
   void addPictureFromDevice(int index) async {
     XFile? xfile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    File? imageFile = await ImageCropper().cropImage(
-        sourcePath: xfile!.path,
-        maxHeight: 1280,
-        maxWidth: 720,
-        aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
-        compressQuality: 70,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Recortar imagen',
-            toolbarColor: Colors.blue,
-            toolbarWidgetColor: Colors.white,
-            lockAspectRatio: true),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
+    CroppedFile? imageFile = await ImageCropper().cropImage(
+      sourcePath: xfile!.path,
+      maxHeight: 1280,
+      maxWidth: 720,
+      aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
+      compressQuality: 70,
+    );
     Uint8List? uint8list = await imageFile!.readAsBytes();
 
     Dependencies.userSettingsPresentation
@@ -416,6 +410,24 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
   void deletePicture(int index) {
     Dependencies.userSettingsPresentation.deletePicture(index);
     setState(() {});
+  }
+
+  Future<Uint8List> _getImageData(String imageId) async {
+    Uint8List? imageData;
+
+    try {
+      imageData = await storage.getFileDownload(
+        bucketId: '63712fd65399f32a5414',
+        fileId: imageId,
+      );
+      return imageData;
+    } catch (e) {
+      if (e is AppwriteException) {
+        throw Exception();
+      } else {
+        throw Exception();
+      }
+    }
   }
 
   Widget pictureBox(Key key, UserPicture userPictureData, int index,
@@ -432,15 +444,10 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                     onTap: () {
                       addPictureFromDevice(index);
                     },
-                    child: OctoImage(
-                      fadeInDuration: Duration(milliseconds: 50),
-                      fit: BoxFit.cover,
-                      image: CachedNetworkImageProvider(
-                          userPictureData.getPictureUrl),
-                      placeholderBuilder: OctoPlaceholder.blurHash(
-                          userPictureData.getPictureHash,
-                          fit: BoxFit.fill),
-                    ),
+                    child: Container(
+                        child: Image.memory(
+                      userPictureData.getImageFile,
+                    )),
                   )
                 : userPictureData.getUserPictureBoxstate ==
                         UserPicutreBoxState.pictureFromBytes

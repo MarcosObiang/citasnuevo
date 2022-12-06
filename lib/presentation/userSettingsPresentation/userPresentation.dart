@@ -22,7 +22,7 @@ enum UserSettingsScreenUpdateState { loading, loaded, error, done }
 
 class UserSettingsPresentation extends ChangeNotifier
     implements
-        ShouldUpdateData<UserSettingsInformationSender>,
+        ShouldUpdateData,
         Presentation,
         ModuleCleanerPresentation {
   UserSettingsController userSettingsController;
@@ -51,7 +51,7 @@ class UserSettingsPresentation extends ChangeNotifier
       _userSettingsScreenUpdateState;
 
   @override
-  late StreamSubscription<UserSettingsInformationSender>? updateSubscription;
+  late StreamSubscription? updateSubscription;
 
   void addPictureFromDevice(Uint8List uint8list, int index) {
     userSettingsController.insertImageFile(uint8list, index);

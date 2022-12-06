@@ -45,11 +45,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   bool isRating = false;
   List<Widget> widgetList = [];
   double ratingValue = 5;
-  var data;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     widget.images.addAll([
@@ -74,7 +72,10 @@ class _ProfileWidgetState extends State<ProfileWidget> {
             width: widget.boxConstraints.maxWidth,
             child: Stack(
               children: [
-                ListView(children: widgetList),
+                ListView(
+                  addAutomaticKeepAlives: true,
+                  
+                  children: widgetList),
                 profileInfo(
                     name: widget.profile.name,
                     age: widget.profile.age.toString(),

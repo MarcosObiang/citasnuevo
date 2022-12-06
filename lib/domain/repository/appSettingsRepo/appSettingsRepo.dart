@@ -8,10 +8,11 @@ import 'package:citasnuevo/domain/repository/DataManager.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../core/error/Failure.dart';
+import '../../entities/ApplicationSettingsEntity.dart';
 
 abstract class AppSettingsRepository implements ModuleCleanerRepository,StreamParser {
   late ApplicationSettingsDataSource appSettingsDataSource;
-  Future<Either<Failure, bool>> updateSettings(Map<String, dynamic> data);
+  Future<Either<Failure, bool>> updateSettings(ApplicationSettingsEntity applicationSettingsEntity);
   Future<Either<Failure, bool>> deleteAccount();
   Future<Either<Failure, bool>> logOut();
 

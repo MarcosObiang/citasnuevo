@@ -36,7 +36,7 @@ class LocationService {
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    position = await Geolocator.getCurrentPosition();
+    position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
 
     return {"lon": position.longitude, "lat": position.latitude};
   }

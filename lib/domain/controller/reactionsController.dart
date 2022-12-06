@@ -214,9 +214,9 @@ class ReactionsControllerImpl implements ReactionController {
   void initReactionStream() {
     reactionSubscription =
         reactionRepository.streamParserController?.stream.listen((event) {
-      String payloadType = event["payload"];
+      String payloadType = event["payloadType"];
 
-      if (payloadType == "reactions") {
+      if (payloadType == "reaction") {
         _reactionDataProcessing(event);
       } else {
         _additionalDataProcessing(event);

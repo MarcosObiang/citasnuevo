@@ -1,5 +1,6 @@
 import 'package:citasnuevo/domain/entities/ProfileCharacteristicsEntity.dart';
 
+
 class Profile {
   String id;
   String name;
@@ -10,6 +11,7 @@ class Profile {
   Map profileImage4;
   Map profileImage5;
   Map profileImage6;
+  
   bool verified;
   num distance;
   String bio;

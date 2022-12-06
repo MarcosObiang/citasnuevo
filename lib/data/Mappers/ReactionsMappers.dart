@@ -1,38 +1,40 @@
-import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'dart:convert';
+
 import 'package:citasnuevo/domain/entities/ReactionEntity.dart';
 
 class ReactionMapper {
   static Reaction fromMap(Map data) {
-    bool revealed = data["revelada"];
+    bool revealed = data["reactionRevealed"];
 
     if (revealed) {
       return Reaction(
-          userBlocked: data["bloqueado"],
-          revealed: data["revelada"],
+          userBlocked: data["userBlocked"],
+          revealed: data["reactionRevealed"],
           age: 20,
-          reactionExpirationDateInSeconds: data["caducidad"],
-          reactioValue: double.parse(data["Valoracion"].toString()),
-          imageHash: data["hash"],
-          imageUrl: data["Imagen Usuario"],
-          name: data["Nombe emisor"],
-          senderId: data["Id emisor"],
-          idReaction: data["id valoracion"],
+          reactionExpirationDateInSeconds:
+              (data["expirationTimestamp"] ~/ 1000),
+          reactioValue: data["reactionValue"],
+          imageHash: "",
+          imageUrl: data["userPicture"],
+          name: data["senderName"],
+          senderId: data["senderId"],
+          idReaction: data["reactionId"],
           reactionRevealigState: revealed
               ? ReactionRevealigState.revealed
               : ReactionRevealigState.notRevealed);
     } else {
       return Reaction(
-                  revealed: data["revelada"],
-
-          userBlocked: data["bloqueado"],
+          userBlocked: data["userBlocked"],
+          revealed: data["reactionRevealed"],
           age: 20,
-          reactionExpirationDateInSeconds: data["caducidad"],
-          senderId: data["idEmisor"],
+          reactionExpirationDateInSeconds:
+              (data["expirationTimestamp"] ~/ 1000),
           reactioValue: 0,
-          imageHash: kNotAvailable,
-          imageUrl: kNotAvailable,
-          name: kNotAvailable,
-          idReaction: data["id valoracion"],
+          imageHash: "",
+          imageUrl: "",
+          name: "",
+          senderId: "",
+          idReaction: data["reactionId"],
           reactionRevealigState: revealed
               ? ReactionRevealigState.revealed
               : ReactionRevealigState.notRevealed);

@@ -25,9 +25,9 @@ class ChatRepoImpl implements ChatRepository {
   });
   @override
   StreamController? get getStreamParserController => streamParserController;
- 
- @override
-  StreamController? streamParserController= StreamController();
+
+  @override
+  StreamController? streamParserController = StreamController();
 
   @override
   StreamSubscription? streamParserSubscription;
@@ -119,9 +119,14 @@ class ChatRepoImpl implements ChatRepository {
   Future<Either<Failure, Profile>> getUserProfile(
       {required String profileId, required String chatId}) async {
     try {
-      Profile value = await chatDataSource.getUserProfile(profileId: profileId);
-
-      return Right(value);
+      Map<String, dynamic> data =
+          await chatDataSource.getUserProfile(profileId: profileId);
+     List <Profile> value = await ProfileMapper.fromMap({
+        "profilesList": data["profileData"],
+        "userData": data["userData"],
+        "todayDateTime": data["todayDateTime"]
+      });
+      return Right(value.first);
     } catch (e) {
       if (e is NetworkException) {
         return Left(NetworkFailure(message: e.toString()));
@@ -157,12 +162,11 @@ class ChatRepoImpl implements ChatRepository {
   @override
   Either<Failure, bool> clearModuleData() {
     try {
-
       streamParserSubscription?.cancel();
-      streamParserSubscription=null;
+      streamParserSubscription = null;
       streamParserController?.close();
-      streamParserController=null;
-      streamParserController=StreamController();
+      streamParserController = null;
+      streamParserController = StreamController();
       chatDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
@@ -205,7 +209,7 @@ class ChatRepoImpl implements ChatRepository {
     bool isEmpty = event["chatListIsEmpty"];
 
     if (firstQuery) {
-      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Map<String, dynamic>> chatDataList = event["chatList"];
       List<Chat> processedChats =
           await compute(ChatConverter.fromMap, chatDataList);
       returnData = {
@@ -213,59 +217,59 @@ class ChatRepoImpl implements ChatRepository {
         "modified": isModified,
         "removed": isRemoved,
         "added": isAdded,
-        "chatDataList": processedChats,
+        "chatList": processedChats,
         "chatListIsEmpty": isEmpty,
         "firstQuery": firstQuery
       };
     }
     if (isRemoved) {
-      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Map<String, dynamic>> chatDataList = event["chatList"];
       List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
       returnData = {
         "payloadType": "chat",
         "modified": isModified,
         "removed": isRemoved,
         "added": isAdded,
-        "chatDataList": processedChats,
+        "chatList": processedChats,
         "chatListIsEmpty": isEmpty,
         "firstQuery": firstQuery
       };
     }
     if (isModified) {
-      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Map<String, dynamic>> chatDataList = event["chatList"];
       List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
       returnData = {
         "payloadType": "chat",
         "modified": isModified,
         "removed": isRemoved,
         "added": isAdded,
-        "chatDataList": processedChats,
+        "chatList": processedChats,
         "chatListIsEmpty": isEmpty,
         "firstQuery": firstQuery
       };
     }
     if (isAdded) {
-      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Map<String, dynamic>> chatDataList = event["chatList"];
       List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
       returnData = {
         "payloadType": "chat",
         "modified": isModified,
         "removed": isRemoved,
         "added": isAdded,
-        "chatDataList": processedChats,
+        "chatList": processedChats,
         "chatListIsEmpty": isEmpty,
         "firstQuery": firstQuery
       };
     }
     if (isEmpty) {
-      List<Map<String, dynamic>> chatDataList = event["chatDataList"];
+      List<Map<String, dynamic>> chatDataList = event["chatList"];
       List<Chat> processedChats = ChatConverter.fromMap(chatDataList);
       returnData = {
         "payloadType": "chat",
         "modified": isModified,
         "removed": isRemoved,
         "added": isAdded,
-        "chatDataList": processedChats,
+        "chatList": processedChats,
         "chatListIsEmpty": isEmpty,
         "firstQuery": firstQuery
       };
@@ -287,10 +291,6 @@ class ChatRepoImpl implements ChatRepository {
     };
   }
 
- 
-
-
-
   @override
   void parseStreams() async {
     if (chatDataSource.chatStream != null && streamParserController != null) {
@@ -304,7 +304,7 @@ class ChatRepoImpl implements ChatRepository {
           Map<String, dynamic> messageData = await _messageParser(event);
           streamParserController?.add(messageData);
         }
-      },onError: (error){
+      }, onError: (error) {
         streamParserController!.addError(error);
       });
     } else {

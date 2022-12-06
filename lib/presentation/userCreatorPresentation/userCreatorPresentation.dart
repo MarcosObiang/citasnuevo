@@ -26,11 +26,11 @@ enum UserCreationProcessState { NOT_STARTED, LOADING, ERROR }
 
 class UserCreatorPresentation extends ChangeNotifier
     implements
-        ShouldUpdateData<UserCreatorInformationSender>,
+        ShouldUpdateData,
         Presentation,
         ModuleCleanerPresentation {
   @override
-  late StreamSubscription<UserCreatorInformationSender>? updateSubscription;
+  late StreamSubscription? updateSubscription;
   UserCreatorController userCreatorController;
   UserCreatorScreenState _userCreatorScreenState =
       UserCreatorScreenState.LOADING;
@@ -157,7 +157,7 @@ class UserCreatorPresentation extends ChangeNotifier
   @override
   void update() {
     updateSubscription =
-        userCreatorController.getDataStream?.stream.listen((event) {
+        userCreatorController.updateDataController?.stream.listen((event) {
       setUserCreatorScreenState = UserCreatorScreenState.READY;
       notifyListeners();
     });

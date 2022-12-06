@@ -1,5 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/globalData.dart';
@@ -12,9 +16,12 @@ import 'package:cloud_functions/cloud_functions.dart';
 import '../../../domain/repository/DataManager.dart';
 
 abstract class ApplicationSettingsDataSource
-    implements DataSource, AuthenticationSignOutCapacity ,ModuleCleanerDataSource{
+    implements
+        DataSource,
+        AuthenticationSignOutCapacity,
+        ModuleCleanerDataSource {
   /// Send the current state of app settings
-  StreamController<Map<String,dynamic>>?
+  StreamController<Map<String, dynamic>>?
       // ignore: close_sinks
       listenAppSettingsUpdate;
 
@@ -40,8 +47,8 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   @override
   AuthService authService;
   @override
-  StreamController<Map<String,dynamic>>?
-      listenAppSettingsUpdate = new StreamController.broadcast();
+  StreamController<Map<String, dynamic>>? listenAppSettingsUpdate =
+      new StreamController.broadcast();
 
   @override
   StreamSubscription? sourceStreamSubscription;
@@ -66,7 +73,7 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
     try {
       subscribeToMainDataSource();
     } catch (e) {
-              listenAppSettingsUpdate?.addError(e);
+      listenAppSettingsUpdate?.addError(e);
 
       throw ModuleInitializeException(message: e.toString());
     }
@@ -74,14 +81,15 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   void _addDataToStream(Map<String, dynamic> data) {
     listenAppSettingsUpdate?.add({
-        "distance": data["Ajustes"]["distanciaMaxima"],
-        "maxAge": data["Ajustes"]["edadFinal"],
-        "minAge": data["Ajustes"]["edadInicial"],
-        "inCm": data["Ajustes"]["enCm"],
-        "inKm": data["Ajustes"]["enMillas"],
-        "showBothSexes": data["Ajustes"]["mostrarAmbosSexos"],
-        "showWoman": data["Ajustes"]["mostrarMujeres"],
-        "showProfile": data["Ajustes"]["mostrarPerfil"]});
+      "maxDistance": data["userSettings"]["maxDistance"],
+      "maxAge": data["userSettings"]["maxAge"],
+      "minAge": data["userSettings"]["minAge"],
+      "showCentimeters": data["userSettings"]["showCentimeters"],
+      "showKilometers": data["userSettings"]["showKilometers"],
+      "showBothSexes": data["userSettings"]["showBothSexes"],
+      "showWoman": data["userSettings"]["showWoman"],
+      "showProfile": data["userSettings"]["showProfile"]
+    });
   }
 
   @override
@@ -107,12 +115,12 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        HttpsCallable appSettingsUpdateCloudFunction =
-            FirebaseFunctions.instance.httpsCallable("editarAjustes");
+        Functions functions = Functions(Dependencies.serverAPi.client!);
 
-        HttpsCallableResult httpsCallableResult =
-            await appSettingsUpdateCloudFunction.call(data);
-        if (httpsCallableResult.data["estado"] == "correcto") {
+        Execution execution = await functions.createExecution(
+            functionId: "appSettingsUpdate", data: jsonEncode(data));
+
+        if (execution.statusCode == 200) {
           return true;
         } else {
           throw AppSettingsException(message: "CLOUD_FUNCTION_ERROR");
@@ -132,14 +140,15 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   @override
   void revertChanges() {
     listenAppSettingsUpdate?.add({
-        "distance": source.getData["Ajustes"]["distanciaMaxima"],
-        "maxAge": source.getData["Ajustes"]["edadFinal"],
-        "minAge": source.getData["Ajustes"]["edadInicial"],
-        "inCm": source.getData["Ajustes"]["enCm"],
-        "inKm": source.getData["Ajustes"]["enMillas"],
-        "showBothSexes": source.getData["Ajustes"]["mostrarAmbosSexos"],
-        "showWoman": source.getData["Ajustes"]["mostrarMujeres"],
-        "showProfile": source.getData["Ajustes"]["mostrarPerfil"]});
+      "maxDistance": source.getData["userSettings"]["maxDistance"],
+      "maxAge": source.getData["userSettings"]["maxAge"],
+      "minAge": source.getData["userSettings"]["minAge"],
+      "showCentimeters": source.getData["userSettings"]["showCentimeters"],
+      "showKilometers": source.getData["userSettings"]["showKilometers"],
+      "showBothSexes": source.getData["userSettings"]["showBothSexes"],
+      "showWoman": source.getData["userSettings"]["showWoman"],
+      "showProfile": source.getData["userSettings"]["showProfile"]
+    });
   }
 
   @override

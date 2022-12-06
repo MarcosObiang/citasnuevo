@@ -1,3 +1,4 @@
+
 import 'package:citasnuevo/domain/entities/ProfileEntity.dart';
 
 enum MessageType { TEXT, GIPHY, IMAGE, NO_TYPE, DATE }

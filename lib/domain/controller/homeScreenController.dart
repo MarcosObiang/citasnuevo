@@ -39,6 +39,7 @@ class HomeScreenController
       profileData.forEach((element) {
         bool profileExists = profileAlreadyExists(element);
         if (profileExists == false) {
+          
           profilesList.add(element);
         }
       });

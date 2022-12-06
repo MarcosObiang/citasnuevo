@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/common/profileCharacteristics.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
 import 'package:citasnuevo/core/location_services/locatio_service.dart';
@@ -24,16 +28,16 @@ abstract class UserCreatorDataSource
         ModuleCleanerDataSource {
   Future<bool> createUser({required Map<String, dynamic> userData});
   // ignore: close_sinks
-  late StreamController<Map<String,dynamic>>? userCreatorDataStream;
+  late StreamController<Map<String, dynamic>>? userCreatorDataStream;
 
-  void _initialize();
+  Future<void> getBlankUserProfile();
 }
 
 class UserCreatorDataSourceImpl implements UserCreatorDataSource {
   @override
   ApplicationDataSource source;
   @override
-  late StreamController<Map<String,dynamic>>? userCreatorDataStream =
+  late StreamController<Map<String, dynamic>>? userCreatorDataStream =
       StreamController.broadcast();
   @override
   StreamSubscription? sourceStreamSubscription;
@@ -61,15 +65,50 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
         Map<String, dynamic> locationData =
             await LocationService.instance.locationServicesState();
         if (locationData["status"] == "correct") {
+          Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
+          Functions functions = Functions(Dependencies.serverAPi.client!);
           List<Map<String, dynamic>> userPictureList = userData["images"];
-          List<Map<String, dynamic>> parsedImages = [];
           Map<String, dynamic> dataToCloud = Map();
-
+          dataToCloud["userPicture1"] = jsonEncode({
+            "imageId": "empty",
+            "hash": "empty",
+            "index": "empty",
+            "removed": true,
+          });
+          dataToCloud["userPicture2"] = jsonEncode({
+            "imageId": "empty",
+            "hash": "empty",
+            "index": "empty",
+            "removed": true,
+          });
+          dataToCloud["userPicture3"] = jsonEncode({
+            "imageId": "empty",
+            "hash": "empty",
+            "index": "empty",
+            "removed": true,
+          });
+          dataToCloud["userPicture4"] = jsonEncode({
+            "imageId": "empty",
+            "hash": "empty",
+            "index": "empty",
+            "removed": true,
+          });
+          dataToCloud["userPicture5"] = jsonEncode({
+            "imageId": "empty",
+            "hash": "empty",
+            "index": "empty",
+            "removed": true,
+          });
+          dataToCloud["userPicture6"] = jsonEncode({
+            "imageId": "empty",
+            "hash": "empty",
+            "index": "empty",
+            "removed": true,
+          });
           String userBio = userData["userBio"];
           Map<String, dynamic> userFilters = userData["userFilters"];
           String userName = userData["userName"];
           int userAgeMills = userData["userAgeMills"];
-          int userAge = userData["userAge"];
           bool showWoman = userData["showWoman"];
           bool userPrefersBothSexes = userData["userPreferesBothSexes"];
           bool userIsWoman = userData["isUserWoman"];
@@ -83,57 +122,55 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
             UserPicutreBoxState userPicutreBoxState =
                 userPictureList[i]["type"];
             String pictureIndex = userPictureList[i]["index"];
-            String pictureName = "IMAGENPERFIL$pictureIndex";
 
             if (userPicutreBoxState == UserPicutreBoxState.pictureFromBytes) {
-              final storageRef = FirebaseStorage.instance.ref();
-
               Uint8List imageFile = userPictureList[i]["data"];
               String pictureHash = userPictureList[i]["hash"];
-              String image =
-                  "${GlobalDataContainer.userId}/Perfil/imagenes/Image$pictureIndex.jpg";
-              Reference referenciaImagen = storageRef.child(image);
-              // File file = new File.fromRawPath(imageFile);
 
-              await referenciaImagen.putData(imageFile);
+              File result = await appwriteStorage.createFile(
+                  bucketId: "63712fd65399f32a5414",
+                  fileId:
+                      "${GlobalDataContainer.userId}_image$pictureIndex",
+                  file: InputFile(
+                      bytes: imageFile,
+                      filename:
+                          "${GlobalDataContainer.userId}_image$pictureIndex.jpg"));
 
-              String downloadUrl = await referenciaImagen.getDownloadURL();
+              String downloadUrl = result.$id;
 
-              dataToCloud[pictureName] = {
-                "Imagen": downloadUrl,
+              dataToCloud["userPicture$pictureIndex"] = jsonEncode({
+                "imageId": downloadUrl,
                 "hash": pictureHash,
                 "index": pictureIndex,
-                "pictureName": pictureName,
-                "removed": true,
-              };
+                "removed": false,
+              });
             }
           }
+          dataToCloud["userId"] = GlobalDataContainer.userId;
+          dataToCloud["userName"] = userName;
+          dataToCloud["userSex"] = userIsWoman ? "female" : "male";
+          dataToCloud["birthDateInMilliseconds"] = userAgeMills;
+          dataToCloud["userBio"] = userBio;
+          dataToCloud["email"] = GlobalDataContainer.userEmail;
+          dataToCloud["positionLon"] = locationData["lon"];
+          dataToCloud["positionLat"] = locationData["lat"];
+          dataToCloud["userCharacteristics"] = jsonEncode(userFilters);
+          dataToCloud["userSettings"] = jsonEncode({
+            "maxDistance": maxDistance,
+            "maxAge": maxAge,
+            "minAge": minAge,
+            "showCentimeters": useMeters,
+            "showKilometers": useMilles,
+            "showBothSexes": userPrefersBothSexes,
+            "showWoman": showWoman,
+            "showProfile": true
+          });
 
-          dataToCloud["Edad"] = userAge;
-          dataToCloud["nombre"] = userName;
-          dataToCloud["Sexo"] = userIsWoman;
-          dataToCloud["fechaNacimiento"] = userAgeMills;
-          dataToCloud["Descripcion"] = userBio;
-          dataToCloud["longitud"] = locationData["lon"];
-          dataToCloud["latitud"] = locationData["lat"];
-          dataToCloud["Filtros usuario"] = userFilters;
-          dataToCloud["Ajustes"] = {
-            "distanciaMaxima": maxDistance,
-            "edadFinal": maxAge,
-            "edadInicial": minAge,
-            "enCm": useMeters,
-            "enMillas": useMilles,
-            "mostrarAmbosSexos": userPrefersBothSexes,
-            "mostrarMujeres": showWoman,
-            "mostrarPerfil": true
-          };
+          String json = jsonEncode(dataToCloud);
+          Execution execution = await functions.createExecution(
+              functionId: "createUser", data: json,xasync: false);
 
-          HttpsCallable fetchProfilesCloudFunction =
-              FirebaseFunctions.instance.httpsCallable("crearUsuario");
-          HttpsCallableResult httpsCallableResult =
-              await fetchProfilesCloudFunction.call(dataToCloud);
-
-          if (httpsCallableResult.data["estado"] == "correcto") {
+          if (execution.status == "correct") {
             return true;
           } else {
             throw Exception("USER_CREATOR_EXCEPTION");
@@ -156,7 +193,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
   @override
   void initializeModuleData() async {
     try {
-      await _initialize();
+      await getBlankUserProfile();
     } catch (e) {
       throw ModuleInitializeException(message: e.toString());
     }
@@ -168,10 +205,10 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
   }
 
   @override
-  Future<void> _initialize() async {
+  Future<void> getBlankUserProfile() async {
     DateTime dateTime = await _createMinDatetime();
     kUserCreatorMockData["minBirthDate"] = dateTime;
-
+    userCreatorDataStream?.add(kUserCreatorMockData);
   }
 
   Future<DateTime> _createMinDatetime() async {

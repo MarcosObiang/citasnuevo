@@ -136,7 +136,9 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                               )),
                             )
                           : ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: () {
+                                
+                                userCreatorPresentation.createUser();},
                               icon: Icon(Icons.error),
                               label: Text("Error")));
             }),
@@ -353,9 +355,9 @@ class _UserCreatorPagesState extends State<UserCreatorPages> {
                           child: Column(
                             children: [
                               ElevatedButton.icon(
-                                  onPressed: () {},
+                                  onPressed: () {userCreatorPresentation.createUser();},
                                   icon: Icon(Icons.warning),
-                                  label: Text("Error"))
+                                  label: Text("Errores"))
                             ],
                           ),
                         )),
@@ -1186,20 +1188,14 @@ class _UserCreatorPagesState extends State<UserCreatorPages> {
 
   void addPictureFromDevice(int index) async {
     XFile? xfile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    File? imageFile = await ImageCropper().cropImage(
+    CroppedFile? imageFile = await ImageCropper().cropImage(
         sourcePath: xfile!.path,
         maxHeight: 1280,
         maxWidth: 720,
         aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 3),
         compressQuality: 70,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Recortar imagen',
-            toolbarColor: Colors.blue,
-            toolbarWidgetColor: Colors.white,
-            lockAspectRatio: true),
-        iosUiSettings: IOSUiSettings(
-          minimumAspectRatio: 1.0,
-        ));
+        
+      );
     Uint8List? uint8list = await imageFile!.readAsBytes();
 
     Dependencies.userCreatorPresentation

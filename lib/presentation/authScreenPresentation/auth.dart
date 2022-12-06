@@ -54,13 +54,18 @@ class AuthScreenPresentation extends ChangeNotifier
 
   void goToMainScreenApp(BuildContext? context) {
     if (context != null) {
-      Navigator.pushNamed(context, HomeAppScreen.routeName,);
+      Navigator.pushNamed(
+        context,
+        HomeAppScreen.routeName,
+      );
     }
   }
 
   void goToCreateUserPage(BuildContext? context) {
     if (context != null) {
-      Navigator.pushNamed(context, UserCreatorScreen.routeName,arguments: UserCreatorScreenArgs(userName: GlobalDataContainer.userName));
+      Navigator.pushNamed(context, UserCreatorScreen.routeName,
+          arguments:
+              UserCreatorScreenArgs(userName: GlobalDataContainer.userName));
     }
   }
 
@@ -73,7 +78,8 @@ class AuthScreenPresentation extends ChangeNotifier
 
     data.fold((failure) {
       if (failure is NetworkFailure) {
-        PresentationDialogs.instance. showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       }
 
       authState = AuthState.error;
@@ -89,7 +95,9 @@ class AuthScreenPresentation extends ChangeNotifier
 
             goToMainScreenApp(startKey.currentContext);
           } else {
-            authState = AuthState.notSignedIn;
+            goToCreateUserPage(startKey.currentContext);
+
+            //  authState = AuthState.notSignedIn;
           }
         }
       } else {
@@ -108,7 +116,8 @@ class AuthScreenPresentation extends ChangeNotifier
       authState = AuthState.error;
 
       if (failure is NetworkFailure) {
-        PresentationDialogs.instance.showNetworkErrorDialog(context: startKey.currentContext);
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
       }
     }, (authResponseEnity) async {
       authState = AuthState.succes;
@@ -126,6 +135,4 @@ class AuthScreenPresentation extends ChangeNotifier
       }
     });
   }
-
-
 }

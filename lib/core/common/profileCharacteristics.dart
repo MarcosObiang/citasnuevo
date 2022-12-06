@@ -1,30 +1,65 @@
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
-const Map<String,dynamic> _kProfileCreatorMap = {
-  "Alcohol": 0,
-  "Busco": 0,
-  "Complexion": 0,
-  "Hijos": 0,
-  "Mascotas": 0,
-  "Politca": 0,
-  "Que viva con": 0,
-  "Tabaco": 0
+const Map<String, dynamic> _kProfileCreatorMap = {
+  "alcohol": 0,
+  "Im_looking_for": 0,
+  "body_type": 0,
+  "children": 0,
+  "pets": 0,
+  "politics": 0,
+  "im_living_with": 0,
+  "smoke": 0,
+  "sexual_orientation": 0,
+  "zodiag_sign": 0,
+  "personality": 0
 };
 
-
-
-
-
- Map<String,dynamic> kUserCreatorMockData={
-  "IMAGENPERFIL1":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL1","removed":false},
-  "IMAGENPERFIL2":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL2","removed":false},
-  "IMAGENPERFIL3":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL3","removed":false},
-  "IMAGENPERFIL4":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL4","removed":false},
-  "IMAGENPERFIL5":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL5","removed":false},
-  "IMAGENPERFIL6":{"Imagen":"vacio","hash":"vacio","index":-1,"pictureName":"IMAGENPERFIL6","removed":false},
-  "filtros usuario":_kProfileCreatorMap,"Descripcion":""
-  
+Map<String, dynamic> kUserCreatorMockData = {
+  "IMAGENPERFIL1": {
+    "Imagen": "vacio",
+    "hash": "vacio",
+    "index": -1,
+    "pictureName": "IMAGENPERFIL1",
+    "removed": false
+  },
+  "IMAGENPERFIL2": {
+    "Imagen": "vacio",
+    "hash": "vacio",
+    "index": -1,
+    "pictureName": "IMAGENPERFIL2",
+    "removed": false
+  },
+  "IMAGENPERFIL3": {
+    "Imagen": "vacio",
+    "hash": "vacio",
+    "index": -1,
+    "pictureName": "IMAGENPERFIL3",
+    "removed": false
+  },
+  "IMAGENPERFIL4": {
+    "Imagen": "vacio",
+    "hash": "vacio",
+    "index": -1,
+    "pictureName": "IMAGENPERFIL4",
+    "removed": false
+  },
+  "IMAGENPERFIL5": {
+    "Imagen": "vacio",
+    "hash": "vacio",
+    "index": -1,
+    "pictureName": "IMAGENPERFIL5",
+    "removed": false
+  },
+  "IMAGENPERFIL6": {
+    "Imagen": "vacio",
+    "hash": "vacio",
+    "index": -1,
+    "pictureName": "IMAGENPERFIL6",
+    "removed": false
+  },
+  "filtros usuario": _kProfileCreatorMap,
+  "Descripcion": ""
 };
 
 const kProfileCharacteristics_LookingFor_ES = [
@@ -88,32 +123,61 @@ const kProfileCharacteristics_Smoking_ES = [
 
 const kProfileCharacteristics_SexualOrientation_ES = [
   {kNotAvailable: "Sin respuesta"},
-  "Hetero",
-  "Gay",
-  "Lesbiana",
-  "Bisexual",
+  {"Heterosexual": "HeteroSexual"},
+  {"Gay": "Gay"},
+  {"Lesbiana": "Lesbiana"},
+  {"Bisexual": "Bisexual"},
+  {"Asexual": "Asexual"},
+  {"Demisexual": "Demisexual"},
+  {"Pansexual": "Pansexual"},
+  {"Queer": "Queer"},
+];
+const kProfileCharacteristics_zodiacSign_ES = [
+  {kNotAvailable: "Sin respuesta"},
+  {"Aries": "Aries"},
+  {"Tauro": "Tauro"},
+  {"Geminis": "Geminis"},
+  {"Cáncer": "Cáncer"},
+  {"Leo": "Leo"},
+  {"Virgo": "Virgo"},
+  {"Libra": "Libra"},
+  {"Escorpio": "Escorpio"},
+  {"Sagitario": "Sagitario"},
+  {"Capricornio": "Capricornio"},
+  {"Acuario": "Acuario"},
+  {"Piscis": "Piscis"},
+];
+const kProfileCharacteristics_Personality_ES = [
+  {kNotAvailable: "Sin respuesta"},
+  {"Introvertido": "Introvertido"},
+  {"Extrovertido": "Extrovertido"},
+  {"Una mezcla de ambos": "Una mezcla de ambos"},
 ];
 
 const kProfileCharacteristics_ES = [
-  {"Alcohol": kProfileCharacteristics_Alcohol_ES},
-  {"Busco": kProfileCharacteristics_LookingFor_ES},
-  {"Complexion": kProfileCharacteristics_BodyType_ES},
-  {"Hijos": kProfileCharacteristics_Children_ES},
-  {"Mascotas": kProfileCharacteristics_Pets_ES},
-  {"Politca": kProfileCharacteristics_Politics_ES},
-  {"Que viva con": kProfileCharacteristics_LivesWith_ES},
-  {"Tabaco": kProfileCharacteristics_Smoking_ES},
+  {"alcohol": kProfileCharacteristics_Alcohol_ES},
+  {"im_looking_for": kProfileCharacteristics_LookingFor_ES},
+  {"body_type": kProfileCharacteristics_BodyType_ES},
+  {"children": kProfileCharacteristics_Children_ES},
+  {"pets": kProfileCharacteristics_Pets_ES},
+  {"politics": kProfileCharacteristics_Politics_ES},
+  {"im_living_with": kProfileCharacteristics_LivesWith_ES},
+  {"smoke": kProfileCharacteristics_Smoking_ES},
+  {"sexual_orientation": kProfileCharacteristics_SexualOrientation_ES},
+  {"zodiac_sign": kProfileCharacteristics_zodiacSign_ES},
+  {"personality": kProfileCharacteristics_Personality_ES},
 ];
 
 const kProfileCharacteristics_Icons = [
-  // {"Altura": LineAwesomeIcons.ruler_vertical},
-  {"Alcohol": LineAwesomeIcons.beer},
-
-  {"Busco": LineAwesomeIcons.ring},
-  {"Complexion": LineAwesomeIcons.snowboarding},
-  {"Hijos": LineAwesomeIcons.baby},
-  {"Mascotas": LineAwesomeIcons.dog},
-  {"Politca": LineAwesomeIcons.landmark},
-  {"Que viva con": LineAwesomeIcons.home},
-  {"Tabaco": LineAwesomeIcons.smoking},
+  {"alcohol": LineAwesomeIcons.beer},
+  {"im_looking_for": LineAwesomeIcons.ring},
+  {"body_type": LineAwesomeIcons.snowboarding},
+  {"children": LineAwesomeIcons.baby},
+  {"pets": LineAwesomeIcons.dog},
+  {"politics": LineAwesomeIcons.landmark},
+  {"im_living_with": LineAwesomeIcons.home},
+  {"smoke": LineAwesomeIcons.smoking},
+  {"sexual_orientation": LineAwesomeIcons.venus_mars},
+  {"zodiac_sign": LineAwesomeIcons.star},
+  {"personality": LineAwesomeIcons.flushed_face},
 ];

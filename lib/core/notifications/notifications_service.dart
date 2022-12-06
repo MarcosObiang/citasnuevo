@@ -130,14 +130,13 @@ class SystemNotifications{
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings("@mipmap/ic_launcher");
  
-    final MacOSInitializationSettings initializationSettingsMacOS =
-        MacOSInitializationSettings();
+
     final InitializationSettings initializationSettings =
         InitializationSettings(
             android: initializationSettingsAndroid,
-            macOS: initializationSettingsMacOS);
+            );
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (payload){});
+        );
   }
 
   @protected
