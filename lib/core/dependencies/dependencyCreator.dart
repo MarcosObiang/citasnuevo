@@ -1,83 +1,88 @@
-import 'package:citasnuevo/core/ads_services/Ads.dart';
-import 'package:citasnuevo/core/appwrite_services/appwrite_services.dart';
-import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
-import 'package:citasnuevo/core/firebase_services/firebase_auth.dart';
-import 'package:citasnuevo/core/globalData.dart';
-import 'package:citasnuevo/data/Mappers/ReactionsMappers.dart';
-import 'package:citasnuevo/data/dataSources/HomeDataSource/homeScreenDataSources.dart';
-import 'package:citasnuevo/data/dataSources/appSettings/ApplicationSettingsDataSource.dart';
-import 'package:citasnuevo/data/dataSources/authDataSources/authDataSourceImpl.dart';
-import 'package:citasnuevo/data/dataSources/chatDataSource/chatDataSource.dart';
-import 'package:citasnuevo/data/dataSources/principalDataSource/principalDataSource.dart';
-import 'package:citasnuevo/data/dataSources/reactionDataSources/reactionDataSource.dart';
-import 'package:citasnuevo/data/dataSources/reportDataSource/reportDataSource.dart';
-import 'package:citasnuevo/data/dataSources/rewardsDataSource/rewardDataSource.dart';
-import 'package:citasnuevo/data/dataSources/sanctionsDataSource.dart/sanctionsDataSource.dart';
-import 'package:citasnuevo/data/dataSources/settingsDataSource/settingsDataSource.dart';
-import 'package:citasnuevo/data/dataSources/userCreatorDataSource/userCreator.DataSource.dart';
-import 'package:citasnuevo/data/dataSources/userSettingsDataSource/userSettingsDataSource.dart';
-import 'package:citasnuevo/data/dataSources/verificationDataSource/verificationDataSource.dart';
-import 'package:citasnuevo/data/repositoryImpl/appSettingsRepoImpl/appSettingsRepo.dart';
-import 'package:citasnuevo/data/repositoryImpl/authRepoImpl/authRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/chatRepoImpl/chatRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/homeScreenRepoImpl.dart/homeScreenRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/reactionRepoImpl/reactionRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/reportRepoImpl/reportRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/rewardRepoImpl/rewardRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/sanctionsRepoImpl/sanctionsRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/settingsRepoImpl/settingsRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/userCreatorRepoImpl/userCreatorRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/userSettingsRepoImpl.dart/userSettingsRepoImpl.dart';
-import 'package:citasnuevo/data/repositoryImpl/verificationRepoImpl/verificationRepoImpl.dart';
-import 'package:citasnuevo/domain/controller/SettingsController.dart';
-import 'package:citasnuevo/domain/controller/appSettingsController.dart';
-import 'package:citasnuevo/domain/controller/authScreenController.dart';
-import 'package:citasnuevo/domain/controller/chatController.dart';
-import 'package:citasnuevo/domain/controller/homeScreenController.dart';
-import 'package:citasnuevo/domain/controller/reactionsController.dart';
-import 'package:citasnuevo/domain/controller/reportController.dart';
-import 'package:citasnuevo/domain/controller/rewardController.dart';
-import 'package:citasnuevo/domain/controller/sanctionsController.dart';
-import 'package:citasnuevo/domain/controller/userCreatorController.dart';
-import 'package:citasnuevo/domain/controller/userSettingsController.dart';
-import 'package:citasnuevo/domain/controller/verificationController.dart';
-import 'package:citasnuevo/domain/controller_bridges/ChatToMessagesController.dart';
-import 'package:citasnuevo/domain/controller_bridges/HomeScreenCotrollerBridge.dart';
-import 'package:citasnuevo/domain/controller_bridges/MessagesToChatControllerBridge.dart';
-import 'package:citasnuevo/domain/controller_bridges/RewardScreenControllerBridge.dart';
-import 'package:citasnuevo/domain/controller_bridges/SettingsToAppSettingsControllerBridge.dart';
-import 'package:citasnuevo/domain/controller_bridges/UserSettingsToSettingsControllerBridge.dart';
-import 'package:citasnuevo/domain/repository/appSettingsRepo/appSettingsRepo.dart';
-import 'package:citasnuevo/domain/repository/appSettingsRepo/userSettingsRepo.dart';
-import 'package:citasnuevo/domain/repository/authRepo/authRepo.dart';
-import 'package:citasnuevo/domain/repository/chatRepo/chatRepo.dart';
-import 'package:citasnuevo/domain/repository/homeScreenRepo/homeScreenRepo.dart';
-import 'package:citasnuevo/domain/repository/reactionRepository/reactionRepository.dart';
-import 'package:citasnuevo/domain/repository/reportRepo/reportRepo.dart';
-import 'package:citasnuevo/domain/repository/rewardRepository/rewardRepository.dart';
-import 'package:citasnuevo/domain/repository/sanctionsRepo/sanctionsRepo.dart';
-import 'package:citasnuevo/domain/repository/settingsRepository/SettingsRepository.dart';
-import 'package:citasnuevo/domain/repository/userCreatorRepo/userCreatorRepo.dart';
-import 'package:citasnuevo/domain/repository/verificationRepository/verificationRepository.dart';
-import 'package:citasnuevo/main.dart';
-import 'package:citasnuevo/presentation/appSettingsPresentation/appSettingsPresentation.dart';
-import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
-import 'package:citasnuevo/presentation/chatPresentation/chatPresentation.dart';
-import 'package:citasnuevo/presentation/homeReportScreenPresentation/homeReportScreenPresentation.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/homeScrenPresentation.dart';
-import 'package:citasnuevo/presentation/reactionPresentation/reactionPresentation.dart';
-
-import 'package:citasnuevo/core/platform/networkInfo.dart';
-import 'package:citasnuevo/presentation/rewardScreenPresentation/rewardScreenPresentation.dart';
-import 'package:citasnuevo/presentation/sanctionsPresentation/sanctionsPresentation.dart';
-import 'package:citasnuevo/presentation/settingsPresentation/settingsScreenPresentation.dart';
-import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorPresentation.dart';
-import 'package:citasnuevo/presentation/userSettingsPresentation/userPresentation.dart';
-import 'package:citasnuevo/presentation/verificationPresentation/verificationPresentation.dart';
+import 'package:citasnuevo/App/ControllerBridges/PurchseSystemControllerBridge.dart';
 import 'package:flutter/material.dart';
 
+import 'package:citasnuevo/App/ApplicationSettings/ApplicationSettingsDataSource.dart';
+import 'package:citasnuevo/App/ApplicationSettings/appSettingsController.dart';
+import 'package:citasnuevo/App/ApplicationSettings/appSettingsPresentation/appSettingsPresentation.dart';
+import 'package:citasnuevo/App/ApplicationSettings/appSettingsRepo.dart';
+import 'package:citasnuevo/App/ApplicationSettings/appSettingsRepoImpl.dart';
+import 'package:citasnuevo/App/Auth/authDataSourceImpl.dart';
+import 'package:citasnuevo/App/Auth/authRepo.dart';
+import 'package:citasnuevo/App/Auth/authRepoImpl.dart';
+import 'package:citasnuevo/App/Auth/authScreenController.dart';
+import 'package:citasnuevo/App/Auth/authScreenPresentation/authPresentation.dart';
+import 'package:citasnuevo/App/Chat/chatController.dart';
+import 'package:citasnuevo/App/Chat/chatDataSource.dart';
+import 'package:citasnuevo/App/Chat/chatPresentation/chatPresentation.dart';
+import 'package:citasnuevo/App/Chat/chatRepo.dart';
+import 'package:citasnuevo/App/Chat/chatRepoImpl.dart';
+import 'package:citasnuevo/App/ControllerBridges/ChatToMessagesController.dart';
+import 'package:citasnuevo/App/ControllerBridges/HomeScreenCotrollerBridge.dart';
+import 'package:citasnuevo/App/MainDatasource/principalDataSource.dart';
+import 'package:citasnuevo/App/ControllerBridges/MessagesToChatControllerBridge.dart';
+import 'package:citasnuevo/App/ProfileViewer/homeScreenController.dart';
+import 'package:citasnuevo/App/ProfileViewer/homeScreenDataSources.dart';
+import 'package:citasnuevo/App/ProfileViewer/homeScreenPresentation/homeScrenPresentation.dart';
+import 'package:citasnuevo/App/ProfileViewer/homeScreenRepo.dart';
+import 'package:citasnuevo/App/ProfileViewer/homeScreenRepoImpl.dart';
+import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemDataSource.dart';
+import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemController.dart';
+import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemPresentation/purchaseSystemPresentation.dart';
+import 'package:citasnuevo/App/PurchaseSystem/purchasesystemRepository.dart';
+import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemRepoImpl.dart';
+import 'package:citasnuevo/App/Reactions/reactionDataSource.dart';
+import 'package:citasnuevo/App/Reactions/reactionPresentation/reactionPresentation.dart';
+import 'package:citasnuevo/App/Reactions/reactionRepoImpl.dart';
+import 'package:citasnuevo/App/Reactions/reactionRepository.dart';
+import 'package:citasnuevo/App/Reactions/reactionsController.dart';
+import 'package:citasnuevo/App/ReportUsers/homeReportScreenPresentation.dart';
+import 'package:citasnuevo/App/ReportUsers/reportController.dart';
+import 'package:citasnuevo/App/ReportUsers/reportDataSource.dart';
+import 'package:citasnuevo/App/ReportUsers/reportRepo.dart';
+import 'package:citasnuevo/App/ReportUsers/reportRepoImpl.dart';
+import 'package:citasnuevo/App/Rewards/RewardScreenControllerBridge.dart';
+import 'package:citasnuevo/App/Rewards/rewardController.dart';
+import 'package:citasnuevo/App/Rewards/rewardDataSource.dart';
+import 'package:citasnuevo/App/Rewards/rewardRepoImpl.dart';
+import 'package:citasnuevo/App/Rewards/rewardRepository.dart';
+import 'package:citasnuevo/App/Rewards/rewardScreenPresentation/rewardScreenPresentation.dart';
+import 'package:citasnuevo/App/Sanctions/sanctionsController.dart';
+import 'package:citasnuevo/App/Sanctions/sanctionsDataSource.dart';
+import 'package:citasnuevo/App/Sanctions/sanctionsPresentation/sanctionsPresentation.dart';
+import 'package:citasnuevo/App/Sanctions/sanctionsRepo.dart';
+import 'package:citasnuevo/App/Sanctions/sanctionsRepoImpl.dart';
+import 'package:citasnuevo/App/Settings/SettingsController.dart';
+import 'package:citasnuevo/App/Settings/SettingsRepository.dart';
+import 'package:citasnuevo/App/Settings/SettingsToAppSettingsControllerBridge.dart';
+import 'package:citasnuevo/App/Settings/settingsDataSource.dart';
+import 'package:citasnuevo/App/Settings/settingsPresentation/settingsScreenPresentation.dart';
+import 'package:citasnuevo/App/Settings/settingsRepoImpl.dart';
+import 'package:citasnuevo/App/UserCreator/userCreator.DataSource.dart';
+import 'package:citasnuevo/App/UserCreator/userCreatorController.dart';
+import 'package:citasnuevo/App/UserCreator/userCreatorPresentation/userCreatorPresentation.dart';
+import 'package:citasnuevo/App/UserCreator/userCreatorRepo.dart';
+import 'package:citasnuevo/App/UserCreator/userCreatorRepoImpl.dart';
+import 'package:citasnuevo/App/UserSettings/UserSettingsToSettingsControllerBridge.dart';
+import 'package:citasnuevo/App/UserSettings/userSettingsController.dart';
+import 'package:citasnuevo/App/UserSettings/userSettingsDataSource.dart';
+import 'package:citasnuevo/App/UserSettings/userSettingsPresentation/userPresentation.dart';
+import 'package:citasnuevo/App/UserSettings/userSettingsRepo.dart';
+import 'package:citasnuevo/App/UserSettings/userSettingsRepoImpl.dart';
+import 'package:citasnuevo/App/Verification/verificationController.dart';
+import 'package:citasnuevo/App/Verification/verificationDataSource.dart';
+import 'package:citasnuevo/App/Verification/verificationPresentation/verificationPresentation.dart';
+import 'package:citasnuevo/App/Verification/verificationRepoImpl.dart';
+import 'package:citasnuevo/App/Verification/verificationRepository.dart';
+import 'package:citasnuevo/main.dart';
+import 'package:citasnuevo/App/principalScreenPresentation.dart';
+import '../services/Ads.dart';
+import '../appwrite_services/appwrite_services.dart';
+import '../common/commonUtils/getUserImage.dart';
+import '../services/firebase_auth.dart';
+import '../globalData.dart';
 import '../iapPurchases/iapPurchases.dart';
 import '../notifications/notifications_service.dart';
+import '../platform/networkInfo.dart';
 
 class Dependencies {
   static late Server serverAPi = new Server();
@@ -86,11 +91,12 @@ class Dependencies {
 
   static late final AuthScreenPresentation authScreenPresentation;
   static late final ApplicationDataSource applicationDataSource =
-      ApplicationDataSource(userId: GlobalDataContainer.userId);
+      ApplicationDataSource();
 
   static late final AuthService authService = AuthServiceImpl();
   static late final AuthScreenDataSource authDataSource =
-      AuthScreenDataSourceImpl(authService: authService);
+      AuthScreenDataSourceImpl(
+          authService: authService, source: applicationDataSource);
 
   static late final AuthRepository authRepository;
 
@@ -103,6 +109,8 @@ class Dependencies {
   static late final HomeScreenControllerBridge<HomeScreenController>
       homeScreenControllerBridge =
       new HomeScreenControllerBridge<HomeScreenController>();
+  static late final PurchaseSystemControllerBridge
+      purchaseSystemControllerBridge = PurchaseSystemControllerBridge();
 
   static late final MessagesToChatControllerBridge
       messagesToChatControllerBridge = new MessagesToChatControllerBridge();
@@ -152,6 +160,7 @@ class Dependencies {
   static late final RewardRepository rewardRepository =
       RewardRepoImpl(rewardDataSource: rewardDataSource);
   static late final RewardController rewardController = RewardControllerImpl(
+      purchaseSystemControllerBridge: purchaseSystemControllerBridge,
       rewardRepository: rewardRepository,
       rewardScreenControlBridge: rewardScreenControllerBridge);
   static late final RewardScreenPresentation rewardScreenPresentation =
@@ -179,6 +188,7 @@ class Dependencies {
 
   static late final ReactionDataSource reactionDataSource =
       ReactionDataSourceImpl(
+    advertisingServices: advertisingServices,
     source: applicationDataSource,
   );
   static late final ReactionRepository reactionRepository =
@@ -228,11 +238,12 @@ class Dependencies {
       new SettingsRepoImpl(settingsDataSource: settingsDataSource);
   static late final SettingsController settingsController =
       new SettingsControllerImpl(
-          userSettingsToSettingsControllerBridge:
-              userSettingsToSettingsControllerBridge,
-          settingsRepository: settingsRepository,
-          appSettingstoSettingscontrollerBridge: settingsControllerBridge,
-          rewardScreenControllerBridge: rewardScreenControllerBridge);
+    userSettingsToSettingsControllerBridge:
+        userSettingsToSettingsControllerBridge,
+    settingsRepository: settingsRepository,
+    appSettingstoSettingscontrollerBridge: settingsControllerBridge,
+    purchaseSystemControllerBridge: purchaseSystemControllerBridge,
+  );
   static late final SettingsScreenPresentation settingsScreenPresentation =
       new SettingsScreenPresentation(settingsController: settingsController);
 
@@ -298,85 +309,129 @@ class Dependencies {
         AuthScreenPresentation(authScreenController: authScreenController);
   }
 
-  static Future<void> startDependencies({required bool restart}) async {
-    if (restart == false) {}
-    if (restart == true) {
-      restartDependencies();
-    }
-  }
+  /// PRINCIPAL SCREEN
+  ///
+  ///
+  ///
+  ///
+  ///
+  static late final PrincipalScreenPresentation principalScreenPresentation =
+      PrincipalScreenPresentation(
+          reactionScreenPresentation: reactionPresentation,
+          chatPresentation: chatPresentation,
+          rewardScreenPresentation: rewardScreenPresentation);
 
+  /// PURCHASE PRESENTATION
+  ///
+  ///
+  ///
+  static late final PurchaseSystemDataSource purchaseSystemDataSource =
+      PurchaseSystemDataSourceImplementation(source: applicationDataSource);
+  static late final PurchaseSystemRepository purchaseSystemRepository =
+      PurchaseSystemRepoImpl(
+          purchaseSystemDataSource: purchaseSystemDataSource);
+  static late final PurchaseSystemController purchaseSystemController =
+      PurchaseSystemControllerImpl(
+          purchaseSystemControllerBridge: purchaseSystemControllerBridge,
+          purchaseSystemRepository: purchaseSystemRepository);
+
+  static late final PurchaseSystemPresentation purchaseSystemPresentation =
+      PurchaseSystemPresentation(
+          purchaseSystemController: purchaseSystemController);
   static void startUtilDependencies() {
     // ignore: unused_local_variable
     GetProfileImage getProfileImage = new GetProfileImage();
   }
 
-  static Future<void> clearDependencies() async {
+  static void clearDependenciesAndUserIdentifiers() async {
     reactionPresentation.clearModuleData();
     homeScreenPresentation.clearModuleData();
-    // authScreenPresentation.clearModuleData();
+    authScreenPresentation.clearModuleData();
     homeReportScreenPresentation.clearModuleData();
     chatPresentation.clearModuleData();
-    applicationDataSource.clearAppDataSource();
     settingsScreenPresentation.clearModuleData();
     appSettingsPresentation.clearModuleData();
     userSettingsPresentation.clearModuleData();
     sanctionsPresentation.clearModuleData();
+    userCreatorPresentation.clearModuleData();
+    applicationDataSource.clearAppDataSource();
+    rewardScreenPresentation.clearModuleData();
+    purchaseSystemPresentation.clearModuleData();
+
+    GlobalDataContainer.clearGlobalDataContainer();
   }
 
-  static Future<void> restartDependencies() async {
-    applicationDataSource.userId = GlobalDataContainer.userId;
+  static void clearDependenciesOnly() async {
+    reactionPresentation.clearModuleData();
+    verificationPresentation.clearModuleData();
 
-    applicationDataSource.initializeMainDataSource();
+    homeScreenPresentation.clearModuleData();
+    authScreenPresentation.clearModuleData();
+    homeReportScreenPresentation.clearModuleData();
+    chatPresentation.clearModuleData();
+    settingsScreenPresentation.clearModuleData();
+    appSettingsPresentation.clearModuleData();
+    userSettingsPresentation.clearModuleData();
+    sanctionsPresentation.clearModuleData();
+    userCreatorPresentation.clearModuleData();
+    applicationDataSource.clearAppDataSource();
+    rewardScreenPresentation.clearModuleData();
+    purchaseSystemPresentation.clearModuleData();
+  }
 
-    reactionPresentation.initializeModuleData();
-    homeScreenPresentation.initializeModuleData();
-    // authScreenPresentation.clearModuleData();
-    homeReportScreenPresentation.initializeModuleData();
-    chatPresentation.initializeModuleData();
-    settingsScreenPresentation.initializeModuleData();
-    appSettingsPresentation.initializeModuleData();
-    userSettingsPresentation.initializeModuleData();
-    sanctionsPresentation.initializeModuleData();
-    verificationPresentation.initializeModuleData();
+  static void clearDependenciesForSanction() async {
+    reactionPresentation.clearModuleData();
+    verificationPresentation.clearModuleData();
+
+    homeScreenPresentation.clearModuleData();
+    authScreenPresentation.clearModuleData();
+    homeReportScreenPresentation.clearModuleData();
+    chatPresentation.clearModuleData();
+    settingsScreenPresentation.clearModuleData();
+    appSettingsPresentation.clearModuleData();
+    userSettingsPresentation.clearModuleData();
+    userCreatorPresentation.clearModuleData();
+    applicationDataSource.clearAppDataSource();
+    rewardScreenPresentation.clearModuleData();
+    purchaseSystemPresentation.clearModuleData();
   }
 
   static void clearDependenciesAfterCreateUser() {
     userCreatorPresentation.clearModuleData();
   }
 
-  static Future<bool> initializeDependencies() async {
+  ///RETURN TRUE IF THE USER EXISTS IN THE DATABASE, IF NOT IT RETURNS FALSE AND ONLY THE USERCREATOR MODULE IS INITIALIZED
+  static Future<void> initializeDependencies() async {
     try {
-      applicationDataSource.userId = GlobalDataContainer.userId as String;
-      bool userDataExists =
-          await applicationDataSource.initializeMainDataSource();
+      //    await PurchasesServices.purchasesServices.initService();
 
-      if (userDataExists == true) {
-        await PurchasesServices.purchasesServices.initService();
-        NotificationService instance = new NotificationService();
-        //   await instance.startBackgroundNotificationHandler();
-        homeScreenPresentation.initializeModuleData();
-        chatPresentation.initializeModuleData();
-        reactionPresentation.initializeModuleData();
+      homeScreenPresentation.initializeModuleData();
+      chatPresentation.initializeModuleData();
+      reactionPresentation.initializeModuleData();
 
-        authScreenPresentation.clearModuleData();
-        homeReportScreenPresentation.initializeModuleData();
-        settingsScreenPresentation.initializeModuleData();
-        appSettingsPresentation.initializeModuleData();
-        userSettingsPresentation.initializeModuleData();
-          advertisingServices.initializeAdsService();
-        rewardScreenPresentation.initializeModuleData();
-        //   sanctionsPresentation.initializeModuleData();
-        //         verificationPresentation.initializeModuleData();
+      authScreenPresentation.clearModuleData();
+      homeReportScreenPresentation.initializeModuleData();
+      settingsScreenPresentation.initializeModuleData();
+      appSettingsPresentation.initializeModuleData();
+      userSettingsPresentation.initializeModuleData();
+      rewardScreenPresentation.initializeModuleData();
+      purchaseSystemPresentation.initializeModuleData();
+      verificationPresentation.initializeModuleData();
+      userCreatorPresentation.initializeModuleData();
 
-        return true;
-      } else {
-        userCreatorPresentation.initializeModuleData();
-        advertisingServices.shouldUserGiveCosent();
+      await applicationDataSource.initializeMainDataSource();
+      NotificationService instance = new NotificationService();
+      await instance.startBackgroundNotificationHandler();
+      sanctionsPresentation.initializeModuleData();
+            advertisingServices.initializeAdsService();
 
-        return false;
-      }
-    } catch (e) {
+    } catch (e, s) {
+      print(s);
       throw e;
     }
+  }
+
+  static void initializeUserCreatorModuleDepenencies() {
+    userCreatorPresentation.initializeModuleData();
   }
 }

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
+import 'package:dio/dio.dart' as dio;
 
 /*
   'req' variable has:
@@ -45,7 +46,7 @@ Future<void> start(final req, final res) async {
         documentId: userId);
 
     num totalRatingPoints = recieverUserData.data["totalRatingPoints"];
-    print(recieverUserData.data);
+    String notificationToken = recieverUserData.data["notificationToken"];
 
     int ratingsRecieved = recieverUserData.data["ratingsRecieved"];
     int newRatingsRecieved;
@@ -65,7 +66,7 @@ Future<void> start(final req, final res) async {
     await databases.updateDocument(
         databaseId: "636d59d7a2f595323a79",
         collectionId: "636d59df12dcf7a399d5",
-        documentId: userId,
+        documentId: recieverId,
         data: {
           "ratingsRecieved": newRatingsRecieved,
           "averageRating": newReactionAverage,
@@ -105,16 +106,54 @@ Future<void> start(final req, final res) async {
         permissions: [
           Permission.read(Role.user(recieverId))
         ]);
+    await sendPushNotification(
+        dataabases: databases, recieverNotificationToken: notificationToken);
 
     res.json({
-      'status': "correct",
+      'status': 200,
     });
-  } catch (e, s) {
+  } catch (e) {
     if (e is AppwriteException) {
-      res.json({'status': "error", "mesage": e.message, "stackTrace": s});
-    } else {
-      res.json({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      res.json({
+        'status': 500,
+        "mesage": "INTERNAL_ERROR",
+      });
     }
+    if (e is NotificationException) {
+      res.json({
+        'status': 200,
+        "mesage": "NOTIFICATION_COULD_NOT_BE_SENT",
+      });
+    } else {
+      res.json({'status': 500, "mesage": e.toString()});
+    }
+  }
+}
+
+Future<void> sendPushNotification(
+    {required Databases dataabases,
+    required String recieverNotificationToken}) async {
+  try {
+    Document document = await dataabases.getDocument(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "63eba9bfd3923130eb3d",
+        documentId: "63ebaa165a793004bb38");
+    String notificationAuthToken = document.data["fcmNotifications"];
+    await dio.Dio().post(
+      "https://fcm.googleapis.com/v1/projects/hotty-189c7/messages:send",
+      options: dio.Options(headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $notificationAuthToken"
+      }),
+      data: {
+        "message": {
+          "token": recieverNotificationToken,
+          "data": {"notificationType": "reaction"}
+        },
+      },
+    );
+  } catch (e) {
+    throw NotificationException(message: e.toString());
   }
 }
 
@@ -177,4 +216,11 @@ String createId() {
     }
   }
   return finalCode;
+}
+
+class NotificationException implements Exception {
+  String message;
+  NotificationException({
+    required this.message,
+  });
 }

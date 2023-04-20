@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:simple_connection_checker/simple_connection_checker.dart';
+
 import 'package:firebase_database/firebase_database.dart';
+import 'package:simple_connection_checker/simple_connection_checker.dart';
 
 abstract class NetworkInfoContract {
   Future<bool> get isConnected;
@@ -18,14 +18,14 @@ class NetworkInfoImpl implements NetworkInfoContract {
 
   Future<bool> checkConnection() async {
     bool internet = await SimpleConnectionChecker.isConnectedToInternet(
-        lookUpAddress: "firestore.googleapis.com");
+        lookUpAddress: "www.hottyserver.com");
 
     return internet;
   }
 
   void startNetworkStatusListener() async {
     connected = SimpleConnectionChecker.isConnectedToInternet(
-        lookUpAddress: "firestore.googleapis.com");
+        lookUpAddress: "www.hottyserver.com");
 
     instance.ref().child(".info/connected").onValue.listen((event) async {
       if (event.snapshot.value == true) {

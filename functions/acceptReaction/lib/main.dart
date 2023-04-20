@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
@@ -65,7 +66,7 @@ Future<void> start(final req, final res) async {
           databaseId: "636d59d7a2f595323a79",
           collectionId: "6374fc078b95d03fb3c1",
           documentId: reactionId);
-      database.createDocument(
+      await database.createDocument(
           databaseId: "636d59d7a2f595323a79",
           collectionId: "637d10c17be1c3d1544d",
           documentId: reactionData.$id,
@@ -88,19 +89,77 @@ Future<void> start(final req, final res) async {
             Permission.read(Role.user(user1Id)),
             Permission.read(Role.user(user2Id))
           ]);
+      await sendPushNotification(
+          dataabases: database,
+          recieverNotificationToken: user1Data.data["notificationToken"]);
+      await sendPushNotification(
+          dataabases: database,
+          recieverNotificationToken: user2Data.data["notificationToken"]);
+
       res.json({
-        'status': "correct",
+        'status': 200,
+        "message": "correct",
       });
     } else {
       res.json({
-        'status': "error_creating_conversation",
+        'status': 500,
+        "message": "SOME_USER_MAY_BE_BLOCKED",
       });
     }
   } catch (e, s) {
     if (e is AppwriteException) {
-      res.json({'status': "error", "mesage": e.message, "stackTrace": s});
+      print({'status': "error", "mesage": e.message, "stackTrace": s});
+      res.json({
+        'status': 500,
+        "message": "INTERNAL_ERROR",
+      });
+    }
+    if (e is NotificationException) {
+      print({'status': "error", "mesage": e.message, "stackTrace": s});
+      res.json({
+        'status': 200,
+        "message": "NOTIFICATION_ERROR",
+      });
     } else {
-      res.json({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      print({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      res.json({
+        'status': 500,
+        "message": "INTERNAL_ERROR",
+      });
     }
   }
+}
+
+Future<void> sendPushNotification(
+    {required Databases dataabases,
+    required String recieverNotificationToken}) async {
+  try {
+    Document document = await dataabases.getDocument(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "63eba9bfd3923130eb3d",
+        documentId: "63ebaa165a793004bb38");
+    String notificationAuthToken = document.data["fcmNotifications"];
+    dio.Response notificationData = await dio.Dio().post(
+      "https://fcm.googleapis.com/v1/projects/hotty-189c7/messages:send",
+      options: dio.Options(headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $notificationAuthToken"
+      }),
+      data: {
+        "message": {
+          "token": recieverNotificationToken,
+          "data": {"notificationType": "chat"}
+        },
+      },
+    );
+  } catch (e) {
+    throw NotificationException(message: e.toString());
+  }
+}
+
+class NotificationException implements Exception {
+  String message;
+  NotificationException({
+    required this.message,
+  });
 }

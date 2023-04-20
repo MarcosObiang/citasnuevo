@@ -33,16 +33,11 @@ Future<void> start(final req, final res) async {
     double currentLat = data["lat"];
     int maxDistance = data["distance"];
     String userId = data["userId"];
-
-    double MaxLongitude = getMaxLongitude(currentLon, maxDistance);
-    double MinLongitude = getMinLongitude(currentLon, maxDistance);
-    double maxLat = getMaxLatitude(currentLat, maxDistance);
-    double minlat = getMinLatitude(currentLat, maxDistance);
-
-    print("minlon: $MinLongitude");
-    print("maxLon: $MaxLongitude");
-    print("minLat: $minlat");
-    print("maxlat: $maxLat");
+    await database.updateDocument(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "636d59df12dcf7a399d5",
+        documentId: userId,
+        data: {"positionLon": currentLon, "positionLat": currentLat});
 
     DocumentList documentList = await database.listDocuments(
         databaseId: "636d59d7a2f595323a79",

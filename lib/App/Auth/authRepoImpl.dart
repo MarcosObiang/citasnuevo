@@ -1,0 +1,53 @@
+import 'package:dartz/dartz.dart';
+
+import '../controllerDef.dart';
+import '../../core/error/Exceptions.dart';
+import '../../core/error/Failure.dart';
+import '../../core/params_types/params_and_types.dart';
+import 'AuthScreenEntity.dart';
+import 'authDataSourceImpl.dart';
+import 'authRepo.dart';
+
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthScreenDataSource authDataSource;
+  AuthRepositoryImpl({
+    required this.authDataSource,
+  });
+  @override
+  Future<Either<Failure,  Map<String,dynamic>>> logIn(
+      {required SignInProviders signInProviders}) async {
+    try {
+     Map<String,dynamic> authData =
+          await authDataSource.logIn(signInProviders: SignInProviders.GOOGLE);
+
+      return Right(authData);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      }
+      if (e is AuthException) {
+        return Left(AuthFailure(message: e.toString()));
+      } else {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String,dynamic>>> checkSignedInUser() async {
+    try {
+      Map<String,dynamic> authResponseEntity =
+          await authDataSource.checkIfUserIsAlreadySignedIn();
+      return Right(authResponseEntity);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      }
+      if (e is AuthException) {
+        return Left(AuthFailure(message: e.toString()));
+      } else {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    }
+  }
+}

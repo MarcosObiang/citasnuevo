@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
-
+import 'dart:typed_data';
+import 'package:dart_appwrite/models.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:dart_appwrite/dart_appwrite.dart';
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as httpClient;
 
 /*
   'req' variable has:
@@ -17,6 +21,7 @@ import 'package:dart_appwrite/dart_appwrite.dart';
 */
 
 Future<void> start(final req, final res) async {
+  String casa = "";
   try {
     Client client = Client()
         .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
@@ -26,10 +31,10 @@ Future<void> start(final req, final res) async {
         .setSelfSigned(status: true);
 
     Databases dataabases = Databases(client);
+
     String messageId = createId();
     var data = jsonDecode(req.payload);
-            var variables = req.variables;
-print(variables);
+    String recieverNotificationToken = data["recieverNotificationId"];
 
     await dataabases.createDocument(
         databaseId: "636d59d7a2f595323a79",
@@ -49,18 +54,69 @@ print(variables);
           Permission.read(Role.user(data["senderId"])),
           Permission.read(Role.user(data["recieverId"]))
         ]);
-          res.json({
-    'status': "correct",
-  });
+    await sendPushNotification(
+        dataabases: dataabases,
+        recieverNotificationToken: recieverNotificationToken);
+
+    res.json({'status': 200, "message": "correct"});
   } catch (e, s) {
     if (e is AppwriteException) {
-      res.json({'status': "error", "mesage": e.message, "stackTrace": s});
+      print({'status': "error", "message": e.message, "stackTrace": s});
+
+      res.json({'status': 500, "message": "INTERNAL_ERROR"});
     } else {
-      res.json({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      if (e is NotificationException) {
+        print({
+          'status': 200,
+          "message": "NOTIFICATION_ERROR",
+        });
+
+        res.json({'status': 200, "message": "NOTIFICATION_ERROR"});
+      } else {
+        print({'status': "error", "message": e.toString(), "stackTrace": s});
+        res.json({
+          'status': 500,
+          "message": "INTERNAL_ERROR",
+        });
+      }
     }
   }
+}
 
+Future<void> sendPushNotification(
+    {required Databases dataabases,
+    required String recieverNotificationToken}) async {
+  try {
+    Document document = await dataabases.getDocument(
+        databaseId: "636d59d7a2f595323a79",
+        collectionId: "63eba9bfd3923130eb3d",
+        documentId: "63ebaa165a793004bb38");
+    String notificationAuthToken = document.data["fcmNotifications"];
+   
+    dio.Response notificationData = await dio.Dio().post(
+      "https://fcm.googleapis.com/v1/projects/hotty-189c7/messages:send",
+      options: dio.Options(headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $notificationAuthToken"
+      }),
+      data: {
+        "message": {
+          "token": recieverNotificationToken,
+          "data": {"notificationType": "message"}
+        },
+      },
+    );
+  } catch (e) {
+    print(e.toString());
+    throw NotificationException(message: e.toString());
+  }
+}
 
+class NotificationException implements Exception {
+  String message;
+  NotificationException({
+    required this.message,
+  });
 }
 
 String createId() {

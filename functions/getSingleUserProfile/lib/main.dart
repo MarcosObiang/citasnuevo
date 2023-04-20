@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
+import 'package:dart_appwrite/models.dart';
 
 /*
   'req' variable has:
@@ -38,48 +39,56 @@ Future<void> start(final req, final res) async {
                 userBirthDateInMillisecondsSinceEpoch))
             .inDays ~/
         365;
-print(userData.data);
-    Map<String, dynamic> dataToJson = {
-      "userId": userData.data["userId"],
-      "userName": userData.data["userName"],
-      "userSex": userData.data["userSex"],
-      "userBio": userData.data["userBio"],
-      "distance": 0,
-      "userAge": userAge,
-      "alcohol": userData.data["alcohol"],
-      "im_looking_for": userData.data["im_looking_for"],
-      "body_type": userData.data["body_type"],
-      "children": userData.data["children"],
-      "pets": userData.data["pets"],
-      "politics": userData.data["politics"],
-      "im_living_with": userData.data["im_living_with"],
-      "smoke": userData.data["smoke"],
-      "sexual_orientation": userData.data["sexual_orientation"],
-      "zodiac_sign": userData.data["zodiac_sign"],
-      "personality": userData.data["personality"],
-      "userPicture1": jsonDecode(userData.data["userPicture1"]),
-      "userPicture2": jsonDecode(userData.data["userPicture2"]),
-      "userPicture3": jsonDecode(userData.data["userPicture3"]),
-      "userPicture4": jsonDecode(userData.data["userPicture4"]),
-      "userPicture5": jsonDecode(userData.data["userPicture6"]),
-      "userPicture6": jsonDecode(userData.data["userPicture6"]),
-    };
+    Map<String, dynamic> dataToJson = mapProfileData(userData, userAge);
 
     res.json({
-      'status': "correct",
+      'status': 200,
+      "message":"correct",
       "payload": jsonEncode([dataToJson])
     });
-  } catch (e) {
+  } catch (e, s) {
     if (e is AppwriteException) {
+      print({"status": 500, "message": e.message, "stackTrace": s.toString()});
       res.json({
-        "status": "error",
-        'payload': e.message,
+        "status": 500,
+        'message': "INTERNAL_ERROR",
       });
     } else {
+      print(
+          {"status": 500, "message": e.toString(), "stackTrace": s.toString()});
+
       res.json({
-        "status": "error",
-        'payload': e.toString(),
+        "status": 500,
+        'message': "INTERNAL_ERROR",
       });
     }
   }
+}
+
+Map<String, dynamic> mapProfileData(Document userData, int userAge) {
+  return {
+    "userId": userData.data["userId"],
+    "userName": userData.data["userName"],
+    "userSex": userData.data["userSex"],
+    "userBio": userData.data["userBio"],
+    "distance": 0,
+    "userAge": userAge,
+    "alcohol": userData.data["alcohol"],
+    "im_looking_for": userData.data["im_looking_for"],
+    "body_type": userData.data["body_type"],
+    "children": userData.data["children"],
+    "pets": userData.data["pets"],
+    "politics": userData.data["politics"],
+    "im_living_with": userData.data["im_living_with"],
+    "smoke": userData.data["smoke"],
+    "sexual_orientation": userData.data["sexual_orientation"],
+    "zodiac_sign": userData.data["zodiac_sign"],
+    "personality": userData.data["personality"],
+    "userPicture1": jsonDecode(userData.data["userPicture1"]),
+    "userPicture2": jsonDecode(userData.data["userPicture2"]),
+    "userPicture3": jsonDecode(userData.data["userPicture3"]),
+    "userPicture4": jsonDecode(userData.data["userPicture4"]),
+    "userPicture5": jsonDecode(userData.data["userPicture6"]),
+    "userPicture6": jsonDecode(userData.data["userPicture6"]),
+  };
 }

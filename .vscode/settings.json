@@ -1,0 +1,5 @@
+{
+    "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "${workspaceFolder}/functions/confirmMessages",
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

@@ -1,5 +1,4 @@
-const kNetworkErrorMessage= "NETWORK_ERROR";
-
+const kNetworkErrorMessage = "NETWORK_ERROR";
 
 class ServerException implements Exception {
   final String message;
@@ -12,7 +11,7 @@ class AuthException implements Exception {
 }
 
 class NetworkException implements Exception {
-    final String message;
+  final String message;
 
   NetworkException({required this.message});
 }
@@ -28,8 +27,11 @@ class RatingProfilesException implements Exception {
 }
 
 class FetchProfilesException implements Exception {
-  String message;
-  FetchProfilesException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  FetchProfilesException({
     required this.message,
   }) {
     print(message);
@@ -37,15 +39,21 @@ class FetchProfilesException implements Exception {
 }
 
 class ReactionException implements Exception {
-  String message;
-  ReactionException({required this.message}) {
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  ReactionException({required this.message}) {
     print(message);
   }
 }
 
 class ReportException implements Exception {
-  String message;
-  ReportException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  ReportException({
     required this.message,
   }) {
     print(message);
@@ -53,8 +61,11 @@ class ReportException implements Exception {
 }
 
 class ChatException implements Exception {
-  String message;
-  ChatException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  ChatException({
     required this.message,
   }) {
     print(message);
@@ -62,7 +73,13 @@ class ChatException implements Exception {
 }
 
 class SettingsException implements Exception {
-  String message;
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  @override
+
+
   SettingsException({
     required this.message,
   }) {
@@ -71,8 +88,11 @@ class SettingsException implements Exception {
 }
 
 class AppSettingsException implements Exception {
-  String message;
-  AppSettingsException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  AppSettingsException({
     required this.message,
   }) {
     print(message);
@@ -80,8 +100,11 @@ class AppSettingsException implements Exception {
 }
 
 class UserSettingsException implements Exception {
-  String message;
-  UserSettingsException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  UserSettingsException({
     required this.message,
   }) {
     print(message);
@@ -89,8 +112,11 @@ class UserSettingsException implements Exception {
 }
 
 class UserCreatorException implements Exception {
-  String message;
-  UserCreatorException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  UserCreatorException({
     required this.message,
   }) {
     print(message);
@@ -98,8 +124,11 @@ class UserCreatorException implements Exception {
 }
 
 class RewardException implements Exception {
-  String message;
-  RewardException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  RewardException({
     required this.message,
   }) {
     print(message);
@@ -107,8 +136,11 @@ class RewardException implements Exception {
 }
 
 class LocationServiceException implements Exception {
-  String message;
-  LocationServiceException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  LocationServiceException({
     required this.message,
   }) {
     print(message);
@@ -116,16 +148,23 @@ class LocationServiceException implements Exception {
 }
 
 class InitException implements Exception {
-  String message;
-  InitException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  InitException({
     required this.message,
   }) {
     print(message);
   }
 }
+
 class SanctionException implements Exception {
-  String message;
-  SanctionException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  SanctionException({
     required this.message,
   }) {
     print(message);
@@ -133,18 +172,23 @@ class SanctionException implements Exception {
 }
 
 class MessagesException implements Exception {
-  String message;
-  MessagesException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  MessagesException({
     required this.message,
   }) {
     print(message);
   }
 }
 
-
 class ModuleInitializeException implements Exception {
-  String message;
-  ModuleInitializeException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  ModuleInitializeException({
     required this.message,
   }) {
     print(message);
@@ -152,8 +196,11 @@ class ModuleInitializeException implements Exception {
 }
 
 class ModuleCleanException implements Exception {
-  String message;
-  ModuleCleanException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  ModuleCleanException({
     required this.message,
   }) {
     print(message);
@@ -161,14 +208,28 @@ class ModuleCleanException implements Exception {
 }
 
 class VerificationException implements Exception {
-  String message;
-  VerificationException({
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  VerificationException({
     required this.message,
   }) {
     print(message);
   }
 }
 
+class PurchaseSystemException implements Exception {
+ String message;
+  @override
+  String toString() {
+    return message;
+  }  PurchaseSystemException({
+    required this.message,
+  }) {
+    print(message);
+  }
+}
 
 class LateInitErrorChecker {
   /// Used to check if the error is caused due to not initialized variables in the code

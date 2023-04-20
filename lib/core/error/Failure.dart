@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:equatable/equatable.dart';
 
 abstract class Failure {
   late String message;
@@ -26,6 +24,13 @@ class NetworkFailure implements Failure {
   @override
   String message;
   NetworkFailure({
+    required this.message,
+  });
+}
+class PurchaseSystemFailure implements Failure {
+  @override
+  String message;
+  PurchaseSystemFailure({
     required this.message,
   });
 }
@@ -174,3 +179,4 @@ class ModuleClearFailure implements Failure {
     required this.message,
   });
 }
+

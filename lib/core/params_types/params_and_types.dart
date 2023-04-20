@@ -7,6 +7,11 @@ const kProfileReviewedSuccesfully = "PROFILE_REVIEW_SUCCESFULL";
 const kProfileRefiewedError = "PROFILE_REVIEW_ERROR";
 const kStreamParserNullError="STREAM_PARSER_CONTROLLER_CANNOT_BE_NULL";
 const kUserIdNullError="USER_ID_CANNOT_BE_NULL";
+///Location
+const kLocationServiceDisabled= "LOCATION_SERVICE_DISABLED";
+const kLocationUnknownStatus= "UNABLE_TO_DETERMINE_LOCATION_STATUS";
+const kLocationPermissionDenied= "LOCATION_PERMISSION_DENIED";
+const kLocationPermissionDeniedForever= "LOCATION_PERMISSION_DENIED_FOREVER";
 class Params extends Equatable {
   const Params();
   @override

@@ -1,9 +1,8 @@
-import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 const Map<String, dynamic> _kProfileCreatorMap = {
   "alcohol": 0,
-  "Im_looking_for": 0,
+  "im_looking_for": 0,
   "body_type": 0,
   "children": 0,
   "pets": 0,
@@ -11,7 +10,7 @@ const Map<String, dynamic> _kProfileCreatorMap = {
   "im_living_with": 0,
   "smoke": 0,
   "sexual_orientation": 0,
-  "zodiag_sign": 0,
+  "zodiac_sign": 0,
   "personality": 0
 };
 
@@ -62,96 +61,110 @@ Map<String, dynamic> kUserCreatorMockData = {
   "Descripcion": ""
 };
 
+const kProfileCharacteristicsNames_ES = [
+  {"alcohol": "¿Bebes alcohol?"},
+  {"im_looking_for": "¿Qué buscas?"},
+  {"body_type": "Complexión física"},
+  {"children": "¿Hijos?"},
+  {"pets": "¿Mascotas?"},
+  {"politics": "Politica"},
+  {"im_living_with": "Vivo con"},
+  {"smoke": "¿Fumas?"},
+  {"sexual_orientation": "Sexualidad"},
+  {"zodiac_sign": "Horoscopo"},
+  {"personality": "Personalidad"}]
+;
+
 const kProfileCharacteristics_LookingFor_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Relacion seria": "Relacion seria"},
-  {"Lo que surja": "Lo que surja"},
-  {"Algo casual": "Algo casual"},
-  {"No lo se": "No lo se"}
+  {0: "Sin respuesta"},
+  {1: "Relacion seria"},
+  {2: "Lo que surja"},
+  {3: "Algo casual"},
+  {4: "No lo se"}
 ];
 
 const kProfileCharacteristics_BodyType_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Normal": "Normal"},
-  {"Atletica": "Atletica"},
-  {"Talla Grande": "Talla Grande"},
-  {"Delgado": "Delgado"}
+  {0: "Sin respuesta"},
+  {1: "Normal"},
+  {2: "Atletica"},
+  {3: "Talla Grande"},
+  {4: "Delgado"}
 ];
 
 const kProfileCharacteristics_Children_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Algun dia": "Algun día"},
-  {"Nunca": "Nunca"},
-  {"Tengo hijos": "Tengo hijos"},
+  {0: "Sin respuesta"},
+  {1: "Algun dia"},
+  {2: "Nunca"},
+  {3: "Tengo hijos"},
 ];
 const kProfileCharacteristics_Pets_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Perro": "Perro"},
-  {"Gato": "Gato"},
-  {"Me gustaría": "Me gustaría"}
+  {0: "Sin respuesta"},
+  {1: "Perro"},
+  {2: "Gato"},
+  {3: "Me gustaría"}
 ];
 
 const kProfileCharacteristics_Politics_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Derechas": "Derechas"},
-  {"Izquierda": "Izquierda"},
-  {"Centro": "Centro"},
-  {"Apolitico": "Apolitico"}
+  {0: "Sin respuesta"},
+  {1: "Derechas"},
+  {2: "Izquierda"},
+  {3: "Centro"},
+  {4: "Apolitico"}
 ];
 const kProfileCharacteristics_LivesWith_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Solo": "Solo"},
-  {"Familia": "Familia"},
-  {"Amigos": "Amigos"}
+  {0: "Sin respuesta"},
+  {1: "Solo"},
+  {2: "Familia"},
+  {3: "Amigos"}
 ];
 
 const kProfileCharacteristics_Alcohol_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"En sociedad": "En sociedad"},
-  {"No bebo": "No bebo"},
-  {"No me importa": "No me importa"},
-  {"Odio el alcohol": "Odio el alcohol"}
+  {0: "Sin respuesta"},
+  {1: "En sociedad"},
+  {2: "No bebo"},
+  {3: "No me importa"},
+  {4: "Odio el alcohol"}
 ];
 
 const kProfileCharacteristics_Smoking_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Fumo": "Fumo"},
-  {"No Fumo": "No Fumo"},
-  {"A veces": "A veces"},
-  {"Odio el tabaco": "Odio el tabaco"}
+  {0: "Sin respuesta"},
+  {1: "Fumo"},
+  {2: "No Fumo"},
+  {3: "A veces"},
+  {4: "Odio el tabaco"}
 ];
 
 const kProfileCharacteristics_SexualOrientation_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Heterosexual": "HeteroSexual"},
-  {"Gay": "Gay"},
-  {"Lesbiana": "Lesbiana"},
-  {"Bisexual": "Bisexual"},
-  {"Asexual": "Asexual"},
-  {"Demisexual": "Demisexual"},
-  {"Pansexual": "Pansexual"},
-  {"Queer": "Queer"},
+  {0: "Sin respuesta"},
+  {1: "Heterosexual"},
+  {2: "Gay"},
+  {3: "Lesbiana"},
+  {4: "Bisexual"},
+  {5: "Asexual"},
+  {6: "Demisexual"},
+  {7: "Pansexual"},
+  {8: "Queer"},
 ];
 const kProfileCharacteristics_zodiacSign_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Aries": "Aries"},
-  {"Tauro": "Tauro"},
-  {"Geminis": "Geminis"},
-  {"Cáncer": "Cáncer"},
-  {"Leo": "Leo"},
-  {"Virgo": "Virgo"},
-  {"Libra": "Libra"},
-  {"Escorpio": "Escorpio"},
-  {"Sagitario": "Sagitario"},
-  {"Capricornio": "Capricornio"},
-  {"Acuario": "Acuario"},
-  {"Piscis": "Piscis"},
+  {0: "Sin respuesta"},
+  {1: "Aries"},
+  {2: "Tauro"},
+  {3: "Geminis"},
+  {4: "Cáncer"},
+  {5: "Leo"},
+  {6: "Virgo"},
+  {7: "Libra"},
+  {8: "Escorpio"},
+  {9: "Sagitario"},
+  {10: "Capricornio"},
+  {11: "Acuario"},
+  {12: "Piscis"},
 ];
 const kProfileCharacteristics_Personality_ES = [
-  {kNotAvailable: "Sin respuesta"},
-  {"Introvertido": "Introvertido"},
-  {"Extrovertido": "Extrovertido"},
-  {"Una mezcla de ambos": "Una mezcla de ambos"},
+  {0: "Sin respuesta"},
+  {1: "Introvertido"},
+  {2: "Extrovertido"},
+  {3: "Una mezcla de ambos"},
 ];
 
 const kProfileCharacteristics_ES = [

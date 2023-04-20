@@ -22,11 +22,10 @@ Future<void> start(final req, final res) async {
         .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
         .setProject('636bd00b90e7666f0f6f') // Your project ID
         .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824');
+    print("reactionData.data");
 
     var data = jsonDecode(req.payload);
-    
 
     String reactionId = data["reactionId"];
     String userId = data["userId"];
@@ -58,6 +57,10 @@ Future<void> start(final req, final res) async {
             "reactionValue": reactionData.data["reactionValue"],
             "reactionRevealed": true,
           });
+      res.json({
+        'status': 200,
+        "message": "correct",
+      });
     } else {
       if (userCoins >= 200) {
         int remainingCoins = userCoins - 200;
@@ -95,19 +98,25 @@ Future<void> start(final req, final res) async {
               "reactionValue": reactionData.data["reactionValue"],
               "reactionRevealed": true,
             });
+        res.json({
+          'status': 200,
+          "message": "correct",
+        });
       } else {
-        throw Exception(["LOW_CREDITS"]);
+        res.json({
+          'status': 200,
+          "message": "CREDITS_LOW",
+        });
       }
     }
-
-    res.json({
-      'status': "correct",
-    });
   } catch (e, s) {
     if (e is AppwriteException) {
-      res.json({'status': "error", "mesage": e.message, "stackTrace": s});
+      print("error: ${e.message} stackTrace: $s");
+
+      res.json({"status": 500, "message": "INTERNAL_ERROR"});
     } else {
-      res.json({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      print("erro: ${e.toString()} stackTrace: $s");
+      res.json({"status": 500, "message": "INTERNAL_ERROR"});
     }
   }
 }

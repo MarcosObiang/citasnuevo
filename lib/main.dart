@@ -1,43 +1,38 @@
 import 'package:camera/camera.dart';
-import 'package:citasnuevo/core/params_types/params_and_types.dart';
-
-import 'package:citasnuevo/presentation/authScreenPresentation/Screens/authScreen.dart';
-import 'package:citasnuevo/presentation/authScreenPresentation/auth.dart';
-import 'package:citasnuevo/presentation/chatPresentation/Widgets/chatTilesScreen.dart';
-import 'package:citasnuevo/presentation/homeReportScreenPresentation/ReportScreen.dart';
-import 'package:citasnuevo/presentation/homeScreenPresentation/Screens/HomeScreen.dart';
-import 'package:citasnuevo/presentation/reactionPresentation/Screens/ReactionScreen.dart';
-import 'package:citasnuevo/presentation/rewardScreenPresentation/rewardScreen.dart';
-import 'package:citasnuevo/presentation/sanctionsPresentation/sanctionsScreen.dart';
-import 'package:citasnuevo/presentation/userCreatorPresentation/userCreatorScreen.dart';
-import 'package:citasnuevo/presentation/userSettingsPresentation/userSettingsScreen.dart';
-import 'package:citasnuevo/presentation/verificationPresentation/verificationScreen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl_standalone.dart';
 import 'package:provider/provider.dart';
 
+import 'App/Auth/authScreenPresentation/Screens/authScreen.dart';
+import 'App/Chat/chatPresentation/Widgets/chatTilesScreen.dart';
+import 'App/PrincipalScreen.dart';
+import 'App/ProfileViewer/homeScreenPresentation/Screens/HomeScreen.dart';
+import 'App/Reactions/reactionPresentation/Screens/ReactionScreen.dart';
+import 'App/ReportUsers/ReportScreen.dart';
+import 'App/Rewards/rewardScreenPresentation/rewardScreen.dart';
+import 'App/Sanctions/sanctionsPresentation/sanctionsScreen.dart';
+import 'App/UserCreator/userCreatorPresentation/Widgets/userCreatorScreen.dart';
+import 'App/UserSettings/userSettingsPresentation/userSettingsScreen.dart';
+import 'App/Verification/verificationPresentation/verificationScreen.dart';
+import 'core/dependencies/dependencyCreator.dart';
+
 GlobalKey startKey = new GlobalKey();
 GlobalKey sanctionKey = new GlobalKey();
-GlobalKey verificationScreenKey= new GlobalKey();
-List<CameraDescription> cameras=[];
+GlobalKey verificationScreenKey = new GlobalKey();
+List<CameraDescription> cameras = [];
 
 final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  cameras= await availableCameras();
+  cameras = await availableCameras();
 
   Intl.defaultLocale = await findSystemLocale();
-  await initializeDateFormatting(Intl.defaultLocale);
+  await initializeDateFormatting(Intl.defaultLocale as String);
   await Firebase.initializeApp(
       options: FirebaseOptions(
           apiKey: "AIzaSyBm3rwlrV7qshSIgASobNLoeb5RgdwwSMI",
@@ -61,16 +56,16 @@ void main() async {
         Provider(create: (_) => Dependencies.reactionPresentation),
         Provider(create: (_) => Dependencies.appSettingsPresentation),
         Provider(create: (_) => Dependencies.userSettingsPresentation),
-        Provider(create: (_) => Dependencies.userCreatorPresentation)
+        Provider(create: (_) => Dependencies.principalScreenPresentation),
+        Provider(create: (_) => Dependencies.purchaseSystemPresentation),
       ],
       child: MaterialApp(
         navigatorObservers: [routeObserver],
         initialRoute: Start.routeName,
-
-        /// Only for "Screen" ended Widget, because these are the principal screens we will be Navigating
-        ///
-        /// The widgets ended in "Screen" are the first route of every module,
-        /// they are accesed from other module "screen" ending widget
+        theme: ThemeData(
+          useMaterial3: true,
+          primaryColor: Colors.white38,
+        ),
         routes: {
           Start.routeName: (context) => Start(),
           HomeAppScreen.routeName: (context) => HomeAppScreen(),
@@ -83,6 +78,7 @@ void main() async {
           ReportScreen.routeName: (context) => ReportScreen(),
           RewardScreen.routeName: (context) => RewardScreen(),
           VerificationScreen.routeName: (context) => VerificationScreen(),
+          PrincipalScreen.routeName: (context) => PrincipalScreen(),
         },
         debugShowCheckedModeBanner: false,
       )));
@@ -122,5 +118,3 @@ class _StartState extends State<Start> {
         });
   }
 }
-
-

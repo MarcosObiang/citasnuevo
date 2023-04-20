@@ -220,6 +220,295 @@
             "events": [],
             "schedule": "",
             "timeout": 15
+        },
+        {
+            "$id": "confirmMessagesHadBeenRead",
+            "name": "confirmMessagesHadBeenRead",
+            "runtime": "dart-2.17",
+            "path": "functions/confirmMessagesHadBeenRead",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "confirmMessages",
+            "name": "confirmMessages",
+            "runtime": "cpp-17.0",
+            "path": "functions/confirmMessages",
+            "entrypoint": "src/index.cc",
+            "ignore": [
+                "build",
+                "CMakeFiles",
+                "CMakeCaches.txt"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "findAvailableInstantChats",
+            "name": "findAvailableInstantChats",
+            "runtime": "dart-2.17",
+            "path": "functions/findAvailableInstantChats",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "createInstantChatInstance",
+            "name": "createInstantChatInstance",
+            "runtime": "dart-2.17",
+            "path": "functions/createInstantChatInstance",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "subscriptionManager",
+            "name": "subscriptionManager",
+            "runtime": "dart-2.17",
+            "path": "functions/subscriptionManager",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "notificationTokenManager",
+            "name": "notificationTokenManager",
+            "runtime": "dart-2.17",
+            "path": "functions/notificationTokenManager",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "googleNotificationAuthTokenrefresher",
+            "name": "googleNotificationAuthTokenrefresher",
+            "runtime": "java-18.0",
+            "path": "functions/googleNotificationAuthTokenrefresher",
+            "entrypoint": "src/Index.java",
+            "ignore": [
+                "build"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "refreshNotificationToken",
+            "name": "refreshNotificationToken",
+            "runtime": "python-3.10",
+            "path": "functions/refreshNotificationToken",
+            "entrypoint": "src/index.py",
+            "ignore": [
+                "__pypackages__"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "deleteUser",
+            "name": "deleteUser",
+            "runtime": "dart-2.17",
+            "path": "functions/deleteUser",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 120
+        },
+        {
+            "$id": "reportUser",
+            "name": "reportUser",
+            "runtime": "dart-2.17",
+            "path": "functions/reportUser",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "rewardTicketCreator",
+            "name": "rewardTicketCreator",
+            "runtime": "dart-2.17",
+            "path": "functions/rewardTicketCreator",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "usePromotionalCode",
+            "name": "usePromotionalCode",
+            "runtime": "dart-2.17",
+            "path": "functions/usePromotionalCode",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "rewardTicketSuccesfulShares",
+            "name": "rewardTicketSuccesfulShares",
+            "runtime": "dart-2.17",
+            "path": "functions/rewardTicketSuccesfulShares",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "unlockProfile",
+            "name": "unlockProfile",
+            "runtime": "dart-2.17",
+            "path": "functions/unlockProfile",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "createNewVerificationInstance",
+            "name": "createNewVerificationInstance",
+            "runtime": "dart-2.17",
+            "path": "functions/createNewVerificationInstance",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "initVerificationProcess",
+            "name": "initVerificationProcess",
+            "runtime": "dart-2.17",
+            "path": "functions/initVerificationProcess",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "pruebapuerto",
+            "name": "pruebapuerto",
+            "runtime": "dart-2.17",
+            "path": "functions/pruebapuerto",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "setAdConsentStatus",
+            "name": "setAdConsentStatus",
+            "runtime": "dart-2.17",
+            "path": "functions/setAdConsentStatus",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
         }
     ]
 }

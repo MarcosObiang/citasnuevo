@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:citasnuevo/core/error/Exceptions.dart';
-import 'package:citasnuevo/core/globalData.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+
+import '../globalData.dart';
 
 class PurchasesServices {
   static PurchasesServices purchasesServices = new PurchasesServices();
@@ -20,7 +20,7 @@ class PurchasesServices {
         await getProducts();
       }
     } catch (e) {
-      throw e;
+     throw e;
     }
   }
 
