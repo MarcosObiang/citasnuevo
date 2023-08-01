@@ -373,31 +373,46 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                 ),
-                child: FutureBuilder(
-                    future: remitentImageData,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Uint8List> snapshot) {
-                      return Container(
-                          child: snapshot.hasData
-                              ? Image.memory(
-                                  snapshot.data!,
-                                )
-                              : Center(
-                                  child: Container(
-                                      height: 200.h,
-                                      width: 200.h,
-                                      child: LoadingIndicator(
-                                          indicatorType: Indicator.orbit)),
-                                ));
-                    }),
+                child: chatPresentation.chatController.chatList[chatLitIndex]
+                            .isBlindDate ==
+                        false
+                    ? FutureBuilder(
+                        future: remitentImageData,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<Uint8List> snapshot) {
+                          return Container(
+                              child: snapshot.hasData
+                                  ? Image.memory(
+                                      snapshot.data!,
+                                    )
+                                  : Center(
+                                      child: Container(
+                                          height: 200.h,
+                                          width: 200.h,
+                                          child: LoadingIndicator(
+                                              indicatorType: Indicator.orbit)),
+                                    ));
+                        })
+                    : Icon(LineAwesomeIcons.mask),
               ),
             ),
             Container(
                 width: 400.w,
-                child: Text(
-                  chatPresentation
-                      .chatController.chatList[chatLitIndex].remitentName,
-                )),
+                child: chatPresentation.chatController.chatList[chatLitIndex]
+                            .isBlindDate ==
+                        false
+                    ? Text(
+                        chatPresentation
+                            .chatController.chatList[chatLitIndex].remitentName,
+                      )
+                    : Row(
+                        children: [
+                          Text(
+                            "Secreto",
+                          ),
+                          Icon(LineAwesomeIcons.lock)
+                        ],
+                      )),
           ],
         ),
         centerTitle: true,

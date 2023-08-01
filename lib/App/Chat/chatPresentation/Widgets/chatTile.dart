@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../../../Utils/getImageFile.dart';
 import '../../../../Utils/routes.dart';
@@ -12,7 +13,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:octo_image/octo_image.dart';
-
 
 class ChatCard extends StatefulWidget {
   Chat chatData;
@@ -31,8 +31,8 @@ class _ChatCardState extends State<ChatCard> {
   late Future<Uint8List> remitentImageData;
   @override
   void initState() {
-    remitentImageData = ImageFile.getFile(
-        fileId: widget.chatData.remitentPicture);
+    remitentImageData =
+        ImageFile.getFile(fileId: widget.chatData.remitentPicture);
     super.initState();
   }
 
@@ -138,7 +138,9 @@ class _ChatCardState extends State<ChatCard> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(widget.chatData.remitentName),
+              widget.chatData.isBlindDate == false
+                  ? Text(widget.chatData.remitentName)
+                  : Text("Secreto"),
               if (widget.chatData.messagesList.first.messageType ==
                   MessageType.TEXT) ...[
                 Container(
@@ -170,22 +172,28 @@ class _ChatCardState extends State<ChatCard> {
     return Flexible(
       flex: 3,
       fit: FlexFit.tight,
-      child: FutureBuilder(
-          future: remitentImageData,
-          builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-            return Container(
-                child: snapshot.hasData
-                    ? Image.memory(
-                        snapshot.data!,
-                      )
-                    : Center(
-                        child: Container(
-                            height: 200.h,
-                            width: 200.h,
-                            child: LoadingIndicator(
-                                indicatorType: Indicator.orbit)),
-                      ));
-          }),
+      child: widget.chatData.isBlindDate == false
+          ? FutureBuilder(
+              future: remitentImageData,
+              builder:
+                  (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                return Container(
+                    child: snapshot.hasData
+                        ? Image.memory(
+                            snapshot.data!,
+                          )
+                        : Center(
+                            child: Container(
+                                height: 200.h,
+                                width: 200.h,
+                                child: LoadingIndicator(
+                                    indicatorType: Indicator.orbit)),
+                          ));
+              })
+          : Icon(
+              LineAwesomeIcons.mask,
+              size: 100.sp,
+            ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:octo_image/octo_image.dart';
 
@@ -53,21 +54,29 @@ class _EmptyChatWidgetState extends State<EmptyChatWidget> {
           padding: const EdgeInsets.all(8.0),
           child: Stack(
             children: [
-              FutureBuilder(
-                  future: remitentImageData,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<Uint8List> snapshot) {
-                    return snapshot.hasData
-                        ? CircleAvatar(
-                          radius: 100.h,
-                            foregroundImage: MemoryImage(snapshot.data!),
-                          )
-                        : Container(
-                            height: 200.h,
-                            width: 200.h,
-                            child: LoadingIndicator(
-                                indicatorType: Indicator.orbit));
-                  }),
+              widget.chat.isBlindDate == false
+                  ? FutureBuilder(
+                      future: remitentImageData,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Uint8List> snapshot) {
+                        return snapshot.hasData
+                            ? CircleAvatar(
+                                radius: 100.h,
+                                foregroundImage: MemoryImage(snapshot.data!),
+                              )
+                            : Container(
+                                height: 200.h,
+                                width: 200.h,
+                                child: LoadingIndicator(
+                                    indicatorType: Indicator.orbit));
+                      })
+                  : CircleAvatar(
+                      radius: 100.h,
+                      child: Icon(
+                        LineAwesomeIcons.mask,
+                        size: 100.sp,
+                      ),
+                    ),
               widget.chat.userBlocked
                   ? Container(
                       width: 400.w,

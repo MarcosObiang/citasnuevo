@@ -105,7 +105,7 @@ Future<void> start(final req, final res) async {
                 "user1NotificationToken": user1Data.data["notificationToken"],
                 "user2NotificationToken":
                     documentList.documents.first.data["notificationToken"],
-                "isBlindDate": false
+                "isBlindDate": true
               },
               permissions: [
                 Permission.read(Role.user(userId)),
@@ -136,7 +136,7 @@ Future<void> start(final req, final res) async {
                 "user1NotificationToken": user1Data.data["notificationToken"],
                 "user2NotificationToken":
                     documentList.documents.first.data["notificationToken"],
-                "isBlindDate": false
+                "isBlindDate": true
               },
               permissions: [
                 Permission.read(Role.user(userId)),
