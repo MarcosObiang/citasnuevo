@@ -1,3 +1,5 @@
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+
 import 'chatTile.dart';
 import 'emptyChatWidget.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +105,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
             child: SafeArea(
                 child: Column(
           children: [
+            
             if (chatPresentation.chatListState == ChatListState.ready) ...[
               Flexible(
                 flex: 1,
@@ -247,7 +250,15 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                   ),
                 )),
               )
-            ]
+            ],
+               Flexible(
+                flex: 3,
+                fit: FlexFit.loose,
+                child: Container(
+                    child: ElevatedButton.icon(onPressed: (){
+                      chatPresentation.createBlindDate();
+                    }, icon: Icon(LineAwesomeIcons.mask), label: Text("Iniciar cita a ciegas"))),
+              ),
           ],
         )));
       }),

@@ -7,13 +7,11 @@ import '../DataManager.dart';
 import '../controllerDef.dart';
 import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/error/Exceptions.dart';
-import '../../core/services/firebase_auth.dart';
+import '../../core/services/AuthService.dart';
 import '../../core/globalData.dart';
 import '../../core/platform/networkInfo.dart';
 import '../MainDatasource/principalDataSource.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-
 
 abstract class ApplicationSettingsDataSource
     implements

@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'PrincipalScreenFataNotifier.dart';
+import 'PrincipalScreenDataNotifier.dart';
 import 'Rewards/rewardScreenPresentation/rewardScreenPresentation.dart';
 
 

@@ -112,6 +112,8 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                       ),
                       newMesagesCount: principalScreenPresentation.newMessages,
                       newChatsCount: principalScreenPresentation.newChats),
+                   
+
                   rewardsButton(
                       promotionalCodePendingOfUse: principalScreenPresentation
                           .promotionalCodePendingOfUse,
@@ -133,9 +135,12 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                 ]),
             body: Padding(
               padding: EdgeInsets.all(20.w),
-              child: IndexedStack(
-                children: screens,
-                index: _page,
+              child: Container(
+                height:ScreenUtil.defaultSize.height,
+                child: IndexedStack(
+                  children: screens,
+                  index: _page,
+                ),
               ),
             ),
           );
@@ -175,6 +180,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
         ),
         label: "");
   }
+
 
   BottomNavigationBarItem rewardsButton(
       {required Icon icon,

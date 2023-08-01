@@ -28,8 +28,7 @@ class _EmptyChatWidgetState extends State<EmptyChatWidget> {
   late Future<Uint8List> remitentImageData;
   @override
   void initState() {
-    remitentImageData =
-        ImageFile.getImageData(imageId: widget.chat.remitentPicture);
+    remitentImageData = ImageFile.getFile(fileId: widget.chat.remitentPicture);
     super.initState();
   }
 
@@ -58,18 +57,16 @@ class _EmptyChatWidgetState extends State<EmptyChatWidget> {
                   future: remitentImageData,
                   builder: (BuildContext context,
                       AsyncSnapshot<Uint8List> snapshot) {
-                    return Container(
-                        child: snapshot.hasData
-                            ? Image.memory(
-                                snapshot.data!,
-                              )
-                            : Center(
-                                child: Container(
-                                    height: 200.h,
-                                    width: 200.h,
-                                    child: LoadingIndicator(
-                                        indicatorType: Indicator.orbit)),
-                              ));
+                    return snapshot.hasData
+                        ? CircleAvatar(
+                          radius: 100.h,
+                            foregroundImage: MemoryImage(snapshot.data!),
+                          )
+                        : Container(
+                            height: 200.h,
+                            width: 200.h,
+                            child: LoadingIndicator(
+                                indicatorType: Indicator.orbit));
                   }),
               widget.chat.userBlocked
                   ? Container(

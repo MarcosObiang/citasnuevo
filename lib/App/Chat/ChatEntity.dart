@@ -29,6 +29,7 @@ class Chat {
   bool isBeingDeleted=false;
   bool removePending=false;
   bool userBlocked;
+  bool isBlindDate;
   String chatId;
   String remitentId;
   String messagesId;
@@ -49,6 +50,7 @@ class Chat {
 
   Chat({
     required this.userBlocked,
+    required this.isBlindDate,
     required this.unreadMessages,
     required this.matchCreated,
     required this.chatId,

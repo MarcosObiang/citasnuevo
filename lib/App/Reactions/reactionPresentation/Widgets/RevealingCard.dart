@@ -64,8 +64,8 @@ class _ReactionCardState extends State<ReactionCard>
       _revealingRotationValue = pi;
       revealingAnimationState = RevealingAnimationState.turned;
       if (widget.reaction.imageUrl["imageId"] != "empty") {
-        remitentImageData = ImageFile.getImageData(
-            imageId: widget.reaction.imageUrl["imageId"]);
+        remitentImageData = ImageFile.getFile(
+            fileId: widget.reaction.imageUrl["imageId"]);
       }
       showCard = true;
     } else {
@@ -88,8 +88,8 @@ class _ReactionCardState extends State<ReactionCard>
         revealingAnimationState == RevealingAnimationState.turned) {
       _revealingRotationValue = pi;
        if (widget.reaction.imageUrl["imageId"] != "empty") {
-       remitentImageData = ImageFile.getImageData(
-            imageId: widget.reaction.imageUrl["imageId"]);
+       remitentImageData = ImageFile.getFile(
+            fileId: widget.reaction.imageUrl["imageId"]);
       }
       showCard = true;
     }
@@ -117,8 +117,8 @@ class _ReactionCardState extends State<ReactionCard>
               if (_revealingAnimation.isCompleted ||
                   _revealingAnimation.isDismissed) {
                       if (widget.reaction.imageUrl["imageId"] != "empty") {
-       remitentImageData = ImageFile.getImageData(
-            imageId: widget.reaction.imageUrl["imageId"]);
+       remitentImageData = ImageFile.getFile(
+            fileId: widget.reaction.imageUrl["imageId"]);
       }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   _revealingAnimation.reset();

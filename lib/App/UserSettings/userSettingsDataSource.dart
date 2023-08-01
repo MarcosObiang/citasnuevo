@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../core/globalData.dart';
@@ -18,7 +17,6 @@ import '../../core/error/Exceptions.dart';
 import '../../core/params_types/params_and_types.dart';
 import '../../core/platform/networkInfo.dart';
 import 'UserSettingsEntity.dart';
-
 
 abstract class UserSettingsDataSource
     implements DataSource, ModuleCleanerDataSource {
@@ -78,7 +76,8 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
       bool firstInitialized = true;
 
       _addData(data: source.getData);
-      sourceStreamSubscription = source.dataStream?.stream.listen((event) async {
+      sourceStreamSubscription =
+          source.dataStream?.stream.listen((event) async {
         try {
           _addData(data: event);
 

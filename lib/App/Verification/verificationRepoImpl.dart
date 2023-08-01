@@ -20,7 +20,7 @@ class VerificationRepoImpl implements VerificationRepository {
       streamParserSubscription?.cancel();
       streamParserController = null;
       streamParserSubscription = null;
-      streamParserController = new StreamController();
+      streamParserController =  StreamController();
       verificationDataSource.clearModuleData();
       return Right(true);
     } catch (e) {

@@ -149,9 +149,18 @@ class _ReactionScreenState extends State<ReactionScreen> {
                                                   ],
                                                 ),
                                               )
-                                            : Container(
-                                                child: Center(
-                                                    child: Text("Lista vacia")),
+                                            : GestureDetector(
+                                                onTap: () {
+                                                  reactionPresentation
+                                                      .revealReaction(
+                                                          reactionId:
+                                                              "reactionId");
+                                                },
+                                                child: Container(
+                                                  child: Center(
+                                                      child:
+                                                          Text("Lista vacia")),
+                                                ),
                                               )),
                           ],
                         );

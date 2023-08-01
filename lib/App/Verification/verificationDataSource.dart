@@ -4,8 +4,6 @@ import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../core/dependencies/dependencyCreator.dart';
 import '../DataManager.dart';
@@ -69,8 +67,7 @@ class VerificationDataSourceImpl implements VerificationDataSource {
             fileId: "${GlobalDataContainer.userId}_verification",
             file: InputFile.fromBytes(
                 bytes: pictureBytes,
-                filename:
-                    "${GlobalDataContainer.userId}_verification.jpg"));
+                filename: "${GlobalDataContainer.userId}_verification.jpg"));
 
         String downloadUrl = result.$id;
         Execution execution = await functions.createExecution(

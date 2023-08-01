@@ -8,13 +8,10 @@ import '../ApplicationSettingsEntity.dart';
 import '../appSettingsController.dart';
 
 import '../../../main.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
-
 
 enum AppSettingsScreenState { loading, loaded, error }
 
@@ -23,8 +20,9 @@ enum AppSettingsScreenUpdateState { loading, loaded, error, done }
 class AppSettingsPresentation extends ChangeNotifier
     implements ShouldUpdateData, Presentation, ModuleCleanerPresentation {
   AppSettingsController appSettingsController;
-  late AppSettingsScreenState appSettingsScreenState;
-  late AppSettingsScreenUpdateState appSettingsScreenUpdateState =
+  AppSettingsScreenState appSettingsScreenState =
+      AppSettingsScreenState.loading;
+  AppSettingsScreenUpdateState appSettingsScreenUpdateState =
       AppSettingsScreenUpdateState.done;
   late ApplicationSettingsEntity applicationSettingsEntity;
   AppSettingsPresentation({required this.appSettingsController});
@@ -46,6 +44,7 @@ class AppSettingsPresentation extends ChangeNotifier
   void clearModuleData() {
     try {
       setAppSettingsScreenState = AppSettingsScreenState.loading;
+      appSettingsScreenUpdateState = AppSettingsScreenUpdateState.done;
       updateSubscription?.cancel();
       updateSubscription = null;
 
@@ -147,7 +146,8 @@ class AppSettingsPresentation extends ChangeNotifier
               text: "Aceptar")
         ],
         dialogTitle: "Borrar Usuario",
-        dialogText: "¿Estas seguro de que quieres eliminar tu cuenta?.\nTodos tus datos seran borrados permanentemente");
+        dialogText:
+            "¿Estas seguro de que quieres eliminar tu cuenta?.\nTodos tus datos seran borrados permanentemente");
   }
 
   void updateSettings(ApplicationSettingsEntity applicationSettingsEntity,

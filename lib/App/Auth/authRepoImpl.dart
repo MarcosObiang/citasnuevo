@@ -14,11 +14,11 @@ class AuthRepositoryImpl implements AuthRepository {
     required this.authDataSource,
   });
   @override
-  Future<Either<Failure,  Map<String,dynamic>>> logIn(
+  Future<Either<Failure, Map<String, dynamic>>> logIn(
       {required SignInProviders signInProviders}) async {
     try {
-     Map<String,dynamic> authData =
-          await authDataSource.logIn(signInProviders: SignInProviders.GOOGLE);
+      Map<String, dynamic> authData =
+          await authDataSource.logIn(signInProviders: signInProviders);
 
       return Right(authData);
     } catch (e) {
@@ -34,9 +34,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String,dynamic>>> checkSignedInUser() async {
+  Future<Either<Failure, Map<String, dynamic>>> checkSignedInUser() async {
     try {
-      Map<String,dynamic> authResponseEntity =
+      Map<String, dynamic> authResponseEntity =
           await authDataSource.checkIfUserIsAlreadySignedIn();
       return Right(authResponseEntity);
     } catch (e) {

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import '../DataManager.dart';
 import '../../core/streamParser/streamPareser.dart';
-import '../MainDatasource/principalDataSource.dart';
 
 import 'package:dartz/dartz.dart';
 

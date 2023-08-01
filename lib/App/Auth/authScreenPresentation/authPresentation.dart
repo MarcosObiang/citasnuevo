@@ -1,3 +1,5 @@
+import 'package:citasnuevo/App/controllerDef.dart';
+
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
 import '../../UserCreator/userCreatorPresentation/Widgets/userCreatorScreen.dart';
@@ -109,13 +111,20 @@ class AuthScreenPresentation extends ChangeNotifier
   ///This method will be called when the usr presses the "Sign In With Google" button
   ///
   ///
-  void signInWithGoogle() async {
+  void signIn({required SignInProviders signInProviders}) async {
     authState = AuthState.signingIn;
-    var data = await authScreenController.signInWithGoogleAccount();
+    var data =
+        await authScreenController.signIn(signInProviders: signInProviders);
     data.fold((failure) {
       if (failure is NetworkFailure) {
         PresentationDialogs.instance
             .showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+        PresentationDialogs.instance.showErrorDialog(
+            title: "Error",
+            content:
+                "Ha ocurrido un error al intentar iniciar sesion, intentelo de nuevo o contacte con soporte",
+            context: startKey.currentContext);
       }
 
       authState = AuthState.error;

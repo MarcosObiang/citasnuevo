@@ -42,10 +42,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   @override
   AdvertisingServices advertisingServices;
   StreamSubscription<RealtimeMessage>? reactionSubscriptionListener;
-  @override
-  StreamController<Map<String, dynamic>>
-      get interstitialAdvertismentStatusListener =>
-          advertisingServices.interstitialAdvertismentStateStream;
+
 
   @override
   StreamController<Map<String, dynamic>>
@@ -68,7 +65,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   Future<bool> showRewardedAd() async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
-        return advertisingServices.showRewarded();
+        return advertisingServices.showAd();
       } catch (e) {
         throw ReactionException(message: "FAILED");
       }
@@ -77,18 +74,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     }
   }
 
-  @override
-  Future<bool> showInterstitialAd() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
-      try {
-        return advertisingServices.showInterstitial();
-      } catch (e) {
-        throw ReactionException(message: "FAILED");
-      }
-    } else {
-      throw NetworkException(message: kNetworkErrorMessage);
-    }
-  }
+
 
   Map<String, dynamic> getAdditionalData() {
     return {"coins": coins, "averageReactions": reactionsAverage};

@@ -2,21 +2,28 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import 'package:citasnuevo/App/controllerDef.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../core/common/commonUtils/idGenerator.dart';
+import '../../core/location_services/locatio_service.dart';
 import '../MainDatasource/principalDataSource.dart';
 import 'MessageEntity.dart';
 import '../DataManager.dart';
 
-abstract class ChatDataSource implements DataSource, ModuleCleanerDataSource {
+abstract class ChatDataSource
+    implements DataSource, ModuleCleanerDataSource, ImmageMediaPickerCapacity {
   StreamSubscription<RealtimeMessage>? chatListenerSubscription;
   late List<Message> messagesWithOutChat;
 
@@ -40,6 +47,8 @@ abstract class ChatDataSource implements DataSource, ModuleCleanerDataSource {
   Future<dynamic> loadMoreMessages(
       {required String chatId, required String lastMessageId});
   Future<Map<String, dynamic>> getUserProfile({required String profileId});
+  Future<bool> createBlindDate();
+
 //void sendMessages()
 }
 
@@ -58,9 +67,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   StreamController? chatStream = new StreamController.broadcast();
-  @override
   StreamSubscription<RealtimeMessage>? chatListenerSubscription;
-  @override
   StreamSubscription<RealtimeMessage>? messageListenerSubscription;
   @override
   StreamController<Map<String, dynamic>> messageStream =
@@ -338,6 +345,27 @@ class ChatDatsSourceImpl implements ChatDataSource {
     }
   }
 
+  Future<String> uploadFile(
+      {required Uint8List fileData, required String remitentId}) async {
+    try {
+      String id = IdGenerator.instancia.createId();
+      Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
+
+      File result = await appwriteStorage.createFile(
+          bucketId: "63712fd65399f32a5414",
+          fileId: "chatFile$id",
+          file: InputFile.fromBytes(bytes: fileData, filename: "chatFile$id"));
+
+      return result.name;
+    } catch (e) {
+      if (e is AppwriteException) {
+        throw Exception(e.message);
+      } else {
+        throw Exception(e.toString());
+      }
+    }
+  }
+
   /// Send messages to the receptor
   ///
   ///
@@ -348,6 +376,13 @@ class ChatDatsSourceImpl implements ChatDataSource {
       required String remitentId}) async {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
+        String userMessage = message["messageContent"];
+
+        if (message["messageType"] == MessageType.AUDIO.name ||
+            message["messageType"] == MessageType.IMAGE.name) {
+          userMessage = await uploadFile(
+              fileData: message["fileData"], remitentId: remitentId);
+        }
         Functions functions = Functions(Dependencies.serverAPi.client!);
 
         Execution execution = await functions.createExecution(
@@ -357,7 +392,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
               "senderId": GlobalDataContainer.userId,
               "recieverNotificationId": messageNotificationToken,
               "recieverId": remitentId,
-              "message": message["messageContent"],
+              "message": userMessage,
               "conversationId": message["conversationId"],
               "messageType": message["messageType"],
             }));
@@ -510,6 +545,64 @@ class ChatDatsSourceImpl implements ChatDataSource {
         }
       } catch (e) {
         throw ChatException(message: e.toString());
+      }
+    } else {
+      throw NetworkException(message: kNetworkErrorMessage);
+    }
+  }
+
+  @override
+  Future<Uint8List?> getImage() async {
+    try {
+      var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        var imageCropped = await ImageCropper()
+            .cropImage(sourcePath: image.path, compressQuality: 70);
+        var finalData = await imageCropped?.readAsBytes();
+        return finalData;
+      } else {
+        throw Exception("IMAGE_NOT_AVAILABLE");
+      }
+    } catch (e) {
+      throw ChatException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<bool> createBlindDate() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        Map<String, dynamic> locationServicesStatus =
+            await LocationService.instance.locationServicesState();
+        if (locationServicesStatus["status"] == "correct") {
+          Functions functions = Functions(Dependencies.serverAPi.client!);
+          Execution execution = await functions.createExecution(
+              functionId: "createBlindDate",
+              data: jsonEncode({
+                "userId": GlobalDataContainer.userId,
+                "distance": 6,
+                "lat": locationServicesStatus["lat"],
+                "lon": locationServicesStatus["lon"],
+              }));
+
+          int status = jsonDecode(execution.response)["status"];
+          String messageResponse = jsonDecode(execution.response)["message"];
+
+          if (status == 200) {
+            return true;
+          } else {
+            throw ChatException(message: messageResponse);
+          }
+        } else {
+          throw LocationServiceException(
+              message: locationServicesStatus["status"]);
+        }
+      } catch (e) {
+        if (e is LocationServiceException) {
+          throw LocationServiceException(message: e.message);
+        } else {
+          throw ChatException(message: e.toString());
+        }
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);

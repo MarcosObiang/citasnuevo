@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 import 'dart:typed_data';
 
@@ -16,8 +14,9 @@ abstract class VerificationController
     implements ModuleCleanerController, ShouldControllerUpdateData {
   late VerificationRepository verificationRepository;
   VerificationTicketEntity? verificationTicketEntity;
-  Future<Either<Failure,bool>> requestNewVerificationProcess();
-   Future<Either<Failure,bool>> submitVerificationPicture({required Uint8List byteData});
+  Future<Either<Failure, bool>> requestNewVerificationProcess();
+  Future<Either<Failure, bool>> submitVerificationPicture(
+      {required Uint8List byteData});
 }
 
 class VerificationControllerImpl implements VerificationController {
@@ -35,14 +34,13 @@ class VerificationControllerImpl implements VerificationController {
     required this.verificationRepository,
   });
 
-
   @override
   Either<Failure, bool> clearModuleData() {
     try {
       updateDataController?.close();
       updateDataController = null;
       verificationTicketEntity = null;
-      userVerificationPicture=null;
+      userVerificationPicture = null;
       updateDataController = StreamController();
 
       return verificationRepository.clearModuleData();
@@ -61,29 +59,25 @@ class VerificationControllerImpl implements VerificationController {
     }
   }
 
-
-
   void _dataListener() {
     verificationRepository.getStreamParserController?.stream.listen((event) {
       if (event != null) {
-        verificationTicketEntity =
-           event;
+        verificationTicketEntity = event;
 
         this.updateDataController?.add(verificationTicketEntity);
-
-        print(verificationTicketEntity.toString());
       }
     });
   }
-  
+
   @override
   Future<Either<Failure, bool>> requestNewVerificationProcess() {
     return verificationRepository.requestVerificationProcess();
   }
-  
+
   @override
-  Future<Either<Failure, bool>> submitVerificationPicture({required Uint8List byteData})async {
-    return await verificationRepository.submitVerificationPicture(byteData: byteData);
-   
+  Future<Either<Failure, bool>> submitVerificationPicture(
+      {required Uint8List byteData}) async {
+    return await verificationRepository.submitVerificationPicture(
+        byteData: byteData);
   }
 }

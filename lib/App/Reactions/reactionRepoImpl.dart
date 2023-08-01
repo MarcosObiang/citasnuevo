@@ -28,9 +28,7 @@ class ReactionRepositoryImpl
   @override
   StreamController? get getStreamParserController =>
       this.streamParserController;
-  @override
-  StreamController<Map<String, dynamic>> get interstitialRewardedListener =>
-      reactionDataSource.interstitialAdvertismentStatusListener;
+
 
   @override
   StreamController<Map<String, dynamic>> get rewardedStatusListener =>
@@ -156,21 +154,7 @@ class ReactionRepositoryImpl
     }
   }
 
-  @override
-  Future<Either<Failure, bool>> showInterstitial() async {
-    try {
-      await reactionDataSource.showInterstitialAd();
-      return Right(true);
-    } catch (e) {
-      if (e is NetworkException) {
-        return Left(NetworkFailure(message: e.toString()));
-      } else if (e is ReactionException) {
-        return Left(ReactionFailure(message: e.toString()));
-      } else {
-        return Left(GenericModuleFailure(message: e.toString()));
-      }
-    }
-  }
+
 
   @override
   Future<Either<Failure, bool>> showRewarded() async {

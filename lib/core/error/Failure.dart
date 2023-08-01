@@ -1,5 +1,4 @@
 
-
 abstract class Failure {
   late String message;
 }
@@ -27,6 +26,7 @@ class NetworkFailure implements Failure {
     required this.message,
   });
 }
+
 class PurchaseSystemFailure implements Failure {
   @override
   String message;
@@ -85,7 +85,7 @@ class RewardFailure implements Failure {
 
 class ReactionFailure implements Failure {
   @override
-   String message;
+  String message;
   ReactionFailure({
     required this.message,
   });
@@ -121,8 +121,6 @@ class UserSettingsFailure implements Failure {
   UserSettingsFailure({
     required this.message,
   });
-
-  
 }
 
 class UserCreatorFailure implements Failure {
@@ -164,7 +162,6 @@ class VerificationFailure implements Failure {
   });
 }
 
-
 class ModuleInitializeFailure implements Failure {
   @override
   String message;
@@ -172,6 +169,7 @@ class ModuleInitializeFailure implements Failure {
     required this.message,
   });
 }
+
 class ModuleClearFailure implements Failure {
   @override
   String message;
@@ -180,3 +178,10 @@ class ModuleClearFailure implements Failure {
   });
 }
 
+class BlindDateChatFailure implements Failure {
+  @override
+  String message;
+  BlindDateChatFailure({
+    required this.message,
+  });
+}

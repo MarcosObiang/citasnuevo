@@ -16,9 +16,9 @@ class AuthScreenController implements ModuleCleanerController {
     return authRepository.checkSignedInUser();
   }
 
-  Future<Either<Failure, Map<String, dynamic>>>
-      signInWithGoogleAccount() async {
-    return authRepository.logIn(signInProviders: SignInProviders.GOOGLE);
+  Future<Either<Failure, Map<String, dynamic>>> signIn(
+      {required SignInProviders signInProviders}) async {
+    return authRepository.logIn(signInProviders: signInProviders);
   }
 
   @override

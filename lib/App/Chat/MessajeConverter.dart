@@ -7,11 +7,26 @@ class MessageConverter {
   static Message fromMap(Map<String, dynamic> messageData) {
     var dateformat = DateFormat.Hm();
     DateTime dateTime =
-        DateTime.fromMillisecondsSinceEpoch(messageData["timestamp"])
-            .toLocal();
+        DateTime.fromMillisecondsSinceEpoch(messageData["timestamp"]).toLocal();
     String dateText = dateformat.format(
         DateTime.fromMillisecondsSinceEpoch(messageData["timestamp"])
             .toLocal());
+    String messageTypeString = messageData["messageType"];
+
+    late MessageType messageType;
+
+    if (messageTypeString == MessageType.TEXT.name) {
+      messageType = MessageType.TEXT;
+    }
+    if (messageTypeString == MessageType.GIPHY.name) {
+      messageType = MessageType.GIPHY;
+    }
+    if (messageTypeString == MessageType.AUDIO.name) {
+      messageType = MessageType.AUDIO;
+    }
+    if (messageTypeString == MessageType.IMAGE.name) {
+      messageType = MessageType.IMAGE;
+    }
 
     return Message(
       messageDateText: dateText,
@@ -22,9 +37,7 @@ class MessageConverter {
       senderId: messageData["senderId"],
       messageId: messageData["messageId"],
       messageDate: dateTime.millisecondsSinceEpoch,
-      messageType: messageData["messageType"] == "texto"
-          ? MessageType.TEXT
-          : MessageType.GIPHY,
+      messageType: messageType,
     );
   }
 
@@ -37,9 +50,8 @@ class MessageConverter {
       "senderId": message.senderId,
       "messageId": message.messageId,
       "timestamp": message.messageDate,
-      "messageType": message.messageType == MessageType.TEXT ? "texto" : "image"
+      "messageType": message.messageType.name,
+      "fileData": message.fileData
     };
   }
-
- 
 }

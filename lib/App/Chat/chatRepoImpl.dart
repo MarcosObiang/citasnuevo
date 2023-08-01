@@ -316,4 +316,39 @@ class ChatRepoImpl implements ChatRepository {
       }
     }
   }
+  
+  @override
+  Future<Either<Failure, Uint8List?>> getImage()async {
+  try {
+     var result= await chatDataSource.getImage();
+      return Right(result);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      }
+      if (e is ChatException) {
+        return Left(ChatFailure(message: e.toString()));
+      } else {
+        return Left(ChatFailure(message: e.toString()));
+      }
+    }
+  }
+  
+  @override
+ Future<Either<Failure, bool>>createBlindDate()async {
+      try {
+      await chatDataSource.createBlindDate();
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      }
+      if (e is ChatException) {
+        return Left(ChatFailure(message: e.toString()));
+      } else {
+        return Left(LocationServiceFailure(message: e.toString()));
+      }
+    }
+    
+  }
 }

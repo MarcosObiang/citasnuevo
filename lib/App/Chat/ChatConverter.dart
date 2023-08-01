@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
@@ -18,15 +19,17 @@ class ChatConverter {
     data.forEach((element) {
       bool firstDateMEssageAdded = false;
       Map<String, dynamic> chatData = element["chat"];
+
       List<Map<String, dynamic>> chatMessages = element["messages"];
       List<Message> messagesList = [];
       String userId = element["userId"];
-
+      bool isBlindDate = chatData["isBlindDate"];
       if (chatData["user1Id"] == userId) {
         thisIsUser1 = true;
       }
 
       Chat chat = new Chat(
+        isBlindDate: isBlindDate,
         unreadMessages: 0,
         matchCreated: true,
         userBlocked:
@@ -34,13 +37,16 @@ class ChatConverter {
         chatId: chatData["conversationId"],
         remitentId: thisIsUser1 ? chatData["user2Id"] : chatData["user1Id"],
         messagesId: chatData["conversationId"],
-        remitentPicture: thisIsUser1
-            ? jsonDecode(chatData["user2Picture"])["imageId"]
-            : jsonDecode(chatData["user1Picture"])["imageId"],
-      
+        remitentPicture: isBlindDate == false
+            ? thisIsUser1
+                ? jsonDecode(chatData["user2Picture"])["imageId"]
+                : jsonDecode(chatData["user1Picture"])["imageId"]
+            : kNotAvailable,
         remitentName:
             thisIsUser1 ? chatData["user2Name"] : chatData["user1Name"],
-        notificationToken:    thisIsUser1 ? chatData["user2NotificationToken"] : chatData["user1NotificationToken"],
+        notificationToken: thisIsUser1
+            ? chatData["user2NotificationToken"]
+            : chatData["user1NotificationToken"],
       );
 
       for (int i = 0; i < chatMessages.length; i++) {
@@ -64,8 +70,7 @@ class ChatConverter {
             if (addMessageDate == true) {
               var dateformat = DateFormat.yMEd();
               String dateText = dateformat.format(tiempo);
-              messagesList
-                  .add(MessageConverter.fromMap(chatMessages[i]));
+              messagesList.add(MessageConverter.fromMap(chatMessages[i]));
               messagesList.add(Message(
                   messageDateText: dateText,
                   read: false,
@@ -78,8 +83,7 @@ class ChatConverter {
                   messageType: MessageType.DATE));
             }
             if (addMessageDate == false) {
-              messagesList
-                  .add(MessageConverter.fromMap(chatMessages[i]));
+              messagesList.add(MessageConverter.fromMap(chatMessages[i]));
             }
           } else {
             messagesList.add(MessageConverter.fromMap(chatMessages[i]));

@@ -31,8 +31,8 @@ class _ChatCardState extends State<ChatCard> {
   late Future<Uint8List> remitentImageData;
   @override
   void initState() {
-    remitentImageData = ImageFile.getImageData(
-        imageId: widget.chatData.remitentPicture);
+    remitentImageData = ImageFile.getFile(
+        fileId: widget.chatData.remitentPicture);
     super.initState();
   }
 

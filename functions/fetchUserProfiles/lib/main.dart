@@ -38,6 +38,7 @@ Future<void> start(final req, final res) async {
         collectionId: "636d59df12dcf7a399d5",
         documentId: userId,
         data: {"positionLon": currentLon, "positionLat": currentLat});
+ 
 
     DocumentList documentList = await database.listDocuments(
         databaseId: "636d59d7a2f595323a79",

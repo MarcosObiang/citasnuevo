@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
@@ -19,8 +20,7 @@ class AdvertisingServices {
   bool adsInitialized = false;
   bool hasUserConsent = false;
   bool consentFormShowed = false;
-  late StreamController<Map<String, dynamic>>
-      interstitialAdvertismentStateStream;
+
   late StreamController<Map<String, dynamic>> rewardedAdvertismentStateStream;
 
   void consentFormShowedToUser() {
@@ -36,11 +36,11 @@ class AdvertisingServices {
   void initializeAdsService() async {
     consentFormShowedToUser();
     userConsentValue();
+
     if (consentFormShowed == true) {
       Appodeal.setUseSafeArea(true);
       Appodeal.muteVideosIfCallsMuted(true);
       Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
-      Appodeal.setAutoCache(Appodeal.MREC, true);
 
       Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
       Appodeal.setChildDirectedTreatment(false);
@@ -73,52 +73,66 @@ class AdvertisingServices {
   }
 
   void closeStream() {
-    interstitialAdvertismentStateStream.close();
     rewardedAdvertismentStateStream.close();
   }
 
-  Future<bool> showInterstitial() async {
+  Future<bool> showAd() async {
+    double rewardedCPM =
+        await Appodeal.getPredictedEcpm(Appodeal.REWARDED_VIDEO);
+    double interstitialCPM =
+        await Appodeal.getPredictedEcpm(Appodeal.INTERSTITIAL);
+
+    if (rewardedCPM >= interstitialCPM) {
+      _showRewarded();
+    } else {
+      _showInterstitial();
+    }
+    return true;
+  }
+
+  Future<bool> _showInterstitial() async {
     Appodeal.setInterstitialCallbacks(onInterstitialLoaded: (isPrecache) {
       print("onInterstitialLoaded");
     }, onInterstitialFailedToLoad: () {
       print("onInterstitialLoaded");
     }, onInterstitialShown: () {
-      if (interstitialAdvertismentStateStream.isClosed == false) {
-        interstitialAdvertismentStateStream.add({"status": "SHOWING"});
+      if (rewardedAdvertismentStateStream.isClosed == false) {
+        rewardedAdvertismentStateStream.add({"status": "SHOWING"});
       }
 
       print("onInterstitialShown");
     }, onInterstitialShowFailed: () {
       print("onInterstitialShowFailed");
-      if (interstitialAdvertismentStateStream.isClosed == false) {
-        interstitialAdvertismentStateStream.add({"status": "FAILED"});
+      if (rewardedAdvertismentStateStream.isClosed == false) {
+        rewardedAdvertismentStateStream.add({"status": "FAILED"});
       }
     }, onInterstitialClicked: () {
       print("onInterstitialClicked");
     }, onInterstitialClosed: () {
       print("onInterstitialClosed");
-      if (interstitialAdvertismentStateStream.isClosed == false) {
-        interstitialAdvertismentStateStream.add({"status": "CLOSED"});
+      if (rewardedAdvertismentStateStream.isClosed == false) {
+        rewardedAdvertismentStateStream.add({"status": "CLOSED"});
       }
     }, onInterstitialExpired: () {
       print("onInterstitialExpired");
-      if (interstitialAdvertismentStateStream.isClosed == false) {
-        interstitialAdvertismentStateStream.add({"status": "EXPIRED"});
+      if (rewardedAdvertismentStateStream.isClosed == false) {
+        rewardedAdvertismentStateStream.add({"status": "EXPIRED"});
       }
     });
-    interstitialAdvertismentStateStream = StreamController();
+    rewardedAdvertismentStateStream = StreamController();
+
     bool sePuedeMostrar = await Appodeal.canShow(Appodeal.INTERSTITIAL);
     if (sePuedeMostrar == true) {
       await Appodeal.show(Appodeal.INTERSTITIAL);
     } else {
-      if (interstitialAdvertismentStateStream.isClosed == false) {
-        interstitialAdvertismentStateStream.add({"status": "NOT_READY"});
+      if (rewardedAdvertismentStateStream.isClosed == false) {
+        rewardedAdvertismentStateStream.add({"status": "NOT_READY"});
       }
     }
     return true;
   }
 
-  Future<bool> showRewarded() async {
+  Future<bool> _showRewarded() async {
     Appodeal.setRewardedVideoCallbacks(onRewardedVideoLoaded: (isPrecache) {
       print("onRewardedVideoLoaded");
     }, onRewardedVideoFailedToLoad: () {
@@ -146,6 +160,7 @@ class AdvertisingServices {
       print("onRewardedVideoClicked");
     });
     rewardedAdvertismentStateStream = StreamController();
+
     bool sePuedeMostrar = await Appodeal.canShow(Appodeal.REWARDED_VIDEO);
     if (sePuedeMostrar) {
       await Appodeal.show(Appodeal.REWARDED_VIDEO);

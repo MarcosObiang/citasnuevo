@@ -27,6 +27,12 @@ class RewardRepoImpl implements RewardRepository {
   StreamController? get getStreamParserController =>
       this.streamParserController;
 
+
+
+  @override
+  StreamController<Map<String, dynamic>> get rewardedStatusListener =>
+      rewardDataSource.rewadedAdvertismentStatusListener;
+
   @override
   Future<Either<Failure, bool>> getDailyReward() async {
     try {
@@ -135,6 +141,29 @@ class RewardRepoImpl implements RewardRepository {
         return Left(NetworkFailure(message: e.toString()));
       } else {
         return Left(RewardFailure(message: e.toString()));
+      }
+    }
+  }
+  
+  @override
+  void closeAdsStreams() {
+rewardDataSource.closeAdsStreams();  }
+  
+
+
+
+  @override
+  Future<Either<Failure, bool>> showRewarded() async {
+    try {
+      await rewardDataSource.showRewardedAd();
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else if (e is ReactionException) {
+        return Left(ReactionFailure(message: e.toString()));
+      } else {
+        return Left(GenericModuleFailure(message: e.toString()));
       }
     }
   }

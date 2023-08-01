@@ -39,23 +39,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
 
-    remitentImageData = ImageFile.getImageData(
-        imageId:
+    remitentImageData = ImageFile.getFile(
+        fileId:
             Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
   }
 
   @override
   void didChangeDependencies() {
-    remitentImageData = ImageFile.getImageData(
-        imageId:
+    remitentImageData = ImageFile.getFile(
+        fileId:
             Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
     super.didChangeDependencies();
   }
 
   @override
   void didUpdateWidget(covariant SettingsScreen oldWidget) {
-    remitentImageData = ImageFile.getImageData(
-        imageId:
+    remitentImageData = ImageFile.getFile(
+        fileId:
             Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
 
     super.didUpdateWidget(oldWidget);
@@ -84,8 +84,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             future: remitentImageData,
                             builder: (BuildContext context,
                                 AsyncSnapshot<Uint8List> snapshot) {
-                              remitentImageData = ImageFile.getImageData(
-                                  imageId: Dependencies
+                              remitentImageData = ImageFile.getFile(
+                                  fileId: Dependencies
                                       .settingsScreenPresentation
                                       .settingsEntity
                                       .userPicture);

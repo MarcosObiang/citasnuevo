@@ -509,6 +509,40 @@
             "events": [],
             "schedule": "",
             "timeout": 15
+        },
+        {
+            "$id": "fetchBlindProfiles",
+            "name": "fetchBlindProfiles",
+            "runtime": "dart-2.17",
+            "path": "functions/fetchBlindProfiles",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
+        },
+        {
+            "$id": "createBlindDate",
+            "name": "createBlindDate",
+            "runtime": "dart-2.17",
+            "path": "functions/createBlindDate",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
         }
     ]
 }

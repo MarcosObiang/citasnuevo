@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_database/firebase_database.dart';
 import 'package:simple_connection_checker/simple_connection_checker.dart';
 
 abstract class NetworkInfoContract {
@@ -9,9 +8,7 @@ abstract class NetworkInfoContract {
 
 class NetworkInfoImpl implements NetworkInfoContract {
   static NetworkInfoImpl networkInstance = new NetworkInfoImpl();
-  FirebaseDatabase instance = FirebaseDatabase.instance;
   late Future<bool> connected;
-  StreamSubscription<DatabaseEvent>? databaseConnectedStreamEvent;
   @override
   Future<bool> get isConnected => checkConnection();
   NetworkInfoImpl();
@@ -21,39 +18,5 @@ class NetworkInfoImpl implements NetworkInfoContract {
         lookUpAddress: "www.hottyserver.com");
 
     return internet;
-  }
-
-  void startNetworkStatusListener() async {
-    connected = SimpleConnectionChecker.isConnectedToInternet(
-        lookUpAddress: "www.hottyserver.com");
-
-    instance.ref().child(".info/connected").onValue.listen((event) async {
-      if (event.snapshot.value == true) {
-        connected = SimpleConnectionChecker.isConnectedToInternet();
-      } else {
-        connected = SimpleConnectionChecker.isConnectedToInternet();
-      }
-    }).onError((_) {
-      print("object");
-    });
-
-    instance
-        .ref()
-        .child("/status/VFXR80UHWMX2Qc1ZIelXZbVjlrD3")
-        .onDisconnect()
-        .update({
-      "idDispositivo": " InformacionDispositivo.instancia.getIdDispositivo",
-      "nombreDispositivo":
-          "InformacionDispositivo.instancia.getNombreDispositivo",
-      "Status": "Desconectado",
-      "Hora": DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      "idUsuario": "VFXR80UHWMX2Qc1ZIelXZbVjlrD3",
-      "sesionCerrada": false
-    });
-  }
-
-  void cancelDatabaseStreamSubscription() async {
-    databaseConnectedStreamEvent?.cancel();
-    databaseConnectedStreamEvent = null;
   }
 }

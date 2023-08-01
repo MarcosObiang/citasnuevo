@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import '../../core/services/firebase_auth.dart';
+import '../../core/services/AuthService.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
 import '../UserSettings/UserSettingsEntity.dart';
@@ -123,7 +123,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
               File result = await appwriteStorage.createFile(
                   bucketId: "63712fd65399f32a5414",
                   fileId: "${GlobalDataContainer.userId}_image$pictureIndex",
-                  file: InputFile(
+                  file: InputFile.fromBytes(
                       bytes: imageFile,
                       filename:
                           "${GlobalDataContainer.userId}_image$pictureIndex.jpg"));

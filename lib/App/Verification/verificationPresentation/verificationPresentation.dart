@@ -67,6 +67,7 @@ class VerificationPresentation extends ChangeNotifier
     updateSubscription?.cancel();
     updateSubscription = null;
     _verificationScreenState = VerificationScreenState.LOADING;
+    setVerificationGestureLoadingState=VerificationGestureLoadingState.LOADING;
 
     verificationController.clearModuleData();
   }
@@ -121,12 +122,13 @@ class VerificationPresentation extends ChangeNotifier
         }
 
         if (verificationTicketEntity.verificationProcessStatus ==
-            VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED||verificationTicketEntity.verificationProcessStatus ==
-            VerificationProcessStatus.VERIFICATION_INITIALIZED) {
+                VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED ||
+            verificationTicketEntity.verificationProcessStatus ==
+                VerificationProcessStatus.VERIFICATION_INITIALIZED) {
           setVerificationScreenState =
               VerificationScreenState.REVIEW_NOT_STARTED;
           if (verificationScreenKey.currentContext == null) {
-          /*  Navigator.pushNamed(startKey.currentContext as BuildContext,
+            /*  Navigator.pushNamed(startKey.currentContext as BuildContext,
                 VerificationScreen.routeName);*/
           }
         }
@@ -139,7 +141,7 @@ class VerificationPresentation extends ChangeNotifier
             VerificationProcessStatus.VERIFICATION_NOT_SUCCESFULL) {
           setVerificationScreenState = VerificationScreenState.REVIEW_ERROR;
           if (verificationScreenKey.currentContext == null) {
-         /*   Navigator.pushNamed(startKey.currentContext as BuildContext,
+            /*   Navigator.pushNamed(startKey.currentContext as BuildContext,
                 VerificationScreen.routeName);*/
           }
         }

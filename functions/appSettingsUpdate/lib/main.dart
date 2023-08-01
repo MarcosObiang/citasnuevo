@@ -41,6 +41,13 @@ Future<void> start(final req, final res) async {
     };
     await database.updateDocument(
         databaseId: "636d59d7a2f595323a79",
+        collectionId: "64510456c91ba8281a51",
+        documentId: userId,
+        data: {
+          "isVisible": data["showProfile"],
+        });
+    await database.updateDocument(
+        databaseId: "636d59d7a2f595323a79",
         collectionId: "636d59df12dcf7a399d5",
         documentId: userId,
         data: {"userSettings": jsonEncode(userData)});

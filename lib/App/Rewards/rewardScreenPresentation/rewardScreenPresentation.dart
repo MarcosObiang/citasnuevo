@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:notify_inapp/notify_inapp.dart';
 
-import '../../PrincipalScreenFataNotifier.dart';
+import '../../PrincipalScreenDataNotifier.dart';
 import '../../DataManager.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
@@ -129,12 +129,13 @@ class RewardScreenPresentation extends ChangeNotifier
     setFirstRewards = FirstRewards.done;
     coins = 0;
     setRewardScreenState = RewardScreenState.loading;
+    dailyRewardTieRemainingStream = new StreamController.broadcast();
+    rewardController.clearModuleData();
   }
 
   @override
   void initializeModuleData() {
     rewardController.initializeModuleData();
-    dailyRewardTieRemainingStream = new StreamController.broadcast();
     update();
   }
 
@@ -174,12 +175,20 @@ class RewardScreenPresentation extends ChangeNotifier
     if (showAd == true) {
       setRewardedAdShowingstate = RewardedAdShowingState.adLoading;
 
-      await Dependencies.advertisingServices.showRewarded();
-
-      if (Dependencies.advertisingServices.rewardedAdvertismentStateStream !=
-          null) {
+      var adResult = await rewardController.showRewarded();
+      adResult.fold((l) {
+        if (l is NetworkFailure) {
+          PresentationDialogs.instance
+              .showNetworkErrorDialog(context: startKey.currentContext);
+        } else {
+          PresentationDialogs.instance.showErrorDialog(
+              content: "Error al intentar realizar la operacion",
+              context: startKey.currentContext,
+              title: "Error");
+        }
+      }, (r) async {
         await for (Map<String, dynamic> event in Dependencies
-            .advertisingServices.rewardedAdvertismentStateStream!.stream) {
+            .advertisingServices.rewardedAdvertismentStateStream.stream) {
           String status = event["status"];
 
           if (status == "FAILED") {
@@ -192,7 +201,7 @@ class RewardScreenPresentation extends ChangeNotifier
           if (status == "INCOMPLETE") {
             setRewardedAdShowingstate = RewardedAdShowingState.adIncomplete;
           }
-          Dependencies.advertisingServices.closeStream();
+          rewardController.closeAdsStreams();
 
           if (status != "INCOMPLETE" && status != "FAILED") {
             setDayliRewardState = DailyRewardState.inProcess;
@@ -218,7 +227,7 @@ class RewardScreenPresentation extends ChangeNotifier
             });
           }
         }
-      }
+      });
     } else {
       setDayliRewardState = DailyRewardState.inProcess;
       var result = await rewardController.askDailyReward();

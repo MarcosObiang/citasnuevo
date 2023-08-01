@@ -1,17 +1,19 @@
+import 'dart:typed_data';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/dependencies/dependencyCreator.dart';
 
 class ImageFile {
- static Future<Uint8List> getImageData({required String imageId}) async {
+  static Future<Uint8List> getFile({required String fileId}) async {
     final storage = Storage(Dependencies.serverAPi.client!);
 
     late Uint8List imageData;
     try {
       imageData = await storage.getFileDownload(
         bucketId: '63712fd65399f32a5414',
-        fileId: imageId,
+        fileId: fileId,
       );
       return imageData;
     } catch (e) {

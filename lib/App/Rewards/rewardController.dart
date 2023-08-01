@@ -14,8 +14,6 @@ import 'package:dartz/dartz.dart';
 import 'RewardScreenControllerBridge.dart';
 import 'RewardsEntity.dart';
 
-
-
 abstract class RewardController
     implements
         ShouldControllerUpdateData<RewardInformationSender>,
@@ -33,6 +31,10 @@ abstract class RewardController
   Future<Either<Failure, bool>> getSharingLink();
   Future<Either<Failure, bool>> usePromotionalCode();
   Future<Either<Failure, bool>> rewardTicketSuccesfulShares();
+  StreamController<Map<String, dynamic>> get rewardedAdvertismentStateStream;
+
+  Future<Either<Failure, bool>> showRewarded();
+  void closeAdsStreams() ;
 
   void _rewardStateListener();
 }
@@ -40,8 +42,12 @@ abstract class RewardController
 class RewardControllerImpl implements RewardController {
   RewardControllerImpl(
       {required this.rewardRepository,
-      required this.rewardScreenControlBridge,required this.purchaseSystemControllerBridge});
+      required this.rewardScreenControlBridge,
+      required this.purchaseSystemControllerBridge});
 
+  @override
+  StreamController<Map<String, dynamic>> get rewardedAdvertismentStateStream =>
+      this.rewardRepository.rewardedStatusListener;
   RewardRepository rewardRepository;
   RewardScreenControllerBridge rewardScreenControlBridge;
   PurchaseSystemControllerBridge purchaseSystemControllerBridge;
@@ -107,22 +113,23 @@ class RewardControllerImpl implements RewardController {
         .listen((event) {
       this.premiumPrice = event["data"];
       updateDataController?.add(RewardInformationSender(
-                premiumPrice: this.premiumPrice,
-                rewards: this.rewards,
-                isPremium: this.isPremium,
-                secondsToDailyReward: secondsUntilDailyReward));
+          premiumPrice: this.premiumPrice,
+          rewards: this.rewards,
+          isPremium: this.isPremium,
+          secondsToDailyReward: secondsUntilDailyReward));
     });
   }
-    void recieveExternalInformationPurchaseSystem() {
-     purchaseSystemControllerBridge
+
+  void recieveExternalInformationPurchaseSystem() {
+    purchaseSystemControllerBridge
         .controllerBridgeInformationSenderStream?.stream
         .listen((event) {
       this.premiumPrice = event["data"]["price"];
       updateDataController?.add(RewardInformationSender(
-                premiumPrice: this.premiumPrice,
-                rewards: this.rewards,
-                isPremium: this.isPremium,
-                secondsToDailyReward: secondsUntilDailyReward));
+          premiumPrice: this.premiumPrice,
+          rewards: this.rewards,
+          isPremium: this.isPremium,
+          secondsToDailyReward: secondsUntilDailyReward));
     });
   }
 
@@ -139,33 +146,31 @@ class RewardControllerImpl implements RewardController {
         if (secondsRemaining > 84600) {
           secondsRemaining = 84600;
         }
-    
-          dailyRewardTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-            isRewardCounterRunning = true;
 
-            waitingDailyReward = true;
+        dailyRewardTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+          isRewardCounterRunning = true;
 
-            this.secondsUntilDailyReward = this.secondsUntilDailyReward - 1;
-            this.isPremium = rewards!.isPremium;
-            updateDataController?.add(RewardInformationSender(
-                premiumPrice: this.premiumPrice,
-                rewards: this.rewards,
-                isPremium: this.isPremium,
-                secondsToDailyReward: secondsUntilDailyReward));
-            if (secondsUntilDailyReward == 0) {
-              secondsUntilDailyReward = 0;
-              isRewardCounterRunning = false;
-              waitingDailyReward = false;
-              dailyRewardTimer.cancel();
-            }
-          });
-        
+          waitingDailyReward = true;
+
+          this.secondsUntilDailyReward = this.secondsUntilDailyReward - 1;
+          this.isPremium = rewards!.isPremium;
+          updateDataController?.add(RewardInformationSender(
+              premiumPrice: this.premiumPrice,
+              rewards: this.rewards,
+              isPremium: this.isPremium,
+              secondsToDailyReward: secondsUntilDailyReward));
+          if (secondsUntilDailyReward == 0) {
+            secondsUntilDailyReward = 0;
+            isRewardCounterRunning = false;
+            waitingDailyReward = false;
+            dailyRewardTimer.cancel();
+          }
+        });
+      } else {
+        secondsUntilDailyReward = 0;
+        waitingDailyReward = false;
+        isRewardCounterRunning = false;
       }
-      else {
-          secondsUntilDailyReward = 0;
-          waitingDailyReward = false;
-          isRewardCounterRunning = false;
-        }
     }
   }
 
@@ -180,6 +185,16 @@ class RewardControllerImpl implements RewardController {
   @override
   Future<Either<Failure, bool>> askFirstReward() async {
     return rewardRepository.getFirstReward();
+  }
+
+
+
+  Future<Either<Failure, bool>> showRewarded() async {
+    return rewardRepository.showRewarded();
+  }
+
+  void closeAdsStreams() {
+    rewardRepository.closeAdsStreams();
   }
 
   @override

@@ -4,8 +4,6 @@ import 'dart:typed_data';
 import 'package:dart_appwrite/models.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dart_appwrite/dart_appwrite.dart';
-import 'package:dio/dio.dart';
-import 'package:http/http.dart' as httpClient;
 
 /*
   'req' variable has:
@@ -21,7 +19,6 @@ import 'package:http/http.dart' as httpClient;
 */
 
 Future<void> start(final req, final res) async {
-  String casa = "";
   try {
     Client client = Client()
         .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
@@ -107,7 +104,6 @@ Future<void> sendPushNotification(
       },
     );
   } catch (e) {
-    print(e.toString());
     throw NotificationException(message: e.toString());
   }
 }

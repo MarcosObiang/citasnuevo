@@ -13,7 +13,7 @@ import '../MainDatasource/principalDataSource.dart';
 import '../controllerDef.dart';
 import '../../core/common/commonUtils/DateNTP.dart';
 import '../../core/error/Exceptions.dart';
-import '../../core/services/firebase_auth.dart';
+import '../../core/services/AuthService.dart';
 import '../../core/globalData.dart';
 import '../../core/params_types/params_and_types.dart';
 import '../../core/platform/networkInfo.dart';

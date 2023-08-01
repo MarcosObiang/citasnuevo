@@ -140,6 +140,7 @@ Future<void> start(final req, final res) async {
           "notificationToken": "absd",
           "isUserVisible": true,
           "subscriptionStatus": "NOT_SUBCRIBED",
+          "lastBlindDate": 0,
           "subscriptionId": "",
           "subscriptionExpirationTimestamp": 0,
           "subscriptionPaused": false,
@@ -166,8 +167,8 @@ Future<void> start(final req, final res) async {
           "imageExpectedHandGesture": "NOT_AVAILABLE",
           "verificationStatus":
               VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
-              "adConsentFormShown":false,
-              "showPersonalizedAds":false
+          "adConsentFormShown": false,
+          "showPersonalizedAds": false
         },
         permissions: [
           Permission.read(Role.user(data["userId"], "verified")),

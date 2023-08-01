@@ -3,11 +3,18 @@ const kNetworkErrorMessage = "NETWORK_ERROR";
 class ServerException implements Exception {
   final String message;
   ServerException({required this.message});
+  String toString() {
+    return message;
+  }
 }
 
 class AuthException implements Exception {
   final String message;
   AuthException({required this.message});
+  @override
+  String toString() {
+    return message;
+  }
 }
 
 class NetworkException implements Exception {
@@ -27,11 +34,13 @@ class RatingProfilesException implements Exception {
 }
 
 class FetchProfilesException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  FetchProfilesException({
+  }
+
+  FetchProfilesException({
     required this.message,
   }) {
     print(message);
@@ -39,21 +48,37 @@ class FetchProfilesException implements Exception {
 }
 
 class ReactionException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  ReactionException({required this.message}) {
+  }
+
+  ReactionException({required this.message}) {
+    print(message);
+  }
+}
+
+class BlindDateChatException implements Exception {
+  String message;
+  @override
+  String toString() {
+    return message;
+  }
+
+  BlindDateChatException({required this.message}) {
     print(message);
   }
 }
 
 class ReportException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  ReportException({
+  }
+
+  ReportException({
     required this.message,
   }) {
     print(message);
@@ -61,11 +86,13 @@ class ReportException implements Exception {
 }
 
 class ChatException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  ChatException({
+  }
+
+  ChatException({
     required this.message,
   }) {
     print(message);
@@ -73,13 +100,13 @@ class ChatException implements Exception {
 }
 
 class SettingsException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  @override
+  }
 
-
+  @override
   SettingsException({
     required this.message,
   }) {
@@ -88,11 +115,13 @@ class SettingsException implements Exception {
 }
 
 class AppSettingsException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  AppSettingsException({
+  }
+
+  AppSettingsException({
     required this.message,
   }) {
     print(message);
@@ -100,11 +129,13 @@ class AppSettingsException implements Exception {
 }
 
 class UserSettingsException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  UserSettingsException({
+  }
+
+  UserSettingsException({
     required this.message,
   }) {
     print(message);
@@ -112,11 +143,13 @@ class UserSettingsException implements Exception {
 }
 
 class UserCreatorException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  UserCreatorException({
+  }
+
+  UserCreatorException({
     required this.message,
   }) {
     print(message);
@@ -124,11 +157,13 @@ class UserCreatorException implements Exception {
 }
 
 class RewardException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  RewardException({
+  }
+
+  RewardException({
     required this.message,
   }) {
     print(message);
@@ -136,11 +171,13 @@ class RewardException implements Exception {
 }
 
 class LocationServiceException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  LocationServiceException({
+  }
+
+  LocationServiceException({
     required this.message,
   }) {
     print(message);
@@ -148,11 +185,13 @@ class LocationServiceException implements Exception {
 }
 
 class InitException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  InitException({
+  }
+
+  InitException({
     required this.message,
   }) {
     print(message);
@@ -160,11 +199,13 @@ class InitException implements Exception {
 }
 
 class SanctionException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  SanctionException({
+  }
+
+  SanctionException({
     required this.message,
   }) {
     print(message);
@@ -172,11 +213,13 @@ class SanctionException implements Exception {
 }
 
 class MessagesException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  MessagesException({
+  }
+
+  MessagesException({
     required this.message,
   }) {
     print(message);
@@ -184,11 +227,13 @@ class MessagesException implements Exception {
 }
 
 class ModuleInitializeException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  ModuleInitializeException({
+  }
+
+  ModuleInitializeException({
     required this.message,
   }) {
     print(message);
@@ -196,11 +241,13 @@ class ModuleInitializeException implements Exception {
 }
 
 class ModuleCleanException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  ModuleCleanException({
+  }
+
+  ModuleCleanException({
     required this.message,
   }) {
     print(message);
@@ -208,11 +255,13 @@ class ModuleCleanException implements Exception {
 }
 
 class VerificationException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  VerificationException({
+  }
+
+  VerificationException({
     required this.message,
   }) {
     print(message);
@@ -220,11 +269,13 @@ class VerificationException implements Exception {
 }
 
 class PurchaseSystemException implements Exception {
- String message;
+  String message;
   @override
   String toString() {
     return message;
-  }  PurchaseSystemException({
+  }
+
+  PurchaseSystemException({
     required this.message,
   }) {
     print(message);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +21,7 @@ class UserNameInput extends StatefulWidget {
 class _UserNameInputState extends State<UserNameInput> {
   TextEditingController _userNameTextEditingController =
       new TextEditingController();
-   
+
   var dateFormat = DateFormat.yMEd();
 
   @override
@@ -89,7 +89,6 @@ class _UserNameInputState extends State<UserNameInput> {
                       ),
                     ),
                     ageInput(context),
-                    
                   ],
                 ),
               ),
@@ -138,8 +137,8 @@ class _UserNameInputState extends State<UserNameInput> {
                   ),
                   ElevatedButton.icon(
                       onPressed: () => widget.pageController.previousPage(
-                                  duration: Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut),
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut),
                       icon: Icon(Icons.arrow_back),
                       label: Text("Atras"))
                 ],

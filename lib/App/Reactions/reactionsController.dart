@@ -87,9 +87,7 @@ class ReactionsControllerImpl implements ReactionController {
 
   StreamController<Map<String, dynamic>> get streamIdExpiredReactions =>
       this.streamExpiredReactions;
-  StreamController<Map<String, dynamic>>
-      get interstitialAdvertismentStatusListener =>
-          this.reactionRepository.interstitialRewardedListener;
+
   StreamController<Map<String, dynamic>> get rewardedAdvertismentStateStream =>
       this.reactionRepository.rewardedStatusListener;
 
@@ -436,9 +434,7 @@ class ReactionsControllerImpl implements ReactionController {
         information: {"header": "reaction", "data": reactions.length});
   }
 
-  Future<Either<Failure, bool>> showInterstitial() async {
-    return reactionRepository.showInterstitial();
-  }
+
 
   Future<Either<Failure, bool>> showRewarded() async {
     return reactionRepository.showRewarded();

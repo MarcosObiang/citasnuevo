@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 
@@ -8,8 +9,6 @@ import '../../core/error/Failure.dart';
 import '../../core/streamParser/streamPareser.dart';
 import 'MessageEntity.dart';
 import 'chatDataSource.dart';
-
-
 
 abstract class ChatRepository implements ModuleCleanerRepository, StreamParser {
   late ChatDataSource chatDataSource;
@@ -32,4 +31,6 @@ abstract class ChatRepository implements ModuleCleanerRepository, StreamParser {
   Future<Either<Failure, bool>> messagesSeen({
     required List<String> messaagesIds,
   });
+  Future<Either<Failure, bool>>createBlindDate();
+  Future<Either<Failure, Uint8List?>> getImage();
 }

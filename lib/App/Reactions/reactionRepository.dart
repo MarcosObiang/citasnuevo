@@ -16,10 +16,8 @@ abstract class ReactionRepository
 
   Future<Either<Failure, void>> revealReaction({required String reactionId});
 
-  Future<Either<Failure, bool>> showInterstitial();
   Future<Either<Failure, bool>> showRewarded();
   StreamController<Map<String, dynamic>> get rewardedStatusListener;
-  StreamController<Map<String, dynamic>> get interstitialRewardedListener;
 
   Future<Either<Failure, bool>> acceptReaction({
     required String reactionId,

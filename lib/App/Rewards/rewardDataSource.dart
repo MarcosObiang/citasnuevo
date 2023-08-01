@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import '../../core/services/Ads.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
 import '../../core/common/commonUtils/idGenerator.dart';
@@ -11,11 +12,11 @@ import '../../core/globalData.dart';
 import '../../core/platform/networkInfo.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-
 import '../../../core/dependencies/dependencyCreator.dart';
+import '../controllerDef.dart';
 
-abstract class RewardDataSource implements DataSource, ModuleCleanerDataSource {
+abstract class RewardDataSource
+    implements DataSource, ModuleCleanerDataSource, AdvertisementShowCapacity {
   // ignore: close_sinks
   late StreamController<Map<String, dynamic>>? rewardStream;
 
@@ -27,9 +28,7 @@ abstract class RewardDataSource implements DataSource, ModuleCleanerDataSource {
 
   Future<bool> getFrstReward();
   Future<bool> usePromotionalCode();
-    Future<bool> rewardTicketSuccesfulShares
-();
-
+  Future<bool> rewardTicketSuccesfulShares();
 
   ///Use to get real time updates from the data source
   ///
@@ -38,12 +37,18 @@ abstract class RewardDataSource implements DataSource, ModuleCleanerDataSource {
 class RewardDataSourceImpl implements RewardDataSource {
   @override
   ApplicationDataSource source;
-  RewardDataSourceImpl({
-    required this.source,
-  });
+  RewardDataSourceImpl(
+      {required this.source, required this.advertisingServices});
   @override
   StreamSubscription? sourceStreamSubscription;
   StreamSubscription<RealtimeMessage>? reactionSubscriptionListener;
+  @override
+  AdvertisingServices advertisingServices;
+
+  @override
+  StreamController<Map<String, dynamic>>
+      get rewadedAdvertismentStatusListener =>
+          advertisingServices.rewardedAdvertismentStateStream;
 
   @override
   StreamController<Map<String, dynamic>>? rewardStream =
@@ -100,8 +105,20 @@ class RewardDataSourceImpl implements RewardDataSource {
   }
 
   @override
+  Future<bool> showRewardedAd() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        return advertisingServices.showAd();
+      } catch (e) {
+        throw ReactionException(message: "FAILED");
+      }
+    } else {
+      throw NetworkException(message: kNetworkErrorMessage);
+    }
+  }
+
+  @override
   void subscribeToMainDataSource() {
-    
     try {
       rewardStream?.add(source.getData);
 
@@ -119,7 +136,7 @@ class RewardDataSourceImpl implements RewardDataSource {
       rewardStream?.close();
       sourceStreamSubscription?.cancel();
       reactionSubscriptionListener?.cancel();
-      rewardStream=null;
+      rewardStream = null;
       rewardStream = new StreamController.broadcast();
     } catch (e) {
       throw ModuleCleanException(message: e.toString());
@@ -165,7 +182,7 @@ class RewardDataSourceImpl implements RewardDataSource {
         Execution execution = await functions.createExecution(
           functionId: "usePromotionalCode",
         );
-         int status = jsonDecode(execution.response)["status"];
+        int status = jsonDecode(execution.response)["status"];
         String message = jsonDecode(execution.response)["message"];
         if (status == 200) {
           return true;
@@ -179,16 +196,16 @@ class RewardDataSourceImpl implements RewardDataSource {
       throw NetworkException(message: kNetworkErrorMessage);
     }
   }
-  
+
   @override
-  Future<bool> rewardTicketSuccesfulShares()async {
-      if (await NetworkInfoImpl.networkInstance.isConnected) {
+  Future<bool> rewardTicketSuccesfulShares() async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
           functionId: "rewardTicketSuccesfulShares",
         );
-         int status = jsonDecode(execution.response)["status"];
+        int status = jsonDecode(execution.response)["status"];
         String message = jsonDecode(execution.response)["message"];
         if (status == 200) {
           return true;
@@ -201,5 +218,10 @@ class RewardDataSourceImpl implements RewardDataSource {
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
     }
+  }
+
+  @override
+  void closeAdsStreams() {
+    advertisingServices.closeStream();
   }
 }

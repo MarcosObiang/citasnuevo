@@ -16,7 +16,7 @@ import 'package:notify_inapp/notify_inapp.dart';
 
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
-import '../../PrincipalScreenFataNotifier.dart';
+import '../../PrincipalScreenDataNotifier.dart';
 import '../../Rewards/rewardScreenPresentation/rewardScreen.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
@@ -198,8 +198,7 @@ class ReactionPresentation extends ChangeNotifier
                   title: "Error");
             }
           }, (r) async {
-            if (Dependencies
-                    .advertisingServices.interstitialAdvertismentStateStream !=
+            if (reactionsController.rewardedAdvertismentStateStream !=
                 null) {
               setAdShowingState = AdShowingState.adLoading;
 

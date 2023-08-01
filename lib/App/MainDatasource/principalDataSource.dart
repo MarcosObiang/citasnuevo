@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
 import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/globalData.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
 ///MANDATORY:use the [ApplicationDataSource] in any class that will act as a [DataSource]

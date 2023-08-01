@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:citasnuevo/core/services/Ads.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +11,7 @@ import 'Reactions/ReactionEntity.dart';
 import 'Rewards/RewardsEntity.dart';
 import 'Settings/SettingsEntity.dart';
 import 'UserSettings/UserSettingsEntity.dart';
-import '../core/services/firebase_auth.dart';
+import '../core/services/AuthService.dart';
 
 //ignore_for_file: close_sinks
 
@@ -21,7 +22,7 @@ abstract class AuthenticationCapacity {
   late AuthService authService;
 }
 
-enum SignInProviders { GOOGLE, FACEABOOK }
+enum SignInProviders { google, facebook }
 
 abstract class AuthenticationLogInCapacity implements AuthenticationCapacity {
   ///provider can be 2 values:
@@ -49,19 +50,23 @@ abstract class AuthenticationSignOutCapacity implements AuthenticationCapacity {
   Future<bool> logOut();
 }
 
+abstract class ImmageMediaPickerCapacity{
+
+  Future<Uint8List?> getImage();
+}
+
+abstract class AudioMediaCapacity{
+
+  Future<Uint8List?> getImage();
+}
+
 abstract class AdvertisementShowCapacity {
   late AdvertisingServices advertisingServices;
 
   /// Shows rewarded ads
   Future<bool> showRewardedAd();
 
-  /// Shows InterstitialAds
-  Future<bool> showInterstitialAd();
-
-  StreamController<Map<String, dynamic>>
-      get interstitialAdvertismentStatusListener;
   StreamController<Map<String, dynamic>> get rewadedAdvertismentStatusListener;
-
 
   void closeAdsStreams();
 }
@@ -119,6 +124,7 @@ class ChatInformationSender extends InformationSender {
       required this.newMessages,
       x});
 }
+
 
 class HomeScreenInformationSender extends InformationSender {
   Map<String, dynamic> information;

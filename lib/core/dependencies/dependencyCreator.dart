@@ -1,3 +1,4 @@
+
 import 'package:citasnuevo/App/ControllerBridges/PurchseSystemControllerBridge.dart';
 import 'package:flutter/material.dart';
 
@@ -73,14 +74,12 @@ import 'package:citasnuevo/App/Verification/verificationDataSource.dart';
 import 'package:citasnuevo/App/Verification/verificationPresentation/verificationPresentation.dart';
 import 'package:citasnuevo/App/Verification/verificationRepoImpl.dart';
 import 'package:citasnuevo/App/Verification/verificationRepository.dart';
-import 'package:citasnuevo/main.dart';
 import 'package:citasnuevo/App/principalScreenPresentation.dart';
 import '../services/Ads.dart';
 import '../appwrite_services/appwrite_services.dart';
 import '../common/commonUtils/getUserImage.dart';
-import '../services/firebase_auth.dart';
+import '../services/AuthService.dart';
 import '../globalData.dart';
-import '../iapPurchases/iapPurchases.dart';
 import '../notifications/notifications_service.dart';
 import '../platform/networkInfo.dart';
 
@@ -155,8 +154,8 @@ class Dependencies {
   ///
   ///
 
-  static late final RewardDataSource rewardDataSource =
-      RewardDataSourceImpl(source: applicationDataSource);
+  static late final RewardDataSource rewardDataSource = RewardDataSourceImpl(
+      source: applicationDataSource, advertisingServices: advertisingServices);
   static late final RewardRepository rewardRepository =
       RewardRepoImpl(rewardDataSource: rewardDataSource);
   static late final RewardController rewardController = RewardControllerImpl(
@@ -227,6 +226,8 @@ class Dependencies {
       homeScreenControllreBridge: homeScreenControllerBridge);
   static late final chatPresentation =
       new ChatPresentation(chatController: chatController);
+
+ 
 
   ///SETTINGS
   ///
@@ -357,6 +358,7 @@ class Dependencies {
     applicationDataSource.clearAppDataSource();
     rewardScreenPresentation.clearModuleData();
     purchaseSystemPresentation.clearModuleData();
+    verificationPresentation.clearModuleData();
 
     GlobalDataContainer.clearGlobalDataContainer();
   }
@@ -423,8 +425,7 @@ class Dependencies {
       NotificationService instance = new NotificationService();
       await instance.startBackgroundNotificationHandler();
       sanctionsPresentation.initializeModuleData();
-            advertisingServices.initializeAdsService();
-
+      advertisingServices.initializeAdsService();
     } catch (e, s) {
       print(s);
       throw e;

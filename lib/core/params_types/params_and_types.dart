@@ -39,4 +39,5 @@ enum ReportSendingState { notSended, sending, sended, error }
 
 enum ChatReportSendingState { notSended, sending, sended, error }
 
+enum BlindDateChatReportSendingState{ notSended, sending, sended, error }
 

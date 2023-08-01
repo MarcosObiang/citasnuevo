@@ -1,0 +1,729 @@
+Date : 2023-04-27 17:41:34
+Directory : d:\Proyecto\citasnuevo
+Total : 438 files,  19447 codes, 769 comments, 2910 blanks, all 23126 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| Dart               |        315 |      9,931 |        406 |        660 |     10,997 |
+| JSON               |         13 |      5,719 |          0 |          7 |      5,726 |
+| TypeScript         |          6 |      2,431 |        199 |      1,441 |      4,071 |
+| Markdown           |         31 |        710 |        123 |        650 |      1,483 |
+| YAML               |         57 |        326 |          0 |        114 |        440 |
+| XML                |          9 |        170 |          0 |          9 |        179 |
+| Python             |          1 |         53 |         16 |         13 |         82 |
+| Java               |          1 |         46 |         13 |          8 |         67 |
+| JavaScript         |          1 |         31 |          0 |          1 |         32 |
+| JSON with Comments |          1 |         18 |          0 |          1 |         19 |
+| C++                |          1 |          7 |         12 |          6 |         25 |
+| Gradle             |          1 |          3 |          0 |          0 |          3 |
+| pip requirements   |          1 |          2 |          0 |          0 |          2 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                          | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                             |        438 |     19,447 |        769 |      2,910 |     23,126 |
+| . (Files)                                                                                                     |          2 |        525 |          0 |        -23 |        502 |
+| FuncionesNubeFirebase                                                                                         |          6 |     -4,830 |        -38 |       -171 |     -5,039 |
+| FuncionesNubeFirebase (Files)                                                                                 |          3 |     -4,637 |          0 |         -2 |     -4,639 |
+| FuncionesNubeFirebase\functions                                                                               |          3 |       -193 |        -38 |       -169 |       -400 |
+| FuncionesNubeFirebase\functions\src                                                                           |          3 |       -193 |        -38 |       -169 |       -400 |
+| FuncionesNubeFirebase\functions\src\darValoraciones                                                           |          1 |         -2 |          0 |         -4 |         -6 |
+| FuncionesNubeFirebase\functions\src\solicitarUsuarios                                                         |          1 |       -191 |        -29 |       -164 |       -384 |
+| FuncionesNubeFirebase\functions\src\test                                                                      |          1 |          0 |         -9 |         -1 |        -10 |
+| assets                                                                                                        |          9 |        170 |          0 |          9 |        179 |
+| firebasefunctions                                                                                             |         13 |     12,503 |        237 |      1,620 |     14,360 |
+| firebasefunctions (Files)                                                                                     |          3 |        537 |          0 |          3 |        540 |
+| firebasefunctions\functions                                                                                   |         10 |     11,966 |        237 |      1,617 |     13,820 |
+| firebasefunctions\functions (Files)                                                                           |          5 |      9,318 |          0 |          5 |      9,323 |
+| firebasefunctions\functions\lib                                                                               |          1 |         12 |          0 |          1 |         13 |
+| firebasefunctions\functions\src                                                                               |          4 |      2,636 |        237 |      1,611 |      4,484 |
+| firebasefunctions\functions\src (Files)                                                                       |          2 |      2,443 |        208 |      1,443 |      4,094 |
+| firebasefunctions\functions\src\darValoraciones                                                               |          1 |          2 |          0 |          4 |          6 |
+| firebasefunctions\functions\src\solicitarUsuarios                                                             |          1 |        191 |         29 |        164 |        384 |
+| functions                                                                                                     |        120 |      3,963 |        518 |      1,106 |      5,587 |
+| functions\acceptReaction                                                                                      |          4 |        178 |         16 |         36 |        230 |
+| functions\acceptReaction (Files)                                                                              |          3 |         35 |          4 |         25 |         64 |
+| functions\acceptReaction\lib                                                                                  |          1 |        143 |         12 |         11 |        166 |
+| functions\appSettingsUpdate                                                                                   |          4 |         74 |         16 |         32 |        122 |
+| functions\appSettingsUpdate (Files)                                                                           |          3 |         34 |          4 |         26 |         64 |
+| functions\appSettingsUpdate\lib                                                                               |          1 |         40 |         12 |          6 |         58 |
+| functions\confirmMessages                                                                                     |          2 |         28 |         16 |         26 |         70 |
+| functions\confirmMessages (Files)                                                                             |          1 |         21 |          4 |         20 |         45 |
+| functions\confirmMessagesHadBeenRead                                                                          |          4 |         73 |         16 |         33 |        122 |
+| functions\confirmMessagesHadBeenRead (Files)                                                                  |          3 |         34 |          4 |         26 |         64 |
+| functions\confirmMessagesHadBeenRead\lib                                                                      |          1 |         39 |         12 |          7 |         58 |
+| functions\confirmMessages\src                                                                                 |          1 |          7 |         12 |          6 |         25 |
+| functions\createInstantChatInstance                                                                           |          4 |        153 |         16 |         34 |        203 |
+| functions\createInstantChatInstance (Files)                                                                   |          3 |         34 |          4 |         26 |         64 |
+| functions\createInstantChatInstance\lib                                                                       |          1 |        119 |         12 |          8 |        139 |
+| functions\createNewVerificationInstance                                                                       |          4 |        110 |         17 |         37 |        164 |
+| functions\createNewVerificationInstance (Files)                                                               |          3 |         34 |          4 |         26 |         64 |
+| functions\createNewVerificationInstance\lib                                                                   |          1 |         76 |         13 |         11 |        100 |
+| functions\createUser                                                                                          |          4 |        482 |         17 |         53 |        552 |
+| functions\createUser (Files)                                                                                  |          3 |         35 |          4 |         26 |         65 |
+| functions\createUser\lib                                                                                      |          1 |        447 |         13 |         27 |        487 |
+| functions\deleteConversation                                                                                  |          4 |        206 |         16 |         48 |        270 |
+| functions\deleteConversation (Files)                                                                          |          3 |         34 |          4 |         26 |         64 |
+| functions\deleteConversation\lib                                                                              |          1 |        172 |         12 |         22 |        206 |
+| functions\deleteReaction                                                                                      |          4 |         76 |         16 |         35 |        127 |
+| functions\deleteReaction (Files)                                                                              |          3 |         34 |          4 |         26 |         64 |
+| functions\deleteReaction\lib                                                                                  |          1 |         42 |         12 |          9 |         63 |
+| functions\deleteUser                                                                                          |          4 |        177 |         20 |         40 |        237 |
+| functions\deleteUser (Files)                                                                                  |          3 |         34 |          4 |         26 |         64 |
+| functions\deleteUser\lib                                                                                      |          1 |        143 |         16 |         14 |        173 |
+| functions\fetchUserProfiles                                                                                   |          4 |        185 |         16 |         46 |        247 |
+| functions\fetchUserProfiles (Files)                                                                           |          3 |         35 |          4 |         26 |         65 |
+| functions\fetchUserProfiles\lib                                                                               |          1 |        150 |         12 |         20 |        182 |
+| functions\findAvailableInstantChats                                                                           |          4 |         52 |         26 |         32 |        110 |
+| functions\findAvailableInstantChats (Files)                                                                   |          3 |         34 |          4 |         26 |         64 |
+| functions\findAvailableInstantChats\lib                                                                       |          1 |         18 |         22 |          6 |         46 |
+| functions\getSingleUserProfile                                                                                |          4 |        108 |         16 |         35 |        159 |
+| functions\getSingleUserProfile (Files)                                                                        |          3 |         34 |          4 |         26 |         64 |
+| functions\getSingleUserProfile\lib                                                                            |          1 |         74 |         12 |          9 |         95 |
+| functions\giveDailyReward                                                                                     |          4 |        100 |         16 |         34 |        150 |
+| functions\giveDailyReward (Files)                                                                             |          3 |         34 |          4 |         26 |         64 |
+| functions\giveDailyReward\lib                                                                                 |          1 |         66 |         12 |          8 |         86 |
+| functions\googleNotificationAuthTokenrefresher                                                                |          3 |         71 |         16 |         29 |        116 |
+| functions\googleNotificationAuthTokenrefresher (Files)                                                        |          2 |         25 |          3 |         21 |         49 |
+| functions\googleNotificationAuthTokenrefresher\src                                                            |          1 |         46 |         13 |          8 |         67 |
+| functions\initVerificationProcess                                                                             |          4 |         86 |         18 |         32 |        136 |
+| functions\initVerificationProcess (Files)                                                                     |          3 |         34 |          4 |         26 |         64 |
+| functions\initVerificationProcess\lib                                                                         |          1 |         52 |         14 |          6 |         72 |
+| functions\notificationTokenManager                                                                            |          4 |        112 |         16 |         32 |        160 |
+| functions\notificationTokenManager (Files)                                                                    |          3 |         34 |          4 |         26 |         64 |
+| functions\notificationTokenManager\lib                                                                        |          1 |         78 |         12 |          6 |         96 |
+| functions\pruebapuerto                                                                                        |          4 |         77 |         16 |         32 |        125 |
+| functions\pruebapuerto (Files)                                                                                |          3 |         34 |          4 |         26 |         64 |
+| functions\pruebapuerto\lib                                                                                    |          1 |         43 |         12 |          6 |         61 |
+| functions\rateUsers                                                                                           |          4 |        235 |         16 |         40 |        291 |
+| functions\rateUsers (Files)                                                                                   |          3 |         35 |          4 |         25 |         64 |
+| functions\rateUsers\lib                                                                                       |          1 |        200 |         12 |         15 |        227 |
+| functions\refreshNotificationToken                                                                            |          3 |         78 |         20 |         34 |        132 |
+| functions\refreshNotificationToken (Files)                                                                    |          2 |         25 |          4 |         21 |         50 |
+| functions\refreshNotificationToken\src                                                                        |          1 |         53 |         16 |         13 |         82 |
+| functions\reportUser                                                                                          |          4 |        117 |          5 |         34 |        156 |
+| functions\reportUser (Files)                                                                                  |          3 |         34 |          4 |         26 |         64 |
+| functions\reportUser\lib                                                                                      |          1 |         83 |          1 |          8 |         92 |
+| functions\revealReaction                                                                                      |          4 |        131 |         16 |         40 |        187 |
+| functions\revealReaction (Files)                                                                              |          3 |         34 |          4 |         26 |         64 |
+| functions\revealReaction\lib                                                                                  |          1 |         97 |         12 |         14 |        123 |
+| functions\rewardTicketCreator                                                                                 |          4 |        139 |         16 |         34 |        189 |
+| functions\rewardTicketCreator (Files)                                                                         |          3 |         34 |          4 |         26 |         64 |
+| functions\rewardTicketCreator\lib                                                                             |          1 |        105 |         12 |          8 |        125 |
+| functions\rewardTicketSuccesfulShares                                                                         |          4 |         93 |         16 |         34 |        143 |
+| functions\rewardTicketSuccesfulShares (Files)                                                                 |          3 |         34 |          4 |         26 |         64 |
+| functions\rewardTicketSuccesfulShares\lib                                                                     |          1 |         59 |         12 |          8 |         79 |
+| functions\sendMessages                                                                                        |          4 |        188 |         16 |         39 |        243 |
+| functions\sendMessages (Files)                                                                                |          3 |         36 |          4 |         25 |         65 |
+| functions\sendMessages\lib                                                                                    |          1 |        152 |         12 |         14 |        178 |
+| functions\setAdConsentStatus                                                                                  |          4 |         71 |         16 |         31 |        118 |
+| functions\setAdConsentStatus (Files)                                                                          |          3 |         34 |          4 |         26 |         64 |
+| functions\setAdConsentStatus\lib                                                                              |          1 |         37 |         12 |          5 |         54 |
+| functions\setMediaPermissions                                                                                 |          4 |         55 |         26 |         35 |        116 |
+| functions\setMediaPermissions (Files)                                                                         |          3 |         34 |          4 |         26 |         64 |
+| functions\setMediaPermissions\lib                                                                             |          1 |         21 |         22 |          9 |         52 |
+| functions\subscriptionManager                                                                                 |          4 |        242 |         16 |         37 |        295 |
+| functions\subscriptionManager (Files)                                                                         |          3 |         35 |          4 |         26 |         65 |
+| functions\subscriptionManager\lib                                                                             |          1 |        207 |         12 |         11 |        230 |
+| functions\unlockProfile                                                                                       |          4 |         90 |         17 |         33 |        140 |
+| functions\unlockProfile (Files)                                                                               |          3 |         34 |          4 |         26 |         64 |
+| functions\unlockProfile\lib                                                                                   |          1 |         56 |         13 |          7 |         76 |
+| functions\updateUserData                                                                                      |          4 |         83 |         16 |         35 |        134 |
+| functions\updateUserData (Files)                                                                              |          3 |         34 |          4 |         26 |         64 |
+| functions\updateUserData\lib                                                                                  |          1 |         49 |         12 |          9 |         70 |
+| functions\usePromotionalCode                                                                                  |          4 |         93 |         16 |         34 |        143 |
+| functions\usePromotionalCode (Files)                                                                          |          3 |         34 |          4 |         26 |         64 |
+| functions\usePromotionalCode\lib                                                                              |          1 |         59 |         12 |          8 |         79 |
+| lib                                                                                                           |        287 |      7,117 |         51 |        369 |      7,537 |
+| lib (Files)                                                                                                   |          2 |       -155 |        -32 |        -31 |       -218 |
+| lib\App                                                                                                       |        145 |     20,865 |        465 |      2,350 |     23,680 |
+| lib\App (Files)                                                                                               |          5 |        447 |         83 |         76 |        606 |
+| lib\App\ApplicationSettings                                                                                   |          8 |      1,037 |         12 |        100 |      1,149 |
+| lib\App\ApplicationSettings (Files)                                                                           |          6 |        417 |         11 |         68 |        496 |
+| lib\App\ApplicationSettings\appSettingsPresentation                                                           |          2 |        620 |          1 |         32 |        653 |
+| lib\App\Auth                                                                                                  |          7 |        391 |          6 |         64 |        461 |
+| lib\App\Auth (Files)                                                                                          |          5 |        184 |          0 |         27 |        211 |
+| lib\App\Auth\authScreenPresentation                                                                           |          2 |        207 |          6 |         37 |        250 |
+| lib\App\Auth\authScreenPresentation (Files)                                                                   |          1 |        113 |          6 |         24 |        143 |
+| lib\App\Auth\authScreenPresentation\Screens                                                                   |          1 |         94 |          0 |         13 |        107 |
+| lib\App\Chat                                                                                                  |         16 |      3,911 |         86 |        401 |      4,398 |
+| lib\App\Chat (Files)                                                                                          |          8 |      1,964 |         53 |        240 |      2,257 |
+| lib\App\Chat\chatPresentation                                                                                 |          8 |      1,947 |         33 |        161 |      2,141 |
+| lib\App\Chat\chatPresentation (Files)                                                                         |          1 |        434 |         21 |         55 |        510 |
+| lib\App\Chat\chatPresentation\Widgets                                                                         |          7 |      1,513 |         12 |        106 |      1,631 |
+| lib\App\ControllerBridges                                                                                     |          5 |         89 |          2 |         31 |        122 |
+| lib\App\MainDatasource                                                                                        |          1 |         98 |         18 |         21 |        137 |
+| lib\App\ProfileViewer                                                                                         |         13 |      1,720 |         94 |        204 |      2,018 |
+| lib\App\ProfileViewer (Files)                                                                                 |          6 |        548 |         56 |         82 |        686 |
+| lib\App\ProfileViewer\homeScreenPresentation                                                                  |          7 |      1,172 |         38 |        122 |      1,332 |
+| lib\App\ProfileViewer\homeScreenPresentation (Files)                                                          |          1 |        220 |         36 |         34 |        290 |
+| lib\App\ProfileViewer\homeScreenPresentation\Screens                                                          |          1 |        323 |          0 |         28 |        351 |
+| lib\App\ProfileViewer\homeScreenPresentation\Widgets                                                          |          5 |        629 |          2 |         60 |        691 |
+| lib\App\PurchaseSystem                                                                                        |          8 |      1,042 |          3 |        109 |      1,154 |
+| lib\App\PurchaseSystem (Files)                                                                                |          6 |        503 |          3 |         71 |        577 |
+| lib\App\PurchaseSystem\purchaseSystemPresentation                                                             |          2 |        539 |          0 |         38 |        577 |
+| lib\App\Reactions                                                                                             |          9 |      2,149 |         15 |        253 |      2,417 |
+| lib\App\Reactions (Files)                                                                                     |          6 |      1,039 |         14 |        178 |      1,231 |
+| lib\App\Reactions\reactionPresentation                                                                        |          3 |      1,110 |          1 |         75 |      1,186 |
+| lib\App\Reactions\reactionPresentation (Files)                                                                |          1 |        454 |          1 |         48 |        503 |
+| lib\App\Reactions\reactionPresentation\Screens                                                                |          1 |        218 |          0 |          7 |        225 |
+| lib\App\Reactions\reactionPresentation\Widgets                                                                |          1 |        438 |          0 |         20 |        458 |
+| lib\App\ReportUsers                                                                                           |          6 |        443 |          7 |         49 |        499 |
+| lib\App\Rewards                                                                                               |         14 |      2,251 |         14 |        237 |      2,502 |
+| lib\App\Rewards (Files)                                                                                       |          7 |        658 |         13 |        122 |        793 |
+| lib\App\Rewards\rewardScreenPresentation                                                                      |          7 |      1,593 |          1 |        115 |      1,709 |
+| lib\App\Sanctions                                                                                             |          8 |        886 |         15 |        102 |      1,003 |
+| lib\App\Sanctions (Files)                                                                                     |          6 |        381 |         15 |         66 |        462 |
+| lib\App\Sanctions\sanctionsPresentation                                                                       |          2 |        505 |          0 |         36 |        541 |
+| lib\App\Settings                                                                                              |         10 |        962 |          6 |        131 |      1,099 |
+| lib\App\Settings (Files)                                                                                      |          8 |        580 |          6 |         92 |        678 |
+| lib\App\Settings\settingsPresentation                                                                         |          2 |        382 |          0 |         39 |        421 |
+| lib\App\UserCreator                                                                                           |         17 |      2,748 |         90 |        241 |      3,079 |
+| lib\App\UserCreator (Files)                                                                                   |          7 |        661 |         11 |        105 |        777 |
+| lib\App\UserCreator\userCreatorPresentation                                                                   |         10 |      2,087 |         79 |        136 |      2,302 |
+| lib\App\UserCreator\userCreatorPresentation (Files)                                                           |          1 |        340 |         19 |         48 |        407 |
+| lib\App\UserCreator\userCreatorPresentation\Widgets                                                           |          9 |      1,747 |         60 |         88 |      1,895 |
+| lib\App\UserSettings                                                                                          |          9 |      1,339 |          4 |        201 |      1,544 |
+| lib\App\UserSettings (Files)                                                                                  |          7 |        632 |          2 |        129 |        763 |
+| lib\App\UserSettings\userSettingsPresentation                                                                 |          2 |        707 |          2 |         72 |        781 |
+| lib\App\Verification                                                                                          |          9 |      1,352 |         10 |        130 |      1,492 |
+| lib\App\Verification (Files)                                                                                  |          6 |        348 |          2 |         63 |        413 |
+| lib\App\Verification\verificationPresentation                                                                 |          3 |      1,004 |          8 |         67 |      1,079 |
+| lib\Utils                                                                                                     |          4 |      1,222 |         21 |         47 |      1,290 |
+| lib\core                                                                                                      |         20 |        388 |         23 |         17 |        428 |
+| lib\core (Files)                                                                                              |          2 |         21 |          0 |          3 |         24 |
+| lib\core\ads_services                                                                                         |          1 |       -152 |          0 |        -26 |       -178 |
+| lib\core\appwrite_services                                                                                    |          1 |         15 |          0 |          3 |         18 |
+| lib\core\common                                                                                               |          2 |         16 |         -1 |        -12 |          3 |
+| lib\core\common (Files)                                                                                       |          1 |         83 |         -1 |         -5 |         77 |
+| lib\core\common\common_widgets.dart                                                                           |          1 |        -67 |          0 |         -7 |        -74 |
+| lib\core\dependencies                                                                                         |          3 |       -125 |         17 |        -29 |       -137 |
+| lib\core\dependencies (Files)                                                                                 |          1 |         78 |         18 |          6 |        102 |
+| lib\core\dependencies\error                                                                                   |          2 |       -203 |         -1 |        -35 |       -239 |
+| lib\core\error                                                                                                |          2 |        377 |          1 |         54 |        432 |
+| lib\core\firebase_services                                                                                    |          1 |        -96 |        -13 |        -17 |       -126 |
+| lib\core\iapPurchases                                                                                         |          1 |         -1 |          0 |          1 |          0 |
+| lib\core\location_services                                                                                    |          1 |         29 |          0 |          4 |         33 |
+| lib\core\notifications                                                                                        |          1 |        -11 |          0 |         -3 |        -14 |
+| lib\core\params_types                                                                                         |          1 |          1 |          1 |         -8 |         -6 |
+| lib\core\platform                                                                                             |          1 |         -1 |          0 |          1 |          0 |
+| lib\core\services                                                                                             |          2 |        308 |         13 |         42 |        363 |
+| lib\core\streamParser                                                                                         |          1 |          7 |          5 |          4 |         16 |
+| lib\data                                                                                                      |         32 |     -3,346 |        -72 |       -575 |     -3,993 |
+| lib\data\Mappers                                                                                              |          9 |       -730 |          0 |       -148 |       -878 |
+| lib\data\dataSources                                                                                          |         12 |     -1,889 |        -67 |       -311 |     -2,267 |
+| lib\data\dataSources\HomeDataSource                                                                           |          1 |       -184 |        -25 |        -18 |       -227 |
+| lib\data\dataSources\appSettings                                                                              |          1 |       -125 |          0 |        -18 |       -143 |
+| lib\data\dataSources\authDataSources                                                                          |          1 |        -52 |          0 |        -16 |        -68 |
+| lib\data\dataSources\chatDataSource                                                                           |          1 |       -441 |         -2 |        -68 |       -511 |
+| lib\data\dataSources\principalDataSource                                                                      |          1 |        -62 |        -14 |        -13 |        -89 |
+| lib\data\dataSources\reactionDataSources                                                                      |          1 |       -228 |         -2 |        -32 |       -262 |
+| lib\data\dataSources\reportDataSource                                                                         |          1 |        -69 |         -4 |        -12 |        -85 |
+| lib\data\dataSources\rewardsDataSource                                                                        |          1 |       -142 |         -5 |        -23 |       -170 |
+| lib\data\dataSources\sanctionsDataSource.dart                                                                 |          1 |        -76 |         -1 |        -17 |        -94 |
+| lib\data\dataSources\settingsDataSource                                                                       |          1 |       -157 |         -6 |        -25 |       -188 |
+| lib\data\dataSources\userCreatorDataSource                                                                    |          1 |       -151 |         -5 |        -30 |       -186 |
+| lib\data\dataSources\userSettingsDataSource                                                                   |          1 |       -202 |         -3 |        -39 |       -244 |
+| lib\data\repositoryImpl                                                                                       |         11 |       -727 |         -5 |       -116 |       -848 |
+| lib\data\repositoryImpl\appSettingsRepoImpl                                                                   |          1 |        -67 |         -2 |        -12 |        -81 |
+| lib\data\repositoryImpl\authRepoImpl                                                                          |          1 |        -49 |          0 |         -5 |        -54 |
+| lib\data\repositoryImpl\chatRepoImpl                                                                          |          1 |       -148 |          0 |        -23 |       -171 |
+| lib\data\repositoryImpl\homeScreenRepoImpl.dart                                                               |          1 |        -95 |         -1 |        -10 |       -106 |
+| lib\data\repositoryImpl\reactionRepoImpl                                                                      |          1 |        -89 |          0 |        -13 |       -102 |
+| lib\data\repositoryImpl\reportRepoImpl                                                                        |          1 |        -42 |         -1 |         -6 |        -49 |
+| lib\data\repositoryImpl\rewardRepoImpl                                                                        |          1 |        -64 |          0 |        -10 |        -74 |
+| lib\data\repositoryImpl\sanctionsRepoImpl                                                                     |          1 |        -41 |         -1 |         -9 |        -51 |
+| lib\data\repositoryImpl\settingsRepoImpl                                                                      |          1 |        -26 |          0 |         -7 |        -33 |
+| lib\data\repositoryImpl\userCreatorRepoImpl                                                                   |          1 |        -49 |          0 |        -11 |        -60 |
+| lib\data\repositoryImpl\userSettingsRepoImpl.dart                                                             |          1 |        -57 |          0 |        -10 |        -67 |
+| lib\domain                                                                                                    |         40 |     -2,453 |       -118 |       -505 |     -3,076 |
+| lib\domain\controller                                                                                         |         12 |     -1,704 |        -83 |       -294 |     -2,081 |
+| lib\domain\controller_bridges                                                                                 |          4 |        -86 |          0 |        -28 |       -114 |
+| lib\domain\entities                                                                                           |         12 |       -510 |        -22 |       -114 |       -646 |
+| lib\domain\repository                                                                                         |         12 |       -153 |        -13 |        -69 |       -235 |
+| lib\domain\repository (Files)                                                                                 |          1 |         -4 |        -10 |         -3 |        -17 |
+| lib\domain\repository\appSettingsRepo                                                                         |          2 |        -27 |          0 |        -14 |        -41 |
+| lib\domain\repository\authRepo                                                                                |          1 |         -8 |          0 |          0 |         -8 |
+| lib\domain\repository\chatRepo                                                                                |          1 |        -27 |          0 |         -5 |        -32 |
+| lib\domain\repository\homeScreenRepo                                                                          |          1 |        -14 |          0 |         -3 |        -17 |
+| lib\domain\repository\reactionRepository                                                                      |          1 |        -15 |         -3 |        -14 |        -32 |
+| lib\domain\repository\reportRepo                                                                              |          1 |        -15 |          0 |         -4 |        -19 |
+| lib\domain\repository\rewardRepository                                                                        |          1 |        -13 |          0 |         -6 |        -19 |
+| lib\domain\repository\sanctionsRepo                                                                           |          1 |        -11 |          0 |         -5 |        -16 |
+| lib\domain\repository\settingsRepository                                                                      |          1 |         -9 |          0 |         -9 |        -18 |
+| lib\domain\repository\userCreatorRepo                                                                         |          1 |        -10 |          0 |         -6 |        -16 |
+| lib\presentation                                                                                              |         36 |     -8,724 |       -115 |       -755 |     -9,594 |
+| lib\presentation (Files)                                                                                      |          2 |        -48 |        -20 |        -22 |        -90 |
+| lib\presentation\appSettingsPresentation                                                                      |          2 |       -446 |         -3 |        -31 |       -480 |
+| lib\presentation\authScreenPresentation                                                                       |          2 |       -222 |         -8 |        -35 |       -265 |
+| lib\presentation\authScreenPresentation (Files)                                                               |          1 |       -128 |         -8 |        -25 |       -161 |
+| lib\presentation\authScreenPresentation\Screens                                                               |          1 |        -94 |          0 |        -10 |       -104 |
+| lib\presentation\chatPresentation                                                                             |          8 |     -1,600 |        -22 |       -144 |     -1,766 |
+| lib\presentation\chatPresentation (Files)                                                                     |          1 |       -345 |        -15 |        -48 |       -408 |
+| lib\presentation\chatPresentation\Widgets                                                                     |          7 |     -1,255 |         -7 |        -96 |     -1,358 |
+| lib\presentation\homeReportScreenPresentation                                                                 |          2 |       -239 |         -8 |        -48 |       -295 |
+| lib\presentation\homeScreenPresentation                                                                       |          7 |     -1,152 |        -39 |       -115 |     -1,306 |
+| lib\presentation\homeScreenPresentation (Files)                                                               |          1 |       -239 |        -36 |        -40 |       -315 |
+| lib\presentation\homeScreenPresentation\Screens                                                               |          1 |       -327 |          0 |        -24 |       -351 |
+| lib\presentation\homeScreenPresentation\Widgets                                                               |          5 |       -586 |         -3 |        -51 |       -640 |
+| lib\presentation\reactionPresentation                                                                         |          3 |     -1,018 |         -1 |        -75 |     -1,094 |
+| lib\presentation\reactionPresentation (Files)                                                                 |          1 |       -442 |         -1 |        -49 |       -492 |
+| lib\presentation\reactionPresentation\Screens                                                                 |          1 |       -227 |          0 |         -7 |       -234 |
+| lib\presentation\reactionPresentation\Widgets                                                                 |          1 |       -349 |          0 |        -19 |       -368 |
+| lib\presentation\rewardScreenPresentation                                                                     |          2 |       -957 |          0 |        -56 |     -1,013 |
+| lib\presentation\sanctionsPresentation                                                                        |          2 |       -295 |         -4 |        -25 |       -324 |
+| lib\presentation\settingsPresentation                                                                         |          2 |       -656 |         -2 |        -37 |       -695 |
+| lib\presentation\userCreatorPresentation                                                                      |          2 |     -1,364 |         -4 |        -94 |     -1,462 |
+| lib\presentation\userSettingsPresentation                                                                     |          2 |       -727 |         -4 |        -73 |       -804 |
+| lib\reordableLists                                                                                            |          8 |       -680 |       -121 |       -179 |       -980 |
+| test                                                                                                          |          1 |         -1 |          1 |          0 |          0 |
++---------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                                      | language           | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\database.rules.json                                              | JSON               |         -6 |          0 |          0 |         -6 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\firestore.indexes.json                                           | JSON               |         -4 |          0 |         -1 |         -5 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\functions\src\darValoraciones\darValoraciones.ts                 | TypeScript         |         -2 |          0 |         -4 |         -6 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\functions\src\solicitarUsuarios\solicitarUsuarios.ts             | TypeScript         |       -191 |        -29 |       -164 |       -384 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\functions\src\test\index.test.ts                                 | TypeScript         |          0 |         -9 |         -1 |        -10 |
+| d:\Proyecto\citasnuevo\FuncionesNubeFirebase\package-lock.json                                                | JSON               |     -4,627 |          0 |         -1 |     -4,628 |
+| d:\Proyecto\citasnuevo\appwrite.json                                                                          | JSON               |        514 |          0 |          0 |        514 |
+| d:\Proyecto\citasnuevo\assets\man_face.svg                                                                    | XML                |         23 |          0 |          1 |         24 |
+| d:\Proyecto\citasnuevo\assets\ok_gesture.svg                                                                  | XML                |         20 |          0 |          1 |         21 |
+| d:\Proyecto\citasnuevo\assets\pinching_hand_gesture.svg                                                       | XML                |         20 |          0 |          1 |         21 |
+| d:\Proyecto\citasnuevo\assets\raised_hand_gesture.svg                                                         | XML                |         11 |          0 |          1 |         12 |
+| d:\Proyecto\citasnuevo\assets\raised_punch_gesture.svg                                                        | XML                |         25 |          0 |          1 |         26 |
+| d:\Proyecto\citasnuevo\assets\thumbs_down_gesture.svg                                                         | XML                |         17 |          0 |          1 |         18 |
+| d:\Proyecto\citasnuevo\assets\thumbs_up_gesture.svg                                                           | XML                |         17 |          0 |          1 |         18 |
+| d:\Proyecto\citasnuevo\assets\victory_gesture.svg                                                             | XML                |         17 |          0 |          1 |         18 |
+| d:\Proyecto\citasnuevo\assets\woman_face.svg                                                                  | XML                |         20 |          0 |          1 |         21 |
+| d:\Proyecto\citasnuevo\firebasefunctions\firebase.json                                                        | JSON               |         17 |          0 |          1 |         18 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\.eslintrc.js                                               | JavaScript         |         31 |          0 |          1 |         32 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\lib\claveJSON.json                                         | JSON               |         12 |          0 |          1 |         13 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\package-lock.json                                          | JSON               |      9,227 |          0 |          1 |      9,228 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\package.json                                               | JSON               |         37 |          0 |          1 |         38 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\src\claveJSON.json                                         | JSON               |         12 |          0 |          1 |         13 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\src\darValoraciones\darValoraciones.ts                     | TypeScript         |          2 |          0 |          4 |          6 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\src\index.ts                                               | TypeScript         |      2,431 |        208 |      1,442 |      4,081 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\src\solicitarUsuarios\solicitarUsuarios.ts                 | TypeScript         |        191 |         29 |        164 |        384 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\tsconfig.dev.json                                          | JSON               |          5 |          0 |          1 |          6 |
+| d:\Proyecto\citasnuevo\firebasefunctions\functions\tsconfig.json                                              | JSON with Comments |         18 |          0 |          1 |         19 |
+| d:\Proyecto\citasnuevo\firebasefunctions\package-lock.json                                                    | JSON               |        514 |          0 |          1 |        515 |
+| d:\Proyecto\citasnuevo\firebasefunctions\package.json                                                         | JSON               |          6 |          0 |          1 |          7 |
+| d:\Proyecto\citasnuevo\functions\acceptReaction\README.md                                                     | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\acceptReaction\analysis_options.yaml                                         | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\acceptReaction\lib\main.dart                                                 | Dart               |        143 |         12 |         11 |        166 |
+| d:\Proyecto\citasnuevo\functions\acceptReaction\pubspec.yaml                                                  | YAML               |         11 |          0 |          3 |         14 |
+| d:\Proyecto\citasnuevo\functions\appSettingsUpdate\README.md                                                  | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\appSettingsUpdate\analysis_options.yaml                                      | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\appSettingsUpdate\lib\main.dart                                              | Dart               |         40 |         12 |          6 |         58 |
+| d:\Proyecto\citasnuevo\functions\appSettingsUpdate\pubspec.yaml                                               | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\confirmMessagesHadBeenRead\README.md                                         | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\confirmMessagesHadBeenRead\analysis_options.yaml                             | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\confirmMessagesHadBeenRead\lib\main.dart                                     | Dart               |         39 |         12 |          7 |         58 |
+| d:\Proyecto\citasnuevo\functions\confirmMessagesHadBeenRead\pubspec.yaml                                      | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\confirmMessages\README.md                                                    | Markdown           |         21 |          4 |         20 |         45 |
+| d:\Proyecto\citasnuevo\functions\confirmMessages\src\index.cc                                                 | C++                |          7 |         12 |          6 |         25 |
+| d:\Proyecto\citasnuevo\functions\createInstantChatInstance\README.md                                          | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\createInstantChatInstance\analysis_options.yaml                              | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\createInstantChatInstance\lib\main.dart                                      | Dart               |        119 |         12 |          8 |        139 |
+| d:\Proyecto\citasnuevo\functions\createInstantChatInstance\pubspec.yaml                                       | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\createNewVerificationInstance\README.md                                      | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\createNewVerificationInstance\analysis_options.yaml                          | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\createNewVerificationInstance\lib\main.dart                                  | Dart               |         76 |         13 |         11 |        100 |
+| d:\Proyecto\citasnuevo\functions\createNewVerificationInstance\pubspec.yaml                                   | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\createUser\README.md                                                         | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\createUser\analysis_options.yaml                                             | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\createUser\lib\main.dart                                                     | Dart               |        447 |         13 |         27 |        487 |
+| d:\Proyecto\citasnuevo\functions\createUser\pubspec.yaml                                                      | YAML               |         11 |          0 |          4 |         15 |
+| d:\Proyecto\citasnuevo\functions\deleteConversation\README.md                                                 | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\deleteConversation\analysis_options.yaml                                     | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\deleteConversation\lib\main.dart                                             | Dart               |        172 |         12 |         22 |        206 |
+| d:\Proyecto\citasnuevo\functions\deleteConversation\pubspec.yaml                                              | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\deleteReaction\README.md                                                     | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\deleteReaction\analysis_options.yaml                                         | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\deleteReaction\lib\main.dart                                                 | Dart               |         42 |         12 |          9 |         63 |
+| d:\Proyecto\citasnuevo\functions\deleteReaction\pubspec.yaml                                                  | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\deleteUser\README.md                                                         | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\deleteUser\analysis_options.yaml                                             | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\deleteUser\lib\main.dart                                                     | Dart               |        143 |         16 |         14 |        173 |
+| d:\Proyecto\citasnuevo\functions\deleteUser\pubspec.yaml                                                      | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\fetchUserProfiles\README.md                                                  | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\fetchUserProfiles\analysis_options.yaml                                      | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\fetchUserProfiles\lib\main.dart                                              | Dart               |        150 |         12 |         20 |        182 |
+| d:\Proyecto\citasnuevo\functions\fetchUserProfiles\pubspec.yaml                                               | YAML               |         11 |          0 |          4 |         15 |
+| d:\Proyecto\citasnuevo\functions\findAvailableInstantChats\README.md                                          | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\findAvailableInstantChats\analysis_options.yaml                              | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\findAvailableInstantChats\lib\main.dart                                      | Dart               |         18 |         22 |          6 |         46 |
+| d:\Proyecto\citasnuevo\functions\findAvailableInstantChats\pubspec.yaml                                       | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\getSingleUserProfile\README.md                                               | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\getSingleUserProfile\analysis_options.yaml                                   | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\getSingleUserProfile\lib\main.dart                                           | Dart               |         74 |         12 |          9 |         95 |
+| d:\Proyecto\citasnuevo\functions\getSingleUserProfile\pubspec.yaml                                            | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\giveDailyReward\README.md                                                    | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\giveDailyReward\analysis_options.yaml                                        | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\giveDailyReward\lib\main.dart                                                | Dart               |         66 |         12 |          8 |         86 |
+| d:\Proyecto\citasnuevo\functions\giveDailyReward\pubspec.yaml                                                 | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\googleNotificationAuthTokenrefresher\README.md                               | Markdown           |         22 |          3 |         21 |         46 |
+| d:\Proyecto\citasnuevo\functions\googleNotificationAuthTokenrefresher\deps.gradle                             | Gradle             |          3 |          0 |          0 |          3 |
+| d:\Proyecto\citasnuevo\functions\googleNotificationAuthTokenrefresher\src\Index.java                          | Java               |         46 |         13 |          8 |         67 |
+| d:\Proyecto\citasnuevo\functions\initVerificationProcess\README.md                                            | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\initVerificationProcess\analysis_options.yaml                                | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\initVerificationProcess\lib\main.dart                                        | Dart               |         52 |         14 |          6 |         72 |
+| d:\Proyecto\citasnuevo\functions\initVerificationProcess\pubspec.yaml                                         | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\notificationTokenManager\README.md                                           | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\notificationTokenManager\analysis_options.yaml                               | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\notificationTokenManager\lib\main.dart                                       | Dart               |         78 |         12 |          6 |         96 |
+| d:\Proyecto\citasnuevo\functions\notificationTokenManager\pubspec.yaml                                        | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\pruebapuerto\README.md                                                       | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\pruebapuerto\analysis_options.yaml                                           | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\pruebapuerto\lib\main.dart                                                   | Dart               |         43 |         12 |          6 |         61 |
+| d:\Proyecto\citasnuevo\functions\pruebapuerto\pubspec.yaml                                                    | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\rateUsers\README.md                                                          | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\rateUsers\analysis_options.yaml                                              | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\rateUsers\lib\main.dart                                                      | Dart               |        200 |         12 |         15 |        227 |
+| d:\Proyecto\citasnuevo\functions\rateUsers\pubspec.yaml                                                       | YAML               |         11 |          0 |          3 |         14 |
+| d:\Proyecto\citasnuevo\functions\refreshNotificationToken\README.md                                           | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\refreshNotificationToken\requirements.txt                                    | pip requirements   |          2 |          0 |          0 |          2 |
+| d:\Proyecto\citasnuevo\functions\refreshNotificationToken\src\index.py                                        | Python             |         53 |         16 |         13 |         82 |
+| d:\Proyecto\citasnuevo\functions\reportUser\README.md                                                         | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\reportUser\analysis_options.yaml                                             | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\reportUser\lib\main.dart                                                     | Dart               |         83 |          1 |          8 |         92 |
+| d:\Proyecto\citasnuevo\functions\reportUser\pubspec.yaml                                                      | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\revealReaction\README.md                                                     | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\revealReaction\analysis_options.yaml                                         | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\revealReaction\lib\main.dart                                                 | Dart               |         97 |         12 |         14 |        123 |
+| d:\Proyecto\citasnuevo\functions\revealReaction\pubspec.yaml                                                  | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketCreator\README.md                                                | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketCreator\analysis_options.yaml                                    | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketCreator\lib\main.dart                                            | Dart               |        105 |         12 |          8 |        125 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketCreator\pubspec.yaml                                             | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketSuccesfulShares\README.md                                        | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketSuccesfulShares\analysis_options.yaml                            | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketSuccesfulShares\lib\main.dart                                    | Dart               |         59 |         12 |          8 |         79 |
+| d:\Proyecto\citasnuevo\functions\rewardTicketSuccesfulShares\pubspec.yaml                                     | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\sendMessages\README.md                                                       | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\sendMessages\analysis_options.yaml                                           | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\sendMessages\lib\main.dart                                                   | Dart               |        152 |         12 |         14 |        178 |
+| d:\Proyecto\citasnuevo\functions\sendMessages\pubspec.yaml                                                    | YAML               |         12 |          0 |          3 |         15 |
+| d:\Proyecto\citasnuevo\functions\setAdConsentStatus\README.md                                                 | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\setAdConsentStatus\analysis_options.yaml                                     | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\setAdConsentStatus\lib\main.dart                                             | Dart               |         37 |         12 |          5 |         54 |
+| d:\Proyecto\citasnuevo\functions\setAdConsentStatus\pubspec.yaml                                              | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\setMediaPermissions\README.md                                                | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\setMediaPermissions\analysis_options.yaml                                    | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\setMediaPermissions\lib\main.dart                                            | Dart               |         21 |         22 |          9 |         52 |
+| d:\Proyecto\citasnuevo\functions\setMediaPermissions\pubspec.yaml                                             | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\subscriptionManager\README.md                                                | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\subscriptionManager\analysis_options.yaml                                    | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\subscriptionManager\lib\main.dart                                            | Dart               |        207 |         12 |         11 |        230 |
+| d:\Proyecto\citasnuevo\functions\subscriptionManager\pubspec.yaml                                             | YAML               |         11 |          0 |          4 |         15 |
+| d:\Proyecto\citasnuevo\functions\unlockProfile\README.md                                                      | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\unlockProfile\analysis_options.yaml                                          | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\unlockProfile\lib\main.dart                                                  | Dart               |         56 |         13 |          7 |         76 |
+| d:\Proyecto\citasnuevo\functions\unlockProfile\pubspec.yaml                                                   | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\updateUserData\README.md                                                     | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\updateUserData\analysis_options.yaml                                         | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\updateUserData\lib\main.dart                                                 | Dart               |         49 |         12 |          9 |         70 |
+| d:\Proyecto\citasnuevo\functions\updateUserData\pubspec.yaml                                                  | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\functions\usePromotionalCode\README.md                                                 | Markdown           |         23 |          4 |         21 |         48 |
+| d:\Proyecto\citasnuevo\functions\usePromotionalCode\analysis_options.yaml                                     | YAML               |          1 |          0 |          1 |          2 |
+| d:\Proyecto\citasnuevo\functions\usePromotionalCode\lib\main.dart                                             | Dart               |         59 |         12 |          8 |         79 |
+| d:\Proyecto\citasnuevo\functions\usePromotionalCode\pubspec.yaml                                              | YAML               |         10 |          0 |          4 |         14 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\AplicationDataSettingsMapper.dart                          | Dart               |         30 |          0 |          3 |         33 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\ApplicationSettingsDataSource.dart                         | Dart               |        155 |         10 |         26 |        191 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\ApplicationSettingsEntity.dart                             | Dart               |         20 |          0 |          1 |         21 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\appSettingsController.dart                                 | Dart               |         84 |          1 |         18 |        103 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\appSettingsPresentation\appSettingsPresentation.dart       | Dart               |        182 |          0 |         17 |        199 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\appSettingsPresentation\appSettingsScreen.dart             | Dart               |        438 |          1 |         15 |        454 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\appSettingsRepo.dart                                       | Dart               |         14 |          0 |          6 |         20 |
+| d:\Proyecto\citasnuevo\lib\App\ApplicationSettings\appSettingsRepoImpl.dart                                   | Dart               |        114 |          0 |         14 |        128 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\AuthScreenEntity.dart                                                     | Dart               |         16 |          0 |          2 |         18 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\authDataSourceImpl.dart                                                   | Dart               |         84 |          0 |         12 |         96 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\authRepo.dart                                                             | Dart               |          8 |          0 |          1 |          9 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\authRepoImpl.dart                                                         | Dart               |         49 |          0 |          5 |         54 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\authScreenController.dart                                                 | Dart               |         27 |          0 |          7 |         34 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\authScreenPresentation\Screens\authScreen.dart                            | Dart               |         94 |          0 |         13 |        107 |
+| d:\Proyecto\citasnuevo\lib\App\Auth\authScreenPresentation\authPresentation.dart                              | Dart               |        113 |          6 |         24 |        143 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\ChatConverter.dart                                                        | Dart               |        156 |          0 |         29 |        185 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\ChatEntity.dart                                                           | Dart               |         67 |          4 |         15 |         86 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\MessageEntity.dart                                                        | Dart               |         75 |          0 |         10 |         85 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\MessajeConverter.dart                                                     | Dart               |         51 |          0 |          7 |         58 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatController.dart                                                       | Dart               |        776 |         41 |         82 |        899 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatDataSource.dart                                                       | Dart               |        498 |          8 |         65 |        571 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\chatMessage.dart                                 | Dart               |        184 |          1 |         11 |        196 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\chatProfileDetailScreen.dart                     | Dart               |        130 |          1 |         16 |        147 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\chatReportScreen.dart                            | Dart               |        143 |          0 |          8 |        151 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\chatScreen.dart                                  | Dart               |        514 |          6 |         33 |        553 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\chatTile.dart                                    | Dart               |        180 |          0 |         12 |        192 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\chatTilesScreen.dart                             | Dart               |        235 |          4 |         18 |        257 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\Widgets\emptyChatWidget.dart                             | Dart               |        127 |          0 |          8 |        135 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatPresentation\chatPresentation.dart                                    | Dart               |        434 |         21 |         55 |        510 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatRepo.dart                                                             | Dart               |         31 |          0 |          5 |         36 |
+| d:\Proyecto\citasnuevo\lib\App\Chat\chatRepoImpl.dart                                                         | Dart               |        310 |          0 |         27 |        337 |
+| d:\Proyecto\citasnuevo\lib\App\ControllerBridges\BridgeFromPurchaseSystemToRewardSystem.dart                  | Dart               |         12 |          2 |          5 |         19 |
+| d:\Proyecto\citasnuevo\lib\App\ControllerBridges\ChatToMessagesController.dart                                | Dart               |         19 |          0 |          6 |         25 |
+| d:\Proyecto\citasnuevo\lib\App\ControllerBridges\HomeScreenCotrollerBridge.dart                               | Dart               |         20 |          0 |          8 |         28 |
+| d:\Proyecto\citasnuevo\lib\App\ControllerBridges\MessagesToChatControllerBridge.dart                          | Dart               |         19 |          0 |          6 |         25 |
+| d:\Proyecto\citasnuevo\lib\App\ControllerBridges\PurchseSystemControllerBridge.dart                           | Dart               |         19 |          0 |          6 |         25 |
+| d:\Proyecto\citasnuevo\lib\App\DataManager.dart                                                               | Dart               |         18 |         40 |         14 |         72 |
+| d:\Proyecto\citasnuevo\lib\App\MainDatasource\principalDataSource.dart                                        | Dart               |         98 |         18 |         21 |        137 |
+| d:\Proyecto\citasnuevo\lib\App\PrincipalScreen.dart                                                           | Dart               |        201 |          1 |         12 |        214 |
+| d:\Proyecto\citasnuevo\lib\App\PrincipalScreenFataNotifier.dart                                               | Dart               |          5 |          0 |          1 |          6 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\ProfileEntity.dart                                               | Dart               |         30 |          0 |          4 |         34 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\ProfilesMapper.dart                                              | Dart               |         63 |          0 |         14 |         77 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenController.dart                                        | Dart               |        116 |         28 |         23 |        167 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenDataSources.dart                                       | Dart               |        221 |         28 |         26 |        275 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\Screens\HomeScreen.dart                   | Dart               |        323 |          0 |         28 |        351 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\Widgets\NavigationBar.dart                | Dart               |        231 |          0 |         14 |        245 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\Widgets\ProfileCharacteristicsWidget.dart | Dart               |         68 |          0 |         13 |         81 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\Widgets\ProfileDescription.dart           | Dart               |         33 |          0 |          4 |         37 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\Widgets\ProfilePicture.dart               | Dart               |         51 |          0 |          8 |         59 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\Widgets\profileWidget.dart                | Dart               |        246 |          2 |         21 |        269 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenPresentation\homeScrenPresentation.dart                | Dart               |        220 |         36 |         34 |        290 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenRepo.dart                                              | Dart               |         14 |          0 |          3 |         17 |
+| d:\Proyecto\citasnuevo\lib\App\ProfileViewer\homeScreenRepoImpl.dart                                          | Dart               |        104 |          0 |         12 |        116 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseEntity.dart                                             | Dart               |         35 |          0 |          6 |         41 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseSystemController.dart                                   | Dart               |         91 |          0 |         19 |        110 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseSystemDataSource.dart                                   | Dart               |        198 |          3 |         23 |        224 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseSystemMapper.dart                                       | Dart               |         55 |          0 |          5 |         60 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseSystemPresentation\purchaseScreen.dart                  | Dart               |        408 |          0 |         13 |        421 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseSystemPresentation\purchaseSystemPresentation.dart      | Dart               |        131 |          0 |         25 |        156 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchaseSystemRepoImpl.dart                                     | Dart               |        112 |          0 |         15 |        127 |
+| d:\Proyecto\citasnuevo\lib\App\PurchaseSystem\purchasesystemRepository.dart                                   | Dart               |         12 |          0 |          3 |         15 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\ReactionEntity.dart                                                  | Dart               |        127 |          1 |         39 |        167 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\ReactionsMappers.dart                                                | Dart               |         40 |          0 |          5 |         45 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionDataSource.dart                                              | Dart               |        318 |          2 |         43 |        363 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionPresentation\Screens\ReactionScreen.dart                     | Dart               |        218 |          0 |          7 |        225 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionPresentation\Widgets\RevealingCard.dart                      | Dart               |        438 |          0 |         20 |        458 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionPresentation\reactionPresentation.dart                       | Dart               |        454 |          1 |         48 |        503 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionRepoImpl.dart                                                | Dart               |        159 |          0 |         21 |        180 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionRepository.dart                                              | Dart               |         20 |          1 |          9 |         30 |
+| d:\Proyecto\citasnuevo\lib\App\Reactions\reactionsController.dart                                             | Dart               |        375 |         10 |         61 |        446 |
+| d:\Proyecto\citasnuevo\lib\App\ReportUsers\ReportScreen.dart                                                  | Dart               |        211 |          0 |         10 |        221 |
+| d:\Proyecto\citasnuevo\lib\App\ReportUsers\homeReportScreenPresentation.dart                                  | Dart               |         90 |          5 |         14 |        109 |
+| d:\Proyecto\citasnuevo\lib\App\ReportUsers\reportController.dart                                              | Dart               |         27 |          0 |          7 |         34 |
+| d:\Proyecto\citasnuevo\lib\App\ReportUsers\reportDataSource.dart                                              | Dart               |         58 |          1 |          9 |         68 |
+| d:\Proyecto\citasnuevo\lib\App\ReportUsers\reportRepo.dart                                                    | Dart               |         15 |          0 |          4 |         19 |
+| d:\Proyecto\citasnuevo\lib\App\ReportUsers\reportRepoImpl.dart                                                | Dart               |         42 |          1 |          5 |         48 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\RewardMapper.dart                                                      | Dart               |         17 |          0 |          4 |         21 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\RewardScreenControllerBridge.dart                                      | Dart               |         19 |          0 |          6 |         25 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\RewardsEntity.dart                                                     | Dart               |         38 |          7 |         15 |         60 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardController.dart                                                  | Dart               |        217 |          0 |         44 |        261 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardDataSource.dart                                                  | Dart               |        202 |          6 |         24 |        232 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardRepoImpl.dart                                                    | Dart               |        147 |          0 |         25 |        172 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardRepository.dart                                                  | Dart               |         18 |          0 |          4 |         22 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\dailyRewardWidget.dart                        | Dart               |        181 |          0 |         11 |        192 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\firstRewardWidget.dart                        | Dart               |        117 |          0 |         11 |        128 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\promotionalRewardWidget.dart                  | Dart               |        138 |          0 |         11 |        149 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\rewardScreen.dart                             | Dart               |        605 |          0 |         13 |        618 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\rewardScreenPresentation.dart                 | Dart               |        328 |          0 |         47 |        375 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\shareCodeRewardWidget.dart                    | Dart               |        101 |          1 |         12 |        114 |
+| d:\Proyecto\citasnuevo\lib\App\Rewards\rewardScreenPresentation\sharedLinkRewardWidget.dart                   | Dart               |        123 |          0 |         10 |        133 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\SanctionsEntity.dart                                                 | Dart               |         37 |         11 |          9 |         57 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\SanctionsMapper.dart                                                 | Dart               |         23 |          0 |          3 |         26 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\sanctionsController.dart                                             | Dart               |         87 |          1 |         17 |        105 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\sanctionsDataSource.dart                                             | Dart               |        132 |          2 |         17 |        151 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\sanctionsPresentation\sanctionsPresentation.dart                     | Dart               |        131 |          0 |         27 |        158 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\sanctionsPresentation\sanctionsScreen.dart                           | Dart               |        374 |          0 |          9 |        383 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\sanctionsRepo.dart                                                   | Dart               |         11 |          0 |          6 |         17 |
+| d:\Proyecto\citasnuevo\lib\App\Sanctions\sanctionsRepoImpl.dart                                               | Dart               |         91 |          1 |         14 |        106 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\SettingsController.dart                                               | Dart               |        122 |          0 |         18 |        140 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\SettingsEntity.dart                                                   | Dart               |         12 |          0 |          2 |         14 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\SettingsMapper.dart                                                   | Dart               |         12 |          0 |         10 |         22 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\SettingsRepository.dart                                               | Dart               |          9 |          0 |         10 |         19 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\SettingsToAppSettingsControllerBridge.dart                            | Dart               |         21 |          0 |          7 |         28 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\settingsDataSource.dart                                               | Dart               |        170 |          6 |         28 |        204 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\settingsInputScreen.dart                                              | Dart               |        167 |          0 |          5 |        172 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\settingsPresentation\SettingsScreen.dart                              | Dart               |        307 |          0 |         14 |        321 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\settingsPresentation\settingsScreenPresentation.dart                  | Dart               |         75 |          0 |         25 |        100 |
+| d:\Proyecto\citasnuevo\lib\App\Settings\settingsRepoImpl.dart                                                 | Dart               |         67 |          0 |         12 |         79 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\ProfileCharacteristicsEntity.dart                                  | Dart               |         13 |          0 |          3 |         16 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\UserCreatorEntity.dart                                             | Dart               |         53 |          0 |         12 |         65 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\UserCreatorMapper.dart                                             | Dart               |        141 |          0 |         24 |        165 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreator.DataSource.dart                                        | Dart               |        239 |          2 |         25 |        266 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorController.dart                                         | Dart               |         94 |          9 |         22 |        125 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\ProfilecharacterisitcsEditor.dart  | Dart               |        182 |         47 |         18 |        247 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\picturesScreen.dart                | Dart               |        219 |          1 |         14 |        234 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\promotionalCodeScreen.dart         | Dart               |        162 |          0 |          6 |        168 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\userBioInput.dart                  | Dart               |        108 |          1 |          6 |        115 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\userCharacteristicsInput.dart      | Dart               |        252 |          9 |         12 |        273 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\userCreatorScreen.dart             | Dart               |        341 |          0 |         15 |        356 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\userNameInputScreen.dart           | Dart               |        214 |          1 |          9 |        224 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\userSexPreferences.dart            | Dart               |        130 |          1 |          5 |        136 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\Widgets\userUnitSystem.dart                | Dart               |        139 |          0 |          3 |        142 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorPresentation\userCreatorPresentation.dart               | Dart               |        340 |         19 |         48 |        407 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorRepo.dart                                               | Dart               |         14 |          0 |          4 |         18 |
+| d:\Proyecto\citasnuevo\lib\App\UserCreator\userCreatorRepoImpl.dart                                           | Dart               |        107 |          0 |         15 |        122 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\UserSettingsEntity.dart                                           | Dart               |         81 |          0 |         17 |         98 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\UserSettingsMapper.dart                                           | Dart               |        170 |          0 |         33 |        203 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\UserSettingsToSettingsControllerBridge.dart                       | Dart               |         19 |          0 |          7 |         26 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\userSettingsController.dart                                       | Dart               |         88 |          0 |         21 |        109 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\userSettingsDataSource.dart                                       | Dart               |        170 |          2 |         28 |        200 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\userSettingsPresentation\userPresentation.dart                    | Dart               |         97 |          0 |         22 |        119 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\userSettingsPresentation\userSettingsScreen.dart                  | Dart               |        610 |          2 |         50 |        662 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\userSettingsRepo.dart                                             | Dart               |         12 |          0 |          7 |         19 |
+| d:\Proyecto\citasnuevo\lib\App\UserSettings\userSettingsRepoImpl.dart                                         | Dart               |         92 |          0 |         16 |        108 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\VerificationTicketEntity.dart                                     | Dart               |         19 |          1 |          3 |         23 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\VerificationTicketMapper.dart                                     | Dart               |         51 |          0 |          4 |         55 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationController.dart                                       | Dart               |         68 |          0 |         22 |         90 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationDataSource.dart                                       | Dart               |        115 |          1 |         14 |        130 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationPresentation\verificationCameraScreen.dart            | Dart               |        629 |          4 |         31 |        664 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationPresentation\verificationPresentation.dart            | Dart               |        129 |          4 |         22 |        155 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationPresentation\verificationScreen.dart                  | Dart               |        246 |          0 |         14 |        260 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationRepoImpl.dart                                         | Dart               |         83 |          0 |         14 |         97 |
+| d:\Proyecto\citasnuevo\lib\App\Verification\verificationRepository.dart                                       | Dart               |         12 |          0 |          6 |         18 |
+| d:\Proyecto\citasnuevo\lib\App\controllerDef.dart                                                             | Dart               |        168 |         42 |         39 |        249 |
+| d:\Proyecto\citasnuevo\lib\App\principalScreenPresentation.dart                                               | Dart               |         55 |          0 |         10 |         65 |
+| d:\Proyecto\citasnuevo\lib\Utils\dialogs.dart                                                                 | Dart               |      1,160 |          2 |         28 |      1,190 |
+| d:\Proyecto\citasnuevo\lib\Utils\getImageFile.dart                                                            | Dart               |         22 |          0 |          4 |         26 |
+| d:\Proyecto\citasnuevo\lib\Utils\presentationDef.dart                                                         | Dart               |         16 |         19 |         13 |         48 |
+| d:\Proyecto\citasnuevo\lib\Utils\routes.dart                                                                  | Dart               |         24 |          0 |          2 |         26 |
+| d:\Proyecto\citasnuevo\lib\core\ads_services\Ads.dart                                                         | Dart               |       -152 |          0 |        -26 |       -178 |
+| d:\Proyecto\citasnuevo\lib\core\appwrite_services\appwrite_services.dart                                      | Dart               |         15 |          0 |          3 |         18 |
+| d:\Proyecto\citasnuevo\lib\core\common\common_widgets.dart\errorWidget.dart                                   | Dart               |        -67 |          0 |         -7 |        -74 |
+| d:\Proyecto\citasnuevo\lib\core\common\profileCharacteristics.dart                                            | Dart               |         83 |         -1 |         -5 |         77 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\dependencyCreator.dart                                           | Dart               |         78 |         18 |          6 |        102 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\error\Exceptions.dart                                            | Dart               |       -120 |         -1 |        -17 |       -138 |
+| d:\Proyecto\citasnuevo\lib\core\dependencies\error\Failure.dart                                               | Dart               |        -83 |          0 |        -18 |       -101 |
+| d:\Proyecto\citasnuevo\lib\core\error\Exceptions.dart                                                         | Dart               |        221 |          1 |         27 |        249 |
+| d:\Proyecto\citasnuevo\lib\core\error\Failure.dart                                                            | Dart               |        156 |          0 |         27 |        183 |
+| d:\Proyecto\citasnuevo\lib\core\firebase_services\firebase_auth.dart                                          | Dart               |        -96 |        -13 |        -17 |       -126 |
+| d:\Proyecto\citasnuevo\lib\core\globalData.dart                                                               | Dart               |          9 |          0 |          2 |         11 |
+| d:\Proyecto\citasnuevo\lib\core\hotty-189c7-e36082d7e86d.json                                                 | JSON               |         12 |          0 |          1 |         13 |
+| d:\Proyecto\citasnuevo\lib\core\iapPurchases\iapPurchases.dart                                                | Dart               |         -1 |          0 |          1 |          0 |
+| d:\Proyecto\citasnuevo\lib\core\location_services\locatio_service.dart                                        | Dart               |         29 |          0 |          4 |         33 |
+| d:\Proyecto\citasnuevo\lib\core\notifications\notifications_service.dart                                      | Dart               |        -11 |          0 |         -3 |        -14 |
+| d:\Proyecto\citasnuevo\lib\core\params_types\params_and_types.dart                                            | Dart               |          1 |          1 |         -8 |         -6 |
+| d:\Proyecto\citasnuevo\lib\core\platform\networkInfo.dart                                                     | Dart               |         -1 |          0 |          1 |          0 |
+| d:\Proyecto\citasnuevo\lib\core\services\Ads.dart                                                             | Dart               |        176 |          0 |         28 |        204 |
+| d:\Proyecto\citasnuevo\lib\core\services\firebase_auth.dart                                                   | Dart               |        132 |         13 |         14 |        159 |
+| d:\Proyecto\citasnuevo\lib\core\streamParser\streamPareser.dart                                               | Dart               |          7 |          5 |          4 |         16 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\ChatConverter.dart                                                    | Dart               |       -147 |          0 |        -25 |       -172 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\ConverterDefinition.dart                                              | Dart               |          0 |          0 |         -1 |         -1 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\MessajeConverter.dart                                                 | Dart               |        -36 |          0 |         -5 |        -41 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\ProfilesMapper.dart                                                   | Dart               |        -78 |          0 |        -10 |        -88 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\ReactionsMappers.dart                                                 | Dart               |        -34 |          0 |         -6 |        -40 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\RewardMapper.dart                                                     | Dart               |        -14 |          0 |         -4 |        -18 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\SettingsMapper.dart                                                   | Dart               |        -61 |          0 |         -8 |        -69 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\UserCreatorMapper.dart                                                | Dart               |       -165 |          0 |        -61 |       -226 |
+| d:\Proyecto\citasnuevo\lib\data\Mappers\UserSettingsMapper.dart                                               | Dart               |       -195 |          0 |        -28 |       -223 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\HomeDataSource\homeScreenDataSources.dart                         | Dart               |       -184 |        -25 |        -18 |       -227 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\appSettings\ApplicationSettingsDataSource.dart                    | Dart               |       -125 |          0 |        -18 |       -143 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\authDataSources\authDataSourceImpl.dart                           | Dart               |        -52 |          0 |        -16 |        -68 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\chatDataSource\chatDataSource.dart                                | Dart               |       -441 |         -2 |        -68 |       -511 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\principalDataSource\principalDataSource.dart                      | Dart               |        -62 |        -14 |        -13 |        -89 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\reactionDataSources\reactionDataSource.dart                       | Dart               |       -228 |         -2 |        -32 |       -262 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\reportDataSource\reportDataSource.dart                            | Dart               |        -69 |         -4 |        -12 |        -85 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\rewardsDataSource\rewardDataSource.dart                           | Dart               |       -142 |         -5 |        -23 |       -170 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\sanctionsDataSource.dart\sanctionsDataSource.dart                 | Dart               |        -76 |         -1 |        -17 |        -94 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\settingsDataSource\settingsDataSource.dart                        | Dart               |       -157 |         -6 |        -25 |       -188 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\userCreatorDataSource\userCreator.DataSource.dart                 | Dart               |       -151 |         -5 |        -30 |       -186 |
+| d:\Proyecto\citasnuevo\lib\data\dataSources\userSettingsDataSource\userSettingsDataSource.dart                | Dart               |       -202 |         -3 |        -39 |       -244 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\appSettingsRepoImpl\appSettingsRepo.dart                       | Dart               |        -67 |         -2 |        -12 |        -81 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\authRepoImpl\authRepoImpl.dart                                 | Dart               |        -49 |          0 |         -5 |        -54 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\chatRepoImpl\chatRepoImpl.dart                                 | Dart               |       -148 |          0 |        -23 |       -171 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\homeScreenRepoImpl.dart\homeScreenRepoImpl.dart                | Dart               |        -95 |         -1 |        -10 |       -106 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\reactionRepoImpl\reactionRepoImpl.dart                         | Dart               |        -89 |          0 |        -13 |       -102 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\reportRepoImpl\reportRepoImpl.dart                             | Dart               |        -42 |         -1 |         -6 |        -49 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\rewardRepoImpl\rewardRepoImpl.dart                             | Dart               |        -64 |          0 |        -10 |        -74 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\sanctionsRepoImpl\sanctionsRepoImpl.dart                       | Dart               |        -41 |         -1 |         -9 |        -51 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\settingsRepoImpl\settingsRepoImpl.dart                         | Dart               |        -26 |          0 |         -7 |        -33 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\userCreatorRepoImpl\userCreatorRepoImpl.dart                   | Dart               |        -49 |          0 |        -11 |        -60 |
+| d:\Proyecto\citasnuevo\lib\data\repositoryImpl\userSettingsRepoImpl.dart\userSettingsRepoImpl.dart            | Dart               |        -57 |          0 |        -10 |        -67 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\SettingsController.dart                                          | Dart               |       -120 |          0 |        -20 |       -140 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\appSettingsController.dart                                       | Dart               |        -86 |         -2 |        -14 |       -102 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\authScreenController.dart                                        | Dart               |        -22 |         -2 |         -9 |        -33 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\chatController.dart                                              | Dart               |       -466 |        -15 |        -54 |       -535 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\controllerDef.dart                                               | Dart               |       -147 |        -40 |        -33 |       -220 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\homeScreenController.dart                                        | Dart               |       -116 |         -3 |        -17 |       -136 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\reactionsController.dart                                         | Dart               |       -352 |        -18 |        -58 |       -428 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\reportController.dart                                            | Dart               |        -25 |         -2 |         -7 |        -34 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\rewardController.dart                                            | Dart               |       -154 |          0 |        -34 |       -188 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\sanctionsController.dart                                         | Dart               |        -61 |         -1 |        -12 |        -74 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\userCreatorController.dart                                       | Dart               |        -75 |          0 |        -16 |        -91 |
+| d:\Proyecto\citasnuevo\lib\domain\controller\userSettingsController.dart                                      | Dart               |        -80 |          0 |        -20 |       -100 |
+| d:\Proyecto\citasnuevo\lib\domain\controller_bridges\HomeScreenCotrollerBridge.dart                           | Dart               |        -23 |          0 |        -10 |        -33 |
+| d:\Proyecto\citasnuevo\lib\domain\controller_bridges\RewardScreenControllerBridge.dart                        | Dart               |        -23 |          0 |         -6 |        -29 |
+| d:\Proyecto\citasnuevo\lib\domain\controller_bridges\SettingsToAppSettingsControllerBridge.dart               | Dart               |        -21 |          0 |         -6 |        -27 |
+| d:\Proyecto\citasnuevo\lib\domain\controller_bridges\UserSettingsToSettingsControllerBridge.dart              | Dart               |        -19 |          0 |         -6 |        -25 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ApplicationSettingsEntity.dart                                     | Dart               |        -20 |          0 |         -1 |        -21 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\AuthScreenEntity.dart                                              | Dart               |        -15 |          0 |          0 |        -15 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ChatEntity.dart                                                    | Dart               |        -66 |         -4 |        -16 |        -86 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\MessageEntity.dart                                                 | Dart               |        -23 |          0 |         -3 |        -26 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ProfileCharacteristicsEntity.dart                                  | Dart               |        -13 |          0 |         -3 |        -16 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ProfileEntity.dart                                                 | Dart               |        -30 |          0 |         -1 |        -31 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\ReactionEntity.dart                                                | Dart               |       -126 |         -1 |        -39 |       -166 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\RewardsEntity.dart                                                 | Dart               |        -18 |         -6 |        -12 |        -36 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\SanctionsEntity.dart                                               | Dart               |        -34 |        -11 |         -9 |        -54 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\SettingsEntity.dart                                                | Dart               |        -40 |          0 |         -4 |        -44 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\UserCreatorEntity.dart                                             | Dart               |        -52 |          0 |        -11 |        -63 |
+| d:\Proyecto\citasnuevo\lib\domain\entities\UserSettingsEntity.dart                                            | Dart               |        -73 |          0 |        -15 |        -88 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\DataManager.dart                                                 | Dart               |         -4 |        -10 |         -3 |        -17 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\appSettingsRepo\appSettingsRepo.dart                             | Dart               |        -14 |          0 |         -7 |        -21 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\appSettingsRepo\userSettingsRepo.dart                            | Dart               |        -13 |          0 |         -7 |        -20 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\authRepo\authRepo.dart                                           | Dart               |         -8 |          0 |          0 |         -8 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\chatRepo\chatRepo.dart                                           | Dart               |        -27 |          0 |         -5 |        -32 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\homeScreenRepo\homeScreenRepo.dart                               | Dart               |        -14 |          0 |         -3 |        -17 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\reactionRepository\reactionRepository.dart                       | Dart               |        -15 |         -3 |        -14 |        -32 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\reportRepo\reportRepo.dart                                       | Dart               |        -15 |          0 |         -4 |        -19 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\rewardRepository\rewardRepository.dart                           | Dart               |        -13 |          0 |         -6 |        -19 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\sanctionsRepo\sanctionsRepo.dart                                 | Dart               |        -11 |          0 |         -5 |        -16 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\settingsRepository\SettingsRepository.dart                       | Dart               |         -9 |          0 |         -9 |        -18 |
+| d:\Proyecto\citasnuevo\lib\domain\repository\userCreatorRepo\userCreatorRepo.dart                             | Dart               |        -10 |          0 |         -6 |        -16 |
+| d:\Proyecto\citasnuevo\lib\main.dart                                                                          | Dart               |         33 |          0 |         -2 |         31 |
+| d:\Proyecto\citasnuevo\lib\presentation\appSettingsPresentation\appSettingsPresentation.dart                  | Dart               |       -137 |         -2 |        -18 |       -157 |
+| d:\Proyecto\citasnuevo\lib\presentation\appSettingsPresentation\appSettingsScreen.dart                        | Dart               |       -309 |         -1 |        -13 |       -323 |
+| d:\Proyecto\citasnuevo\lib\presentation\authScreenPresentation\Screens\authScreen.dart                        | Dart               |        -94 |          0 |        -10 |       -104 |
+| d:\Proyecto\citasnuevo\lib\presentation\authScreenPresentation\auth.dart                                      | Dart               |       -128 |         -8 |        -25 |       -161 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatMessage.dart                             | Dart               |        -97 |         -1 |        -10 |       -108 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatProfileDetailScreen.dart                 | Dart               |       -130 |         -1 |        -15 |       -146 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatReportScreen.dart                        | Dart               |       -143 |          0 |         -7 |       -150 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatScreen.dart                              | Dart               |       -437 |         -2 |        -30 |       -469 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatTile.dart                                | Dart               |       -149 |          0 |         -9 |       -158 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\chatTilesScreen.dart                         | Dart               |       -240 |         -3 |        -18 |       -261 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\Widgets\emptyChatWidget.dart                         | Dart               |        -59 |          0 |         -7 |        -66 |
+| d:\Proyecto\citasnuevo\lib\presentation\chatPresentation\chatPresentation.dart                                | Dart               |       -345 |        -15 |        -48 |       -408 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeReportScreenPresentation\ReportScreen.dart                        | Dart               |       -167 |          0 |         -7 |       -174 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeReportScreenPresentation\homeReportScreenPresentation.dart        | Dart               |        -72 |         -8 |        -41 |       -121 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Screens\HomeScreen.dart                        | Dart               |       -327 |          0 |        -24 |       -351 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\NavigationBar.dart                     | Dart               |       -231 |          0 |        -12 |       -243 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\ProfileCharacteristicsWidget.dart      | Dart               |        -68 |          0 |        -11 |        -79 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\ProfileDescription.dart                | Dart               |        -33 |          0 |         -4 |        -37 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\ProfilePicture.dart                    | Dart               |        -23 |          0 |         -5 |        -28 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\Widgets\profileWidget.dart                     | Dart               |       -231 |         -3 |        -19 |       -253 |
+| d:\Proyecto\citasnuevo\lib\presentation\homeScreenPresentation\homeScrenPresentation.dart                     | Dart               |       -239 |        -36 |        -40 |       -315 |
+| d:\Proyecto\citasnuevo\lib\presentation\presentationDef.dart                                                  | Dart               |        -24 |        -20 |        -20 |        -64 |
+| d:\Proyecto\citasnuevo\lib\presentation\reactionPresentation\Screens\ReactionScreen.dart                      | Dart               |       -227 |          0 |         -7 |       -234 |
+| d:\Proyecto\citasnuevo\lib\presentation\reactionPresentation\Widgets\RevealingCard.dart                       | Dart               |       -349 |          0 |        -19 |       -368 |
+| d:\Proyecto\citasnuevo\lib\presentation\reactionPresentation\reactionPresentation.dart                        | Dart               |       -442 |         -1 |        -49 |       -492 |
+| d:\Proyecto\citasnuevo\lib\presentation\rewardScreenPresentation\rewardScreen.dart                            | Dart               |       -684 |          0 |        -12 |       -696 |
+| d:\Proyecto\citasnuevo\lib\presentation\rewardScreenPresentation\rewardScreenPresentation.dart                | Dart               |       -273 |          0 |        -44 |       -317 |
+| d:\Proyecto\citasnuevo\lib\presentation\routes.dart                                                           | Dart               |        -24 |          0 |         -2 |        -26 |
+| d:\Proyecto\citasnuevo\lib\presentation\sanctionsPresentation\sanctionsPresentation.dart                      | Dart               |        -90 |         -4 |        -20 |       -114 |
+| d:\Proyecto\citasnuevo\lib\presentation\sanctionsPresentation\sanctionsScreen.dart                            | Dart               |       -205 |          0 |         -5 |       -210 |
+| d:\Proyecto\citasnuevo\lib\presentation\settingsPresentation\SettingsScreen.dart                              | Dart               |       -566 |          0 |        -12 |       -578 |
+| d:\Proyecto\citasnuevo\lib\presentation\settingsPresentation\settingsScreenPresentation.dart                  | Dart               |        -90 |         -2 |        -25 |       -117 |
+| d:\Proyecto\citasnuevo\lib\presentation\userCreatorPresentation\userCreatorPresentation.dart                  | Dart               |       -154 |         -3 |        -34 |       -191 |
+| d:\Proyecto\citasnuevo\lib\presentation\userCreatorPresentation\userCreatorScreen.dart                        | Dart               |     -1,210 |         -1 |        -60 |     -1,271 |
+| d:\Proyecto\citasnuevo\lib\presentation\userSettingsPresentation\userPresentation.dart                        | Dart               |       -122 |         -2 |        -26 |       -150 |
+| d:\Proyecto\citasnuevo\lib\presentation\userSettingsPresentation\userSettingsScreen.dart                      | Dart               |       -605 |         -2 |        -47 |       -654 |
+| d:\Proyecto\citasnuevo\lib\reordableList.dart                                                                 | Dart               |       -188 |        -32 |        -29 |       -249 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\drag_info.dart                                                      | Dart               |       -180 |        -13 |        -49 |       -242 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\reorderable_grid_mixin.dart                                         | Dart               |       -188 |        -36 |        -53 |       -277 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\reorderable_item.dart                                               | Dart               |       -139 |        -18 |        -30 |       -187 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\reorderable_sliver_grid_view.dart                                   | Dart               |        -57 |         -8 |        -13 |        -78 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\reorderable_wrapper_widget.dart                                     | Dart               |        -75 |        -43 |        -26 |       -144 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\sliver_grid_with_reorderable_pos_delegate.dart                      | Dart               |        -25 |         -2 |         -3 |        -30 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\test_grid.dart                                                      | Dart               |        -10 |          0 |         -2 |        -12 |
+| d:\Proyecto\citasnuevo\lib\reordableLists\util.dart                                                           | Dart               |         -6 |         -1 |         -3 |        -10 |
+| d:\Proyecto\citasnuevo\pubspec.yaml                                                                           | YAML               |         11 |          0 |        -23 |        -12 |
+| d:\Proyecto\citasnuevo\test\widget_test.dart                                                                  | Dart               |         -1 |          1 |          0 |          0 |
+| Total                                                                                                         |                    |     19,447 |        769 |      2,910 |     23,126 |
++---------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

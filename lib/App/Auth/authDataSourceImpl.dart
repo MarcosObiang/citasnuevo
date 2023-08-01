@@ -4,10 +4,9 @@ import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
 import '../controllerDef.dart';
 import '../../core/error/Exceptions.dart';
-import '../../core/services/firebase_auth.dart';
+import '../../core/services/AuthService.dart';
 import '../../core/globalData.dart';
 import '../../core/platform/networkInfo.dart';
-
 
 abstract class AuthScreenDataSource
     implements
@@ -71,12 +70,8 @@ class AuthScreenDataSourceImpl implements AuthScreenDataSource {
     if (await NetworkInfoImpl.networkInstance.isConnected) {
       try {
         late Map<String, dynamic> authData;
-        if (signInProviders == SignInProviders.GOOGLE) {
-          authData = await authService.logUserFromGoogle();
-        }
-        if (signInProviders == SignInProviders.FACEABOOK) {
-          authData = await authService.logUserFromFacebook();
-        }
+        authData = await authService.logUser(signInProviders: signInProviders);
+
         return authData;
       } catch (e) {
         throw AuthException(message: e.toString());

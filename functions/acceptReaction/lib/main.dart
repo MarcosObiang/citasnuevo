@@ -83,7 +83,8 @@ Future<void> start(final req, final res) async {
             "user1Blocked": false,
             "user2Blocked": false,
             "user1NotificationToken": user1Data.data["notificationToken"],
-            "user2NotificationToken": user2Data.data["notificationToken"]
+            "user2NotificationToken": user2Data.data["notificationToken"],
+            "isBlindDate":false
           },
           permissions: [
             Permission.read(Role.user(user1Id)),

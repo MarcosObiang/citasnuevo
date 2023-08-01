@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
@@ -17,7 +18,6 @@ import '../../core/error/Failure.dart';
 import 'ChatEntity.dart';
 import 'MessageEntity.dart';
 import 'chatRepo.dart';
-
 
 abstract class ChatController
     implements
@@ -40,15 +40,18 @@ abstract class ChatController
       {required String profileId, required String chatId});
   Future<Either<Failure, bool>> initializeChatListener();
   Future<Either<Failure, bool>> initializeMessageListener();
+  Future<Either<Failure, bool>>createBlindDate();
   bool get getAnyChatOpen => this.anyChatOpen;
   set setAnyChatOpen(bool value);
+
   ///sends message
   Future<Either<Failure, bool>> sendMessage(
       {required Message message,
       required String messageNotificationToken,
       required String remitentId,
       required bool retryMessageSending});
-/// Deletes chat
+
+  /// Deletes chat
   Future<Either<Failure, bool>> deleteChat(
       {required String remitent1,
       required String remitent2,
@@ -60,6 +63,8 @@ abstract class ChatController
   Chat removeChatsFromList({required int chatIndex});
   void removeMessageFromChatList(
       {required String messageId, required String chatId});
+  Future<Either<Failure, Uint8List?>> getImage();
+
   bool isAppInForeground = false;
 }
 
@@ -70,7 +75,7 @@ class ChatControllerImpl implements ChatController {
   List<Chat> chatList = [];
   int chatRemovedIndex = -1;
   bool anyChatOpen = false;
-  String lastChatToRecieveMessageId =kNotAvailable;
+  String lastChatToRecieveMessageId = kNotAvailable;
   String chatOpenId = "";
   int newChats = 0;
   int newMessages = 0;
@@ -388,6 +393,10 @@ class ChatControllerImpl implements ChatController {
     for (int i = 0; i < chatList.length; i++) {
       bool isModified = event["modified"];
       Message message = event["message"];
+      if(message.messageType==MessageType.IMAGE){
+            message.initMessage();
+
+      }
 
       ///Looking for the chat the message is for
       ///
@@ -621,7 +630,8 @@ class ChatControllerImpl implements ChatController {
       {required Message message,
       required String messageNotificationToken,
       required String remitentId,
-      required bool retryMessageSending}) async {
+      required bool retryMessageSending,
+      Uint8List? filedata}) async {
     if (isChatMessageSendingQuequeEmpty(
         chatId: message.chatId, retrySendingMessage: retryMessageSending)) {
       if (isChatListEmpty(message.chatId)) {
@@ -643,7 +653,7 @@ class ChatControllerImpl implements ChatController {
                 senderId: kNotAvailable,
                 messageId: "messageId",
                 messageDate: tiempo.millisecondsSinceEpoch,
-                messageType: MessageType.DATE),
+                messageType: MessageType.DATE,fileData: filedata),
             index: index,
             isModified: false);
       }
@@ -881,4 +891,17 @@ class ChatControllerImpl implements ChatController {
     }
     await chatRepository.messagesSeen(messaagesIds: messagesIdList);
   }
+
+  @override
+  Future<Either<Failure, Uint8List?>> getImage() {
+    return chatRepository.getImage();
+  }
+  
+  @override
+  Future<Either<Failure, bool>> createBlindDate()async {
+    return await chatRepository.createBlindDate();
+
+  }
+
+
 }

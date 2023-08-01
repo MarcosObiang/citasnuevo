@@ -1,7 +1,11 @@
+import 'dart:ui';
+
+import 'package:citasnuevo/App/controllerDef.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +45,7 @@ class _AuthScreenState extends State<AuthScreen> implements RouteAware {
 
   @override
   void didPush() {
-   checkIfUserIsSignedIn();
+    checkIfUserIsSignedIn();
     print("didPush");
   }
 
@@ -63,23 +67,34 @@ class _AuthScreenState extends State<AuthScreen> implements RouteAware {
       child: Consumer<AuthScreenPresentation>(builder: (BuildContext context,
           AuthScreenPresentation authScreenPresentation, Widget? child) {
         return Material(
-          
-        
           child: SafeArea(
             child: Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                Colors.red,
+                Colors.deepOrange,
+                Colors.orange,
+                Colors.green
+              ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
                     "Hotty",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 90.sp),
+                    style: GoogleFonts.lato(
+                        color: Colors.black,
+                        fontSize: 90.sp,
+                        fontWeight: FontWeight.bold),
                   ),
                   if (authScreenPresentation.authState ==
                       AuthState.signingIn) ...[
-                    LoadingIndicator(
-                      indicatorType: Indicator.ballPulse,
-                      colors: [Colors.red, Colors.orange, Colors.green],
+                    Container(
+                      height: 600.h,
+                      width: 600.h,
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.lineSpinFadeLoader,
+                        colors: [Colors.red, Colors.orange, Colors.green],
+                      ),
                     ),
                   ],
                   if (authScreenPresentation.authState == AuthState.error)
@@ -87,13 +102,25 @@ class _AuthScreenState extends State<AuthScreen> implements RouteAware {
                   if (authScreenPresentation.authState == AuthState.succes) ...[
                     Text("Dentro"),
                   ],
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        authScreenPresentation.signInWithGoogle();
-                      },
-                      child: const Text("Iniciar sesion"),
-                    ),
+                  Column(
+                    children: [
+                      ElevatedButton.icon(
+                        icon: Icon(LineAwesomeIcons.facebook),
+                        onPressed: () async {
+                          authScreenPresentation.signIn(
+                              signInProviders: SignInProviders.facebook);
+                        },
+                        label: const Text("Iniciar sesion con Facebook"),
+                      ),
+                      ElevatedButton.icon(
+                        icon: Icon(LineAwesomeIcons.google_logo),
+                        onPressed: () async {
+                          authScreenPresentation.signIn(
+                              signInProviders: SignInProviders.google);
+                        },
+                        label: const Text("Iniciar sesion con Google"),
+                      ),
+                    ],
                   ),
                 ],
               ),

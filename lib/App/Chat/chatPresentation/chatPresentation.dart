@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
-import '../../PrincipalScreenFataNotifier.dart';
+import '../../PrincipalScreenDataNotifier.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
 import '../../controllerDef.dart';
@@ -160,12 +161,14 @@ class ChatPresentation extends ChangeNotifier
       {required Message message,
       required String messageNotificationToken,
       required String remitentId,
-      required bool retryMessageSending}) async {
+      required bool retryMessageSending,
+      Uint8List? fileData}) async {
     var result = await chatController.sendMessage(
-        retryMessageSending: retryMessageSending,
-        message: message,
-        messageNotificationToken: messageNotificationToken,
-        remitentId: remitentId);
+      retryMessageSending: retryMessageSending,
+      message: message,
+      messageNotificationToken: messageNotificationToken,
+      remitentId: remitentId,
+    );
     result.fold((failure) {
       if (failure is NetworkFailure) {
         PresentationDialogs.instance
@@ -493,5 +496,42 @@ class ChatPresentation extends ChangeNotifier
       "newMessagesCount": newMessages,
       "newChatsCount": newChats
     });
+  }
+
+  Future<Uint8List?> getImage() async {
+    Uint8List? data;
+
+    var result = await chatController.getImage();
+
+    result.fold((l) => null, (r) => data = r);
+
+    return data;
+  }
+
+  void createBlindDate() async {
+    var result = await chatController.createBlindDate();
+    result.fold((fail) {
+      if (fail is NetworkFailure) {
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
+      }
+      if (fail is LocationServiceFailure) {
+        if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {}
+
+        if (fail.message == "LOCATION_PERMISSION_DENIED") {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Permiso de localizacion",
+              content:
+                  "La aplicacion no tiene permiso para acceder su ubicacion",
+              context: startKey.currentContext);
+        }
+
+        if (fail.message == "UNABLE_TO_DETERMINE_LOCATION_STATUS") {}
+        if (fail.message == "LOCATION_SERVICE_DISABLED") {}
+      }
+      if (fail is FetchUserFailure) {
+        if (fail.message == "PROFILE_NOT_VISIBLE") {}
+      }
+    }, (r) => null);
   }
 }

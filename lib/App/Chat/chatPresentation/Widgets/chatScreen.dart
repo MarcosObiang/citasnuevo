@@ -1,12 +1,12 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 
-
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +19,6 @@ import '../chatPresentation.dart';
 import 'chatMessage.dart';
 import 'chatProfileDetailScreen.dart';
 import 'chatReportScreen.dart';
-
 
 // ignore: must_be_immutable
 class ChatMessagesScreen extends StatefulWidget {
@@ -81,8 +80,8 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
       }
     });
     chatLitIndex = getIndex(chatId: widget.chatId);
-    remitentImageData = ImageFile.getImageData(
-        imageId:
+    remitentImageData = ImageFile.getFile(
+        fileId:
             Dependencies.chatController.chatList[chatLitIndex].remitentPicture);
 
     Dependencies.chatPresentation.setMessagesOnSeen(chatId: widget.chatId);
@@ -322,6 +321,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
       padding: const EdgeInsets.all(8.0),
       child: Scrollbar(
         thumbVisibility: true,
+        controller: controller,
         child: AnimatedList(
             physics: BouncingScrollPhysics(),
             key: ChatMessagesScreen.messageListState,
@@ -433,13 +433,29 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                       if (gif.images?.original != null) {
                         sendMessage(
                             text: gif.images?.original?.url,
-                            isGif: true,
+                            messageType: MessageType.GIPHY,
                             chatPresentation: presentation);
                       }
                     }
                   }
                 },
                 icon: Icon(Icons.emoji_emotions)),
+          ),
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: IconButton(
+                onPressed: () async {
+                  var data = await presentation.getImage();
+                  if (data != null) {
+                    sendMessage(
+                        text: kNotAvailable,
+                        messageType: MessageType.IMAGE,
+                        chatPresentation: presentation,
+                        fileData: data);
+                  }
+                },
+                icon: Icon(LineAwesomeIcons.image)),
           ),
           Flexible(
             flex: 8,
@@ -453,7 +469,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
               onEditingComplete: () {
                 sendMessage(
                     text: textEditingController.text,
-                    isGif: false,
+                    messageType: MessageType.TEXT,
                     chatPresentation: presentation);
               },
             ),
@@ -465,7 +481,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 onPressed: () {
                   sendMessage(
                       text: textEditingController.text,
-                      isGif: false,
+                      messageType: MessageType.TEXT,
                       chatPresentation: presentation);
                 },
                 icon: Icon(Icons.send)),
@@ -477,22 +493,24 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
 
   void sendMessage(
       {required String? text,
-      required bool isGif,
-      required ChatPresentation chatPresentation}) {
+      required MessageType messageType,
+      required ChatPresentation chatPresentation,
+      Uint8List? fileData}) {
     if (text != null) {
       if (text.length > 0) {
-        Dependencies.chatPresentation.sendMessage(
+        chatPresentation.sendMessage(
             retryMessageSending: false,
             message: new Message(
+              fileData: fileData,
               messageDateText: kNotAvailable,
               read: false,
               isResponse: false,
               data: text,
               chatId: widget.chatId,
-              senderId: GlobalDataContainer.userId as String,
+              senderId: GlobalDataContainer.userId,
               messageId: "",
               messageDate: DateTime.now().millisecondsSinceEpoch,
-              messageType: isGif ? MessageType.GIPHY : MessageType.TEXT,
+              messageType: messageType,
             ),
             messageNotificationToken: chatPresentation
                 .chatController.chatList[chatLitIndex].notificationToken,
