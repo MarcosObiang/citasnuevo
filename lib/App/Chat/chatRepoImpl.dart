@@ -316,11 +316,11 @@ class ChatRepoImpl implements ChatRepository {
       }
     }
   }
-  
+
   @override
-  Future<Either<Failure, Uint8List?>> getImage()async {
-  try {
-     var result= await chatDataSource.getImage();
+  Future<Either<Failure, Uint8List?>> getImage() async {
+    try {
+      var result = await chatDataSource.getImage();
       return Right(result);
     } catch (e) {
       if (e is NetworkException) {
@@ -333,10 +333,10 @@ class ChatRepoImpl implements ChatRepository {
       }
     }
   }
-  
+
   @override
- Future<Either<Failure, bool>>createBlindDate()async {
-      try {
+  Future<Either<Failure, bool>> createBlindDate() async {
+    try {
       await chatDataSource.createBlindDate();
       return Right(true);
     } catch (e) {
@@ -349,6 +349,21 @@ class ChatRepoImpl implements ChatRepository {
         return Left(LocationServiceFailure(message: e.toString()));
       }
     }
-    
+  }
+
+  @override
+  Future<Either<Failure, bool>> goToAppSettings() async {
+    try {
+      var result = await chatDataSource.goToLocationSettings();
+      return Right(result);
+    } catch (e) {
+      if (e is ChatFailure) {
+        return Left(ChatFailure(message: e.toString()));
+      } else if (e is LocationServiceException) {
+        return Left(LocationServiceFailure(message: e.message));
+      } else {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    }
   }
 }

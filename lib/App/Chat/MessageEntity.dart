@@ -17,7 +17,7 @@ class Message {
   late String messageId;
   late String messageDateText;
   Uint8List? fileData;
-   Future<Uint8List?> remitentFile=Future.value(null);
+  Future<Uint8List?>? remitentFile = null;
 
   late MessageSendingState messageSendingState = MessageSendingState.SENT;
   MessageType messageType;
@@ -36,8 +36,9 @@ class Message {
   void initMessage() {
     if (this.messageType == MessageType.AUDIO ||
         this.messageType == MessageType.IMAGE && this.fileData == null) {
+      remitentFile = Future.value(null);
       remitentFile = ImageFile.getFile(fileId: this.data);
-      remitentFile.then((value) => fileData = value);
+      remitentFile?.then((value) => fileData = value);
     }
   }
 }

@@ -26,6 +26,7 @@ abstract class ChatDataSource
     implements DataSource, ModuleCleanerDataSource, ImmageMediaPickerCapacity {
   StreamSubscription<RealtimeMessage>? chatListenerSubscription;
   late List<Message> messagesWithOutChat;
+  Future<bool> goToLocationSettings();
 
   StreamController<dynamic>? chatStream;
 
@@ -606,6 +607,16 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
+    }
+  }
+
+  @override
+  Future<bool> goToLocationSettings() async {
+    try {
+      bool openSettings = await LocationService.instance.gotoLocationSettings();
+      return openSettings;
+    } catch (e) {
+      throw LocationServiceException(message: e.toString());
     }
   }
 }

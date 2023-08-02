@@ -40,7 +40,7 @@ abstract class ChatController
       {required String profileId, required String chatId});
   Future<Either<Failure, bool>> initializeChatListener();
   Future<Either<Failure, bool>> initializeMessageListener();
-  Future<Either<Failure, bool>>createBlindDate();
+  Future<Either<Failure, bool>> createBlindDate();
   bool get getAnyChatOpen => this.anyChatOpen;
   set setAnyChatOpen(bool value);
 
@@ -64,6 +64,7 @@ abstract class ChatController
   void removeMessageFromChatList(
       {required String messageId, required String chatId});
   Future<Either<Failure, Uint8List?>> getImage();
+  Future<Either<Failure, bool>> goToLocationSettings();
 
   bool isAppInForeground = false;
 }
@@ -377,6 +378,16 @@ class ChatControllerImpl implements ChatController {
     }
   }
 
+  /// Opens the system settings to activate location
+  ///
+  /// When the user has permanently denied the location service to the app
+  ///
+  /// the location must permission must be given to the app in the system settings
+
+  Future<Either<Failure, bool>> goToLocationSettings() async {
+    return await chatRepository.goToAppSettings();
+  }
+
   //
   //
   //---MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
@@ -393,9 +404,8 @@ class ChatControllerImpl implements ChatController {
     for (int i = 0; i < chatList.length; i++) {
       bool isModified = event["modified"];
       Message message = event["message"];
-      if(message.messageType==MessageType.IMAGE){
-            message.initMessage();
-
+      if (message.messageType == MessageType.IMAGE) {
+        message.initMessage();
       }
 
       ///Looking for the chat the message is for
@@ -653,7 +663,8 @@ class ChatControllerImpl implements ChatController {
                 senderId: kNotAvailable,
                 messageId: "messageId",
                 messageDate: tiempo.millisecondsSinceEpoch,
-                messageType: MessageType.DATE,fileData: filedata),
+                messageType: MessageType.DATE,
+                fileData: filedata),
             index: index,
             isModified: false);
       }
@@ -896,12 +907,9 @@ class ChatControllerImpl implements ChatController {
   Future<Either<Failure, Uint8List?>> getImage() {
     return chatRepository.getImage();
   }
-  
+
   @override
-  Future<Either<Failure, bool>> createBlindDate()async {
+  Future<Either<Failure, bool>> createBlindDate() async {
     return await chatRepository.createBlindDate();
-
   }
-
-
 }

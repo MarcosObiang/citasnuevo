@@ -543,6 +543,23 @@
             "events": [],
             "schedule": "",
             "timeout": 15
+        },
+        {
+            "$id": "revealBlindDate",
+            "name": "revealBlindDate",
+            "runtime": "dart-2.17",
+            "path": "functions/revealBlindDate",
+            "entrypoint": "lib/main.dart",
+            "ignore": [
+                ".packages",
+                ".dart_tool"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
         }
     ]
 }

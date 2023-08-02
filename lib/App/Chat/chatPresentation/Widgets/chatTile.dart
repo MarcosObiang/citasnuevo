@@ -15,31 +15,32 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:octo_image/octo_image.dart';
 
 class ChatCard extends StatefulWidget {
-  Chat chatData;
-  Animation<double> animationValue;
-  int index;
   ChatCard(
       {required this.chatData,
       required this.animationValue,
       required this.index});
+
+  Animation<double> animationValue;
+  Chat chatData;
+  int index;
 
   @override
   _ChatCardState createState() => _ChatCardState();
 }
 
 class _ChatCardState extends State<ChatCard> {
+  Color defaultColor = Colors.white;
+  Color defaultTextColor = Colors.black;
   late Future<Uint8List> remitentImageData;
+  Color unreadMessagesColor = Colors.deepPurpleAccent;
+  Color unreadMessagesTextColor = Colors.white;
+
   @override
   void initState() {
     remitentImageData =
         ImageFile.getFile(fileId: widget.chatData.remitentPicture);
     super.initState();
   }
-
-  Color defaultColor = Colors.white;
-  Color unreadMessagesColor = Colors.deepPurpleAccent;
-  Color defaultTextColor = Colors.black;
-  Color unreadMessagesTextColor = Colors.white;
 
   Widget build(BuildContext context) {
     return FadeTransition(

@@ -13,7 +13,7 @@ import '../../../../main.dart';
 import '../chatPresentation.dart';
 
 class ChatScreen extends StatefulWidget {
-  static const routeName="/ChatScreen";
+  static const routeName = "/ChatScreen";
   const ChatScreen({Key? key}) : super(key: key);
   static GlobalKey<AnimatedListState> chatListState = GlobalKey();
   static GlobalKey<AnimatedListState> newChatListState = GlobalKey();
@@ -59,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
   @override
   void didPushNext() {
     print("Did Push Next");
- //   Dependencies.chatPresentation.setAnyChatOpen = true;
+    //   Dependencies.chatPresentation.setAnyChatOpen = true;
 
     super.didPushNext();
   }
@@ -70,8 +70,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
     for (int i = 0;
         i < Dependencies.chatPresentation.chatListCache.length;
         i++) {
-      if (Dependencies
-          .chatPresentation.chatListCache[i].messagesList.isEmpty) {
+      if (Dependencies.chatPresentation.chatListCache[i].messagesList.isEmpty) {
         reslult += 1;
       }
     }
@@ -105,7 +104,6 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
             child: SafeArea(
                 child: Column(
           children: [
-            
             if (chatPresentation.chatListState == ChatListState.ready) ...[
               Flexible(
                 flex: 1,
@@ -131,11 +129,13 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                                 chatPresentation.chatListCache.length,
                             itemBuilder: (BuildContext context, int index,
                                 Animation<double> animation) {
-                              return chatPresentation.chatListCache[index].messagesList.isEmpty
+                              return chatPresentation
+                                      .chatListCache[index].messagesList.isEmpty
                                   ? EmptyChatWidget(
                                       index: index,
                                       animation: animation,
-                                      chat: chatPresentation.chatListCache[index],
+                                      chat:
+                                          chatPresentation.chatListCache[index],
                                     )
                                   : Container();
                             }),
@@ -165,12 +165,12 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                               physics: BouncingScrollPhysics(),
                               controller: controller,
                               key: ChatScreen.chatListState,
-                              initialItemCount: chatPresentation
-                                  .chatListCache.length,
+                              initialItemCount:
+                                  chatPresentation.chatListCache.length,
                               itemBuilder: (BuildContext context, int index,
                                   Animation<double> animation) {
-                                return chatPresentation.chatListCache[index].messagesList.isNotEmpty
-                                      
+                                return chatPresentation.chatListCache[index]
+                                        .messagesList.isNotEmpty
                                     ? ChatCard(
                                         index: index,
                                         chatData: chatPresentation
@@ -181,6 +181,33 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                               }),
                         ),
                       ),
+                      Flexible(
+                          flex: 2,
+                          fit: FlexFit.loose,
+                          child: chatPresentation.blindDateCreationState ==
+                                  BlindDateCreationState.done
+                              ? ElevatedButton.icon(
+                                  onPressed: () {
+                                    chatPresentation.createBlindDate();
+                                  },
+                                  icon: Container(
+                                      height: 100.h,
+                                      width: 100.h,
+                                      child: Icon(LineAwesomeIcons.mask)),
+                                  label: Text("Pulsa para cita a ciegas"))
+                              : ElevatedButton.icon(
+                                  onPressed: () {},
+                                  icon: Container(
+                                    height: 100.h,
+                                    width: 100.h,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: LoadingIndicator(
+                                          indicatorType:
+                                              Indicator.lineSpinFadeLoader),
+                                    ),
+                                  ),
+                                  label: Text("Buscando a alguien para ti"))),
                     ],
                   ),
                 ),
@@ -251,14 +278,6 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                 )),
               )
             ],
-               Flexible(
-                flex: 3,
-                fit: FlexFit.loose,
-                child: Container(
-                    child: ElevatedButton.icon(onPressed: (){
-                      chatPresentation.createBlindDate();
-                    }, icon: Icon(LineAwesomeIcons.mask), label: Text("Iniciar cita a ciegas"))),
-              ),
           ],
         )));
       }),

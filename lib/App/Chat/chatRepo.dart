@@ -31,6 +31,7 @@ abstract class ChatRepository implements ModuleCleanerRepository, StreamParser {
   Future<Either<Failure, bool>> messagesSeen({
     required List<String> messaagesIds,
   });
-  Future<Either<Failure, bool>>createBlindDate();
+  Future<Either<Failure, bool>> createBlindDate();
   Future<Either<Failure, Uint8List?>> getImage();
+  Future<Either<Failure, bool>> goToAppSettings();
 }

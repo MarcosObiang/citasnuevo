@@ -141,19 +141,24 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
           return Center(
             child: ListView(
               children: [
-                ListTile(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                        context,
-                        GoToRoute(
-                            page: ChatProfileDetailsScreen(
-                                chatId: widget.chatId,
-                                remitentId: widget.remitentId)));
-                  },
-                  leading: Icon(Icons.person),
-                  subtitle: Text("Pulsa para ver el perfil"),
-                ),
+                chatPresentation.chatController.chatList[chatLitIndex]
+                            .isBlindDate ==
+                        false
+                    ? ListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              GoToRoute(
+                                  page: ChatProfileDetailsScreen(
+                                      chatId: widget.chatId,
+                                      remitentId: widget.remitentId)));
+                        },
+                        leading: Icon(Icons.person),
+                        title: Text("Ver perfil"),
+                        subtitle: Text("Pulsa para ver el perfil"),
+                      )
+                    : Container(),
                 ListTile(
                     leading: Icon(Icons.delete),
                     title: Text("Eliminar conversacion"),
@@ -162,23 +167,42 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                       Navigator.pop(context);
                       showDeleteChatDialog();
                     }),
-                ListTile(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                        context,
-                        GoToRoute(
-                            page: ReportChatScreen(
-                          chatId: widget.chatId,
-                          remitent: widget.remitentId,
-                        )));
-                  },
-                  leading: Icon(Icons.report),
-                  title: Text(
-                      "Eliminar y denuciar a ${chatPresentation.chatListCache[chatLitIndex].remitentName}"),
-                  subtitle: Text(
-                      "Pulsa para denunciar a ${chatPresentation.chatListCache[chatLitIndex].remitentName}"),
-                )
+                chatPresentation.chatController.chatList[chatLitIndex]
+                            .isBlindDate ==
+                        false
+                    ? ListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              GoToRoute(
+                                  page: ReportChatScreen(
+                                chatId: widget.chatId,
+                                remitent: widget.remitentId,
+                              )));
+                        },
+                        leading: Icon(Icons.report),
+                        title: Text(
+                            "Eliminar y denuciar a ${chatPresentation.chatListCache[chatLitIndex].remitentName}"),
+                        subtitle: Text(
+                            "Pulsa para denunciar a ${chatPresentation.chatListCache[chatLitIndex].remitentName}"),
+                      )
+                    : ListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              GoToRoute(
+                                  page: ReportChatScreen(
+                                chatId: widget.chatId,
+                                remitent: widget.remitentId,
+                              )));
+                        },
+                        leading: Icon(Icons.report),
+                        title: Text("Eliminar y denuciar perfil"),
+                        subtitle: Text(
+                            "Pulsa para denunciar a este perfil y eliminar la conversacion"),
+                      )
               ],
             ),
           );
@@ -222,6 +246,12 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                                       )
                                     ],
                                   )),
+                              chatPresentation.chatController
+                                          .chatList[chatLitIndex].isBlindDate ==
+                                      true
+                                  ? revealRemitentButtonContainer(
+                                      constraints, chatPresentation)
+                                  : Container(),
                               messageSenderBar(constraints, chatPresentation)
                             ],
                           ),
@@ -424,6 +454,17 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
               },
               icon: Icon(Icons.menu))
         ]);
+  }
+
+  Widget revealRemitentButtonContainer(
+      BoxConstraints constraints, ChatPresentation presentation) {
+    return Container(
+      height: kBottomNavigationBarHeight * 1,
+      child: ElevatedButton.icon(
+          onPressed: () {},
+          icon: Icon(LineAwesomeIcons.unlock),
+          label: Text("Revelar perfil")),
+    );
   }
 
   Container messageSenderBar(

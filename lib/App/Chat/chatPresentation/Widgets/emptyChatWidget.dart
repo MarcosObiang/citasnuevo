@@ -29,7 +29,10 @@ class _EmptyChatWidgetState extends State<EmptyChatWidget> {
   late Future<Uint8List> remitentImageData;
   @override
   void initState() {
-    remitentImageData = ImageFile.getFile(fileId: widget.chat.remitentPicture);
+    if (widget.chat.isBlindDate == false) {
+      remitentImageData =
+          ImageFile.getFile(fileId: widget.chat.remitentPicture);
+    }
     super.initState();
   }
 

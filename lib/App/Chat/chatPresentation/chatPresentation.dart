@@ -31,6 +31,8 @@ import 'Widgets/chatScreen.dart';
 
 enum ChatListState { loading, ready, empty, error }
 
+enum BlindDateCreationState { loading, done }
+
 class ChatPresentation extends ChangeNotifier
     implements
         Presentation,
@@ -44,6 +46,7 @@ class ChatPresentation extends ChangeNotifier
       ChatReportSendingState.notSended;
   List<Chat> chatListCache = [];
   late ChatListState chatListState = ChatListState.empty;
+  BlindDateCreationState blindDateCreationState = BlindDateCreationState.done;
   String _currentOpenChat = kNotAvailable;
   get getCurrentOpenChat => this._currentOpenChat;
   int newChats = 0;
@@ -102,6 +105,11 @@ class ChatPresentation extends ChangeNotifier
 
   set setChatListState(ChatListState chatListStateData) {
     this.chatListState = chatListStateData;
+    notifyListeners();
+  }
+
+  set setBlindDateCreationState(BlindDateCreationState blindDateCreationState) {
+    this.blindDateCreationState = blindDateCreationState;
     notifyListeners();
   }
 
@@ -509,29 +517,105 @@ class ChatPresentation extends ChangeNotifier
   }
 
   void createBlindDate() async {
+    setBlindDateCreationState = BlindDateCreationState.loading;
     var result = await chatController.createBlindDate();
+
     result.fold((fail) {
       if (fail is NetworkFailure) {
         PresentationDialogs.instance
             .showNetworkErrorDialog(context: startKey.currentContext);
       }
       if (fail is LocationServiceFailure) {
-        if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {}
-
-        if (fail.message == "LOCATION_PERMISSION_DENIED") {
-          PresentationDialogs.instance.showErrorDialog(
-              title: "Permiso de localizacion",
-              content:
-                  "La aplicacion no tiene permiso para acceder su ubicacion",
+        if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {
+          PresentationDialogs.instance.showErrorDialogWithOptions(
+              dialogOptionsList: [
+                DialogOptions(
+                    function: () {
+                      openLocationSettings();
+                      Navigator.pop(startKey.currentContext as BuildContext);
+                    },
+                    text: "Dar permiso de ubicacion"),
+                DialogOptions(
+                    function: () =>
+                        Navigator.pop(startKey.currentContext as BuildContext),
+                    text: "Ahora no")
+              ],
+              dialogTitle: "Permiso de localizacion",
+              dialogText:
+                  "Es necesario saber tu ubicaciòn para encontrarte citas a ciegas cerca de ti, dirigete a 'ajuses' para darnos permiso",
               context: startKey.currentContext);
         }
 
-        if (fail.message == "UNABLE_TO_DETERMINE_LOCATION_STATUS") {}
-        if (fail.message == "LOCATION_SERVICE_DISABLED") {}
+        if (fail.message == "LOCATION_PERMISSION_DENIED") {
+          PresentationDialogs.instance.showErrorDialogWithOptions(
+              dialogOptionsList: [
+                DialogOptions(
+                    function: () {
+                      openLocationSettings();
+                      Navigator.pop(startKey.currentContext as BuildContext);
+                    },
+                    text: "Dar permiso de ubicacion"),
+                DialogOptions(
+                    function: () =>
+                        Navigator.pop(startKey.currentContext as BuildContext),
+                    text: "Ahora no")
+              ],
+              dialogTitle: "Ir a ajustes",
+              dialogText:
+                  "Es necesario saber tu ubicaciòn para encontrarte citas a ciegas cerca de ti, dirigete a 'ajuses' para darnos permiso",
+              context: startKey.currentContext);
+        }
+
+        if (fail.message == "UNABLE_TO_DETERMINE_LOCATION_STATUS") {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Error",
+              content:
+                  "Tenemos problemas para acceder a tu ubicacion, verifica que tu ubicacion esta activada ae intentalo de nuevo ",
+              context: startKey.currentContext);
+        }
+        if (fail.message == "LOCATION_SERVICE_DISABLED") {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Activar ubicacion",
+              content:
+                  "Parece que tu ubicacion esta desactvada, activala para que puedas hablar con algien cercano a ti ",
+              context: startKey.currentContext);
+        }
       }
-      if (fail is FetchUserFailure) {
-        if (fail.message == "PROFILE_NOT_VISIBLE") {}
+      if (fail is ChatFailure) {
+        if (fail.message == "NO_USERS_FOUND") {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Error",
+              content:
+                  "No se han encontrado usuarios disponibles en este momento",
+              context: startKey.currentContext);
+        } else {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Error",
+              content: "No se puede crear una cita a ciegas en este momento",
+              context: startKey.currentContext);
+        }
       }
     }, (r) => null);
+    setBlindDateCreationState = BlindDateCreationState.done;
+  }
+
+  void openLocationSettings() async {
+    var result = await chatController.goToLocationSettings();
+    result.fold((failure) {
+      PresentationDialogs.instance.showErrorDialog(
+          title: "No se puede acceder a los ajustes de ubicacion",
+          content:
+              "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
+          context: startKey.currentContext);
+    }, (succes) {
+      if (succes == true) {
+      } else {
+        PresentationDialogs.instance.showErrorDialog(
+            title: "No se puede acceder a los ajustes de ubicacion",
+            content:
+                "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
+            context: startKey.currentContext);
+      }
+    });
   }
 }

@@ -48,23 +48,13 @@ abstract class HomeScreenDataSource
   Future<void> sendRating(
       {required double ratingValue, required String idProfileRated});
 
-  /// Sned a report to the current profile the user is rating
-  Future<bool> sendReport(
-      {required String idReporter,
-      required String idUserReported,
-      required String reportDetails});
   Future<bool> setConsent({required bool cosent});
 }
 
 class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   @override
   ApplicationDataSource source;
-  HttpsCallable fetchProfilesCloudFunction =
-      FirebaseFunctions.instance.httpsCallable("solicitarUsuarios");
-  HttpsCallable sendProfileRating =
-      FirebaseFunctions.instance.httpsCallable("darValoraciones");
-  HttpsCallable reportUser =
-      FirebaseFunctions.instance.httpsCallable("enviarDenuncia");
+
   Map<String, dynamic> dataSourceStreamData = Map();
   @override
   StreamSubscription? sourceStreamSubscription;
@@ -175,27 +165,6 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
         } else {
           throw RatingProfilesException(message: 'PROFILE_RATING_FAILED');
         }
-      }
-    } else {
-      throw NetworkException(message: kNetworkErrorMessage);
-    }
-  }
-
-  @override
-  Future<bool> sendReport(
-      {required String idReporter,
-      required String idUserReported,
-      required String reportDetails}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
-      try {
-        await reportUser.call({
-          "idDenunciado": idUserReported,
-          "idDenunciante": idReporter,
-          "detalles": reportDetails
-        });
-        return true;
-      } catch (e) {
-        throw ReportException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
