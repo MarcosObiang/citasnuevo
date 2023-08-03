@@ -24,6 +24,8 @@ import 'chatReportScreen.dart';
 class ChatMessagesScreen extends StatefulWidget {
   String chatId;
   String remitentId;
+  bool? wasBlindChat;
+
   static GlobalKey messageScreenKey = GlobalKey();
   static GlobalKey<AnimatedListState> messageListState = GlobalKey();
 
@@ -79,18 +81,16 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
             controller.position.maxScrollExtent) {}
       }
     });
+
     chatLitIndex = getIndex(chatId: widget.chatId);
+    widget.wasBlindChat =
+        Dependencies.chatController.chatList[chatLitIndex].isBlindDate;
     remitentImageData = ImageFile.getFile(
         fileId:
             Dependencies.chatController.chatList[chatLitIndex].remitentPicture);
 
     Dependencies.chatPresentation.setMessagesOnSeen(chatId: widget.chatId);
     Dependencies.chatPresentation.setCurrentOpenChat = widget.chatId;
-  }
-
-  @override
-  void didUpdateWidget(covariant ChatMessagesScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -209,6 +209,17 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
         });
   }
 
+  void checkIfBlindCChatHadBeenRevealed(ChatPresentation chatPresentation) {
+    if (chatPresentation.chatController.chatList[chatLitIndex].isBlindDate ==
+            false &&
+        widget.wasBlindChat == true) {
+      remitentImageData = ImageFile.getFile(
+          fileId: chatPresentation
+              .chatController.chatList[chatLitIndex].remitentPicture);
+      widget.wasBlindChat = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -216,6 +227,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
         key: ChatMessagesScreen.messageScreenKey,
         child: Consumer<ChatPresentation>(builder: (BuildContext context,
             ChatPresentation chatPresentation, Widget? child) {
+          checkIfBlindCChatHadBeenRevealed(chatPresentation);
           return Stack(
             children: [
               Scaffold(
@@ -461,7 +473,11 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
     return Container(
       height: kBottomNavigationBarHeight * 1,
       child: ElevatedButton.icon(
-          onPressed: () {},
+          onPressed: () {
+            presentation.revealBlindDate(
+                chatId:
+                    presentation.chatController.chatList[chatLitIndex].chatId);
+          },
           icon: Icon(LineAwesomeIcons.unlock),
           label: Text("Revelar perfil")),
     );

@@ -366,4 +366,22 @@ class ChatRepoImpl implements ChatRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> revealBlindDate(
+      {required String chatId}) async {
+    try {
+      await chatDataSource.revealBlindDate(chatId: chatId);
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      }
+      if (e is ChatException) {
+        return Left(ChatFailure(message: e.toString()));
+      } else {
+        return Left(LocationServiceFailure(message: e.toString()));
+      }
+    }
+  }
 }

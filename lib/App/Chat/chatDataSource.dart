@@ -49,6 +49,7 @@ abstract class ChatDataSource
       {required String chatId, required String lastMessageId});
   Future<Map<String, dynamic>> getUserProfile({required String profileId});
   Future<bool> createBlindDate();
+  Future<bool> revealBlindDate({required String chatId});
 
 //void sendMessages()
 }
@@ -617,6 +618,29 @@ class ChatDatsSourceImpl implements ChatDataSource {
       return openSettings;
     } catch (e) {
       throw LocationServiceException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<bool> revealBlindDate({required String chatId}) async {
+    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      try {
+        Functions functions = Functions(Dependencies.serverAPi.client!);
+        Execution execution = await functions.createExecution(
+            functionId: "revealBlindDate",
+            data: jsonEncode({"chatId": chatId}));
+        int status = jsonDecode(execution.response)["status"];
+        String messageResponse = jsonDecode(execution.response)["message"];
+        if (status == 200) {
+          return true;
+        } else {
+          throw ChatException(message: messageResponse);
+        }
+      } catch (e) {
+        throw ChatException(message: e.toString());
+      }
+    } else {
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 }

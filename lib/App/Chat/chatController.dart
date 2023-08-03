@@ -41,6 +41,8 @@ abstract class ChatController
   Future<Either<Failure, bool>> initializeChatListener();
   Future<Either<Failure, bool>> initializeMessageListener();
   Future<Either<Failure, bool>> createBlindDate();
+  Future<Either<Failure, bool>> revealBlinDate({required String chatId});
+
   bool get getAnyChatOpen => this.anyChatOpen;
   set setAnyChatOpen(bool value);
 
@@ -215,6 +217,7 @@ class ChatControllerImpl implements ChatController {
               chatList[a].remitentPicture =
                   chatListFromStream[z].remitentPicture;
               chatList[a].userBlocked = chatListFromStream[z].userBlocked;
+              chatList[a].isBlindDate = chatListFromStream[z].isBlindDate;
 
               chatList[a].remitentName = chatListFromStream[z].remitentName;
               chatList[a].notificationToken =
@@ -911,5 +914,10 @@ class ChatControllerImpl implements ChatController {
   @override
   Future<Either<Failure, bool>> createBlindDate() async {
     return await chatRepository.createBlindDate();
+  }
+
+  @override
+  Future<Either<Failure, bool>> revealBlinDate({required String chatId}) async {
+    return await chatRepository.revealBlindDate(chatId: chatId);
   }
 }

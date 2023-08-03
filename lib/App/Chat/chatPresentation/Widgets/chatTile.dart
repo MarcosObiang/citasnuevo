@@ -29,6 +29,8 @@ class ChatCard extends StatefulWidget {
 }
 
 class _ChatCardState extends State<ChatCard> {
+  bool? wasBlindChat;
+
   Color defaultColor = Colors.white;
   Color defaultTextColor = Colors.black;
   late Future<Uint8List> remitentImageData;
@@ -37,12 +39,25 @@ class _ChatCardState extends State<ChatCard> {
 
   @override
   void initState() {
-    remitentImageData =
-        ImageFile.getFile(fileId: widget.chatData.remitentPicture);
+    wasBlindChat = widget.chatData.isBlindDate;
+
+    if (widget.chatData.isBlindDate == false) {
+      remitentImageData =
+          ImageFile.getFile(fileId: widget.chatData.remitentPicture);
+    }
+
     super.initState();
   }
 
+  void checkIfBlindCChatHadBeenRevealed(Chat chatData) {
+    if (chatData.isBlindDate == false && wasBlindChat == true) {
+      remitentImageData = ImageFile.getFile(fileId: chatData.remitentPicture);
+      wasBlindChat = false;
+    }
+  }
+
   Widget build(BuildContext context) {
+    checkIfBlindCChatHadBeenRevealed(widget.chatData);
     return FadeTransition(
       opacity: widget.animationValue,
       child: GestureDetector(

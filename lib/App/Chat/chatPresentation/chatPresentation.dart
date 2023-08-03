@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:provider/provider.dart';
+
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
 import '../../PrincipalScreenDataNotifier.dart';
@@ -33,6 +35,8 @@ enum ChatListState { loading, ready, empty, error }
 
 enum BlindDateCreationState { loading, done }
 
+enum BlindDateRevelationState { loading, done }
+
 class ChatPresentation extends ChangeNotifier
     implements
         Presentation,
@@ -47,6 +51,8 @@ class ChatPresentation extends ChangeNotifier
   List<Chat> chatListCache = [];
   late ChatListState chatListState = ChatListState.empty;
   BlindDateCreationState blindDateCreationState = BlindDateCreationState.done;
+  BlindDateRevelationState blindDateRevelationState =
+      BlindDateRevelationState.done;
   String _currentOpenChat = kNotAvailable;
   get getCurrentOpenChat => this._currentOpenChat;
   int newChats = 0;
@@ -110,6 +116,12 @@ class ChatPresentation extends ChangeNotifier
 
   set setBlindDateCreationState(BlindDateCreationState blindDateCreationState) {
     this.blindDateCreationState = blindDateCreationState;
+    notifyListeners();
+  }
+
+  set setBlindDateRevelationState(
+      BlindDateRevelationState blindDateRevelationState) {
+    this.blindDateRevelationState = blindDateRevelationState;
     notifyListeners();
   }
 
@@ -514,6 +526,33 @@ class ChatPresentation extends ChangeNotifier
     result.fold((l) => null, (r) => data = r);
 
     return data;
+  }
+
+  void revealBlindDate({required String chatId}) async {
+    setBlindDateRevelationState = BlindDateRevelationState.loading;
+    var result = await chatController.revealBlinDate(chatId: chatId);
+    result.fold((l) {
+      if (l is NetworkFailure) {
+        PresentationDialogs.instance
+            .showNetworkErrorDialog(context: startKey.currentContext);
+      } else {
+        if (l.message == "LOW_MESSAGES_COUNT") {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Pocos mensajes",
+              content:
+                  "Necesitais 20 mensajes o mas para revelar vuestra identidad",
+              context: startKey.currentContext);
+        }
+        if (l.message == "INTERNAL_ERROR") {
+          PresentationDialogs.instance.showErrorDialog(
+              title: "Error de servidor",
+              content:
+                  "No podemos realizar la operacion intentalo de nuevo mas tarde, si el problema persiste contacta con soporte",
+              context: startKey.currentContext);
+        }
+      }
+    }, (r) => null);
+    setBlindDateRevelationState = BlindDateRevelationState.done;
   }
 
   void createBlindDate() async {

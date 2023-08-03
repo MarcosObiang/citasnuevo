@@ -41,7 +41,7 @@ Future<void> start(final req, final res) async {
 
     int messagesAmount = messages.total;
 
-    if (messagesAmount >= 20) {
+    if (messagesAmount >= 1) {
       var user1Data = await database.getDocument(
         databaseId: "636d59d7a2f595323a79",
         documentId: chatDataMap["user1Id"],
@@ -53,14 +53,26 @@ Future<void> start(final req, final res) async {
         collectionId: "636d59df12dcf7a399d5",
       );
 
-      chatDataMap["user1Picture"] = user1Data.data["user1Picture"];
-      chatDataMap["user2Picture"] = user2Data.data["user2Picture"];
+      chatDataMap["user1Picture"] = user1Data.data["userPicture1"];
+      chatDataMap["user2Picture"] = user2Data.data["userPicture1"];
       chatDataMap["isBlindDate"] = false;
       await database.updateDocument(
         databaseId: "636d59d7a2f595323a79",
         collectionId: "637d10c17be1c3d1544d",
         documentId: chatId,
-        data: chatDataMap,
+        data: {
+          "user1Picture": user1Data.data["userPicture1"],
+          "user2Picture": user2Data.data["userPicture1"],
+          "user1Name": user1Data.data["userName"],
+          "user2Name": user2Data.data["userName"],
+          "user1Id": user1Data.$id,
+          "user2Id": user2Data.$id,
+          "user1Blocked": false,
+          "user2Blocked": false,
+          "user1NotificationToken": user1Data.data["notificationToken"],
+          "user2NotificationToken": user2Data.data["notificationToken"],
+          "isBlindDate": false
+        },
       );
 
       res.json({
@@ -106,7 +118,7 @@ Future<void> sendPushNotification(
         collectionId: "63eba9bfd3923130eb3d",
         documentId: "63ebaa165a793004bb38");
     String notificationAuthToken = document.data["fcmNotifications"];
-    dio.Response notificationData = await dio.Dio().post(
+    await dio.Dio().post(
       "https://fcm.googleapis.com/v1/projects/hotty-189c7/messages:send",
       options: dio.Options(headers: {
         "Content-Type": "application/json",
