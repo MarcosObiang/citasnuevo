@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../../../Utils/getImageFile.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:octo_image/octo_image.dart';
 
 class ChatCard extends StatefulWidget {
   ChatCard(

@@ -45,7 +45,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   bool isRating = false;
   List<Widget> widgetList = [];
   double ratingValue = 5;
-  bool showAd=true;
+  bool showAd = true;
 
   @override
   void initState() {
@@ -68,31 +68,32 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       value: Dependencies.homeScreenPresentation,
       child: Consumer<HomeScreenPresentation>(builder: (BuildContext context,
           HomeScreenPresentation homeScreenPresentation, Widget? child) {
-        return showAd==true?   Container(
-            height: widget.boxConstraints.maxHeight,
-            width: widget.boxConstraints.maxWidth,
-            child: Stack(
-              children: [
-              ListView(
-                  addAutomaticKeepAlives: true,
-                  
-                  children: widgetList),
-                profileInfo(
-                    name: widget.profile.name,
-                    age: widget.profile.age.toString(),
-                    distance: widget.profile.distance.toString(),
-                    showDistance: widget.showDistance),
-                if (isRating) ...[ratingScreen()],
-                widget.needRatingWidget
-                    ? reactionSlider(homeScreenPresentation)
-                    : Container()
-              ],
-            )) :Center(
-              child: Container(
-                 child: Center(child: AppodealBanner(adSize: AppodealBannerSize.MEDIUM_RECTANGLE, placement: "default"))
-
-              ),
-            );
+        return showAd == true
+            ? Container(
+                height: widget.boxConstraints.maxHeight,
+                width: widget.boxConstraints.maxWidth,
+                child: Stack(
+                  children: [
+                    ListView(
+                        addAutomaticKeepAlives: true, children: widgetList),
+                    profileInfo(
+                        name: widget.profile.name,
+                        age: widget.profile.age.toString(),
+                        distance: widget.profile.distance.toString(),
+                        showDistance: widget.showDistance),
+                    if (isRating) ...[ratingScreen()],
+                    widget.needRatingWidget
+                        ? reactionSlider(homeScreenPresentation)
+                        : Container()
+                  ],
+                ))
+            : Center(
+                child: Container(
+                    child: Center(
+                        child: AppodealBanner(
+                            adSize: AppodealBannerSize.MEDIUM_RECTANGLE,
+                            placement: "default"))),
+              );
       }),
     );
   }
@@ -140,15 +141,6 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                               color: Colors.white, fontSize: 50.sp),
                         )
                       : Container(),
-                  IconButton(
-                      onPressed: () {
-                        goToReportScreen(widget.profile.id,context);
-                      },
-                      icon: Icon(
-                        Icons.report,
-                        size: 100.sp,
-                        color: Colors.white,
-                      )),
                 ],
               )
             ],
@@ -254,15 +246,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
           profileCharateristicsData: widget.profile.profileCharacteristics,
           constraints: widget.boxConstraints,
         ));
-    widgetList.add(ProfileFoot(constraints: widget.boxConstraints));
+    widgetList.add(ProfileFoot(
+        constraints: widget.boxConstraints, profileId: widget.profile.id));
 
     var time2 = DateTime.now().microsecondsSinceEpoch;
 
     print("${(time2 - time1)} microseconds");
-  }
-
-  void goToReportScreen(String userId, BuildContext context) {
-    Navigator.pushNamed(context, ReportScreen.routeName,
-        arguments: ReportScreenArgs(userId: userId));
   }
 }

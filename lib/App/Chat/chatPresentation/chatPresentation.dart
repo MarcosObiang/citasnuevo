@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:provider/provider.dart';
-
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
 import '../../PrincipalScreenDataNotifier.dart';
@@ -28,8 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:notify_inapp/notify_inapp.dart';
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
-import 'Widgets/chatScreen.dart';
 
 enum ChatListState { loading, ready, empty, error }
 
@@ -266,6 +262,8 @@ class ChatPresentation extends ChangeNotifier
       chatReportSendingState = ChatReportSendingState.notSended;
       chatListState = ChatListState.empty;
       setCurrentOpenChat = kNotAvailable;
+      setBlindDateCreationState = BlindDateCreationState.done;
+      setBlindDateRevelationState = BlindDateRevelationState.done;
       var result = chatController.clearModuleData();
       result.fold((l) {
         setChatListState = ChatListState.error;

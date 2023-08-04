@@ -27,15 +27,11 @@ Future<void> start(final req, final res) async {
     String userId = data["userId"];
     String reportDetails = data["reportDetails"];
     bool includeMessages = data["includeMessages"];
-    String chatId = data["chatId"];
     var reportProfile = await databases.getDocument(
         databaseId: "636d59d7a2f595323a79",
         collectionId: "6374cbd1eb8543d64263",
         documentId: userReported);
-    var userReportedProfile = await databases.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
-        documentId: userReported);
+
     int amountReports = reportProfile.data["amountReports"];
     amountReports = amountReports + 1;
     print(reportProfile.data);
@@ -48,7 +44,7 @@ Future<void> start(final req, final res) async {
       "includeChat": includeMessages,
       "chatId": "",
     }));
-    if (reportProfile.data["penalizedState"] ==
+    if (reportProfile.data["penalizationState"] ==
         PenalizationState.NOT_PENALIZED.name) {
       if (amountReports >= 3) {
         await databases.updateDocument(
@@ -58,13 +54,15 @@ Future<void> start(final req, final res) async {
             data: {
               "reports": reportsList,
               "amountReports": amountReports,
-              "penalizedState": PenalizationState.IN_MODERATION_WAITING.name
+              "penalizationState": PenalizationState.IN_MODERATION_WAITING.name
             });
         await databases.updateDocument(
             databaseId: "636d59d7a2f595323a79",
             collectionId: "636d59df12dcf7a399d5",
             documentId: userReported,
-            data: {"penalizedState": PenalizationState.IN_MODERATION_WAITING.name});
+            data: {
+              "penalizationState": PenalizationState.IN_MODERATION_WAITING.name
+            });
       } else {
         await databases.updateDocument(
             databaseId: "636d59d7a2f595323a79",
@@ -73,7 +71,7 @@ Future<void> start(final req, final res) async {
             data: {
               "reports": reportsList,
               "amountReports": amountReports,
-              "penalizedState": PenalizationState.NOT_PENALIZED.name
+              "penalizationState": PenalizationState.NOT_PENALIZED.name
             });
       }
     }

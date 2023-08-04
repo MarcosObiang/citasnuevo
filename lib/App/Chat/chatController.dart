@@ -475,11 +475,10 @@ class ChatControllerImpl implements ChatController {
                   message: message, index: i, isModified: isModified);
             }
 
-            _addRemitentChatMessageToChatList(
-                message: message, chatIndex: i, isModified: isModified);
-
             calculateNewMessages();
             calculatenewChats();
+            _addRemitentChatMessageToChatList(
+                message: message, chatIndex: i, isModified: isModified);
 
             if (chatList.length > 1) {
               lastChatToRecieveMessageId = message.chatId;
@@ -831,9 +830,12 @@ class ChatControllerImpl implements ChatController {
       required bool isModified}) {
     message.messageSendingState = MessageSendingState.SENT;
     chatList[chatIndex].messagesList.insert(0, message);
-    if (message.senderId != GlobalDataContainer.userId) {
+    if (message.senderId != GlobalDataContainer.userId &&
+        message.read == false) {
       chatList[chatIndex].unreadMessages += 1;
     }
+    calculateNewMessages();
+
     addDataController?.add(ChatInformationSender(
         newChats: newChats,
         newMessages: newMessages,
@@ -903,6 +905,18 @@ class ChatControllerImpl implements ChatController {
         }
       }
     }
+    calculateNewMessages();
+    updateDataController?.add(ChatInformationSender(
+        newChats: newChats,
+        newMessages: newMessages,
+        chatList: chatList,
+        messageList: [],
+        firstQuery: false,
+        isModified: false,
+        isChat: false,
+        index: null,
+        isDeleted: false));
+
     await chatRepository.messagesSeen(messaagesIds: messagesIdList);
   }
 

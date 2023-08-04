@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../UserCreator/ProfileCharacteristicsEntity.dart';
 
-
 class ProfileCharateristicsWidget extends StatefulWidget {
   final List<ProfileCharacteristics> profileCharateristicsData;
 
@@ -41,8 +40,10 @@ class _ProfileCharateristicsWidgetState
     var data = widget.profileCharateristicsData;
 
     data.forEach((element) {
-      widgetList.add(widgetValor(element.sameAsUser, Icon(element.iconData),
-          element.characteristicValue));
+      if (element.characteristicIndex > 0) {
+        widgetList.add(widgetValor(element.sameAsUser, Icon(element.iconData),
+            element.characteristicValue));
+      }
     });
 
     return widgetList;
@@ -77,4 +78,3 @@ class _ProfileCharateristicsWidgetState
     );
   }
 }
-

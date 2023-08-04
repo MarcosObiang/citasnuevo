@@ -1,21 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
-import 'dart:developer';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import '../DataManager.dart';
-import '../../core/common/commonUtils/DateNTP.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/globalData.dart';
 import '../../core/location_services/locatio_service.dart';
 import '../MainDatasource/principalDataSource.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import '../../core/platform/networkInfo.dart';
-import 'package:flutter/animation.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../../../core/common/commonUtils/getUserImage.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
 
 abstract class HomeScreenDataSource

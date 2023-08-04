@@ -24,6 +24,13 @@ enum VerificationProcessStatus {
   VERIFICATION_SUCCESFULL
 }
 
+enum PenalizationState {
+  NOT_PENALIZED,
+  IN_MODERATION_WAITING,
+  PENALIZED,
+  IN_MODERATION_DONE
+}
+
 Future<void> start(final req, final res) async {
   try {
     Client client = Client()
@@ -95,7 +102,11 @@ Future<void> start(final req, final res) async {
           "userId": userId,
           "userBio": data["userBio"],
           "amountReports": 0,
-          "reports": []
+          "reports": [],
+          "penalizationState": PenalizationState.NOT_PENALIZED.name,
+          "sanctionTimestamp": 0,
+          "penalizationEndTimestampMs": 0,
+          "penalizationCounter": 0,
         });
     await databases.createDocument(
         databaseId: "636d59d7a2f595323a79",
@@ -168,7 +179,8 @@ Future<void> start(final req, final res) async {
           "verificationStatus":
               VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
           "adConsentFormShown": false,
-          "showPersonalizedAds": false
+          "showPersonalizedAds": false,
+          "isBlindDateActive": true,
         },
         permissions: [
           Permission.read(Role.user(data["userId"], "verified")),
