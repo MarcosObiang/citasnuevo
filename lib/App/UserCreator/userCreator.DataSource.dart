@@ -17,7 +17,6 @@ import '../../core/location_services/locatio_service.dart';
 import '../../core/params_types/params_and_types.dart';
 import '../../core/platform/networkInfo.dart';
 
-
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/globalData.dart';
@@ -65,7 +64,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
 
   @override
   Future<bool> createUser({required Map<String, dynamic> userData}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected == true) {
+    if (await Dependencies.networkInfoContract.isConnected == true) {
       try {
         Map<String, dynamic> locationData =
             await LocationService.instance.locationServicesState();
@@ -110,7 +109,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           int maxAge = userData["maxAge"];
           bool useMeters = userData["useMeters"];
           bool useMilles = userData["useMilles"];
-          String promotionalCode=userData["promotionalCode"];
+          String promotionalCode = userData["promotionalCode"];
 
           for (int i = 0; i < userPictureList.length; i++) {
             UserPicutreBoxState userPicutreBoxState =
@@ -146,7 +145,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           dataToCloud["positionLon"] = locationData["lon"];
           dataToCloud["positionLat"] = locationData["lat"];
           dataToCloud["userCharacteristics"] = jsonEncode(userFilters);
-          dataToCloud["promotionalCode"]= promotionalCode;
+          dataToCloud["promotionalCode"] = promotionalCode;
           dataToCloud["userSettings"] = jsonEncode({
             "maxDistance": maxDistance,
             "maxAge": maxAge,

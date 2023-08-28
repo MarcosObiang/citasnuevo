@@ -63,129 +63,113 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
         stream: widget
             .rewardScreenPresentation.dailyRewardTieRemainingStream?.stream,
         builder: (BuildContext context, AsyncSnapshot<int> data) {
-          return Stack(
-            children: [
-              Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          color: widget
-                                      .rewardScreenPresentation
-                                      .rewardController
-                                      .secondsUntilDailyReward ==
-                                  0
-                              ? animation.value as Color
-                              : Colors.white,
-                          width: 20.h),
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: EdgeInsets.all(30.h),
-                    child: Stack(
+          return Card(
+              child: Container(
+            height: 500.h,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: widget.rewardScreenPresentation.getDayliRewardState ==
+                      DailyRewardState.done
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Text('Recompensa diaria',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface)),
                             Row(
                               children: [
-                                Text('Recompensa diaria',
-                                    style: GoogleFonts.roboto(
-                                        color: Colors.black, fontSize: 70.sp)),
+                                Text('600',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.apply(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface)),
+                                Icon(LineAwesomeIcons.coins,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface)
                               ],
-                            ),
-                            Divider(
-                              color: Colors.transparent,
-                              height: 50.h,
-                            ),
-                            Text(
-                              'Cuando tengas menos de 200 creditos, en 24 horas te reponemos hasta los 600 creditos',
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black, fontSize: 50.sp),
-                            ),
-                            Divider(
-                              color: Colors.transparent,
-                              height: 50.h,
-                            ),
-                            widget.rewardScreenPresentation.rewardController
-                                        .secondsUntilDailyReward !=
-                                    0
-                                ? Text(
-                                    " Tiempo restante: ${dateFormat.format(DateTime(
-                                        0, 0, 0, 0, 0, (data.data ?? 0)))}",
-                                    style: GoogleFonts.roboto(
-                                        color: Colors.black, fontSize: 50.sp),
-                                  )
-                                : TextButton(
-                                    onPressed: () {
-                                      if (widget.rewardScreenPresentation
-                                                  .rewards.coins <
-                                              200 &&
-                                          data.data! <= 0) {
-                                        widget.rewardScreenPresentation
-                                            .askDailyReward(showAd: true);
-                                      }
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: widget.rewardScreenPresentation
-                                                          .rewards.coins >=
-                                                      200 &&
-                                                  data.data == 0
-                                              ? Color.fromARGB(
-                                                  138, 158, 158, 158)
-                                              : Colors.deepPurple,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(30))),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(40.h),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Text(
-                                              'Reclamar recompensa',
-                                              style: GoogleFonts.roboto(
-                                                  color: Colors.white,
-                                                  fontSize: 50.sp),
-                                            ),
-                                            Icon(
-                                              LineAwesomeIcons.film,
-                                              color: Colors.white,
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    )),
+                            )
                           ],
                         ),
+                        Divider(
+                          color: Colors.transparent,
+                          height: 50.h,
+                        ),
+                        Text(
+                          'Cuando tengas menos de 200 creditos, en 24 horas te reponemos hasta los 600 creditos',
+                          style: Theme.of(context).textTheme.bodyMedium?.apply(
+                              color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                        Divider(
+                          color: Colors.transparent,
+                          height: 50.h,
+                        ),
+                        widget.rewardScreenPresentation.rewardController
+                                    .secondsUntilDailyReward !=
+                                1
+                            ? Text(
+                                " Tiempo restante: ${dateFormat.format(DateTime(0, 0, 0, 0, 0, (data.data ?? 0)))}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface),
+                              )
+                            : FilledButton.tonalIcon(
+                                onPressed: () {
+                                  if (widget.rewardScreenPresentation.rewards
+                                              .coins <
+                                          200 &&
+                                      data.data! <= 0) {
+                                    widget.rewardScreenPresentation
+                                        .askDailyReward(showAd: true);
+                                  }
+                                },
+                                icon: Icon(
+                                  LineAwesomeIcons.film,
+                                ),
+                                label: Text(
+                                  'Reclamar recompensa',
+                                )),
+                      ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Espere",
+                          style: Theme.of(context).textTheme.bodyMedium?.apply(
+                              color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                        Divider(
+                          height: 50.h,
+                          color: Colors.transparent,
+                        ),
+                        Center(
+                            child: Container(
+                          height: 100.h,
+                          width: 100.h,
+                          child: LoadingIndicator(
+                            indicatorType: Indicator.circleStrokeSpin,
+                            colors: [Theme.of(context).colorScheme.primary],
+                          ),
+                        ))
                       ],
                     ),
-                  )),
-              widget.rewardScreenPresentation.getDayliRewardState ==
-                      DailyRewardState.inProcess
-                  ? Container(
-                      height: 600.h,
-                      width: ScreenUtil().screenWidth,
-                      color: Color.fromARGB(228, 100, 24, 135),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Espere",
-                            style: GoogleFonts.roboto(
-                                color: Colors.white, fontSize: 60.sp),
-                          ),
-                          Center(
-                              child: Container(
-                            height: 200.h,
-                            width: 200.h,
-                            child: LoadingIndicator(
-                                indicatorType: Indicator.orbit),
-                          ))
-                        ],
-                      ),
-                    )
-                  : Container()
-            ],
-          );
+            ),
+          ));
         });
   }
 }

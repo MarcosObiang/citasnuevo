@@ -10,12 +10,24 @@ import '../../core/error/Failure.dart';
 import 'ProfileEntity.dart';
 import 'homeScreenRepo.dart';
 
-
-
-class HomeScreenController
+abstract class HomeScreenController
     implements
         ModuleCleanerController,
         ShouldControllerUpdateData<HomeScreenInformationSender> {
+  List<Profile> profilesList = [];
+  late HomeScreenRepository homeScreenRepository;
+  late HomeScreenControllerBridge homeScreenControllerBridge;
+  late StreamSubscription? controllerBridgeSubscription;
+  Profile removeProfileFromList({required int profileIndex});
+  Future<Either<Failure, void>> fetchProfileList();
+  Future<Either<Failure, void>> sendRating(
+      {required ReactionType reactionType, required String idProfileRated});
+  Future<Either<Failure, LocationPermission>> requestPermission();
+  Future<Either<Failure, bool>> goToLocationSettings();
+  void insertAtList({required Profile profile});
+}
+
+class HomeScreenControllerImpl implements HomeScreenController {
   @override
   StreamController<HomeScreenInformationSender>? updateDataController =
       StreamController.broadcast();
@@ -26,7 +38,7 @@ class HomeScreenController
   int newReactions = 0;
   int newChats = 0;
   int newMessages = 0;
-  HomeScreenController(
+  HomeScreenControllerImpl(
       {required this.homeScreenRepository,
       required this.homeScreenControllerBridge});
   get getProfilesList => this.profilesList;
@@ -41,7 +53,6 @@ class HomeScreenController
       profileData.forEach((element) {
         bool profileExists = profileAlreadyExists(element);
         if (profileExists == false) {
-          
           profilesList.add(element);
         }
       });
@@ -79,10 +90,11 @@ class HomeScreenController
   ///
   ///
   Future<Either<Failure, void>> sendRating(
-      {required double ratingValue, required String idProfileRated}) async {
+      {required ReactionType reactionType,
+      required String idProfileRated}) async {
     profilesList.removeWhere((element) => element.id == idProfileRated);
     return await homeScreenRepository.sendRating(
-        ratingValue: ratingValue, idProfileRated: idProfileRated);
+        reactionType: reactionType, idProfileRated: idProfileRated);
   }
 
   ///

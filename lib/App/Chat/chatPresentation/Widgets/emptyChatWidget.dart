@@ -68,10 +68,10 @@ class _EmptyChatWidgetState extends State<EmptyChatWidget> {
                                 foregroundImage: MemoryImage(snapshot.data!),
                               )
                             : Container(
-                                height: 200.h,
-                                width: 200.h,
+                                height: 300.h,
+                                width: 300.h,
                                 child: LoadingIndicator(
-                                    indicatorType: Indicator.orbit));
+                                    indicatorType: Indicator.circleStrokeSpin));
                       })
                   : CircleAvatar(
                       radius: 100.h,

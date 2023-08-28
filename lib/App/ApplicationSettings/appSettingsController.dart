@@ -11,8 +11,20 @@ import 'appSettingsRepo.dart';
 
 enum AppSettingsState { loading, updating, loaded, noLoaded }
 
-class AppSettingsController
+abstract class AppSettingsController
     implements ShouldControllerUpdateData, ModuleCleanerController {
+  late AppSettingsRepository appSettingsRepository;
+  ApplicationSettingsEntity? applicationSettingsEntity;
+  AppSettingsToSettingsControllerBridge? settingsToAppSettingsControllerBridge;
+  StreamSubscription? streamParserSubscription;
+  void initializeListener();
+  Future<Either<Failure, bool>> updateAppSettings(
+      ApplicationSettingsEntity applicationSettingsEntity);
+  Future<Either<Failure, bool>> deleteAccount();
+  Future<Either<Failure, bool>> logOut();
+}
+
+class AppSettingsControllerImpl implements AppSettingsController {
   AppSettingsRepository appSettingsRepository;
   ApplicationSettingsEntity? applicationSettingsEntity;
   AppSettingsToSettingsControllerBridge? settingsToAppSettingsControllerBridge;
@@ -20,21 +32,31 @@ class AppSettingsController
 
   @override
   late StreamController? updateDataController = StreamController.broadcast();
-  AppSettingsController(
+  AppSettingsControllerImpl(
       {required this.appSettingsRepository,
       required this.settingsToAppSettingsControllerBridge});
 
   void initializeListener() {
-    streamParserSubscription =
-        appSettingsRepository.getStreamParserController?.stream.listen((event) {
-      String payloadType = event["payloadType"];
-      if (payloadType == "applicationSettingsEntity") {
-        applicationSettingsEntity = event["payload"];
-        updateDataController?.add(applicationSettingsEntity);
-      }
-    }, onError: (error) {
-      updateDataController?.addError(error);
-    });
+    try {
+      streamParserSubscription = appSettingsRepository
+          .getStreamParserController?.stream
+          .listen((event) {
+        try {
+          String payloadType = event["payloadType"];
+          if (payloadType == "applicationSettingsEntity") {
+            applicationSettingsEntity = event["payload"];
+            updateDataController?.add(applicationSettingsEntity);
+          }
+        } catch (e) {
+          updateDataController?.addError(Exception(e.toString()));
+        }
+      }, onError: (error) {
+        updateDataController?.addError(Exception(error.toString()));
+      });
+    } catch (e) {
+      updateDataController?.addError(Exception(e.toString()));
+      throw Exception();
+    }
   }
 
   Future<Either<Failure, bool>> updateAppSettings(
@@ -46,15 +68,14 @@ class AppSettingsController
     result.fold((l) {
       sendInfo(updatingSettings: false);
     }, (r) {
-      sendInfo(updatingSettings: false);
+      sendInfo(updatingSettings: true);
     });
     return result;
   }
 
   Future<Either<Failure, bool>> deleteAccount() async {
     var result = await appSettingsRepository.deleteAccount();
-    result.fold((l) {}, (r) {
-    });
+    result.fold((l) {}, (r) {});
     return result;
   }
 

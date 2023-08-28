@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:dartz/dartz.dart';
 
 import '../DataManager.dart';
@@ -15,10 +16,10 @@ class ReactionRepositoryImpl
     implements ReactionRepository, ModuleCleanerDataSource {
   @override
   ReactionDataSource reactionDataSource;
-  ReactionRepositoryImpl({
-    required this.reactionDataSource,
-  });
-
+  ReactionRepositoryImpl(
+      {required this.reactionDataSource, required this.mapper});
+  @override
+  Mapper<Reaction> mapper;
   @override
   StreamController? streamParserController = StreamController();
 
@@ -28,7 +29,6 @@ class ReactionRepositoryImpl
   @override
   StreamController? get getStreamParserController =>
       this.streamParserController;
-
 
   @override
   StreamController<Map<String, dynamic>> get rewardedStatusListener =>
@@ -127,9 +127,9 @@ class ReactionRepositoryImpl
           bool isModified = event["modified"];
           bool deleted = event["deleted"];
           bool notify = event["notify"];
-          Map<dynamic, dynamic> reactionData = event["reaction"];
+          Map<String, dynamic> reactionData = event["reaction"];
 
-          Reaction reaction = ReactionMapper.fromMap(reactionData);
+          Reaction reaction = mapper.fromMap(reactionData);
           this.streamParserController!.add({
             "payloadType": payloadType,
             "modified": isModified,
@@ -138,12 +138,17 @@ class ReactionRepositoryImpl
             "notify": notify
           });
         } else {
-          double? reactionsAverage = event["reactionsAverage"];
+          int reactionAverage = event["reactionAverage"];
+          int reactionCount = event["reactionCount"];
+          int totalReactionPoints = event["totalReactionPoints"];
+
           int? coins = event["coins"];
           bool? isPremium = event["isPremium"];
           this.streamParserController!.add({
             "payloadType": "additionalData",
-            "reactionsAverage": reactionsAverage,
+            "reactionAverage": reactionAverage,
+            "reactionCount": reactionCount,
+            "totalReactionPoints": totalReactionPoints,
             "coins": coins,
             "isPremium": isPremium
           });
@@ -153,8 +158,6 @@ class ReactionRepositoryImpl
       });
     }
   }
-
-
 
   @override
   Future<Either<Failure, bool>> showRewarded() async {

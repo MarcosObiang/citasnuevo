@@ -18,6 +18,8 @@ import 'package:dio/dio.dart' as dio;
   If an error is thrown, a response with code 500 will be returned.
 */
 
+enum ReactionType { PASS, MAYBE, LIKE }
+
 Future<void> start(final req, final res) async {
   try {
     Client client = Client()
@@ -29,6 +31,8 @@ Future<void> start(final req, final res) async {
 
     var data = jsonDecode(req.payload);
     String userId = data["userId"];
+    String reactionType = data["reactionType"];
+    bool reactionTypeIsValid = false;
     String reactionId = createId();
     String recieverId = data["recieverId"];
     int timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -45,55 +49,53 @@ Future<void> start(final req, final res) async {
         collectionId: "636d59df12dcf7a399d5",
         documentId: userId);
 
-    num totalRatingPoints = recieverUserData.data["totalRatingPoints"];
+    int reactionAverage = recieverUserData.data["reactionAverage"];
+    int totalReactionPoints = recieverUserData.data["totalReactionPoints"];
+    int reactionCount = recieverUserData.data["reactionCount"];
+    int newReactionPoints = 0;
     String notificationToken = recieverUserData.data["notificationToken"];
 
-    int ratingsRecieved = recieverUserData.data["ratingsRecieved"];
-    int newRatingsRecieved;
-    double newTotalRatingPoints;
-    double newReactionAverage;
-    if (ratingsRecieved >= 60) {
-      newRatingsRecieved = 1;
-      newReactionAverage = data["reactionValue"];
-      newTotalRatingPoints = data["reactionValue"];
-    } else {
-      newRatingsRecieved = ratingsRecieved + 1;
-      newTotalRatingPoints =
-          (totalRatingPoints + data["reactionValue"]).toDouble();
-      newReactionAverage = newTotalRatingPoints / newRatingsRecieved;
+    for (int i = 0; i < ReactionType.values.length; i++) {
+      if (reactionType == ReactionType.values[i].name) {
+        reactionTypeIsValid = true;
+      }
     }
 
-    await databases.updateDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
-        documentId: recieverId,
-        data: {
-          "ratingsRecieved": newRatingsRecieved,
-          "averageRating": newReactionAverage,
-          "totalRatingPoints": newTotalRatingPoints,
-          "lastRatingTimestamp": DateTime.now().millisecondsSinceEpoch,
-        });
+    if (reactionTypeIsValid == true) {
+      if (reactionType == "PASS") {
+        newReactionPoints = 33;
+      }
+      if (reactionType == "MAYBE") {
+        newReactionPoints = 66;
+      }
+      if (reactionType == "LIKE") {
+        newReactionPoints = 99;
+      }
 
-    await databases.createDocument(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "6374fc078b95d03fb3c1",
-      documentId: reactionId,
-      data: {
-        "timestamp": timestamp,
-        "userBlocked": false,
-        "expirationTimestamp": expirationTimestamp,
-        "reactionId": reactionId,
-        "recieverId": recieverId,
-        "senderId": userId,
-        "reactionRevealed": false,
-        "senderName": data["senderName"],
-        "reactionValue": data["reactionValue"],
-        "userPicture": senderUserData.data["userPicture1"]
-      },
-    );
-    await databases.createDocument(
+      if (reactionCount >= 50) {
+        reactionAverage = newReactionPoints;
+        reactionCount = 1;
+        totalReactionPoints = newReactionPoints;
+      } else {
+        totalReactionPoints = totalReactionPoints + newReactionPoints;
+        reactionCount = reactionCount + 1;
+        reactionAverage = totalReactionPoints ~/ reactionCount;
+      }
+
+      await databases.updateDocument(
+          databaseId: "636d59d7a2f595323a79",
+          collectionId: "636d59df12dcf7a399d5",
+          documentId: recieverId,
+          data: {
+            "reactionCount": reactionCount,
+            "reactionAverage": reactionAverage,
+            "totalReactionPoints": totalReactionPoints,
+            "lastRatingTimestamp": DateTime.now().millisecondsSinceEpoch,
+          });
+
+      await databases.createDocument(
         databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374fe10e76d07bfe639",
+        collectionId: "6374fc078b95d03fb3c1",
         documentId: reactionId,
         data: {
           "timestamp": timestamp,
@@ -101,17 +103,40 @@ Future<void> start(final req, final res) async {
           "expirationTimestamp": expirationTimestamp,
           "reactionId": reactionId,
           "recieverId": recieverId,
+          "senderId": userId,
           "reactionRevealed": false,
+          "senderName": data["senderName"],
+          "reactionType": reactionType,
+          "userPicture": senderUserData.data["userPicture1"],
         },
-        permissions: [
-          Permission.read(Role.user(recieverId))
-        ]);
-    await sendPushNotification(
-        dataabases: databases, recieverNotificationToken: notificationToken);
+      );
+      await databases.createDocument(
+          databaseId: "636d59d7a2f595323a79",
+          collectionId: "6374fe10e76d07bfe639",
+          documentId: reactionId,
+          data: {
+            "timestamp": timestamp,
+            "userBlocked": false,
+            "expirationTimestamp": expirationTimestamp,
+            "reactionId": reactionId,
+            "recieverId": recieverId,
+            "reactionRevealed": false,
+          },
+          permissions: [
+            Permission.read(Role.user(recieverId))
+          ]);
+      await sendPushNotification(
+          dataabases: databases, recieverNotificationToken: notificationToken);
 
-    res.json({
-      'status': 200,
-    });
+      res.json({
+        'status': 200,
+      });
+    } else {
+      res.json({
+        'status': 501,
+        "mesage": "INVALID_REACTION_TYPE",
+      });
+    }
   } catch (e) {
     if (e is AppwriteException) {
       res.json({

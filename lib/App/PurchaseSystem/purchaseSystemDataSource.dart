@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/dependencies/dependencyCreator.dart';
 import '../MainDatasource/principalDataSource.dart';
 import '../../../core/globalData.dart';
 import '../DataManager.dart';
@@ -61,7 +62,7 @@ class PurchaseSystemDataSourceImplementation extends PurchaseSystemDataSource {
   }
 
   Future<void> initService() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         PurchasesConfiguration purchasesConfiguration =
             PurchasesConfiguration(androidApiKey);
@@ -79,7 +80,7 @@ class PurchaseSystemDataSourceImplementation extends PurchaseSystemDataSource {
         throw PurchaseSystemException(message: e.toString());
       }
     } else {
-     throw NetworkException(message: kNetworkErrorMessage);
+      throw NetworkException(message: kNetworkErrorMessage);
     }
   }
 
@@ -96,7 +97,7 @@ class PurchaseSystemDataSourceImplementation extends PurchaseSystemDataSource {
 
   @override
   Future<bool> makePurchase({required String offerId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         List<Package>? packageList = product.current?.availablePackages;
         Package? packageData;
@@ -152,8 +153,6 @@ class PurchaseSystemDataSourceImplementation extends PurchaseSystemDataSource {
     return result;
   }
 
-  
-
   void sendData() {
     if (product != null) {
       purchaseSystemStream?.add({
@@ -207,7 +206,7 @@ class PurchaseSystemDataSourceImplementation extends PurchaseSystemDataSource {
 
   @override
   Future<bool> restorePurchases() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         CustomerInfo customerInfo = await Purchases.restorePurchases();
         print(customerInfo);

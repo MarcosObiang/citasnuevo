@@ -43,7 +43,6 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   AdvertisingServices advertisingServices;
   StreamSubscription<RealtimeMessage>? reactionSubscriptionListener;
 
-
   @override
   StreamController<Map<String, dynamic>>
       get rewadedAdvertismentStatusListener =>
@@ -52,7 +51,10 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   @override
   ApplicationDataSource source;
   String? userID = kNotAvailable;
-  double? reactionsAverage = 0;
+  int reactionAverage = 0;
+  int totalReactionPoints = 0;
+  int reactionCount = 0;
+
   int? coins = 0;
   Map? aditionalData = new Map();
   bool? isPremium = false;
@@ -63,7 +65,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   Future<bool> showRewardedAd() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         return advertisingServices.showAd();
       } catch (e) {
@@ -74,10 +76,13 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     }
   }
 
-
-
   Map<String, dynamic> getAdditionalData() {
-    return {"coins": coins, "averageReactions": reactionsAverage};
+    return {
+      "coins": coins,
+      "reactionAverage": reactionAverage,
+      "reactionCount": reactionCount,
+      "totalReactionPoints": totalReactionPoints,
+    };
   }
 
   void _addReaction({required Map<String, dynamic> element}) {
@@ -126,7 +131,9 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     if (reactionListener != null) {
       reactionListener!.add({
         "payloadType": "additionalData",
-        "reactionsAverage": reactionsAverage,
+        "reactionAverage": reactionAverage,
+        "reactionCount": reactionCount,
+        "totalReactionPoints": totalReactionPoints,
         "coins": coins,
         "isPremium": isPremium
       });
@@ -151,7 +158,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     var documents = await databases.listDocuments(
         databaseId: "636d59d7a2f595323a79",
         collectionId: "6374fe10e76d07bfe639");
-
+    print(documents);
     documents.documents.forEach((element) {
       if (dateTime.millisecondsSinceEpoch <
           element.data["expirationTimestamp"]) {
@@ -161,12 +168,12 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       }
     });
     if (expiredReactions.isNotEmpty) {
-      await this.rejectReaction(reactionId: expiredReactions);
+      //   await this.rejectReaction(reactionId: expiredReactions);
     }
   }
 
   void initializeReactionListener() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         await getReactions();
 
@@ -224,11 +231,6 @@ class ReactionDataSourceImpl implements ReactionDataSource {
     try {
       await Future.delayed(Duration(milliseconds: 200));
       sourceStreamSubscription = source.dataStream?.stream.listen((event) {
-        reactionsAverage = double.parse(event["averageRating"].toString());
-        if (reactionsAverage != null) {
-          reactionsAverage =
-              double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
-        }
         coins = event["userCoins"];
         isPremium = event["isUserPremium"];
 
@@ -236,12 +238,8 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       });
       userID = source.getData["userId"];
       isPremium = source.getData["isUserPremium"];
-      reactionsAverage =
-          double.parse(source.getData["averageRating"].toString());
-      if (reactionsAverage != null) {
-        reactionsAverage =
-            double.parse(reactionsAverage!.toStringAsFixed(1)) * 10;
-      }
+      reactionAverage = source.getData["reactionAverage"];
+
       coins = source.getData["userCoins"];
       _sendAdditionalData();
 
@@ -253,7 +251,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   Future<void> revealReaction(String reactionId) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
 
@@ -281,7 +279,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   @override
   Future<bool> acceptReaction(
       {required String reactionId, required String reactionSenderId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -306,7 +304,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
 
   @override
   Future<bool> rejectReaction({required List<String> reactionId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -347,7 +345,9 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       reactionSubscriptionListener?.cancel();
       coins = 0;
       aditionalData = new Map();
-      reactionsAverage = 0;
+      totalReactionPoints = 0;
+      reactionAverage = 0;
+      reactionCount = 0;
       userID = kNotAvailable;
       reactionListener = new StreamController.broadcast();
     } catch (e) {

@@ -227,7 +227,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
   /// Listen to new chats, when a chat is removed, or when is modified
   @override
   void initializeChatListener() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         await _addCurrentConversations();
         Realtime realtime = Realtime(Dependencies.serverAPi.client!);
@@ -286,7 +286,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   void listenToMessages() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Realtime realtime = Realtime(Dependencies.serverAPi.client!);
         messageListenerSubscription = realtime
@@ -376,7 +376,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       {required Map<String, dynamic> message,
       required String messageNotificationToken,
       required String remitentId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         String userMessage = message["messageContent"];
 
@@ -419,7 +419,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<List<Message>> loadMoreMessages(
       {required String chatId, required String lastMessageId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       List<Message> messagesList = [];
 
       try {
@@ -435,7 +435,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<Map<String, dynamic>> getUserProfile(
       {required String profileId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -467,7 +467,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
     required String reportDetails,
     required String chatId,
   }) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -530,7 +530,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> messagesSeen({required List<String> messagesIds}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -572,7 +572,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> createBlindDate() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Map<String, dynamic> locationServicesStatus =
             await LocationService.instance.locationServicesState();
@@ -623,7 +623,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> revealBlindDate({required String chatId}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(

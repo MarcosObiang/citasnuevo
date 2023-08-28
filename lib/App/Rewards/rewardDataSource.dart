@@ -55,7 +55,7 @@ class RewardDataSourceImpl implements RewardDataSource {
       new StreamController.broadcast();
   @override
   Future<void> getDailyReward() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -80,7 +80,7 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<bool> getDynamicLink() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -106,7 +106,7 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<bool> showRewardedAd() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         return advertisingServices.showAd();
       } catch (e) {
@@ -154,7 +154,7 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<bool> getFrstReward() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -176,7 +176,7 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<bool> usePromotionalCode() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
@@ -199,7 +199,7 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<bool> rewardTicketSuccesfulShares() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(

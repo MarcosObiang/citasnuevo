@@ -3,8 +3,11 @@ import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citasnuevo/App/controllerDef.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -39,12 +42,16 @@ class ReactionCard extends StatefulWidget {
 class _ReactionCardState extends State<ReactionCard>
     with TickerProviderStateMixin {
   late AnimationController _revealingAnimation;
+  late AnimationController _reactionTypeBadgeAnimationController;
+  late final Animation<Color?> colorAnimation;
+
   bool showCard = false;
   Curve revealingAnimationcurve = Curves.easeInOutBack;
   double _revealingRotationValue = 0;
   RevealingAnimationState revealingAnimationState =
       RevealingAnimationState.notTurning;
   late Future<Uint8List> remitentImageData;
+  bool justRevealed = true;
 
   bool processing = false;
 
@@ -52,20 +59,36 @@ class _ReactionCardState extends State<ReactionCard>
   void initState() {
     super.initState();
     _revealingAnimation = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 1500))
+        vsync: this, duration: Duration(milliseconds: 1000))
       ..addListener(() {
         _revealingRotationValue =
             revealingAnimationcurve.transform(_revealingAnimation.value) * pi;
       })
       ..addStatusListener((status) {});
 
+    _reactionTypeBadgeAnimationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000));
+
+    colorAnimation =
+        ColorTween(begin: Colors.transparent, end: Colors.deepPurple.shade800)
+            .animate(_reactionTypeBadgeAnimationController);
+
+    _reactionTypeBadgeAnimationController
+        .addStatusListener((AnimationStatus animationStatus) {
+      if (animationStatus == AnimationStatus.completed) {
+        _reactionTypeBadgeAnimationController.repeat(reverse: true);
+      }
+    });
+
     if (widget.reaction.reactionRevealigState ==
         ReactionRevealigState.revealed) {
       _revealingRotationValue = pi;
       revealingAnimationState = RevealingAnimationState.turned;
+      _reactionTypeBadgeAnimationController.forward();
+
       if (widget.reaction.imageUrl["imageId"] != "empty") {
-        remitentImageData = ImageFile.getFile(
-            fileId: widget.reaction.imageUrl["imageId"]);
+        remitentImageData =
+            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageId"]);
       }
       showCard = true;
     } else {
@@ -87,9 +110,9 @@ class _ReactionCardState extends State<ReactionCard>
             ReactionRevealigState.revealed &&
         revealingAnimationState == RevealingAnimationState.turned) {
       _revealingRotationValue = pi;
-       if (widget.reaction.imageUrl["imageId"] != "empty") {
-       remitentImageData = ImageFile.getFile(
-            fileId: widget.reaction.imageUrl["imageId"]);
+      if (widget.reaction.imageUrl["imageId"] != "empty") {
+        remitentImageData =
+            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageId"]);
       }
       showCard = true;
     }
@@ -98,6 +121,7 @@ class _ReactionCardState extends State<ReactionCard>
   @override
   void dispose() {
     _revealingAnimation.dispose();
+    _reactionTypeBadgeAnimationController.dispose();
     super.dispose();
   }
 
@@ -116,13 +140,15 @@ class _ReactionCardState extends State<ReactionCard>
                 showCard == false) {
               if (_revealingAnimation.isCompleted ||
                   _revealingAnimation.isDismissed) {
-                      if (widget.reaction.imageUrl["imageId"] != "empty") {
-       remitentImageData = ImageFile.getFile(
-            fileId: widget.reaction.imageUrl["imageId"]);
-      }
+                if (widget.reaction.imageUrl["imageId"] != "empty") {
+                  remitentImageData = ImageFile.getFile(
+                      fileId: widget.reaction.imageUrl["imageId"]);
+                }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   _revealingAnimation.reset();
                   _revealingAnimation.forward();
+                  _reactionTypeBadgeAnimationController.forward();
+
                   showCard = true;
 
                   setState(() {});
@@ -154,9 +180,11 @@ class _ReactionCardState extends State<ReactionCard>
                         alignment: FractionalOffset.center,
                         child: Container(
                             decoration: BoxDecoration(
-                                color: Colors.deepPurpleAccent,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
+                                    BorderRadius.all(Radius.circular(20))),
                             height: widget.boxConstraints.biggest.height -
                                 (kBottomNavigationBarHeight),
                             width: widget.boxConstraints.biggest.width,
@@ -171,11 +199,15 @@ class _ReactionCardState extends State<ReactionCard>
         });
   }
 
-  Widget profileInfo({required String name, required String age}) {
+  Widget profileInfo(
+      {required String name,
+      required String age,
+      required String reactionType}) {
     return Container(
         height: kBottomNavigationBarHeight * 1.5,
         width: ReactionScreen.boxConstraints.maxWidth,
         decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
             gradient: LinearGradient(
                 colors: [Colors.black54, Colors.transparent],
                 begin: Alignment.topCenter,
@@ -200,10 +232,50 @@ class _ReactionCardState extends State<ReactionCard>
                   )
                 ],
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [],
-              )
+              reactionType == ReactionType.LIKE.name
+                  ? AnimatedBuilder(
+                      animation: _reactionTypeBadgeAnimationController,
+                      builder: (BuildContext context, Widget? widget) {
+                        return Container(
+                            decoration: BoxDecoration(
+                                color: colorAnimation.value,
+                                shape: BoxShape.circle),
+                            height: 200.h,
+                            width: 200.h,
+                            child: SvgPicture.asset(
+                              "assets/likeEmojy.svg",
+                              fit: BoxFit.cover,
+                            ));
+                      })
+                  : reactionType == ReactionType.MAYBE.name
+                      ? AnimatedBuilder(
+                          animation: _reactionTypeBadgeAnimationController,
+                          builder: (BuildContext context, Widget? widget) {
+                            return Container(
+                                decoration: BoxDecoration(
+                                    color: colorAnimation.value,
+                                    shape: BoxShape.circle),
+                                height: 200.h,
+                                width: 200.h,
+                                child: SvgPicture.asset(
+                                  "assets/maybeEmoji.svg",
+                                  fit: BoxFit.cover,
+                                ));
+                          })
+                      : AnimatedBuilder(
+                          animation: _reactionTypeBadgeAnimationController,
+                          builder: (BuildContext context, Widget? widget) {
+                            return Container(
+                                decoration: BoxDecoration(
+                                    color: colorAnimation.value,
+                                    shape: BoxShape.circle),
+                                height: 200.h,
+                                width: 200.h,
+                                child: SvgPicture.asset(
+                                  "assets/passEmoji.svg",
+                                  fit: BoxFit.cover,
+                                ));
+                          })
             ],
           ),
         ));
@@ -220,49 +292,50 @@ class _ReactionCardState extends State<ReactionCard>
           children: [
             Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
               height: widget.boxConstraints.biggest.height,
               width: widget.boxConstraints.biggest.width,
               child: Center(
                   child: widget.reaction.reactionRevealigState !=
                           ReactionRevealigState.revealed
                       ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Text(
-                                  reactionTimeFormat.format(DateTime(
-                                      0, 0, 0, 0, 0, snapshot.data as int)),
-                                  style: GoogleFonts.lato(
-                                    color: Colors.white,
-                                    fontSize: 90.sp,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.timer,
-                                  color: Colors.white,
-                                )
-                              ],
-                            ),
-                            Divider(height: 50.h, color: Colors.transparent),
-                            Text("Disponible hasta:",
-                                style: GoogleFonts.lato(
-                                  color: Colors.white,
-                                  fontSize: 50.sp,
-                                )),
-                            Divider(height: 50.h, color: Colors.transparent),
+                            Text("Alguien ha visto tu perfil",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                    )),
                             Text(
-                              expireTimeFormat.format(reactionExpireTime),
-                              style: GoogleFonts.lato(
-                                color: Colors.white,
-                                fontSize: 50.sp,
-                              ),
+                              reactionTimeFormat.format(DateTime(
+                                  0, 0, 0, 0, 0, snapshot.data as int)),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge
+                                  ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                      fontWeightDelta: 2),
                             ),
-                            Divider(height: 50.h, color: Colors.transparent),
+                            Text(
+                                "Averigua quien es antes de que se acabe el tiempo",
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimaryContainer,
+                                        fontWeightDelta: 1)),
                             widget.reaction.secondsUntilExpiration >= 5
-                                ? ElevatedButton(
+                                ? FilledButton(
                                     onPressed: () {
                                       if (widget
                                               .reaction.secondsUntilExpiration >
@@ -289,31 +362,59 @@ class _ReactionCardState extends State<ReactionCard>
                           ],
                         )),
             ),
-            widget.reaction.userBlocked
+            widget.reaction.userBlocked == true
                 ? Container(
                     height: widget.boxConstraints.biggest.height,
                     width: widget.boxConstraints.biggest.width,
-                    color: Colors.black,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.lock,
-                          color: Colors.white,
-                          size: 500.sp,
-                        ),
-                        Text(
-                          "Usuario bloqueado",
-                          style: GoogleFonts.lato(
-                              color: Colors.white, fontSize: 70.sp),
-                        ),
-                        ElevatedButton(
-                            onPressed: () {
-                              Dependencies.reactionPresentation.rejectReaction(
-                                  reactionId: widget.reaction.idReaction);
-                            },
-                            child: Text("Eliminar reaccion"))
-                      ],
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                    child: Padding(
+                      padding: EdgeInsets.all(10.h),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.lock,
+                            color:
+                                Theme.of(context).colorScheme.onErrorContainer,
+                            size: 300.sp,
+                          ),
+                          Text(
+                            "Usuario bloqueado",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.apply(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onErrorContainer),
+                          ),
+                          Divider(
+                            color: Colors.transparent,
+                            height: 70.h,
+                          ),
+                          Text(
+                            "El usuario ha sido bloqueado por infringir normas de la comunidad",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge?.apply(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onErrorContainer),
+                          ),
+                          Divider(
+                            color: Colors.transparent,
+                            height: 70.h,
+                          ),
+                          FilledButton(
+                              onPressed: () {
+                                Dependencies.reactionPresentation
+                                    .rejectReaction(
+                                        reactionId: widget.reaction.idReaction);
+                              },
+                              child: Text("Eliminar reaccion"))
+                        ],
+                      ),
                     ))
                 : Container(),
           ],
@@ -328,48 +429,62 @@ class _ReactionCardState extends State<ReactionCard>
       alignment: FractionalOffset.center,
       child: Stack(
         children: [
-          Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
-              width: widget.boxConstraints.maxWidth,
-              child: FutureBuilder(
-                future: remitentImageData,
-                builder:
-                  (BuildContext context, AsyncSnapshot<Uint8List> imageData) {
-                return imageData.data != null
-                    ? Image.memory(
-                        imageData.data!,
-                      )
-                    : Center(
-                        child: Container(
-                            height: 200.h,
-                            width: 200.h,
-                            child: LoadingIndicator(
-                                indicatorType: Indicator.orbit)),
-                      );
-              })),
-          profileInfo(name: reaction.name, age: 20.toString()),
+          ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                width: widget.boxConstraints.maxWidth,
+                child: FutureBuilder(
+                    future: remitentImageData,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Uint8List> imageData) {
+                      return imageData.data != null
+                          ? Image.memory(
+                              imageData.data!,
+                              fit: BoxFit.cover,
+                            )
+                          : Center(
+                              child: Container(
+                                  height: 200.h,
+                                  width: 200.h,
+                                  child: LoadingIndicator(
+                                      indicatorType: Indicator.orbit)),
+                            );
+                    })),
+          ),
+          profileInfo(
+              name: reaction.name,
+              age: reaction.age.toString(),
+              reactionType: reaction.reactionType),
           revealedSideButtons(),
           widget.reaction.getReactionAceptingState ==
                   ReactionAceptingState.inProcessAcepting
               ? Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
                   width: widget.boxConstraints.maxWidth,
-                  color: Colors.black,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Creando conversacion",
-                          style: GoogleFonts.lato(
-                              color: Colors.white,
-                              fontSize: 50.sp,
-                              letterSpacing: 10.w),
+                          "Creando conversación",
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer),
+                        ),
+                        Divider(
+                          color: Colors.transparent,
+                          height: 50.h,
                         ),
                         Container(
-                            height: 200.h,
+                            height: 100.h,
                             child: LoadingIndicator(
-                                indicatorType: Indicator.semiCircleSpin)),
+                                indicatorType: Indicator.circleStrokeSpin)),
                       ],
                     ),
                   ),
@@ -378,22 +493,35 @@ class _ReactionCardState extends State<ReactionCard>
                       ReactionAceptingState.inProcessDeclining
                   ? Container(
                       width: widget.boxConstraints.maxWidth,
-                      color: Colors.black,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Eliminacion reacción",
-                              style: GoogleFonts.lato(
-                                  color: Colors.white,
-                                  fontSize: 50.sp,
-                                  letterSpacing: 10.w),
+                              "Eliminando reacción",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
+                            ),
+                            Divider(
+                              color: Colors.transparent,
+                              height: 50.h,
                             ),
                             Container(
-                                height: 200.h,
+                                height: 100.h,
                                 child: LoadingIndicator(
-                                    indicatorType: Indicator.ballPulse)),
+                                  indicatorType: Indicator.circleStrokeSpin,
+                                  colors: [
+                                    Theme.of(context).colorScheme.primary
+                                  ],
+                                )),
                           ],
                         ),
                       ),
@@ -403,7 +531,9 @@ class _ReactionCardState extends State<ReactionCard>
               ? Container(
                   height: widget.boxConstraints.biggest.height,
                   width: widget.boxConstraints.biggest.width,
-                  color: Colors.black,
+                  decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -425,6 +555,127 @@ class _ReactionCardState extends State<ReactionCard>
                           child: Text("Eliminar reaccion"))
                     ],
                   ))
+              : Container(),
+          justRevealed == true
+              ? Container(
+                  width: widget.boxConstraints.maxWidth,
+                  height: widget.boxConstraints.maxHeight,
+                  decoration: BoxDecoration(
+                      color: reaction.reactionType == ReactionType.LIKE.name
+                          ? Colors.green
+                          : reaction.reactionType == ReactionType.MAYBE.name
+                              ? Colors.amber
+                              : Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 30.w, right: 30.w),
+                    child: Column(
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          fit: FlexFit.tight,
+                          child: LayoutBuilder(builder: (BuildContext context,
+                              BoxConstraints boxConstraints) {
+                            return Container(
+                              height: boxConstraints.maxHeight,
+                              width: boxConstraints.maxHeight,
+                              child: reaction.reactionType ==
+                                      ReactionType.LIKE.name
+                                  ? SvgPicture.asset("assets/likeEmojy.svg")
+                                  : reaction.reactionType ==
+                                          ReactionType.MAYBE.name
+                                      ? SvgPicture.asset(
+                                          "assets/maybeEmoji.svg")
+                                      : SvgPicture.asset(
+                                          "assets/passEmoji.svg"),
+                            );
+                          }),
+                        ),
+                        reaction.reactionType == ReactionType.LIKE.name
+                            ? Flexible(
+                                flex: 3,
+                                fit: FlexFit.loose,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Le gustas",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall!
+                                          .apply(fontWeightDelta: 2),
+                                    ),
+                                    Text(
+                                      "Parece que le gustas mucho, empieza a chatear y disfrutar",
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : reaction.reactionType == ReactionType.MAYBE.name
+                                ? Flexible(
+                                    flex: 3,
+                                    fit: FlexFit.loose,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          "Quizas le gustes",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge!
+                                              .apply(fontWeightDelta: 2),
+                                        ),
+                                        Divider(
+                                          height: 50.h,
+                                          color: Colors.transparent,
+                                        ),
+                                        Text(
+                                            "Cree que puedes llegar a gustarle pero no esta seguro, suerte....",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge),
+                                      ],
+                                    ),
+                                  )
+                                : Flexible(
+                                    flex: 3,
+                                    fit: FlexFit.loose,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          "No le gustas",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge!
+                                              .apply(fontWeightDelta: 2),
+                                        ),
+                                        Text(
+                                            "Que pena, animos y sigue intentandolo",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge),
+                                      ],
+                                    ),
+                                  ),
+                        Flexible(
+                          flex: 2,
+                          fit: FlexFit.loose,
+                          child: Container(
+                            child: FilledButton(
+                                onPressed: () {
+                                  justRevealed = false;
+                                  setState(() {});
+                                },
+                                child: Text("Ver perfil")),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )
               : Container(),
         ],
       ),

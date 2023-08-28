@@ -57,67 +57,72 @@ class _PromotionalRewardWidgetState extends State<PromotionalRewardWidget>
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-            decoration: BoxDecoration(
-                border:
-                    Border.all(color: animation.value as Color, width: 20.h),
-                borderRadius: BorderRadius.all(Radius.circular(10))),
+        Card(
             child: Padding(
-              padding: EdgeInsets.all(30.h),
-              child: Stack(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Text('Recompensa promocional',
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black, fontSize: 70.sp)),
-                        ],
-                      ),
-                      Divider(
-                        color: Colors.transparent,
-                        height: 50.h,
-                      ),
-                      Text(
-                        '"Has usado un codigo promocional y ahora te regalamos 5000 creditos gratis',
-                        style: GoogleFonts.roboto(
-                            color: Colors.black, fontSize: 50.sp),
-                      ),
-                      Divider(
-                        color: Colors.transparent,
-                        height: 50.h,
-                      ),
-                      TextButton(
-                          onPressed: () {
-                            widget.rewardScreenPresentation
-                                .usePromotionalCode();
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.deepPurpleAccent,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30))),
-                            child: Padding(
-                              padding: EdgeInsets.all(40.h),
-                              child: Text(
-                                'Reclamar bono',
-                                style: GoogleFonts.roboto(
-                                    color: Colors.black, fontSize: 50.sp),
-                              ),
-                            ),
-                          )),
-                    ],
-                  ),
-                ],
-              ),
-            )),
+          padding: EdgeInsets.all(30.h),
+          child: Container(
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Recompensa promocional',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.apply(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface)),
+                        Row(
+                          children: [
+                            Text('5000',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface)),
+                            Icon(LineAwesomeIcons.coins,
+                                color: Theme.of(context).colorScheme.onSurface)
+                          ],
+                        )
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.transparent,
+                      height: 50.h,
+                    ),
+                    Text(
+                      'Recompensa por usar un codigo promocional para registrarte',
+                      style: Theme.of(context).textTheme.bodyLarge?.apply(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    Divider(
+                      color: Colors.transparent,
+                      height: 50.h,
+                    ),
+                    FilledButton.tonal(
+                        onPressed: () {
+                          widget.rewardScreenPresentation.usePromotionalCode();
+                        },
+                        child: Text(
+                          'Reclamar bono',
+                        )),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        )),
         widget.rewardScreenPresentation.getPromotionalCodeState ==
                 PromotionalCodeState.inProcess
             ? Container(

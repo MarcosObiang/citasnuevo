@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../DataManager.dart';
 import '../../core/error/Failure.dart';
+import '../controllerDef.dart';
 import 'ProfileEntity.dart';
 import 'homeScreenDataSources.dart';
 
@@ -12,5 +13,5 @@ abstract class HomeScreenRepository implements ModuleCleanerRepository {
   Future<Either<Failure, LocationPermission>> requestLocationPermission();
   Future<Either<Failure, bool>> goToAppSettings();
   Future<Either<Failure, void>> sendRating(
-      {required double ratingValue, required String idProfileRated});
+      {required ReactionType reactionType, required String idProfileRated});
 }

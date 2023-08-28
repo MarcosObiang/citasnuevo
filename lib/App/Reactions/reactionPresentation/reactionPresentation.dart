@@ -56,7 +56,7 @@ class ReactionPresentation extends ChangeNotifier
         PrincipalScreenNotifier {
   int _coins = 0;
   bool additionalDataRecieverIsInitialized = false;
-  double _reactionsAverage = 0;
+  int _reactionsAverage = 0;
   ReactionListState _reactionListState = ReactionListState.empty;
   AdShowingState _adShowingstate = AdShowingState.adNotshowing;
   ReactionsControllerImpl reactionsController;
@@ -82,7 +82,7 @@ class ReactionPresentation extends ChangeNotifier
 
       reactionsController.initializeModuleData();
     } catch (e) {
-      this._reactionListState = ReactionListState.error;
+      setReactionListState = ReactionListState.error;
     }
   }
 
@@ -99,7 +99,7 @@ class ReactionPresentation extends ChangeNotifier
       removeDataSubscription?.cancel();
       reactionsController.clearModuleData();
     } catch (e) {
-      this._reactionListState = ReactionListState.error;
+      setReactionListState = ReactionListState.error;
     }
   }
 
@@ -119,7 +119,7 @@ class ReactionPresentation extends ChangeNotifier
     notifyListeners();
   }
 
-  set setAverage(double average) {
+  set setAverage(int average) {
     this._reactionsAverage = average;
     notifyListeners();
   }
@@ -130,7 +130,7 @@ class ReactionPresentation extends ChangeNotifier
   }
 
   int get getCoins => this._coins;
-  double get getAverage => this._reactionsAverage;
+  int get getAverage => this._reactionsAverage;
   ReactionListState get getReactionListState => this._reactionListState;
 
   void initializeValues() {
@@ -189,8 +189,8 @@ class ReactionPresentation extends ChangeNotifier
 
           adResult.fold((l) {
             if (l is NetworkFailure) {
-              PresentationDialogs.instance.showNetworkErrorDialog(
-                  context: startKey.currentContext);
+              PresentationDialogs.instance
+                  .showNetworkErrorDialog(context: startKey.currentContext);
             } else {
               PresentationDialogs.instance.showErrorDialog(
                   content: "Error al intentar realizar la operacion",
@@ -198,8 +198,7 @@ class ReactionPresentation extends ChangeNotifier
                   title: "Error");
             }
           }, (r) async {
-            if (reactionsController.rewardedAdvertismentStateStream !=
-                null) {
+            if (reactionsController.rewardedAdvertismentStateStream != null) {
               setAdShowingState = AdShowingState.adLoading;
 
               await for (Map<String, dynamic> event in reactionsController
@@ -227,8 +226,7 @@ class ReactionPresentation extends ChangeNotifier
                 result.fold((failure) {
                   if (failure is NetworkFailure) {
                     PresentationDialogs.instance.showNetworkErrorDialog(
-                        context:
-                            startKey.currentContext);
+                        context: startKey.currentContext);
                   }
                   if (failure is ReactionFailure) {
                     PresentationDialogs.instance.showErrorDialog(
@@ -329,7 +327,7 @@ class ReactionPresentation extends ChangeNotifier
         setCoins = event.coins as int;
       }
       if (event.reactionAverage != null) {
-        setAverage = event.reactionAverage as double;
+        setAverage = event.reactionAverage as int;
       }
       if (event.isPremium != null) {
         setIsPremium = event.isPremium;

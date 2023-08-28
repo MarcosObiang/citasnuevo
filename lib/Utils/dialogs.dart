@@ -223,8 +223,10 @@ class _AdConsentformState extends State<AdConsentform> {
                                         TextButton.icon(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              Dependencies.clearDependenciesOnly();
-                                              Dependencies.initializeDependencies();
+                                              Dependencies
+                                                  .clearDependenciesOnly();
+                                              Dependencies
+                                                  .initializeDependencies();
                                             },
                                             icon: Icon(Icons.refresh),
                                             label: Text("Continuar")),
@@ -451,7 +453,7 @@ class _AdConsentformState extends State<AdConsentform> {
                                                     color: Colors.black,
                                                     fontSize: 50.sp),
                                               ),
-                                               TextButton(
+                                              TextButton(
                                                   onPressed: () {
                                                     launchUrl(
                                                       Uri.parse(
@@ -488,7 +490,8 @@ class _AdConsentformState extends State<AdConsentform> {
                                                 style: GoogleFonts.lato(
                                                     color: Colors.black,
                                                     fontSize: 50.sp),
-                                              ), TextButton(
+                                              ),
+                                              TextButton(
                                                   onPressed: () {
                                                     launchUrl(
                                                       Uri.parse(
@@ -613,8 +616,6 @@ class _AdConsentformState extends State<AdConsentform> {
                                                   },
                                                   child: Text(
                                                       "Ver las políticas de privacidad de los socios"))
-                                              
-                                              
                                             ],
                                           )),
                                       Divider(
@@ -769,7 +770,6 @@ class _AdConsentformState extends State<AdConsentform> {
                                                   },
                                                   child: Text(
                                                       "Ver las políticas de privacidad de los socios"))
-                                              
                                             ],
                                           )),
                                       Divider(
@@ -874,7 +874,7 @@ class _AdConsentformState extends State<AdConsentform> {
                                                     color: Colors.black,
                                                     fontSize: 50.sp),
                                               ),
-                                                 TextButton(
+                                              TextButton(
                                                   onPressed: () {
                                                     launchUrl(
                                                       Uri.parse(

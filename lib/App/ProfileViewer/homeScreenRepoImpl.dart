@@ -6,6 +6,7 @@ import 'package:geolocator_platform_interface/src/enums/location_permission.dart
 
 import '../../core/error/Exceptions.dart';
 import '../../core/error/Failure.dart';
+import '../controllerDef.dart';
 import 'ProfileEntity.dart';
 import 'ProfilesMapper.dart';
 import 'homeScreenDataSources.dart';
@@ -23,9 +24,8 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       Map<dynamic, dynamic> profileData =
           await homeScreenDataSource.fetchProfiles();
 
-      List<Profile> profilesList = await compute(
-        ProfileMapper.fromMap,profileData 
-      );
+      List<Profile> profilesList =
+          await compute(ProfileMapper.fromMap, profileData);
       return Right(profilesList);
     } catch (e) {
       if (e is NetworkException) {
@@ -42,10 +42,11 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
 
   @override
   Future<Either<Failure, void>> sendRating(
-      {required double ratingValue, required String idProfileRated}) async {
+      {required ReactionType reactionType,
+      required String idProfileRated}) async {
     try {
       await homeScreenDataSource.sendRating(
-          ratingValue: ratingValue, idProfileRated: idProfileRated);
+          reactionType: reactionType, idProfileRated: idProfileRated);
       return Right(Void);
     } catch (e) {
       if (e is RatingProfilesException) {
@@ -57,25 +58,24 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       }
     }
   }
+
   @override
-  Either<Failure,bool>  initializeModuleData()  {
+  Either<Failure, bool> initializeModuleData() {
     try {
       homeScreenDataSource.initializeModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleInitializeFailure(message: e.toString()));
-      
     }
   }
 
-   @override
-  Either<Failure,bool>  clearModuleData()  {
+  @override
+  Either<Failure, bool> clearModuleData() {
     try {
       homeScreenDataSource.clearModuleData();
       return Right(true);
     } catch (e) {
       return Left(ModuleClearFailure(message: e.toString()));
-      
     }
   }
 
@@ -95,10 +95,10 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       }
     }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> goToAppSettings() async{
-      try {
+  Future<Either<Failure, bool>> goToAppSettings() async {
+    try {
       var result = await homeScreenDataSource.goToLocationSettings();
       return Right(result);
     } catch (e) {
@@ -111,5 +111,4 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
       }
     }
   }
-
 }

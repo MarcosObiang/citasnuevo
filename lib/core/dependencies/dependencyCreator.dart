@@ -1,6 +1,7 @@
-
+import 'package:appwrite/appwrite.dart';
+import 'package:citasnuevo/App/ApplicationSettings/AplicationDataSettingsMapper.dart';
+import 'package:citasnuevo/App/ApplicationSettings/ApplicationSettingsEntity.dart';
 import 'package:citasnuevo/App/ControllerBridges/PurchseSystemControllerBridge.dart';
-import 'package:flutter/material.dart';
 
 import 'package:citasnuevo/App/ApplicationSettings/ApplicationSettingsDataSource.dart';
 import 'package:citasnuevo/App/ApplicationSettings/appSettingsController.dart';
@@ -31,6 +32,8 @@ import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemController.dart';
 import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemPresentation/purchaseSystemPresentation.dart';
 import 'package:citasnuevo/App/PurchaseSystem/purchasesystemRepository.dart';
 import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemRepoImpl.dart';
+import 'package:citasnuevo/App/Reactions/ReactionEntity.dart';
+import 'package:citasnuevo/App/Reactions/ReactionsMappers.dart';
 import 'package:citasnuevo/App/Reactions/reactionDataSource.dart';
 import 'package:citasnuevo/App/Reactions/reactionPresentation/reactionPresentation.dart';
 import 'package:citasnuevo/App/Reactions/reactionRepoImpl.dart';
@@ -84,7 +87,11 @@ import '../notifications/notifications_service.dart';
 import '../platform/networkInfo.dart';
 
 class Dependencies {
+  static late final NetworkInfoContract networkInfoContract = NetworkInfoImpl();
   static late Server serverAPi = new Server();
+  static late final Functions functions =
+      Functions(Dependencies.serverAPi.client as Client);
+
   static late final AdvertisingServices advertisingServices =
       new AdvertisingServices();
 
@@ -175,7 +182,7 @@ class Dependencies {
   static late final HomeScreenRepository homeScreenRepository =
       HomeScreenRepositoryImpl(homeScreenDataSource: homeScreenDataSource);
   static late final HomeScreenController homeScreenController =
-      HomeScreenController(
+      HomeScreenControllerImpl(
           homeScreenRepository: homeScreenRepository,
           homeScreenControllerBridge: homeScreenControllerBridge);
   static late final HomeScreenPresentation homeScreenPresentation =
@@ -184,14 +191,15 @@ class Dependencies {
   ///REACTIONS
   ///
   ///
-
+  static late final Mapper<Reaction> reactionMapper = ReactionMapper();
   static late final ReactionDataSource reactionDataSource =
       ReactionDataSourceImpl(
     advertisingServices: advertisingServices,
     source: applicationDataSource,
   );
   static late final ReactionRepository reactionRepository =
-      ReactionRepositoryImpl(reactionDataSource: reactionDataSource);
+      ReactionRepositoryImpl(
+          reactionDataSource: reactionDataSource, mapper: reactionMapper);
   static late final ReactionsControllerImpl reactionsController =
       ReactionsControllerImpl(
           reactionRepository: reactionRepository,
@@ -209,7 +217,7 @@ class Dependencies {
   static late final ReportRepository reportRepository =
       new ReportRepositoryImpl(reportDataSource: reportDataSource);
   static late final ReportController reportController =
-      new ReportController(reportRepository: reportRepository);
+      new ReportControllerImpl(reportRepository: reportRepository);
   static late final homeReportScreenPresentation =
       new HomeReportScreenPresentation(reportController: reportController);
 
@@ -226,8 +234,6 @@ class Dependencies {
       homeScreenControllreBridge: homeScreenControllerBridge);
   static late final chatPresentation =
       new ChatPresentation(chatController: chatController);
-
- 
 
   ///SETTINGS
   ///
@@ -252,15 +258,20 @@ class Dependencies {
   ///
   ///
   ///
-
+  static late final Mapper<ApplicationSettingsEntity> appSettingsMapper =
+      ApplicationSettingsMapper();
   static late final ApplicationSettingsDataSource
       applicationSettingsDataSource = new ApplicationDataSourceImpl(
-          source: applicationDataSource, authService: authService);
+          source: applicationDataSource,
+          authService: authService,
+          functinos: functions,
+          networkInfoContract: networkInfoContract);
   static late final AppSettingsRepository appSettingsRepository =
       ApplicationSettingsRepositoryImpl(
+          mapper: appSettingsMapper,
           appSettingsDataSource: applicationSettingsDataSource);
   static late final AppSettingsController appSettingsController =
-      AppSettingsController(
+      AppSettingsControllerImpl(
           appSettingsRepository: appSettingsRepository,
           settingsToAppSettingsControllerBridge: settingsControllerBridge);
   static late final AppSettingsPresentation appSettingsPresentation =
@@ -274,7 +285,7 @@ class Dependencies {
   static late final UserSettingsRepository userSettingsRepository =
       new UserSettingsRepoImpl(appSettingsDataSource: userSettingsDataSource);
   static late final UserSettingsController userSettingsController =
-      new UserSettingsController(
+      new UserSettingsControllerImpl(
           userSettingsToSettingsControllerBridge:
               userSettingsToSettingsControllerBridge,
           userSettingsRepository: userSettingsRepository);
@@ -299,12 +310,11 @@ class Dependencies {
 
   static Future<void> startAuthDependencies() async {
     // ignore: unused_local_variable
-    NetworkInfoContract networkInfoContract = NetworkInfoImpl();
 
     authRepository = AuthRepositoryImpl(authDataSource: authDataSource);
 
     AuthScreenController authScreenController =
-        AuthScreenController(authRepository: authRepository);
+        AuthScreenControllerImpl(authRepository: authRepository);
 
     authScreenPresentation =
         AuthScreenPresentation(authScreenController: authScreenController);

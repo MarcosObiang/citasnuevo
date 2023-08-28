@@ -100,186 +100,206 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
       value: Dependencies.chatPresentation,
       child: Consumer<ChatPresentation>(builder: (BuildContext context,
           ChatPresentation chatPresentation, Widget? child) {
-        return Material(
-            child: SafeArea(
-                child: Column(
-          children: [
-            if (chatPresentation.chatListState == ChatListState.ready) ...[
-              Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: Container(
-                    child: Text("Conversaciones Nuevas:${countNewChats()}")),
-              ),
-              Flexible(
-                flex: 4,
-                fit: FlexFit.tight,
-                child: Column(
-                  children: [
-                    Flexible(
-                      flex: 5,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        child: AnimatedList(
-                            scrollDirection: Axis.horizontal,
-                            controller: newChatListController,
-                            key: ChatScreen.newChatListState,
-                            physics: BouncingScrollPhysics(),
-                            initialItemCount:
-                                chatPresentation.chatListCache.length,
-                            itemBuilder: (BuildContext context, int index,
-                                Animation<double> animation) {
-                              return chatPresentation
-                                      .chatListCache[index].messagesList.isEmpty
-                                  ? EmptyChatWidget(
-                                      index: index,
-                                      animation: animation,
-                                      chat:
-                                          chatPresentation.chatListCache[index],
-                                    )
-                                  : Container();
-                            }),
-                      ),
-                    ),
-                  ],
+        return SafeArea(
+            child: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (chatPresentation.chatListState == ChatListState.ready) ...[
+                Flexible(
+                  flex: 1,
+                  fit: FlexFit.tight,
+                  child: Container(
+                      child: Text(
+                    "Nuevos chats:${countNewChats()}",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.apply(color: Theme.of(context).colorScheme.onSurface),
+                  )),
                 ),
-              ),
-              Flexible(
-                flex: 15,
-                fit: FlexFit.tight,
-                child: Container(
-                  child: Column(
-                    children: [
-                      Flexible(
-                        flex: 1,
-                        fit: FlexFit.tight,
-                        child: Container(
-                            child: Text(
-                                "Conversaciones actuales:${countChats()}")),
-                      ),
-                      Flexible(
-                        flex: 10,
-                        fit: FlexFit.tight,
-                        child: Container(
-                          child: AnimatedList(
-                              physics: BouncingScrollPhysics(),
-                              controller: controller,
-                              key: ChatScreen.chatListState,
-                              initialItemCount:
-                                  chatPresentation.chatListCache.length,
-                              itemBuilder: (BuildContext context, int index,
-                                  Animation<double> animation) {
-                                return chatPresentation.chatListCache[index]
-                                        .messagesList.isNotEmpty
-                                    ? ChatCard(
-                                        index: index,
-                                        chatData: chatPresentation
-                                            .chatListCache[index],
-                                        animationValue: animation,
-                                      )
-                                    : Container();
-                              }),
-                        ),
-                      ),
-                      Flexible(
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    child: AnimatedList(
+                        scrollDirection: Axis.horizontal,
+                        controller: newChatListController,
+                        key: ChatScreen.newChatListState,
+                        physics: BouncingScrollPhysics(),
+                        initialItemCount: chatPresentation.chatListCache.length,
+                        itemBuilder: (BuildContext context, int index,
+                            Animation<double> animation) {
+                          return chatPresentation
+                                  .chatListCache[index].messagesList.isEmpty
+                              ? EmptyChatWidget(
+                                  index: index,
+                                  animation: animation,
+                                  chat: chatPresentation.chatListCache[index],
+                                )
+                              : Container();
+                        }),
+                  ),
+                ),
+                Flexible(
+                  flex: 16,
+                  fit: FlexFit.tight,
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Flexible(
                           flex: 2,
-                          fit: FlexFit.loose,
-                          child: chatPresentation.blindDateCreationState ==
-                                  BlindDateCreationState.done
-                              ? ElevatedButton.icon(
-                                  onPressed: () {
-                                    chatPresentation.createBlindDate();
-                                  },
-                                  icon: Container(
-                                      height: 100.h,
-                                      width: 100.h,
-                                      child: Icon(LineAwesomeIcons.mask)),
-                                  label: Text("Pulsa para cita a ciegas"))
-                              : ElevatedButton.icon(
-                                  onPressed: () {},
-                                  icon: Container(
-                                    height: 100.h,
-                                    width: 100.h,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: LoadingIndicator(
-                                          indicatorType:
-                                              Indicator.lineSpinFadeLoader),
-                                    ),
-                                  ),
-                                  label: Text("Buscando a alguien para ti"))),
-                    ],
-                  ),
-                ),
-              )
-            ],
-            if (chatPresentation.chatListState == ChatListState.empty) ...[
-              Flexible(
-                flex: 10,
-                fit: FlexFit.loose,
-                child: Container(
-                    child: Center(
-                  child: Text(
-                    "No hay conversaciones",
-                    style: GoogleFonts.lato(
-                      color: Colors.black,
+                          fit: FlexFit.tight,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Chats:${countChats()}",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.apply(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface)),
+                                  chatPresentation.blindDateCreationState ==
+                                          BlindDateCreationState.done
+                                      ? ElevatedButton.icon(
+                                          onPressed: () {
+                                            chatPresentation.createBlindDate();
+                                          },
+                                          icon: Container(
+                                              height: 100.h,
+                                              width: 100.h,
+                                              child: Icon(LineAwesomeIcons
+                                                  .theater_masks)),
+                                          label: Text("Crear cita a ciegas"))
+                                      : TextButton.icon(
+                                          onPressed: () {},
+                                          icon: Container(
+                                            height: 100.h,
+                                            width: 100.h,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: LoadingIndicator(
+                                                  indicatorType: Indicator
+                                                      .lineSpinFadeLoader),
+                                            ),
+                                          ),
+                                          label: Text(
+                                              "Buscando a alguien para ti"))
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 10,
+                          fit: FlexFit.tight,
+                          child: Padding(
+                            padding: EdgeInsets.all(20.w),
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              child: AnimatedList(
+                                  physics: BouncingScrollPhysics(),
+                                  controller: controller,
+                                  key: ChatScreen.chatListState,
+                                  initialItemCount:
+                                      chatPresentation.chatListCache.length,
+                                  itemBuilder: (BuildContext context, int index,
+                                      Animation<double> animation) {
+                                    return chatPresentation.chatListCache[index]
+                                            .messagesList.isNotEmpty
+                                        ? ChatCard(
+                                            index: index,
+                                            chatData: chatPresentation
+                                                .chatListCache[index],
+                                            animationValue: animation,
+                                          )
+                                        : Container();
+                                  }),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                )),
-              )
-            ],
-            if (chatPresentation.chatListState == ChatListState.error) ...[
-              Flexible(
-                flex: 10,
-                fit: FlexFit.loose,
-                child: Container(
-                    child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Error al cargar coversaciones",
-                        style: GoogleFonts.lato(
-                          color: Colors.black,
-                        ),
+                )
+              ],
+              if (chatPresentation.chatListState == ChatListState.empty) ...[
+                Flexible(
+                  flex: 10,
+                  fit: FlexFit.loose,
+                  child: Container(
+                      child: Center(
+                    child: Text(
+                      "No hay conversaciones",
+                      style: GoogleFonts.lato(
+                        color: Colors.black,
                       ),
-                      ElevatedButton(
-                          onPressed: () {
-                            chatPresentation.restart();
-                          },
-                          child: Text("Cargar de nuevo"))
-                    ],
-                  ),
-                )),
-              )
-            ],
-            if (chatPresentation.chatListState == ChatListState.loading) ...[
-              Flexible(
-                flex: 10,
-                fit: FlexFit.loose,
-                child: Container(
-                    child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                          height: 300.h,
-                          width: 300.h,
-                          child: LoadingIndicator(
-                              indicatorType: Indicator.ballScale)),
-                      Text(
-                        "Cargando",
-                        style: GoogleFonts.lato(
-                          color: Colors.black,
+                    ),
+                  )),
+                )
+              ],
+              if (chatPresentation.chatListState == ChatListState.error) ...[
+                Flexible(
+                  flex: 10,
+                  fit: FlexFit.loose,
+                  child: Container(
+                      child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Error al cargar coversaciones",
+                          style: GoogleFonts.lato(
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )),
-              )
+                        ElevatedButton(
+                            onPressed: () {
+                              chatPresentation.restart();
+                            },
+                            child: Text("Cargar de nuevo"))
+                      ],
+                    ),
+                  )),
+                )
+              ],
+              if (chatPresentation.chatListState == ChatListState.loading) ...[
+                Flexible(
+                  flex: 10,
+                  fit: FlexFit.loose,
+                  child: Container(
+                      child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                            height: 300.h,
+                            width: 300.h,
+                            child: LoadingIndicator(
+                                indicatorType: Indicator.ballScale)),
+                        Text(
+                          "Cargando",
+                          style: GoogleFonts.lato(
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+                )
+              ],
             ],
-          ],
-        )));
+          ),
+        ));
       }),
     );
   }

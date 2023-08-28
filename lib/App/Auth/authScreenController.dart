@@ -6,10 +6,15 @@ import '../DataManager.dart';
 import 'authRepo.dart';
 import 'package:dartz/dartz.dart';
 
-class AuthScreenController implements ModuleCleanerController {
-  final AuthRepository authRepository;
+abstract class AuthScreenController implements ModuleCleanerController {
+  late AuthRepository authRepository;
+  Future<Either<Failure, Map<String, dynamic>>> signIn(
+      {required SignInProviders signInProviders});
+  Future<Either<Failure, Map<String, dynamic>>> checkIfUserIsAlreadySignedUp();
+}
 
-  AuthScreenController({required this.authRepository});
+class AuthScreenControllerImpl implements AuthScreenController {
+  AuthScreenControllerImpl({required this.authRepository});
 
   Future<Either<Failure, Map<String, dynamic>>>
       checkIfUserIsAlreadySignedUp() async {
@@ -30,4 +35,7 @@ class AuthScreenController implements ModuleCleanerController {
   Either<Failure, bool> initializeModuleData() {
     throw UnimplementedError();
   }
+
+  @override
+  AuthRepository authRepository;
 }

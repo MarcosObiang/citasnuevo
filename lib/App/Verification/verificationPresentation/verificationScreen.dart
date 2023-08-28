@@ -26,34 +26,77 @@ class _VerificationScreenState extends State<VerificationScreen> {
       value: Dependencies.verificationPresentation,
       child: Material(
         key: verificationScreenKey,
-        color: Colors.white,
-        child: SafeArea(child: Container(
-          child: Consumer<VerificationPresentation>(
-            builder: (BuildContext context,
-                VerificationPresentation verificationPresentation,
-                Widget? child) {
-              return verificationPresentation.getVerificationScreenState ==
-                      VerificationScreenState.LOADING
-                  ? verificationLoadingStatePage()
-                  : verificationPresentation.getVerificationScreenState ==
-                          VerificationScreenState.ERROR
-                      ? verificationErrorStatePage()
-                      : verificationPresentation.getVerificationScreenState ==
-                              VerificationScreenState.REVIEW_ERROR
-                          ? verificationFailedStatePage(
-                              verificationPresentation)
-                          : verificationPresentation
+        child: SafeArea(
+            child: Container(
+          child: Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              scrolledUnderElevation: 0,
+              elevation: 0,
+              title: Text("Verificar tu perfil",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.apply(color: Theme.of(context).colorScheme.onSurface)),
+            ),
+            body: Padding(
+              padding: EdgeInsets.all(40.h),
+              child: Consumer<VerificationPresentation>(
+                builder: (BuildContext context,
+                    VerificationPresentation verificationPresentation,
+                    Widget? child) {
+                  return Column(
+                    children: [
+                      Flexible(
+                        flex: 8,
+                        fit: FlexFit.tight,
+                        child: Container(
+                          child: verificationPresentation
                                       .getVerificationScreenState ==
-                                  VerificationScreenState.REVIEW_IN_PROCESS
-                              ? verificationInProcessStatePage(
-                                  verificationPresentation)
+                                  VerificationScreenState.LOADING
+                              ? verificationLoadingStatePage()
                               : verificationPresentation
                                           .getVerificationScreenState ==
-                                      VerificationScreenState.REVIEW_NOT_STARTED
-                                  ? verificationNotStartedPageState(
+                                      VerificationScreenState.ERROR
+                                  ? verificationErrorStatePage(
                                       verificationPresentation)
-                                  : verificationSuccesfullStatePage();
-            },
+                                  : verificationPresentation
+                                              .getVerificationScreenState ==
+                                          VerificationScreenState.REVIEW_ERROR
+                                      ? verificationFailedStatePage(
+                                          verificationPresentation)
+                                      : verificationPresentation
+                                                  .getVerificationScreenState ==
+                                              VerificationScreenState
+                                                  .REVIEW_IN_PROCESS
+                                          ? verificationInProcessStatePage(
+                                              verificationPresentation)
+                                          : verificationPresentation
+                                                      .getVerificationScreenState ==
+                                                  VerificationScreenState
+                                                      .REVIEW_NOT_STARTED
+                                              ? verificationNotStartedPageState(
+                                                  verificationPresentation)
+                                              : verificationSuccesfullStatePage(),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        fit: FlexFit.tight,
+                        child: Container(
+                          child: Center(
+                            child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Atras")),
+                          ),
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
         )),
       ),
@@ -68,38 +111,64 @@ class _VerificationScreenState extends State<VerificationScreen> {
     );
   }
 
-  Container verificationNotStartedPageState(
+  Widget verificationNotStartedPageState(
       VerificationPresentation verificationPresentation) {
     return Container(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(40.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              child: Center(
-                child: faceWidget(
-                    isFemale: verificationPresentation.verificationController
-                        .verificationTicketEntity!.isFemale),
-              ),
+              child: faceWidget(
+                  isFemale: verificationPresentation.verificationController
+                      .verificationTicketEntity!.isFemale),
             ),
+            Divider(height: 50.h, color: Colors.transparent),
             Text(
               "Verifica que eres tu",
-              style: GoogleFonts.lato(
-                  fontSize: 70.sp, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.headlineSmall?.apply(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeightDelta: 2),
             ),
+            Divider(height: 50.h, color: Colors.transparent),
+            Text(
+              "Vamos a hacerte una foto en la que debe salir tu cara y tu mano realizando el gesto que te indicaremos",
+              style: Theme.of(context).textTheme.bodyMedium?.apply(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+            Divider(height: 50.h, color: Colors.transparent),
             verificationPresentation.getVerificationGestureLoadingState ==
                     VerificationGestureLoadingState.LOADED
                 ? handGestureContainer(verificationPresentation)
                 : verificationPresentation.getVerificationGestureLoadingState ==
                         VerificationGestureLoadingState.LOADING
                     ? Container(
-                        height: 300.h,
-                        width: 300.h,
                         child: Column(
                           children: [
-                            LoadingIndicator(indicatorType: Indicator.orbit),
-                            Text("Cargando")
+                            Container(
+                              height: 100.h,
+                              width: 100.h,
+                              child: LoadingIndicator(
+                                indicatorType: Indicator.circleStrokeSpin,
+                                colors: [Theme.of(context).colorScheme.primary],
+                              ),
+                            ),
+                            Divider(
+                              height: 50.h,
+                              color: Colors.transparent,
+                            ),
+                            Text(
+                              "Cargando",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.apply(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                            )
                           ],
                         ),
                       )
@@ -108,7 +177,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             VerificationGestureLoadingState.ERROR
                         ? Column(
                             children: [
-                              Text("Ha habido un error"),
+                              Text(
+                                "Ha habido un error",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                              ),
                               ElevatedButton(
                                   onPressed: () {},
                                   child: Text("Intentar de nuevo"))
@@ -130,18 +209,52 @@ class _VerificationScreenState extends State<VerificationScreen> {
       VerificationPresentation verificationPresentation) {
     return Container(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Center(
-            child: faceWidget(
-                isFemale: verificationPresentation
-                    .verificationController.verificationTicketEntity!.isFemale),
+          Flexible(
+            flex: 4,
+            fit: FlexFit.loose,
+            child: Text(
+              "Verificacion en proceso...",
+              style: Theme.of(context).textTheme.headlineMedium?.apply(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeightDelta: 2),
+            ),
           ),
-          Text("Verifivacion en proceso"),
-          ElevatedButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back),
-              label: Text("Atras"))
+          Flexible(
+            flex: 8,
+            fit: FlexFit.loose,
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(40.h),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      "Tu perfil esta siendo verificado por nuestro equipo",
+                      style: Theme.of(context).textTheme.bodyLarge?.apply(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    Text(
+                      "Te enviaremos una notificacion cuando la revision haya terminado",
+                      style: Theme.of(context).textTheme.bodyLarge?.apply(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    Text(
+                      "Si la verificacion es favorable recibiras tu recompensa automaticamente",
+                      style: Theme.of(context).textTheme.bodyLarge?.apply(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    Text(
+                      "Si la verificacion no es favorable te pediremos que vuelvas a repetir el proceso",
+                      style: Theme.of(context).textTheme.bodyLarge?.apply(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -154,13 +267,39 @@ class _VerificationScreenState extends State<VerificationScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
-            child: faceWidget(
-                isFemale: verificationPresentation
-                    .verificationController.verificationTicketEntity!.isFemale),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                Text(
+                  "Error",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(color: Theme.of(context).colorScheme.onSurface),
+                ),
+              ],
+            ),
           ),
-          Text("No se pudo verificar, intentalo de nuevo"),
-          
-          ElevatedButton.icon(
+          Divider(
+            height: 20.h,
+            color: Colors.transparent,
+          ),
+          Text(
+            "No hemos podido verificar tu perfil, asegurate de que se te ve claramente al verificar el perfil e intentalo de nuevo",
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.apply(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Divider(
+            height: 50.h,
+            color: Colors.transparent,
+          ),
+          FilledButton.icon(
               onPressed: () => Navigator.pop(context),
               icon: Icon(Icons.arrow_back),
               label: Text("Atras"))
@@ -169,26 +308,84 @@ class _VerificationScreenState extends State<VerificationScreen> {
     );
   }
 
-  Container verificationErrorStatePage() {
+  Container verificationErrorStatePage(
+      VerificationPresentation verificationPresentation) {
     return Container(
-      child: Column(
-        children: [Text("Error")],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                Text(
+                  "Error",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.apply(color: Theme.of(context).colorScheme.onSurface),
+                ),
+              ],
+            ),
+            Divider(
+              height: 20.h,
+              color: Colors.transparent,
+            ),
+            Text(
+              "Ha ocurrido un error cargando la pagina, intentelo de nuevo o pongase en contacto con soporte",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.apply(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            Divider(
+              height: 50.h,
+              color: Colors.transparent,
+            ),
+            FilledButton.icon(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  verificationPresentation.clearModuleData();
+                  verificationPresentation.initializeModuleData();
+                },
+                label: Text("Intentar de nuevo"))
+          ],
+        ),
       ),
     );
   }
 
   Container verificationLoadingStatePage() {
     return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Cargando"),
-          Container(
-            height: 200.h,
-            width: 200.h,
-            child: LoadingIndicator(indicatorType: Indicator.orbit),
-          )
-        ],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Cargando",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.apply(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            Divider(
+              height: 50.h,
+              color: Colors.transparent,
+            ),
+            Container(
+              height: 100.h,
+              width: 100.h,
+              child: LoadingIndicator(
+                indicatorType: Indicator.circleStrokeSpin,
+                colors: [Theme.of(context).colorScheme.primary],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -196,36 +393,18 @@ class _VerificationScreenState extends State<VerificationScreen> {
   Column handGestureContainer(
       VerificationPresentation verificationPresentation) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Column(
-        children: [
-          Divider(
-            height: 100.h,
-            color: Colors.transparent,
-          ),
-          Text(
-            "-Solo tomará unos segundos",
-            style: GoogleFonts.lato(
-              fontSize: 60.sp,
-            ),
-          ),
-          Divider(
-            height: 100.h,
-            color: Colors.transparent,
-          ),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => CameraWidget(
-                              gestureName:
-                                  "assets/${verificationPresentation.verificationController.verificationTicketEntity!.handGesture}.svg",
-                              faceFileName: "assets/woman_face.svg",
-                            )));
-              },
-              child: Text("Continuar"))
-        ],
-      ),
+      ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => CameraWidget(
+                          gestureName:
+                              "assets/${verificationPresentation.verificationController.verificationTicketEntity!.handGesture}.svg",
+                          faceFileName: "assets/woman_face.svg",
+                        )));
+          },
+          child: Text("Continuar")),
     ]);
   }
 
@@ -234,18 +413,18 @@ class _VerificationScreenState extends State<VerificationScreen> {
       children: [
         isFemale
             ? Container(
-                height: 300.h,
-                width: 300.h,
+                height: 200.h,
+                width: 200.h,
                 child: SvgPicture.asset("assets/woman_face.svg"),
               )
             : Container(
-                height: 300.h,
-                width: 300.h,
+                height: 200.h,
+                width: 200.h,
                 child: SvgPicture.asset("assets/man_face.svg"),
               ),
         Container(
-          height: 300.h,
-          width: 300.h,
+          height: 200.h,
+          width: 200.h,
           child: Align(
               alignment: AlignmentDirectional.bottomEnd,
               child: Icon(

@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/error/Failure.dart';
 import '../../core/params_types/params_and_types.dart';
+import '../../core/platform/networkInfo.dart';
 import 'AplicationDataSettingsMapper.dart';
 import 'ApplicationSettingsDataSource.dart';
 import 'ApplicationSettingsEntity.dart';
@@ -14,9 +15,9 @@ import 'appSettingsRepo.dart';
 class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   @override
   ApplicationSettingsDataSource appSettingsDataSource;
-  ApplicationSettingsRepositoryImpl({
-    required this.appSettingsDataSource,
-  });
+  Mapper<ApplicationSettingsEntity> mapper;
+  ApplicationSettingsRepositoryImpl(
+      {required this.appSettingsDataSource, required this.mapper});
 
   @override
   StreamController? streamParserController = new StreamController();
@@ -34,7 +35,7 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
           appSettingsDataSource.listenAppSettingsUpdate?.stream.listen((event) {
         try {
           ApplicationSettingsEntity applicationSettingsEntity =
-              ApplicationSettingsMapper.fromMap(data: event);
+              mapper.fromMap(event);
           streamParserController?.add({
             "payloadType": "applicationSettingsEntity",
             "payload": applicationSettingsEntity
@@ -54,8 +55,9 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   Either<Failure, bool> clearModuleData() {
     try {
       streamParserSubscription?.cancel();
-      streamParserController = null;
       streamParserController?.close();
+
+      streamParserController = null;
       streamParserSubscription = null;
       streamParserController = new StreamController();
       appSettingsDataSource.clearModuleData();
@@ -80,8 +82,7 @@ class ApplicationSettingsRepositoryImpl implements AppSettingsRepository {
   Future<Either<Failure, bool>> updateSettings(
       ApplicationSettingsEntity applicationSettingsEntity) async {
     try {
-      var userData = ApplicationSettingsMapper.toMap(
-          applicationSettingsEntity: applicationSettingsEntity);
+      var userData = mapper.toMap(applicationSettingsEntity);
       var result = await appSettingsDataSource.updateAppSettings(userData);
       return Right(result);
     } catch (e) {

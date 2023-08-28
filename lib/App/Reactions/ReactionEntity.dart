@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../controllerDef.dart';
+
 enum ReactionRevealigState { notRevealed, revealed, revealing, error }
 
 enum ReactionAceptingState {
@@ -16,11 +18,12 @@ class Reaction {
   int reactionExpirationDateInSeconds;
   bool stopCounter = false;
   bool revealingProcessStarted = false;
-  bool canShowAds=true;
-  bool userBlocked=false;
-  double reactioValue;
+  bool canShowAds = true;
+  bool userBlocked = false;
+  String reactionType;
+
   String imageHash;
-  Map<String,dynamic> imageUrl;
+  Map<String, dynamic> imageUrl;
   String name;
   String idReaction;
   String senderId;
@@ -59,9 +62,9 @@ class Reaction {
   set setRevealingProcessStarted(revealingProcessStarted) =>
       this.revealingProcessStarted = revealingProcessStarted;
 
-  get getReactioValue => this.reactioValue;
+  get getReactionType => this.reactionType;
 
-  set setReactioValue(reactioValue) => this.reactioValue = reactioValue;
+  set setReactionType(reactioValue) => this.reactionType = reactioValue;
 
   get getImageHash => this.imageHash;
 
@@ -97,12 +100,14 @@ class Reaction {
       {required this.age,
       required this.senderId,
       required this.reactionExpirationDateInSeconds,
-      required this.reactioValue,
+      required this.reactionType,
       required this.imageHash,
       required this.imageUrl,
       required this.name,
       required this.idReaction,
-      required this.reactionRevealigState,required this.userBlocked,required this.revealed}) {
+      required this.reactionRevealigState,
+      required this.userBlocked,
+      required this.revealed}) {
     this.getExpirationSeconds();
   }
 
@@ -151,8 +156,8 @@ class Reaction {
           closeSecondsRemainingStream();
           reactionTimer.cancel();
         }
-        if (this.secondsUntilExpiration <=1 &&
-            reactionTimer.isActive==true &&
+        if (this.secondsUntilExpiration <= 1 &&
+            reactionTimer.isActive == true &&
             secondsRemainingStream.isClosed == false) {
           reactionTimer.cancel();
 

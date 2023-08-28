@@ -73,8 +73,8 @@ class HomeScreenPresentation extends ChangeNotifier
   ///
   ///constrains: to remove the reaction from the animated list, we need the reaction card size
 
-  void sendReaction(
-      double reactionValue, int listIndex, BoxConstraints constraints) async {
+  void sendReaction(ReactionType reactionType, int listIndex,
+      BoxConstraints constraints) async {
     Profile removedProfile =
         homeScreenController.removeProfileFromList(profileIndex: listIndex);
 
@@ -93,7 +93,7 @@ class HomeScreenPresentation extends ChangeNotifier
       getProfiles();
     }
     var result = await homeScreenController.sendRating(
-        ratingValue: reactionValue, idProfileRated: removedProfile.id);
+        reactionType: reactionType, idProfileRated: removedProfile.id);
     result.fold((failure) {
       homeScreenController.insertAtList(profile: removedProfile);
       HomeAppScreen.profilesKey.currentState?.insertItem(0);

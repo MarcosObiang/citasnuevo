@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -13,9 +12,8 @@ import '../../../../core/params_types/params_and_types.dart';
 import '../Widgets/profileWidget.dart';
 import '../homeScrenPresentation.dart';
 
-
 class HomeAppScreen extends StatefulWidget {
-              static const routeName = '/HomeAppScreen';
+  static const routeName = '/HomeAppScreen';
 
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
 
@@ -25,30 +23,26 @@ class HomeAppScreen extends StatefulWidget {
   }
 }
 
-class _HomeAppScreenState extends State<HomeAppScreen>  with WidgetsBindingObserver{
+class _HomeAppScreenState extends State<HomeAppScreen>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-        WidgetsBinding.instance.addObserver(this);
-
+    WidgetsBinding.instance.addObserver(this);
   }
 
-  void dispose(){
+  void dispose() {
     super.dispose();
-            WidgetsBinding.instance.removeObserver(this);
-
-
+    WidgetsBinding.instance.removeObserver(this);
   }
-AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
+
+  AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    if(state==AppLifecycleState.resumed){
-
-    }
+    if (state == AppLifecycleState.resumed) {}
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -56,65 +50,60 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
       value: Dependencies.homeScreenPresentation,
       child: Consumer<HomeScreenPresentation>(builder: (BuildContext context,
           HomeScreenPresentation homeScreenPresentation, Widget? child) {
-        return Material(
-          color: Colors.lightBlue,
-          child: SafeArea(
-            child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-              return Stack(
-                children: [
-                  Container(
-                      color: Colors.white,
-                      height: constraints.maxHeight,
-                      width: constraints.maxWidth,
-                      child: homeScreenPresentation.profileListState ==
-                              ProfileListState.error
-                          ? serverError(homeScreenPresentation)
+        return LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+          return Stack(
+            children: [
+              Container(
+                  decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(10),
+                          topLeft: Radius.circular(10))),
+                  height: constraints.maxHeight,
+                  width: constraints.maxWidth,
+                  child: homeScreenPresentation.profileListState ==
+                          ProfileListState.error
+                      ? serverError(homeScreenPresentation)
+                      : homeScreenPresentation.profileListState ==
+                              ProfileListState.ready
+                          ? profileListLoaded(
+                              homeScreenPresentation, constraints)
                           : homeScreenPresentation.profileListState ==
-                                  ProfileListState.ready
-                              ? profileListLoaded(
-                                  homeScreenPresentation, constraints)
+                                  ProfileListState.loading
+                              ? loadingProfiles()
                               : homeScreenPresentation.profileListState ==
-                                      ProfileListState.loading
-                                  ? loadingProfiles()
+                                      ProfileListState.location_denied
+                                  ? locationDeniedDialog(homeScreenPresentation)
                                   : homeScreenPresentation.profileListState ==
-                                          ProfileListState.location_denied
-                                      ? locationDeniedDialog(
+                                          ProfileListState
+                                              .location_forever_denied
+                                      ? locationDeniedForeverDialog(
                                           homeScreenPresentation)
                                       : homeScreenPresentation
                                                   .profileListState ==
-                                              ProfileListState
-                                                  .location_forever_denied
-                                          ? locationDeniedForeverDialog(
+                                              ProfileListState.location_disabled
+                                          ? locationServicesDisabledDialog(
                                               homeScreenPresentation)
                                           : homeScreenPresentation
                                                       .profileListState ==
                                                   ProfileListState
-                                                      .location_disabled
-                                              ? locationServicesDisabledDialog(
-                                                  homeScreenPresentation)
+                                                      .profile_not_visible
+                                              ? invisibleProfileDialog(
+                                                  homeScreenPresentation,
+                                                  context)
                                               : homeScreenPresentation
                                                           .profileListState ==
                                                       ProfileListState
-                                                          .profile_not_visible
-                                                  ? invisibleProfileDialog(
+                                                          .location_status_unknown
+                                                  ? unableToDetermineLocationStatus(
+                                                      homeScreenPresentation)
+                                                  : noMoreProfilesDialog(
                                                       homeScreenPresentation,
-                                                      context)
-                                                  : homeScreenPresentation
-                                                              .profileListState ==
-                                                          ProfileListState
-                                                              .location_status_unknown
-                                                      ? unableToDetermineLocationStatus(
-                                                          homeScreenPresentation)
-                                                      : noMoreProfilesDialog(
-                                                          homeScreenPresentation,
-                                                          context)),
-               
-                ],
-              );
-            }),
-          ),
-        );
+                                                      context)),
+            ],
+          );
+        });
       }),
     );
   }
@@ -129,14 +118,15 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
         children: [
           Icon(
             Icons.my_location_outlined,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.tertiary,
             size: 90.sp,
           ),
           Text(
             "Hotty necesita acceder a su localizacion para mostrarte perfiles cercanos a ti",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 60.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
           ),
-          ElevatedButton(
+          FilledButton(
               onPressed: () {
                 homeScreenPresentation.requestPermission();
               },
@@ -156,7 +146,7 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
         children: [
           Text(
             "Parece que a Hotty se le ha negado el acceso a la ubicacion del telefono, deberás ir a ajustes para darnos permiso",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 60.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           ElevatedButton.icon(
               onPressed: () {
@@ -166,7 +156,7 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
               label: Text("Ir a ajustes")),
           Text(
             "- Si has ya has dato a hotty permiso desde los ajustes pulsa intentar de nuevo",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 60.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           ElevatedButton.icon(
               onPressed: () {
@@ -189,9 +179,10 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
         children: [
           Text(
             "Hotty no puede determinar el estado de tu sistema de localizacion, asegurate de tener tu sistema de localizacion activado, luego reinicia la aplicacion y si el problema persiste contacta con soporte",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 60.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
           ),
-          ElevatedButton.icon(
+          FilledButton.icon(
               onPressed: () {
                 homeScreenPresentation.getProfiles();
               },
@@ -210,7 +201,8 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
       children: [
         Text(
           "Hotty necesita acceder a su localizacion para mostrarte perfiles cercanos a ti",
-          style: GoogleFonts.roboto(color: Colors.white, fontSize: 50.sp),
+          style: Theme.of(context).textTheme.bodyMedium,
+          textAlign: TextAlign.center,
         ),
         ElevatedButton(
             onPressed: () {
@@ -219,7 +211,8 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
             child: Text("Activar servicios ubicacion")),
         Text(
           "Si ya ha activado los servicios de ubicacion pulse en intentar de nuevo",
-          style: GoogleFonts.roboto(color: Colors.white, fontSize: 50.sp),
+          style: Theme.of(context).textTheme.bodyMedium,
+          textAlign: TextAlign.center,
         ),
         ElevatedButton.icon(
             onPressed: () {
@@ -241,11 +234,11 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
         children: [
           Text(
             "Vaya...... no hemos enconotrado a nadie que coincida con tus filtros de busqueda, prueba a cambiarlos",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 60.sp),
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
           ),
-          ElevatedButton(
+          FilledButton(
               onPressed: () {
-
                 Navigator.push(context, GoToRoute(page: AppSettingsScreen()));
               },
               child: Text("Modificar filtros"))
@@ -269,7 +262,8 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
           ),
           Text(
             "No puedes ver perfiles mientras tu perfil esta oculto, activa la visibilidad de tu perfil es Ajustes > Mostrar perfil",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 50.sp),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           ElevatedButton(
               onPressed: () {
@@ -280,7 +274,8 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
               child: Text("Ir a ajustes")),
           Text(
             "Si sigues viendo este mensaje despues de activar la visibilidad pulsa intentar de nuevo",
-            style: GoogleFonts.roboto(color: Colors.white, fontSize: 50.sp),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           ElevatedButton.icon(
               onPressed: () {
@@ -299,10 +294,13 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-            "Ups... ha habido un error buscando perfiles, intentalo de nuevo ahora o mas tarde.Si sigue teniendo problemas contacte con soporte"),
-        ElevatedButton.icon(
-            onPressed: ()async {
-          
+          "Ups... ha habido un error buscando perfiles, intentalo de nuevo ahora o mas tarde.Si sigue teniendo problemas contacte con soporte",
+          style: Theme.of(context).textTheme.bodyMedium,
+          textAlign: TextAlign.center,
+        ),
+        FilledButton.icon(
+            style: ButtonStyle(),
+            onPressed: () async {
               homeScreenPresentation.restart();
             },
             icon: Icon(Icons.refresh),
@@ -325,7 +323,7 @@ AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
     );
   }
 
-  AnimatedList profileListLoaded(HomeScreenPresentation homeScreenPresentation,
+  Widget profileListLoaded(HomeScreenPresentation homeScreenPresentation,
       BoxConstraints constraints) {
     return AnimatedList(
         scrollDirection: Axis.horizontal,

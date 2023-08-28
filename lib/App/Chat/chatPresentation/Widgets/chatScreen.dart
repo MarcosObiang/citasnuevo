@@ -1,8 +1,10 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -233,6 +235,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
               Scaffold(
                   appBar: chatScreenAppBar(chatPresentation),
                   resizeToAvoidBottomInset: true,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                   body: SafeArea(
                     child: LayoutBuilder(builder: (context, constraints) {
                       return Container(
@@ -245,7 +248,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                             children: [
                               Container(
                                   height: constraints.biggest.height -
-                                      (kBottomNavigationBarHeight * 1.75),
+                                      (kBottomNavigationBarHeight),
                                   width: constraints.biggest.width,
                                   child: Stack(
                                     children: [
@@ -288,16 +291,32 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   Material chatDeletedDialog(BuildContext context) {
     return Material(
         child: Container(
-      color: Colors.black,
+      color: Theme.of(context).colorScheme.primaryContainer,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Icon(Icons.delete),
+              Text(
+                "Conversacion eliminada",
+                style: Theme.of(context).textTheme.titleMedium?.apply(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+              ),
+              Divider(
+                color: Colors.transparent,
+                height: 50.h,
+              ),
               Text(
                 "Lo sentimos,el remitente ha borrado la conversacion",
-                style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.apply(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+              ),
+              Divider(
+                color: Colors.transparent,
+                height: 50.h,
               ),
               ElevatedButton(
                   onPressed: () => Navigator.pop(context), child: Text("Atras"))
@@ -311,25 +330,48 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   Material userBlockedDialog(BuildContext context) {
     return Material(
         child: Container(
-      color: Colors.black,
+      color: Theme.of(context).colorScheme.primaryContainer,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "El usuario ha sido bloqueado por infringir las normas de la comunidad",
-                style: GoogleFonts.lato(color: Colors.white, fontSize: 50.sp),
+              Divider(
+                color: Colors.transparent,
+                height: 50.h,
               ),
-              ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Atras")),
+              Icon(
+                Icons.lock,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+              Divider(
+                color: Colors.transparent,
+                height: 50.h,
+              ),
+              Text(
+                "Usuario bloqueado",
+                style: Theme.of(context).textTheme.headlineLarge?.apply(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+              ),
+              Text(
+                "Lo sentimos, este usuario ha sido bloqueado por infringir las normas de la comunidad",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.apply(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+              ),
+              Divider(
+                color: Colors.transparent,
+                height: 50.h,
+              ),
               ElevatedButton(
                   onPressed: () {
                     showDeleteChatDialog();
                   },
-                  child: Text("Eliminar conversacion"))
+                  child: Text("Eliminar conversacion")),
+              ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Atras")),
             ],
           ),
         ),
@@ -346,13 +388,15 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
           onTap: () => forceScrollDown(),
           child: Container(
               child: Center(
-                child: Icon(Icons.arrow_downward),
+                child: Icon(Icons.arrow_downward,
+                    color: Theme.of(context).colorScheme.onSecondary),
               ),
               height: 150.w,
               width: 150.w,
               decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color.fromARGB(97, 233, 30, 98))),
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.secondary,
+              )),
         ),
       ),
     );
@@ -361,9 +405,8 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   Widget messageList({required ChatPresentation chatPresentation}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Scrollbar(
-        thumbVisibility: true,
-        controller: controller,
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
         child: AnimatedList(
             physics: BouncingScrollPhysics(),
             key: ChatMessagesScreen.messageListState,
@@ -400,61 +443,86 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
 
   AppBar chatScreenAppBar(ChatPresentation chatPresentation) {
     return AppBar(
+        scrolledUnderElevation: 0,
         title: Row(
           children: [
-            GestureDetector(
-              onTap: () => Navigator.push(
-                  context,
-                  GoToRoute(
-                      page: ChatProfileDetailsScreen(
-                          chatId: widget.chatId,
-                          remitentId: widget.remitentId))),
-              child: Container(
-                height: 100.w,
-                width: 100.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+            Flexible(
+              flex: 4,
+              fit: FlexFit.loose,
+              child: GestureDetector(
+                onTap: () {
+                  if (chatPresentation
+                          .chatController.chatList[chatLitIndex].isBlindDate ==
+                      false) {
+                    Navigator.push(
+                        context,
+                        GoToRoute(
+                            page: ChatProfileDetailsScreen(
+                                chatId: widget.chatId,
+                                remitentId: widget.remitentId)));
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: chatPresentation.chatController.chatList[chatLitIndex]
+                              .isBlindDate ==
+                          false
+                      ? FutureBuilder(
+                          future: remitentImageData,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Uint8List> snapshot) {
+                            return Padding(
+                              padding: EdgeInsets.all(2.h),
+                              child: Container(
+                                  height: 100.h,
+                                  width: 100.h,
+                                  decoration:
+                                      BoxDecoration(shape: BoxShape.circle),
+                                  child: snapshot.hasData == true
+                                      ? ClipOval(
+                                          child: Image.memory(
+                                            snapshot.data!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Container(
+                                              height: 50.h,
+                                              width: 50.h,
+                                              child: LoadingIndicator(
+                                                  indicatorType: Indicator
+                                                      .circleStrokeSpin)),
+                                        )),
+                            );
+                          })
+                      : Icon(LineAwesomeIcons.mask),
                 ),
-                child: chatPresentation.chatController.chatList[chatLitIndex]
-                            .isBlindDate ==
-                        false
-                    ? FutureBuilder(
-                        future: remitentImageData,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<Uint8List> snapshot) {
-                          return Container(
-                              child: snapshot.hasData
-                                  ? Image.memory(
-                                      snapshot.data!,
-                                    )
-                                  : Center(
-                                      child: Container(
-                                          height: 200.h,
-                                          width: 200.h,
-                                          child: LoadingIndicator(
-                                              indicatorType: Indicator.orbit)),
-                                    ));
-                        })
-                    : Icon(LineAwesomeIcons.mask),
               ),
             ),
-            Container(
-                width: 400.w,
-                child: chatPresentation.chatController.chatList[chatLitIndex]
-                            .isBlindDate ==
-                        false
-                    ? Text(
-                        chatPresentation
-                            .chatController.chatList[chatLitIndex].remitentName,
-                      )
-                    : Row(
-                        children: [
-                          Text(
-                            "Secreto",
-                          ),
-                          Icon(LineAwesomeIcons.lock)
-                        ],
-                      )),
+            Flexible(flex: 1, fit: FlexFit.tight, child: Container()),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.loose,
+              child: Container(
+                  child: chatPresentation.chatController.chatList[chatLitIndex]
+                              .isBlindDate ==
+                          false
+                      ? Text(
+                          chatPresentation.chatController.chatList[chatLitIndex]
+                              .remitentName,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        )
+                      : Row(
+                          children: [
+                            Text(
+                              "Secreto",
+                            ),
+                            Icon(LineAwesomeIcons.lock)
+                          ],
+                        )),
+            ),
           ],
         ),
         centerTitle: true,
@@ -486,13 +554,15 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
   Container messageSenderBar(
       BoxConstraints constraints, ChatPresentation presentation) {
     return Container(
-      height: kBottomNavigationBarHeight * 1.75,
+      height: kBottomNavigationBarHeight * 1,
       width: constraints.biggest.width,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Flexible(
             flex: 2,
-            fit: FlexFit.tight,
+            fit: FlexFit.loose,
             child: IconButton(
                 onPressed: () async {
                   final gif = await GiphyGet.getGif(
@@ -515,7 +585,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
           ),
           Flexible(
             flex: 2,
-            fit: FlexFit.tight,
+            fit: FlexFit.loose,
             child: IconButton(
                 onPressed: () async {
                   var data = await presentation.getImage();
@@ -530,13 +600,19 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 icon: Icon(LineAwesomeIcons.image)),
           ),
           Flexible(
-            flex: 8,
-            fit: FlexFit.tight,
-            child: TextFormField(
-              maxLength: 600,
-              maxLines: null,
+            flex: 6,
+            fit: FlexFit.loose,
+            child: CupertinoTextField(
+              maxLines: 5,
+              minLines: 1,
+              showCursor: true,
               controller: textEditingController,
               focusNode: focusNode,
+              inputFormatters: [LengthLimitingTextInputFormatter(600)],
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.apply(color: Theme.of(context).colorScheme.onSurface),
               textInputAction: TextInputAction.send,
               onEditingComplete: () {
                 sendMessage(
@@ -547,16 +623,18 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
             ),
           ),
           Flexible(
-            flex: 2,
-            fit: FlexFit.tight,
-            child: IconButton(
+            flex: 3,
+            fit: FlexFit.loose,
+            child: IconButton.filled(
                 onPressed: () {
                   sendMessage(
                       text: textEditingController.text,
                       messageType: MessageType.TEXT,
                       chatPresentation: presentation);
                 },
-                icon: Icon(Icons.send)),
+                icon: Icon(
+                  Icons.send,
+                )),
           ),
         ],
       ),

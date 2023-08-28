@@ -172,7 +172,7 @@ class AdvertisingServices {
   }
 
   Future<bool> setConsentStatus({required bool consentPersonalizedAds}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
 

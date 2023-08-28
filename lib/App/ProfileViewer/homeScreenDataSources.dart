@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import 'package:citasnuevo/App/controllerDef.dart';
 import '../DataManager.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/globalData.dart';
@@ -41,7 +42,7 @@ abstract class HomeScreenDataSource
   /// Sends the profile rating the user has given to a profile
   ///
   Future<void> sendRating(
-      {required double ratingValue, required String idProfileRated});
+      {required ReactionType reactionType, required String idProfileRated});
 
   Future<bool> setConsent({required bool cosent});
 }
@@ -101,7 +102,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   /// Throws [NetworkException] if there is no connection
   @override
   Future<Map<dynamic, dynamic>> fetchProfiles() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Map<String, dynamic> locationServicesStatus =
             await LocationService.instance.locationServicesState();
@@ -136,8 +137,9 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
 
   @override
   Future<void> sendRating(
-      {required double ratingValue, required String idProfileRated}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+      {required ReactionType reactionType,
+      required String idProfileRated}) async {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
 
@@ -147,7 +149,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
               "recieverId": idProfileRated,
               "senderName": dataSourceStreamData["userName"],
               "userId": dataSourceStreamData["userId"],
-              "reactionValue": ratingValue,
+              "reactionType": reactionType.name,
             }));
         int statusCode = (jsonDecode(execution.response))["status"];
         if (statusCode != 200) {
@@ -208,7 +210,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
 
   @override
   Future<bool> setConsent({required bool cosent}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
 

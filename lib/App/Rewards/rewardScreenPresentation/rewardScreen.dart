@@ -33,251 +33,326 @@ class _RewardScreenState extends State<RewardScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Material(
-        child: ChangeNotifierProvider.value(
-          value: Dependencies.rewardScreenPresentation,
-          child: Consumer<RewardScreenPresentation>(builder:
-              (BuildContext context,
-                  RewardScreenPresentation rewardScreenPresentation,
-                  Widget? child) {
-            return Column(
-              children: [
-                rewardScreenPresentation.getRewardScreenState ==
-                        RewardScreenState.done
-                    ? Expanded(
-                        child: rewardScreenPresentation
-                                    .rewardController.isPremium ==
-                                false
-                            ? Stack(
-                                alignment: AlignmentDirectional.center,
-                                children: [
-                                  Container(
-                                      color: Colors.white,
-                                      child: Column(
-                                        children: [
-                                          premiumCard(context,
-                                              rewardScreenPresentation),
-                                          Flexible(
-                                            flex: 9,
-                                            fit: FlexFit.tight,
-                                            child: ListView(
-                                              children: [
-                                                rewardScreenPresentation.rewards
-                                                            .waitingFirstReward ==
-                                                        true
-                                                    ? RepaintBoundary(
-                                                        child: FirstRewardWidget(
-                                                            rewardScreenPresentation:
-                                                                rewardScreenPresentation),
-                                                      )
-                                                    : Container(),
-                                                rewardScreenPresentation.rewards
-                                                            .promotionalCodePendingOfUse ==
-                                                        true
-                                                    ? RepaintBoundary(
-                                                        child: PromotionalRewardWidget(
-                                                            rewardScreenPresentation:
-                                                                rewardScreenPresentation),
-                                                      )
-                                                    : Container(),
-                                                rewardScreenPresentation.rewards
-                                                            .rewardTicketSuccesfulShares >
-                                                        0
-                                                    ? RepaintBoundary(
-                                                        child: SharedLinkRewardWidget(
-                                                            rewardScreenPresentation:
-                                                                rewardScreenPresentation),
-                                                      )
-                                                    : Container(),
-                                                rewardScreenPresentation.rewards
-                                                                .waitingFirstReward ==
-                                                            false &&
-                                                        rewardScreenPresentation
-                                                                .rewards
-                                                                .waitingReward ==
-                                                            true
-                                                    ? RepaintBoundary(
-                                                        child: RewardCardWidget(
-                                                            rewardScreenPresentation:
-                                                                rewardScreenPresentation),
-                                                      )
-                                                    : Container(),
-                                                RepaintBoundary(
-                                                  child: ShareCodeRewardCard(
-                                                      rewardScreenPresentation:
-                                                          rewardScreenPresentation),
-                                                ),
-                                                verifyProfileAndWindWidget()
-                                              ],
+      child: ChangeNotifierProvider.value(
+        value: Dependencies.rewardScreenPresentation,
+        child: Consumer<RewardScreenPresentation>(builder:
+            (BuildContext context,
+                RewardScreenPresentation rewardScreenPresentation,
+                Widget? child) {
+          return Column(
+            children: [
+              rewardScreenPresentation.getRewardScreenState ==
+                      RewardScreenState.done
+                  ? Expanded(
+                      child:
+                          rewardScreenPresentation.rewardController.isPremium ==
+                                  false
+                              ? Stack(
+                                  alignment: AlignmentDirectional.center,
+                                  children: [
+                                    Container(
+                                        child: Column(
+                                      children: [
+                                        premiumCard(
+                                            context, rewardScreenPresentation),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Monedas gratis',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headlineSmall
+                                                  ?.apply(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface),
                                             ),
-                                          ),
-                                        ],
-                                      )),
-                                  rewardScreenPresentation
-                                              .getRewardedAdShowingState ==
-                                          RewardedAdShowingState.adLoading
-                                      ? Container(
-                                          width: ScreenUtil().screenWidth,
-                                          color:
-                                              Color.fromARGB(217, 27, 22, 22),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Cargando anuncio",
-                                                style: GoogleFonts.lato(
-                                                    color: Colors.white,
-                                                    fontSize: 65.sp),
-                                              ),
-                                              Container(
-                                                height: 200.h,
-                                                width: 200.h,
-                                                child: LoadingIndicator(
-                                                    indicatorType:
-                                                        Indicator.orbit),
-                                              )
-                                            ],
-                                          ),
-                                        )
-                                      : rewardScreenPresentation
-                                                  .getRewardedAdShowingState ==
-                                              RewardedAdShowingState
-                                                  .errorLoadingAd
-                                          ? Container(
-                                              width: ScreenUtil().screenWidth,
-                                              color: Color.fromARGB(
-                                                  217, 27, 22, 22),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                          ],
+                                        ),
+                                        Flexible(
+                                          flex: 9,
+                                          fit: FlexFit.tight,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(30)),
+                                              child: ListView(
                                                 children: [
-                                                  Text(
-                                                    "Error al mostrar anuncio",
-                                                    style: GoogleFonts.lato(
-                                                        color: Colors.white,
-                                                        fontSize: 75.sp),
+                                                  rewardScreenPresentation
+                                                              .rewards
+                                                              .waitingFirstReward ==
+                                                          false
+                                                      ? RepaintBoundary(
+                                                          child: FirstRewardWidget(
+                                                              rewardScreenPresentation:
+                                                                  rewardScreenPresentation),
+                                                        )
+                                                      : Container(),
+                                                  rewardScreenPresentation
+                                                              .rewards
+                                                              .promotionalCodePendingOfUse ==
+                                                          false
+                                                      ? RepaintBoundary(
+                                                          child: PromotionalRewardWidget(
+                                                              rewardScreenPresentation:
+                                                                  rewardScreenPresentation),
+                                                        )
+                                                      : Container(),
+                                                  rewardScreenPresentation
+                                                              .rewards
+                                                              .rewardTicketSuccesfulShares >
+                                                          -1
+                                                      ? RepaintBoundary(
+                                                          child: SharedLinkRewardWidget(
+                                                              rewardScreenPresentation:
+                                                                  rewardScreenPresentation),
+                                                        )
+                                                      : Container(),
+                                                  rewardScreenPresentation
+                                                                  .rewards
+                                                                  .waitingFirstReward ==
+                                                              false &&
+                                                          rewardScreenPresentation
+                                                                  .rewards
+                                                                  .waitingReward ==
+                                                              true
+                                                      ? RepaintBoundary(
+                                                          child: RewardCardWidget(
+                                                              rewardScreenPresentation:
+                                                                  rewardScreenPresentation),
+                                                        )
+                                                      : Container(),
+                                                  RepaintBoundary(
+                                                    child: ShareCodeRewardCard(
+                                                        rewardScreenPresentation:
+                                                            rewardScreenPresentation),
                                                   ),
-                                                  Text(
-                                                    "No te preocupes, podras reclamar tu recompensa",
-                                                    style: GoogleFonts.lato(
-                                                        color: Colors.white,
-                                                        fontSize: 65.sp),
-                                                  ),
-                                                  ElevatedButton(
-                                                      onPressed: () {
-                                                        rewardScreenPresentation
-                                                                .setRewardedAdShowingstate =
-                                                            RewardedAdShowingState
-                                                                .adNotShowing;
-                                                        rewardScreenPresentation
-                                                            .askDailyReward(
-                                                                showAd: false);
-                                                      },
-                                                      child: Text(
-                                                          "Reclamar recompensa",
-                                                          style:
-                                                              GoogleFonts.lato(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize:
-                                                                      60.sp)))
+                                                  verifyProfileAndWindWidget()
                                                 ],
                                               ),
-                                            )
-                                          : rewardScreenPresentation
-                                                      .getRewardedAdShowingState ==
-                                                  RewardedAdShowingState
-                                                      .adIncomplete
-                                              ? Container(
-                                                  width:
-                                                      ScreenUtil().screenWidth,
-                                                  color: Color.fromARGB(
-                                                      217, 27, 22, 22),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        "Anuncio incompleto",
-                                                        style: GoogleFonts.lato(
-                                                            color: Colors.white,
-                                                            fontSize: 75.sp),
-                                                      ),
-                                                      Text(
-                                                        "Debes completar el anuncio para obtener tu recompensa",
-                                                        style: GoogleFonts.lato(
-                                                            color: Colors.white,
-                                                            fontSize: 55.sp),
-                                                      ),
-                                                      ElevatedButton(
-                                                          onPressed: () {
-                                                            rewardScreenPresentation
-                                                                    .setRewardedAdShowingstate =
-                                                                RewardedAdShowingState
-                                                                    .adNotShowing;
-                                                          },
-                                                          child: Text(
-                                                              "Entendido",
-                                                              style: GoogleFonts.lato(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize:
-                                                                      60.sp)))
-                                                    ],
-                                                  ),
-                                                )
-                                              : Container(),
-                                ],
-                              )
-                            : Center(
-                                child: Text("Eres premium"),
-                              ),
-                      )
-                    : rewardScreenPresentation.getRewardScreenState ==
-                            RewardScreenState.loading
-                        ? Container(
-                            child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text("Cargando"),
-                                Divider(
-                                  height: 100.h,
-                                  color: Colors.transparent,
-                                ),
-                                Container(
-                                  height: 200.h,
-                                  width: 200.h,
-                                  child: LoadingIndicator(
-                                    indicatorType: Indicator.ballPulse,
-                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                                    rewardScreenPresentation
+                                                .getRewardedAdShowingState ==
+                                            RewardedAdShowingState.adLoading
+                                        ? adLoadingDialog()
+                                        : rewardScreenPresentation
+                                                    .getRewardedAdShowingState ==
+                                                RewardedAdShowingState
+                                                    .errorLoadingAd
+                                            ? errorLoadingAdDialog(
+                                                rewardScreenPresentation)
+                                            : rewardScreenPresentation
+                                                        .getRewardedAdShowingState ==
+                                                    RewardedAdShowingState
+                                                        .adIncomplete
+                                                ? incompleteAdDialog(
+                                                    rewardScreenPresentation)
+                                                : Container(),
+                                  ],
                                 )
-                              ],
-                            ),
-                          ))
-                        : Container(
-                            child: Column(
+                              : Center(
+                                  child: Text("Eres premium",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.apply(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface)),
+                                ),
+                    )
+                  : rewardScreenPresentation.getRewardScreenState ==
+                          RewardScreenState.loading
+                      ? Expanded(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                                child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Cargando",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.apply(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface)),
+                                  Divider(
+                                    height: 50.h,
+                                    color: Colors.transparent,
+                                  ),
+                                  Container(
+                                    height: 100.h,
+                                    width: 100.h,
+                                    child: LoadingIndicator(
+                                      indicatorType: Indicator.circleStrokeSpin,
+                                      colors: [
+                                        Theme.of(context).colorScheme.primary
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )),
+                          ),
+                        )
+                      : Expanded(
+                          child: Container(
+                              child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Error de carga"),
+                              Text("Error de carga",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.apply(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface)),
                               Divider(
-                                height: 100.h,
+                                height: 50.h,
                                 color: Colors.transparent,
                               ),
-                              ElevatedButton.icon(
+                              FilledButton.icon(
                                   onPressed: () {
                                     rewardScreenPresentation.restart();
                                   },
                                   icon: Icon(Icons.refresh),
                                   label: Text("Cargar de nuevo"))
                             ],
-                          ))
-              ],
-            );
-          }),
+                          )),
+                        )
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Container incompleteAdDialog(
+      RewardScreenPresentation rewardScreenPresentation) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer,
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      width: ScreenUtil().screenWidth,
+      child: Padding(
+        padding: EdgeInsets.all(40.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Anuncio incompleto",
+              style: Theme.of(context).textTheme.headlineSmall?.apply(
+                  color: Theme.of(context).colorScheme.onErrorContainer),
+            ),
+            Text(
+              "Debes completar el anuncio para obtener tu recompensa",
+              style: Theme.of(context).textTheme.bodyLarge?.apply(
+                  color: Theme.of(context).colorScheme.onErrorContainer),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  rewardScreenPresentation.setRewardedAdShowingstate =
+                      RewardedAdShowingState.adNotShowing;
+                },
+                child: Text(
+                  "Entendido",
+                ))
+          ],
         ),
+      ),
+    );
+  }
+
+  Container errorLoadingAdDialog(
+      RewardScreenPresentation rewardScreenPresentation) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer,
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      width: ScreenUtil().screenWidth,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Icon(
+                  Icons.error,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                Text(
+                  "Error al mostrar anuncio",
+                  style: Theme.of(context).textTheme.headlineSmall?.apply(
+                      color: Theme.of(context).colorScheme.onErrorContainer),
+                ),
+              ],
+            ),
+            Divider(
+              height: 50.h,
+              color: Colors.transparent,
+            ),
+            Text(
+              "No te preocupes, podras reclamar tu recompensa",
+              style: Theme.of(context).textTheme.bodyLarge?.apply(
+                  color: Theme.of(context).colorScheme.onErrorContainer),
+            ),
+            Divider(
+              height: 50.h,
+              color: Colors.transparent,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                rewardScreenPresentation.setRewardedAdShowingstate =
+                    RewardedAdShowingState.adNotShowing;
+                rewardScreenPresentation.askDailyReward(showAd: false);
+              },
+              child: Text(
+                "Reclamar recompensa",
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container adLoadingDialog() {
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      width: ScreenUtil().screenWidth,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Cargando anuncio",
+            style: Theme.of(context).textTheme.titleMedium?.apply(
+                color: Theme.of(context).colorScheme.onSecondaryContainer),
+          ),
+          Divider(
+            color: Colors.transparent,
+            height: 50.h,
+          ),
+          Container(
+            height: 100.h,
+            width: 100.h,
+            child: LoadingIndicator(indicatorType: Indicator.circleStrokeSpin),
+          )
+        ],
       ),
     );
   }
@@ -287,87 +362,39 @@ class _RewardScreenState extends State<RewardScreen> {
     return Flexible(
       flex: 4,
       fit: FlexFit.tight,
-      child: Container(
-        width: ScreenUtil.defaultSize.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(
-            Radius.circular(10),
-          ),
-          color: Colors.deepPurple,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Hotty+',
-                style: GoogleFonts.lato(
-                    color: Colors.white,
-                    fontSize: 60.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Consigue monedas infinitas',
-                style: GoogleFonts.lato(
-                    color: Colors.white,
-                    fontSize: 50.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Experiecia sin anuncios',
-                style: GoogleFonts.lato(
-                    color: Colors.white,
-                    fontSize: 50.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context, GoToRoute(page: SubscriptionsMenu()));
-                  },
-                  child: Text(
-                    'Desde ${rewardScreenPresentation.premiumPrice}',
-                    style: GoogleFonts.roboto(
-                        color: Colors.deepPurple, fontSize: 45.sp),
-                  )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container verifyProfileAndWindWidget() {
-    return Container(
-      height: 500.h,
-      child: Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Verifica tu perfil y gana",
-                style:
-                    GoogleFonts.roboto(color: Colors.black, fontSize: 70.sp)),
-            Text("Gana 2000 monedas por verificar tu perfil",
-                style: GoogleFonts.roboto(color: Colors.black)),
-            TextButton(
+            Text(
+              'Hotty Premium',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.apply(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            Text(
+              'Consigue monedas infinitas',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.apply(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            Text(
+              'Experiecia sin anuncios',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.apply(color: Theme.of(context).colorScheme.onSurface),
+            ),
+            FilledButton(
                 onPressed: () {
-                  Navigator.push(
-                      context, GoToRoute(page: VerificationScreen()));
+                  Navigator.push(context, GoToRoute(page: SubscriptionsMenu()));
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent,
-                      borderRadius: BorderRadius.all(Radius.circular(30))),
-                  child: Padding(
-                    padding: EdgeInsets.all(40.h),
-                    child: Text(
-                      'Verificar',
-                      style: GoogleFonts.roboto(
-                          color: Colors.black, fontSize: 50.sp),
-                    ),
-                  ),
+                child: Text(
+                  'Desde ${rewardScreenPresentation.premiumPrice}',
                 )),
           ],
         ),
@@ -375,242 +402,49 @@ class _RewardScreenState extends State<RewardScreen> {
     );
   }
 
-  Stack sharedLinkrewardCard(
-      RewardScreenPresentation rewardScreenPresentation) {
-    return Stack(
-      children: [
-        Container(
-          height: 700.h,
-          child: Card(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("Recompensa promocional",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 70.sp)),
-                Text("Tu codigo de invitacion ha sido usado correctamente",
-                    style: GoogleFonts.roboto(
-                      color: Colors.black,
-                    )),
-                Text(
-                    "Tu recompensa: 2000 creditos * ${rewardScreenPresentation.rewardController.rewards?.rewardTicketSuccesfulShares} = ${rewardScreenPresentation.rewardController.rewards!.rewardTicketSuccesfulShares * 2000} ",
-                    style: GoogleFonts.roboto(
-                      color: Colors.black,
-                    )),
-                TextButton(
-                    onPressed: () {
-                      rewardScreenPresentation.rewardTicketSuccesfultShares();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          borderRadius: BorderRadius.all(Radius.circular(30))),
-                      child: Padding(
-                        padding: EdgeInsets.all(40.h),
-                        child: Text(
-                          'Reclamar bono',
-                          style: GoogleFonts.roboto(
-                              color: Colors.black, fontSize: 50.sp),
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-          ),
-        ),
-        rewardScreenPresentation.getRewardTicketSuccessfulShareState ==
-                RewardTicketSuccesfulSharesState.inProcess
-            ? Container(
-                height: 500.h,
-                width: ScreenUtil().screenWidth,
-                color: Color.fromARGB(228, 100, 24, 135),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Cargando",
-                      style: GoogleFonts.roboto(color: Colors.white),
-                    ),
-                    Center(
-                        child: Container(
-                      height: 200.h,
-                      width: 300.h,
-                      child:
-                          LoadingIndicator(indicatorType: Indicator.ballPulse),
-                    ))
-                  ],
-                ),
-              )
-            : Container()
-      ],
-    );
-  }
-
-  Stack promotionalRewardCard(
-      RewardScreenPresentation rewardScreenPresentation) {
-    return Stack(
-      children: [
-        Container(
-          height: 500.h,
-          child: Card(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("Recompensa promocional",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 70.sp)),
-                Text(
-                    "Has usado un codigo promocional y ahora te regalamos 5000 creditos gratis",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 50.sp)),
-                TextButton(
-                    onPressed: () {
-                      rewardScreenPresentation.usePromotionalCode();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          borderRadius: BorderRadius.all(Radius.circular(30))),
-                      child: Padding(
-                        padding: EdgeInsets.all(40.h),
-                        child: Text(
-                          'Reclamar bono',
-                          style: GoogleFonts.roboto(
-                              color: Colors.black, fontSize: 50.sp),
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-          ),
-        ),
-        rewardScreenPresentation.getPromotionalCodeState ==
-                PromotionalCodeState.inProcess
-            ? Container(
-                height: 500.h,
-                width: ScreenUtil().screenWidth,
-                color: Color.fromARGB(228, 100, 24, 135),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Cargando",
-                      style: GoogleFonts.roboto(color: Colors.white),
-                    ),
-                    Center(
-                        child: Container(
-                      height: 200.h,
-                      width: 300.h,
-                      child:
-                          LoadingIndicator(indicatorType: Indicator.ballPulse),
-                    ))
-                  ],
-                ),
-              )
-            : Container()
-      ],
-    );
-  }
-
-  Stack bonoBienvenida(RewardScreenPresentation rewardScreenPresentation) {
-    return Stack(
-      children: [
-        Container(
-          height: 500.h,
-          child: Card(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("Bono de bienvenida",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 70.sp)),
-                Text(
-                    "Hotty te regala 30000 creditos para que conozcas y disfrutes.",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 50.sp)),
-                TextButton(
-                    onPressed: () {
-                      rewardScreenPresentation.askFirstReward();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          borderRadius: BorderRadius.all(Radius.circular(30))),
-                      child: Padding(
-                        padding: EdgeInsets.all(40.h),
-                        child: Text(
-                          'Reclamar bono',
-                          style: GoogleFonts.roboto(
-                              color: Colors.black, fontSize: 50.sp),
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-          ),
-        ),
-        rewardScreenPresentation.getFirstRewards == FirstRewards.inProcess
-            ? Container(
-                height: 500.h,
-                width: ScreenUtil().screenWidth,
-                color: Color.fromARGB(228, 100, 24, 135),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Cargando",
-                      style: GoogleFonts.roboto(color: Colors.white),
-                    ),
-                    Center(
-                        child: Container(
-                      height: 200.h,
-                      width: 300.h,
-                      child:
-                          LoadingIndicator(indicatorType: Indicator.ballPulse),
-                    ))
-                  ],
-                ),
-              )
-            : Container()
-      ],
-    );
-  }
-
-  List<Widget> rewardWidgets = [
-    Card(child:
-        StreamBuilder(builder: (BuildContext context, AsyncSnapshot<int> data) {
-      return Container(
-          height: 600.h,
-          color: Colors.red,
-          child: Padding(
-            padding: EdgeInsets.all(50.h),
-            child: Column(
-              children: [
-                Text(
-                  'Recompensa diaria',
-                  style:
-                      GoogleFonts.roboto(color: Colors.black, fontSize: 70.sp),
-                ),
-                Divider(
-                  color: Colors.transparent,
-                  height: 100.h,
-                ),
-                Text(
-                  '¿Monedas insuficientes?, no te preocupes porque en 24 horas te reponemos hasta 600 monedas',
-                  style:
-                      GoogleFonts.roboto(color: Colors.black, fontSize: 50.sp),
-                ),
-              ],
-            ),
-          ));
-    }))
-  ];
-
-  Widget rewardCard(int timeUntilReward) {
+  Widget verifyProfileAndWindWidget() {
     return Card(
       child: Container(
-        height: 600.h,
-        color: Colors.red,
+        height: 400.h,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Verifica tu perfil y gana",
+                      style: Theme.of(context).textTheme.titleMedium?.apply(
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("2000",
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                              color: Theme.of(context).colorScheme.onSurface)),
+                      Icon(LineAwesomeIcons.coins,
+                          color: Theme.of(context).colorScheme.onSurface)
+                    ],
+                  )
+                ],
+              ),
+              Text("Gana 2000 monedas por verificar tu perfil",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.apply(color: Theme.of(context).colorScheme.onSurface)),
+              FilledButton.tonal(
+                  onPressed: () {
+                    Navigator.push(
+                        context, GoToRoute(page: VerificationScreen()));
+                  },
+                  child: Text(
+                    'Verificar',
+                  )),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../core/dependencies/dependencyCreator.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
 import '../controllerDef.dart';
@@ -50,7 +51,7 @@ class AuthScreenDataSourceImpl implements AuthScreenDataSource {
 
   @override
   Future<Map<String, dynamic>> checkIfUserIsAlreadySignedIn() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         late Map<String, dynamic> authData;
         authData = await authService.userAlreadySignedIn();
@@ -67,7 +68,7 @@ class AuthScreenDataSourceImpl implements AuthScreenDataSource {
   @override
   Future<Map<String, dynamic>> logIn(
       {required SignInProviders signInProviders}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         late Map<String, dynamic> authData;
         authData = await authService.logUser(signInProviders: signInProviders);

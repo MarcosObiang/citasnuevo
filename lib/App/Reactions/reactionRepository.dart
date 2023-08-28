@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:citasnuevo/App/Reactions/ReactionEntity.dart';
+import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:dartz/dartz.dart';
 
 import '../DataManager.dart';
@@ -8,7 +10,7 @@ import '../../core/streamParser/streamPareser.dart';
 import 'reactionDataSource.dart';
 
 abstract class ReactionRepository
-    implements ModuleCleanerRepository, StreamParser {
+    implements ModuleCleanerRepository, StreamParser, UsesMapper<Reaction> {
   late ReactionDataSource reactionDataSource;
 
   ///Get first addidional values (gems and reaction average)

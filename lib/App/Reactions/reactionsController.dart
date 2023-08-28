@@ -19,7 +19,7 @@ abstract class ReactionController
   late List<Reaction> reactions;
 
   ///The average of all the reactions recieevd by the user
-  late double reactionsAverage;
+  late int reactionsAverage;
 
   /// if the listener is initialized
   late bool listenerInitialized;
@@ -36,13 +36,16 @@ abstract class ReactionController
   /// to tell the [ReactionController] they should be deleted
   // ignore: close_sinks
   late StreamController<Reaction> expiredReactionsListener;
+
+  int reactionCount = 0;
+  int totalReactionPoints = 0;
 }
 
 class ReactionsControllerImpl implements ReactionController {
   @override
   List<Reaction> reactions = [];
   @override
-  double reactionsAverage = 0;
+  int reactionsAverage = 0;
   @override
   bool listenerInitialized = false;
   @override
@@ -97,6 +100,14 @@ class ReactionsControllerImpl implements ReactionController {
   StreamSubscription? coinsStreamSubscription;
   StreamSubscription? expiredReactionSubscription;
   StreamSubscription? reactionSubscription;
+
+  ReactionType frequentReactionType = ReactionType.PASS;
+
+  @override
+  int reactionCount = 0;
+
+  @override
+  int totalReactionPoints = 0;
   @override
   Either<Failure, bool> initializeModuleData() {
     try {
@@ -186,6 +197,7 @@ class ReactionsControllerImpl implements ReactionController {
               reactions[i].imageUrl = reaction.imageUrl;
               reactions[i].setReactionRevealigState =
                   ReactionRevealigState.revealed;
+              reactions[i].reactionType = reaction.reactionType;
             }
           }
         }
@@ -256,7 +268,10 @@ class ReactionsControllerImpl implements ReactionController {
 
   void _additionalDataProcessing(Map<String, dynamic> event) {
     try {
-      reactionsAverage = event["reactionsAverage"];
+      reactionCount = event["reactionCount"];
+      reactionsAverage = event["reactionAverage"];
+      totalReactionPoints = event["totalReactionPoints"];
+
       coins = event["coins"];
       isPremium = event["isPremium"];
 
@@ -434,12 +449,11 @@ class ReactionsControllerImpl implements ReactionController {
         information: {"header": "reaction", "data": reactions.length});
   }
 
-
-
   Future<Either<Failure, bool>> showRewarded() async {
     return reactionRepository.showRewarded();
   }
-  void closeAdsStreams(){
+
+  void closeAdsStreams() {
     reactionRepository.closeAdsStreams();
   }
 }

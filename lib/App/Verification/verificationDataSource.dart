@@ -58,7 +58,7 @@ class VerificationDataSourceImpl implements VerificationDataSource {
 
   @override
   Future<bool> submitVerificationData({required Uint8List pictureBytes}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
         Functions functions = Functions(Dependencies.serverAPi.client!);
@@ -106,7 +106,7 @@ class VerificationDataSourceImpl implements VerificationDataSource {
 
   @override
   Future<bool> requestVerificationProcess() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       Functions functions = Functions(Dependencies.serverAPi.client!);
 
       Execution execution = await functions.createExecution(

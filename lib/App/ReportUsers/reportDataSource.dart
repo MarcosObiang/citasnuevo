@@ -32,14 +32,13 @@ class ReportDataSourceImpl implements ReportDataSource {
       required String idUserReported,
       required String reportDetails,
       required bool blockUser}) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(
             functionId: "reportUser",
             data: jsonEncode({
               "userReported": idUserReported,
-              
               "userId": idReporter,
               "reportDetails": reportDetails,
               "includeMessages": false,

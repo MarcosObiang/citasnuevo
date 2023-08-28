@@ -50,13 +50,11 @@ abstract class AuthenticationSignOutCapacity implements AuthenticationCapacity {
   Future<bool> logOut();
 }
 
-abstract class ImmageMediaPickerCapacity{
-
+abstract class ImmageMediaPickerCapacity {
   Future<Uint8List?> getImage();
 }
 
-abstract class AudioMediaCapacity{
-
+abstract class AudioMediaCapacity {
   Future<Uint8List?> getImage();
 }
 
@@ -79,9 +77,11 @@ class PurchaseSystemInformationSender extends InformationSender {
   });
 }
 
+enum ReactionType { PASS, MAYBE, LIKE }
+
 class ReactionInformationSender extends InformationSender {
   Reaction? reaction;
-  double? reactionAverage;
+  int? reactionAverage;
   bool? isModified;
   bool? isDeleted;
   int? coins;
@@ -124,7 +124,6 @@ class ChatInformationSender extends InformationSender {
       required this.newMessages,
       x});
 }
-
 
 class HomeScreenInformationSender extends InformationSender {
   Map<String, dynamic> information;

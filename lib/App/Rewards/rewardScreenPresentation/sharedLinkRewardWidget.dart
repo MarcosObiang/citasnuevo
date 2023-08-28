@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import 'rewardScreenPresentation.dart';
@@ -12,8 +13,7 @@ class SharedLinkRewardWidget extends StatefulWidget {
   });
 
   @override
-  State<SharedLinkRewardWidget> createState() =>
-       _SharedLinkRewardWidgetState();
+  State<SharedLinkRewardWidget> createState() => _SharedLinkRewardWidgetState();
 }
 
 class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
@@ -52,82 +52,91 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-            decoration: BoxDecoration(
-                border:
-                    Border.all(color: animation.value as Color, width: 20.h),
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            child: Padding(
-              padding: EdgeInsets.all(30.h),
-              child: Stack(
-                children: [
-                  Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("Recompensa promocional",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 70.sp)),
-                Text("Tu codigo de invitacion ha sido usado correctamente",
-                    style: GoogleFonts.roboto(
-                      color: Colors.black,
-                    )),
-                Text(
-                    "Tu recompensa: 2000 creditos * ${widget.rewardScreenPresentation.rewardController.rewards?.rewardTicketSuccesfulShares} = ${widget.rewardScreenPresentation.rewardController.rewards!.rewardTicketSuccesfulShares * 2000} ",
-                    style: GoogleFonts.roboto(
-                      color: Colors.black,
-                    )),
-                TextButton(
-                    onPressed: () {
-                      widget.rewardScreenPresentation.rewardTicketSuccesfultShares();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          borderRadius: BorderRadius.all(Radius.circular(30))),
-                      child: Padding(
-                        padding: EdgeInsets.all(40.h),
-                        child: Text(
-                          'Reclamar bono',
-                          style: GoogleFonts.roboto(
-                              color: Colors.black, fontSize: 50.sp),
-                        ),
+    return Card(
+        child: Container(
+      height: 400.h,
+      child: Padding(
+        padding: EdgeInsets.all(30.h),
+        child: Stack(
+          children: [
+            widget.rewardScreenPresentation
+                        .getRewardTicketSuccessfulShareState ==
+                    RewardTicketSuccesfulSharesState.done
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Bono por invitar amigos",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface)),
+                          Row(
+                            children: [
+                              Text(
+                                  "${widget.rewardScreenPresentation.rewards.rewardTicketSuccesfulShares * 200}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.apply(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface)),
+                              Icon(
+                                LineAwesomeIcons.coins,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              )
+                            ],
+                          ),
+                        ],
                       ),
-                    )),
-              ],
-            )
-                ],
-              ),
-            )),
-         widget.rewardScreenPresentation.getRewardTicketSuccessfulShareState ==
-                RewardTicketSuccesfulSharesState.inProcess
-            ? Container(
-                height: 500.h,
-                width: ScreenUtil().screenWidth,
-                color: Color.fromARGB(228, 100, 24, 135),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Cargando",
-                      style: GoogleFonts.roboto(color: Colors.white),
-                    ),
-                    Center(
-                        child: Container(
-                      height: 200.h,
-                      width: 300.h,
-                      child:
-                          LoadingIndicator(indicatorType: Indicator.ballPulse),
-                    ))
-                  ],
-                ),
-              )
-            : Container()
-      ],
-    );
+                      Text(
+                          "Recompensa porque tu codigo de invitacion se ha usado ",
+                          style: Theme.of(context).textTheme.bodyMedium?.apply(
+                              color: Theme.of(context).colorScheme.onSurface)),
+                      FilledButton.tonal(
+                          onPressed: () {
+                            widget.rewardScreenPresentation
+                                .rewardTicketSuccesfultShares();
+                          },
+                          child: Text(
+                            'Reclamar bono',
+                          )),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Cargando",
+                        style: Theme.of(context).textTheme.bodyMedium?.apply(
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                      Divider(
+                        height: 50.h,
+                        color: Colors.transparent,
+                      ),
+                      Center(
+                          child: Container(
+                        height: 100.h,
+                        width: 100.h,
+                        child: LoadingIndicator(
+                          indicatorType: Indicator.circleStrokeSpin,
+                          colors: [Theme.of(context).colorScheme.primary],
+                        ),
+                      ))
+                    ],
+                  ),
+          ],
+        ),
+      ),
+    ));
   }
 }

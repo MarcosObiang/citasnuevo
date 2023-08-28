@@ -11,13 +11,14 @@ import '../../core/services/AuthService.dart';
 import '../../core/globalData.dart';
 import '../../core/platform/networkInfo.dart';
 import '../MainDatasource/principalDataSource.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 abstract class ApplicationSettingsDataSource
     implements
         DataSource,
         AuthenticationSignOutCapacity,
-        ModuleCleanerDataSource {
+        ModuleCleanerDataSource,
+        NetwrokServices,
+        UsesServerFunctions {
   /// Send the current state of app settings
   StreamController<Map<String, dynamic>>?
       // ignore: close_sinks
@@ -47,10 +48,18 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   @override
   StreamController<Map<String, dynamic>>? listenAppSettingsUpdate =
       new StreamController.broadcast();
+  @override
+  Functions functinos;
 
   @override
   StreamSubscription? sourceStreamSubscription;
-  ApplicationDataSourceImpl({required this.source, required this.authService});
+  @override
+  NetworkInfoContract networkInfoContract;
+  ApplicationDataSourceImpl(
+      {required this.source,
+      required this.functinos,
+      required this.authService,
+      required this.networkInfoContract});
 
   @override
   void clearModuleData() {
@@ -111,11 +120,9 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-
-        Execution execution = await functions.createExecution(
+        Execution execution = await functinos.createExecution(
             functionId: "appSettingsUpdate", data: jsonEncode(data));
 
         if (execution.statusCode == 200) {
@@ -151,11 +158,9 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
   @override
   Future<bool> deleteAccount() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected == true) {
+    if (await networkInfoContract.isConnected == true) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-
-        Execution execution = await functions.createExecution(
+        Execution execution = await functinos.createExecution(
             functionId: "deleteUser",
             data: jsonEncode({"userId": GlobalDataContainer.userId}));
         if (execution.statusCode == 200) {

@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:citasnuevo/core/platform/networkInfo.dart';
+
 import 'ReactionEntity.dart';
 
-
-class ReactionMapper {
-  static Reaction fromMap(Map data) {
+class ReactionMapper implements Mapper<Reaction> {
+  Reaction fromMap(Map data) {
     bool revealed = data["reactionRevealed"];
 
     if (revealed) {
@@ -14,7 +15,7 @@ class ReactionMapper {
           age: 20,
           reactionExpirationDateInSeconds:
               (data["expirationTimestamp"] ~/ 1000),
-          reactioValue: data["reactionValue"],
+          reactionType: data["reactionType"],
           imageHash: "",
           imageUrl: jsonDecode(data["userPicture"]),
           name: data["senderName"],
@@ -30,7 +31,7 @@ class ReactionMapper {
           age: 20,
           reactionExpirationDateInSeconds:
               (data["expirationTimestamp"] ~/ 1000),
-          reactioValue: 0,
+          reactionType: "",
           imageHash: "",
           imageUrl: {"imageId": null},
           name: "",
@@ -40,5 +41,11 @@ class ReactionMapper {
               ? ReactionRevealigState.revealed
               : ReactionRevealigState.notRevealed);
     }
+  }
+
+  @override
+  Map<String, dynamic> toMap(data) {
+    // TODO: implement toMap
+    throw UnimplementedError();
   }
 }

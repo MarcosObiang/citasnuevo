@@ -126,7 +126,7 @@ class SanctionsDataSourceImpl implements SanctionsDataSource {
 
   @override
   Future<bool> unlockProfile() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Functions functions = Functions(Dependencies.serverAPi.client!);
         Execution execution = await functions.createExecution(

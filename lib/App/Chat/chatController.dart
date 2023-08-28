@@ -403,7 +403,6 @@ class ChatControllerImpl implements ChatController {
   //
   @protected
   void _messageDataProcesing(Map<String, dynamic> event) {
-    print(event);
     for (int i = 0; i < chatList.length; i++) {
       bool isModified = event["modified"];
       Message message = event["message"];

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/Utils/routes.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
+import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -35,11 +36,23 @@ class TextMessage extends StatefulWidget {
 
 class _TextMessageState extends State<TextMessage> {
   var dateformat = DateFormat.yMEd();
-
+  late Color userMessagesColor;
+  late Color remitentMessagesColor;
   @override
   void initState() {
     super.initState();
 
+    widget.message.initMessage();
+  }
+
+  late EdgeInsetsGeometry paddingData;
+
+  late Color messageColor;
+
+  @override
+  Widget build(BuildContext context) {
+    userMessagesColor = Theme.of(context).colorScheme.secondaryContainer;
+    remitentMessagesColor = Theme.of(context).colorScheme.secondaryContainer;
     if (widget.message.senderId == GlobalDataContainer.userId) {
       paddingData =
           EdgeInsets.only(top: 50.h, bottom: 50.h, left: 300.w, right: 20.w);
@@ -51,16 +64,6 @@ class _TextMessageState extends State<TextMessage> {
         messageColor = remitentMessagesColor;
       }
     }
-    widget.message.initMessage();
-  }
-
-  late EdgeInsetsGeometry paddingData;
-  Color userMessagesColor = Color.fromARGB(255, 141, 141, 141);
-  Color remitentMessagesColor = Color.fromARGB(176, 161, 107, 242);
-  late Color messageColor;
-
-  @override
-  Widget build(BuildContext context) {
     if (widget.message.senderId == GlobalDataContainer.userId) {
       paddingData =
           EdgeInsets.only(top: 30.h, bottom: 30.h, left: 300.w, right: 20.w);
@@ -88,7 +91,16 @@ class _TextMessageState extends State<TextMessage> {
                       child: Padding(
                           padding: EdgeInsets.all(40.h),
                           child: widget.message.messageType == MessageType.TEXT
-                              ? Text(widget.message.data)
+                              ? Text(
+                                  widget.message.data,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.apply(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSecondaryContainer),
+                                )
                               : widget.message.messageType == MessageType.IMAGE
                                   ? imageMessage()
                                   : gifMessage()),
@@ -103,52 +115,110 @@ class _TextMessageState extends State<TextMessage> {
                                 ? Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Icon(LineAwesomeIcons.check),
+                                      Icon(
+                                        LineAwesomeIcons.check,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
                                       Container(
                                         child: Text(
-                                            widget.message.messageDateText),
+                                          widget.message.messageDateText,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelMedium
+                                              ?.apply(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface),
+                                        ),
                                       ),
                                     ],
                                   )
                                 : Container(
-                                    child: Text(widget.message.messageDateText),
+                                    child: Text(widget.message.messageDateText,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.apply(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface)),
                                   ))
                         : widget.message.messageSendingState ==
                                 MessageSendingState.ERROR
-                            ? Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text("No se pudo enviar"),
-                                      TextButton.icon(
-                                          onPressed: () {
-                                            widget.sendMessageAgain.call();
-                                          },
-                                          icon: Icon(Icons.refresh),
-                                          label: Text("Intentar de nuevo")),
-                                      TextButton.icon(
-                                          onPressed: () {
-                                            widget.deleteMessage.call();
-                                          },
-                                          icon: Icon(Icons.delete),
-                                          label: Text("Borrar mensaje"))
-                                    ],
+                            ? Padding(
+                                padding: EdgeInsets.only(top: 10.h),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .errorContainer,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Divider(
+                                          height: 20.h,
+                                          color: Colors.transparent,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.error,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                            ),
+                                            Text("Error de envio",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.apply(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onErrorContainer)),
+                                          ],
+                                        ),
+                                        Divider(
+                                          height: 50.h,
+                                          color: Colors.transparent,
+                                        ),
+                                        ElevatedButton.icon(
+                                            onPressed: () {
+                                              widget.sendMessageAgain.call();
+                                            },
+                                            icon: Icon(Icons.refresh),
+                                            label: Text("Intentar de nuevo")),
+                                        ElevatedButton.icon(
+                                            onPressed: () {
+                                              widget.deleteMessage.call();
+                                            },
+                                            icon: Icon(Icons.delete),
+                                            label: Text("Borrar mensaje"))
+                                      ],
+                                    ),
                                   ),
                                 ),
                               )
                             : Container(
                                 width: 100.w,
                                 height: 100.w,
-                                child: LoadingIndicator(
-                                  indicatorType: Indicator.ballSpinFadeLoader,
-                                  colors: [Colors.black],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: LoadingIndicator(
+                                    indicatorType: Indicator.circleStrokeSpin,
+                                    colors: [
+                                      Theme.of(context).colorScheme.primary
+                                    ],
+                                  ),
                                 ),
                               )
                   ],

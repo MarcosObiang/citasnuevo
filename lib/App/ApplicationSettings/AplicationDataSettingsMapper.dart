@@ -1,9 +1,9 @@
 import '../../core/globalData.dart';
+import '../../core/platform/networkInfo.dart';
 import 'ApplicationSettingsEntity.dart';
 
-class ApplicationSettingsMapper {
-  static ApplicationSettingsEntity fromMap(
-      {required Map<String, dynamic> data}) {
+class ApplicationSettingsMapper implements Mapper<ApplicationSettingsEntity> {
+  ApplicationSettingsEntity fromMap(Map<String, dynamic> data) {
     return new ApplicationSettingsEntity(
         distance: data["maxDistance"],
         maxAge: data["maxAge"],
@@ -15,17 +15,16 @@ class ApplicationSettingsMapper {
         showProfile: data["showProfile"]);
   }
 
-  static Map<String, dynamic> toMap(
-      {required ApplicationSettingsEntity applicationSettingsEntity}) {
+  Map<String, dynamic> toMap(ApplicationSettingsEntity data) {
     return {
-      "maxDistance": applicationSettingsEntity.distance,
-      "maxAge": applicationSettingsEntity.maxAge,
-      "minAge": applicationSettingsEntity.minAge,
-      "showCentimeters": applicationSettingsEntity.inCm,
-      "showKilometers": applicationSettingsEntity.inKm,
-      "showBothSexes": applicationSettingsEntity.showBothSexes,
-      "showWoman": applicationSettingsEntity.showWoman,
-      "showProfile": applicationSettingsEntity.showProfile,
+      "maxDistance": data.distance,
+      "maxAge": data.maxAge,
+      "minAge": data.minAge,
+      "showCentimeters": data.inCm,
+      "showKilometers": data.inKm,
+      "showBothSexes": data.showBothSexes,
+      "showWoman": data.showWoman,
+      "showProfile": data.showProfile,
       "userId": GlobalDataContainer.userId
     };
   }

@@ -1,9 +1,10 @@
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+
 import 'rewardScreenPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-
 
 class FirstRewardWidget extends StatefulWidget {
   RewardScreenPresentation rewardScreenPresentation;
@@ -12,8 +13,7 @@ class FirstRewardWidget extends StatefulWidget {
   });
 
   @override
-  State<FirstRewardWidget> createState() =>
-      _FirstRewardWidgetState();
+  State<FirstRewardWidget> createState() => _FirstRewardWidgetState();
 }
 
 class _FirstRewardWidgetState extends State<FirstRewardWidget>
@@ -52,53 +52,81 @@ class _FirstRewardWidgetState extends State<FirstRewardWidget>
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-            decoration: BoxDecoration(
-                border:
-                    Border.all(color: animation.value as Color, width: 20.h),
-                borderRadius: BorderRadius.all(Radius.circular(10))),
+        Card(
+          child: Container(
+            height: 400.h,
             child: Padding(
               padding: EdgeInsets.all(30.h),
               child: Stack(
                 children: [
                   Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("Bono de bienvenida",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 70.sp)),
-                Text(
-                    "Hotty te regala 30000 creditos para que conozcas y disfrutes.",
-                    style: GoogleFonts.roboto(
-                        color: Colors.black, fontSize: 50.sp)),
-                TextButton(
-                    onPressed: () {
-                      widget.rewardScreenPresentation.askFirstReward();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          borderRadius: BorderRadius.all(Radius.circular(30))),
-                      child: Padding(
-                        padding: EdgeInsets.all(40.h),
-                        child: Text(
-                          'Reclamar bono',
-                          style: GoogleFonts.roboto(
-                              color: Colors.black, fontSize: 50.sp),
-                        ),
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Bono de bienvenida",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.apply(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "3000",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.apply(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface),
+                              ),
+                              Icon(LineAwesomeIcons.coins,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface)
+                            ],
+                          ),
+                        ],
                       ),
-                    )),
-              ],
-            ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Monedas gratis registrarte",
+                            textAlign: TextAlign.start,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.apply(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface)),
+                      ),
+                      FilledButton.tonal(
+                          onPressed: () {
+                            widget.rewardScreenPresentation.askFirstReward();
+                          },
+                          child: Text(
+                            'Reclamar bono',
+                          )),
+                    ],
+                  ),
                 ],
               ),
-            )),
-          widget.rewardScreenPresentation.getFirstRewards == FirstRewards.inProcess
+            ),
+          ),
+        ),
+        widget.rewardScreenPresentation.getFirstRewards ==
+                FirstRewards.inProcess
             ? Container(
                 height: 600.h,
                 width: ScreenUtil().screenWidth,

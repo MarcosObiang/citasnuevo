@@ -11,8 +11,12 @@ class ProfilePicture extends StatefulWidget {
   final BoxConstraints boxConstraints;
   final storage = Storage(Dependencies.serverAPi.client!);
   Uint8List? imageData;
+  final bool isFirstPicture;
 
-  ProfilePicture({required this.profilePicture, required this.boxConstraints});
+  ProfilePicture(
+      {required this.profilePicture,
+      required this.boxConstraints,
+      required this.isFirstPicture});
 
   @override
   State<ProfilePicture> createState() => _ProfilePictureState();
@@ -42,17 +46,24 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: widget.boxConstraints.maxHeight,
-        width: widget.boxConstraints.maxWidth,
-        child: widget.imageData != null
-            ? Image.memory(
-                widget.imageData!,
-              )
-            : Center(
+    return widget.imageData != null
+        ? Container(
+            height: widget.boxConstraints.maxHeight,
+            child: Image.memory(
+              widget.imageData!,
+              fit: BoxFit.cover,
+            ),
+          )
+        : Container(
+            height: widget.boxConstraints.maxHeight,
+            child: Center(
               child: Container(
-                height: 200.h,width: 200.h,
-                child: LoadingIndicator(indicatorType: Indicator.orbit)),
-            ));
+                  color: Colors.transparent,
+                  height: 200.h,
+                  width: 200.h,
+                  child: LoadingIndicator(
+                      indicatorType: Indicator.circleStrokeSpin)),
+            ),
+          );
   }
 }

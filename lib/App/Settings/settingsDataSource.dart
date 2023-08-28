@@ -22,7 +22,6 @@ abstract class SettingsDataSource
 
   Future<bool> purchaseSubscription(String offerId);
 
-
   ///The [userDataSubscription] will listen to any changes the [ApplicationDataSource] emits, even if it does not concern to settings variables
   ///
   ///that is why we need to first save the settings in thes map and then if [userDataSubscription] emits a new change
@@ -76,7 +75,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
 
   @override
   void subscribeToMainDataSource() async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         if (shouldSettingsUpdate(source.getData)) {
           try {
@@ -186,7 +185,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
 
   @override
   Future<bool> purchaseSubscription(String offerId) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         bool result = await PurchasesServices.purchasesServices
             .makePurchase(offerId: offerId);
@@ -198,6 +197,4 @@ class SettingsDataSourceImpl implements SettingsDataSource {
       throw NetworkException(message: kNetworkErrorMessage);
     }
   }
-
-
 }

@@ -96,7 +96,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
   @override
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
-    if (await NetworkInfoImpl.networkInstance.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       if (GlobalDataContainer.userId != null) {
         try {
           Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);

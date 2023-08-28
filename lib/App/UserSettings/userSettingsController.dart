@@ -10,12 +10,24 @@ import 'UserSettingsEntity.dart';
 import 'UserSettingsToSettingsControllerBridge.dart';
 import 'userSettingsRepo.dart';
 
-
-class UserSettingsController
+abstract class UserSettingsController
     implements ShouldControllerUpdateData, ModuleCleanerController {
+  late UserSettingsRepository userSettingsRepository;
+  late UserSettingsToSettingsControllerBridge
+      userSettingsToSettingsControllerBridge;
+  late UserSettingsEntity userSettingsEntity;
+  late UserSettingsEntity userSettingsEntityUpdate;
+  void insertImageFile(Uint8List imageBytes, int index);
+  void deleteImage(int index);
+  Future<Either<Failure, bool>> updateSettings();
+  void sendInformationViaBridge();
+  void revertChanges();
+}
+
+class UserSettingsControllerImpl implements UserSettingsController {
   UserSettingsRepository userSettingsRepository;
 
-  UserSettingsController(
+  UserSettingsControllerImpl(
       {required this.userSettingsRepository,
       required this.userSettingsToSettingsControllerBridge});
   late UserSettingsEntity userSettingsEntity;

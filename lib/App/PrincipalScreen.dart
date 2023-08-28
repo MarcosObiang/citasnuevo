@@ -1,14 +1,9 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:citasnuevo/App/principalScreenPresentation.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:expandable/expandable.dart';
-import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 import 'Chat/chatPresentation/Widgets/chatTilesScreen.dart';
 import 'ProfileViewer/homeScreenPresentation/Screens/HomeScreen.dart';
 import 'Reactions/reactionPresentation/Screens/ReactionScreen.dart';
@@ -52,68 +47,95 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                 PrincipalScreenPresentation principalScreenPresentation,
                 Widget? child) {
           return Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(
+              scrolledUnderElevation: 0,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              automaticallyImplyLeading: false,
               elevation: 0,
-              backgroundColor: Colors.white,
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Hotty",
-                      style: GoogleFonts.lato(
-                          color: Colors.black, fontWeight: FontWeight.bold)),
-                  Container(
-                    child: Row(
-                      children: [
-                        principalScreenPresentation.isPremium
-                            ? Icon(
-                                LineAwesomeIcons.infinity,
-                                color: Colors.black,
-                              )
-                            : Text(principalScreenPresentation.coins.toString(),
-                                style: GoogleFonts.lato(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold)),
-                        Icon(
-                          LineAwesomeIcons.coins,
-                          color: Colors.black,
-                        )
-                      ],
+                      style: Theme.of(context).textTheme.titleLarge?.apply(
+                          fontWeightDelta: 3,
+                          color: Theme.of(context).colorScheme.primary)),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _page = 3;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: Padding(
+                        padding: EdgeInsets.all(20.w),
+                        child: Row(
+                          children: [
+                            principalScreenPresentation.isPremium
+                                ? Icon(
+                                    LineAwesomeIcons.infinity,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  )
+                                : Text(
+                                    principalScreenPresentation.coins
+                                        .toString(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.apply(
+                                            fontWeightDelta: 3,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary)),
+                            Icon(
+                              LineAwesomeIcons.coins,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                   )
                 ],
               ),
             ),
             bottomNavigationBar: BottomNavigationBar(
+                elevation: 0,
+                type: BottomNavigationBarType.shifting,
                 key: PrincipalScreen.bottomNavigationKey,
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 currentIndex: _page,
                 onTap: (value) {
                   setState(() {
-                      _page = value;
-                   // showAdConsentDialog();
+                    _page = value;
+                    // showAdConsentDialog();
                   });
                 },
                 items: <BottomNavigationBarItem>[
                   homeScreen(
                       icon: Icon(
-                    LineAwesomeIcons.home,
-                    color: Colors.black,
+                    Icons.crop_square_outlined,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
                   )),
                   reactionsButton(
                       icon: Icon(
                         LineAwesomeIcons.heart,
-                        color: Colors.black,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
                       ),
                       reactionCount: principalScreenPresentation.newReactions),
                   chatButton(
                       icon: Icon(
                         Icons.chat_bubble_outline,
-                        color: Colors.black,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
                       ),
                       newMesagesCount: principalScreenPresentation.newMessages,
                       newChatsCount: principalScreenPresentation.newChats),
-                   
-
                   rewardsButton(
                       promotionalCodePendingOfUse: principalScreenPresentation
                           .promotionalCodePendingOfUse,
@@ -125,18 +147,20 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                           principalScreenPresentation.waitingFirstReward,
                       icon: Icon(
                         LineAwesomeIcons.coins,
-                        color: Colors.black,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
                       )),
                   settingsButton(
                       icon: Icon(
                     LineAwesomeIcons.user_edit,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
                   )),
                 ]),
             body: Padding(
               padding: EdgeInsets.all(20.w),
               child: Container(
-                height:ScreenUtil.defaultSize.height,
+                color: Theme.of(context).colorScheme.surface,
+                height: ScreenUtil.defaultSize.height,
                 child: IndexedStack(
                   children: screens,
                   index: _page,
@@ -152,12 +176,14 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   BottomNavigationBarItem reactionsButton(
       {required Icon icon, required int reactionCount}) {
     return BottomNavigationBarItem(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         icon: badges.Badge(
           child: icon,
           badgeContent: Text(
             reactionCount.toString(),
           ),
-          badgeStyle: badges.BadgeStyle(badgeColor: Colors.deepPurple),
+          badgeStyle: badges.BadgeStyle(
+              badgeColor: Theme.of(context).colorScheme.error),
           showBadge: reactionCount > 0 ? true : false,
         ),
         label: "");
@@ -168,6 +194,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
       required int newMesagesCount,
       required int newChatsCount}) {
     return BottomNavigationBarItem(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         icon: badges.Badge(
           child: icon,
           badgeContent: newMesagesCount > 0
@@ -181,7 +208,6 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
         label: "");
   }
 
-
   BottomNavigationBarItem rewardsButton(
       {required Icon icon,
       required bool waitingDailyReward,
@@ -189,7 +215,10 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
       required int rewardTicketSuccesfultShares,
       required bool promotionalCodePendingOfUse}) {
     return BottomNavigationBarItem(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         icon: badges.Badge(
+          badgeStyle: badges.BadgeStyle(
+              badgeColor: Theme.of(context).colorScheme.error),
           child: icon,
           showBadge: (waitingDailyReward == true ||
                   waitingFirstReward == true ||
@@ -202,15 +231,18 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   }
 
   BottomNavigationBarItem settingsButton({required Icon icon}) {
-    return BottomNavigationBarItem(icon: icon, label: "");
+    return BottomNavigationBarItem(
+      icon: icon,
+      label: "",
+      backgroundColor: Theme.of(context).colorScheme.surface,
+    );
   }
 
   BottomNavigationBarItem homeScreen({required Icon icon}) {
     return BottomNavigationBarItem(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       icon: icon,
       label: "",
     );
   }
-
-  
 }

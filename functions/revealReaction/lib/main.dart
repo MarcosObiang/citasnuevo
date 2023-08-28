@@ -54,7 +54,7 @@ Future<void> start(final req, final res) async {
             "senderName": reactionData.data["senderName"],
             "senderId": reactionData.data["senderId"],
             "userPicture": reactionData.data["userPicture"],
-            "reactionValue": reactionData.data["reactionValue"],
+            "reactionType": reactionData.data["reactionType"],
             "reactionRevealed": true,
           });
       res.json({
@@ -95,7 +95,7 @@ Future<void> start(final req, final res) async {
               "senderName": reactionData.data["senderName"],
               "senderId": reactionData.data["senderId"],
               "userPicture": reactionData.data["userPicture"],
-              "reactionValue": reactionData.data["reactionValue"],
+              "reactionType": reactionData.data["reactionType"],
               "reactionRevealed": true,
             });
         res.json({

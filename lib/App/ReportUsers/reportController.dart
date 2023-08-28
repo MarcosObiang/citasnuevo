@@ -4,10 +4,17 @@ import '../../../core/error/Failure.dart';
 import '../DataManager.dart';
 import 'reportRepo.dart';
 
+abstract class ReportController implements ModuleCleanerController {
+  late ReportRepository reportRepository;
+  Future<Either<Failure, bool>> sendUserReport(
+      {required String idUserReported,
+      required String idReporter,
+      required String reportDetails});
+}
 
-class ReportController implements ModuleCleanerController {
+class ReportControllerImpl implements ReportController {
   ReportRepository reportRepository;
-  ReportController({
+  ReportControllerImpl({
     required this.reportRepository,
   });
 
