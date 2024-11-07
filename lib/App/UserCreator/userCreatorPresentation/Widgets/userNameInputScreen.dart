@@ -7,6 +7,7 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../../../core/globalData.dart';
 import '../userCreatorPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class UserNameInput extends StatefulWidget {
@@ -53,7 +54,7 @@ class _UserNameInputState extends State<UserNameInput> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Nombre y edad",
+                    AppLocalizations.of(context)!.userNameInputScreen_nameAndAge,
                     style: GoogleFonts.lato(fontSize: 90.sp),
                   ),
                 ],
@@ -77,7 +78,7 @@ class _UserNameInputState extends State<UserNameInput> {
                           decoration: InputDecoration(
                             counterText: "",
                             border: InputBorder.none,
-                            hintText: 'Nombre',
+                            hintText: AppLocalizations.of(context)!.userNameInputScreen_name,
                           ),
                           maxLength: 25,
                           onChanged: (value) {
@@ -100,7 +101,7 @@ class _UserNameInputState extends State<UserNameInput> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "2/8",
+                    AppLocalizations.of(context)!.userNameInputScreen_step,
                     style: GoogleFonts.lato(fontSize: 60.sp),
                   ),
                   Row(
@@ -111,7 +112,7 @@ class _UserNameInputState extends State<UserNameInput> {
                             widget.userCreatorPresentation.logOut();
                           },
                           icon: Icon(Icons.cancel_outlined),
-                          label: Text("Salir")),
+                          label: Text(AppLocalizations.of(context)!.userNameInputScreen_exit)),
                       ElevatedButton.icon(
                           onPressed: () {
                             bool nameResult = widget.userCreatorPresentation
@@ -132,7 +133,7 @@ class _UserNameInputState extends State<UserNameInput> {
                             }
                           },
                           icon: Icon(Icons.arrow_forward),
-                          label: Text("Siguiente")),
+                          label: Text(AppLocalizations.of(context)!.userNameInputScreen_next)),
                     ],
                   ),
                   ElevatedButton.icon(
@@ -140,7 +141,7 @@ class _UserNameInputState extends State<UserNameInput> {
                           duration: Duration(milliseconds: 300),
                           curve: Curves.easeInOut),
                       icon: Icon(Icons.arrow_back),
-                      label: Text("Atras"))
+                      label: Text(AppLocalizations.of(context)!.userNameInputScreen_back))
                 ],
               ),
             ),
@@ -160,7 +161,7 @@ class _UserNameInputState extends State<UserNameInput> {
             children: [
               Column(
                 children: [
-                  Text("Fecha de nacimiento"),
+                  Text(AppLocalizations.of(context)!.userNameInputScreen_birthDate),
                   Divider(
                     color: Colors.transparent,
                     height: 20.h,
@@ -181,7 +182,7 @@ class _UserNameInputState extends State<UserNameInput> {
               ),
               Column(
                 children: [
-                  Text("Edad"),
+                  Text(AppLocalizations.of(context)!.userNameInputScreen_age),
                   Divider(
                     color: Colors.transparent,
                     height: 20.h,
@@ -212,7 +213,7 @@ class _UserNameInputState extends State<UserNameInput> {
                 }
               });
             },
-            label: Text("Elegir fecha de nacimiento"),
+            label: Text(AppLocalizations.of(context)!.userNameInputScreen_chooseBirthDate),
             icon: Icon(LineAwesomeIcons.calendar),
           )
         ],

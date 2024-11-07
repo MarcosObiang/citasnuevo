@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../userCreatorPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 
 // ignore: must_be_immutable
@@ -32,7 +33,7 @@ class _UserBioInputState extends State<UserBioInput> {
                 flex: 4,
                 fit: FlexFit.tight,
                 child: Container(
-                  child: Center(child: Text("Escribe algo sobre ti",style: GoogleFonts.lato(fontSize: 60.sp,fontWeight: FontWeight.bold),)),
+                  child: Center(child: Text(AppLocalizations.of(context)!.userBioInput_writeSomethingAboutYou,style: GoogleFonts.lato(fontSize: 60.sp,fontWeight: FontWeight.bold),)),
                 ),
               ),
               Flexible(
@@ -59,19 +60,19 @@ class _UserBioInputState extends State<UserBioInput> {
                                 duration: Duration(milliseconds: 300),
                                 curve: Curves.easeInOut),
                             icon: Icon(Icons.arrow_back),
-                            label: Text("Atras")),
+                            label: Text(AppLocalizations.of(context)!.userBioInput_back)),
                         ElevatedButton.icon(
                             onPressed: () => widget.pageController.nextPage(
                                 duration: Duration(milliseconds: 300),
                                 curve: Curves.easeInOut),
                             icon: Icon(Icons.arrow_forward),
-                            label: Text("Siguiente")),
+                            label: Text(AppLocalizations.of(context)!.userBioInput_next)),
                       ],
                     ),
                      ElevatedButton.icon(
                               onPressed: () => widget.userCreatorPresentation.logOut(),
                               icon: Icon(Icons.cancel),
-                              label: Text("Salir"))
+                              label: Text(AppLocalizations.of(context)!.userBioInput_exit))
                   ],
                 ),
               )
@@ -98,7 +99,7 @@ class _UserBioInputState extends State<UserBioInput> {
           child: TextField(
             controller: textEditingController,
             decoration: InputDecoration(border: InputBorder.none,
-    hintText: 'Algo sobre ti',),
+    hintText: AppLocalizations.of(context)!.userBioInput_somethingAboutYou,),
             expands: true,
             maxLines: null,
             maxLength: 300,

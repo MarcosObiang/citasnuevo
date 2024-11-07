@@ -13,6 +13,8 @@ import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/error/Failure.dart';
 import '../SanctionsEntity.dart';
 import '../sanctionsController.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 enum SanctionsScreenState { loading, loaded, error }
 
@@ -118,8 +120,8 @@ class SanctionsPresentation extends ChangeNotifier
             .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            title: "Error",
-            content: "Error de servidor",
+            title: AppLocalizations.of(startKey.currentContext as BuildContext)!.error,
+            content: AppLocalizations.of(startKey.currentContext as BuildContext)!.chat_presentation_server_error,
             context: startKey.currentContext);
       }
     }, (success) async {

@@ -1,21 +1,18 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/Utils/routes.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
-import 'package:citasnuevo/Utils/getImageFile.dart';
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 
 import '../../../../../../core/globalData.dart';
 import '../../MessageEntity.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class TextMessage extends StatefulWidget {
@@ -177,7 +174,7 @@ class _TextMessageState extends State<TextMessage> {
                                                   .colorScheme
                                                   .error,
                                             ),
-                                            Text("Error de envio",
+                                            Text(AppLocalizations.of(context)!.chat_message_sending_error_title,
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .bodyMedium
@@ -196,13 +193,13 @@ class _TextMessageState extends State<TextMessage> {
                                               widget.sendMessageAgain.call();
                                             },
                                             icon: Icon(Icons.refresh),
-                                            label: Text("Intentar de nuevo")),
+                                            label: Text(AppLocalizations.of(context)!.try_again)),
                                         ElevatedButton.icon(
                                             onPressed: () {
                                               widget.deleteMessage.call();
                                             },
                                             icon: Icon(Icons.delete),
-                                            label: Text("Borrar mensaje"))
+                                            label: Text(AppLocalizations.of(context)!.chat_message_sending_error_delete_message_button))
                                       ],
                                     ),
                                   ),
@@ -319,7 +316,7 @@ class PictureViewer extends StatelessWidget {
       child: Column(
         children: [
           AppBar(
-            title: Text("Ver Imagen"),
+            title: Text(AppLocalizations.of(context)!.chat_view_image_title),
           ),
           Expanded(
             child: Container(

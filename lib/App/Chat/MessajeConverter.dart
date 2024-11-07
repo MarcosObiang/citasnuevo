@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 
-import '../../core/globalData.dart';
 import 'MessageEntity.dart';
 
 class MessageConverter {
@@ -32,7 +31,7 @@ class MessageConverter {
       messageDateText: dateText,
       read: messageData["readByReciever"],
       isResponse: false,
-      data: messageData["messageContent"],
+      data: messageData["message"],
       chatId: messageData["conversationId"],
       senderId: messageData["senderId"],
       messageId: messageData["messageId"],

@@ -35,7 +35,6 @@ abstract class ReactionController
   ///
   /// to tell the [ReactionController] they should be deleted
   // ignore: close_sinks
-  late StreamController<Reaction> expiredReactionsListener;
 
   int reactionCount = 0;
   int totalReactionPoints = 0;
@@ -75,9 +74,6 @@ class ReactionsControllerImpl implements ReactionController {
   StreamController<ReactionInformationSender>? get getUpdateData =>
       this.updateDataController;
 
-  @override
-  StreamController<Reaction> expiredReactionsListener =
-      StreamController.broadcast();
   StreamController<Map<String, dynamic>> streamExpiredReactions =
       StreamController.broadcast();
 
@@ -98,8 +94,8 @@ class ReactionsControllerImpl implements ReactionController {
       new StreamController.broadcast();
 
   StreamSubscription? coinsStreamSubscription;
-  StreamSubscription? expiredReactionSubscription;
   StreamSubscription? reactionSubscription;
+  StreamSubscription? homeScreenControllerBridgeSubscription;
 
   ReactionType frequentReactionType = ReactionType.PASS;
 
@@ -112,7 +108,7 @@ class ReactionsControllerImpl implements ReactionController {
   Either<Failure, bool> initializeModuleData() {
     try {
       initReactionStream();
-      initializeExpiredTimeListener();
+      listenControllerBridgeSignal();
       var result = reactionRepository.initializeModuleData();
       return result;
     } catch (e) {
@@ -125,18 +121,15 @@ class ReactionsControllerImpl implements ReactionController {
     try {
       reactions.clear();
 
-      expiredReactionsListener.close();
       streamExpiredReactions.close();
       streamRevealedReactionId.close();
       addDataController?.close();
       removeDataController?.close();
       updateDataController?.close();
       coinsStreamSubscription?.cancel();
-      expiredReactionSubscription?.cancel();
       reactionSubscription?.cancel();
       streamRevealedReactionId = new StreamController.broadcast();
       streamExpiredReactions = StreamController.broadcast();
-      expiredReactionsListener = StreamController.broadcast();
       addDataController = new StreamController.broadcast();
       removeDataController = new StreamController.broadcast();
 
@@ -170,18 +163,21 @@ class ReactionsControllerImpl implements ReactionController {
 
     if (isDeleted == false) {
       if (isModified == false) {
-        reaction.reactionExpiredId = this.expiredReactionsListener;
-        reactions.add(reaction);
-        addDataController?.add(ReactionInformationSender(
-            index: null,
-            reaction: reaction,
-            reactionAverage: reactionsAverage,
-            isPremium: isPremium,
-            notify: notify,
-            sync: false,
-            isModified: isModified,
-            isDeleted: isDeleted,
-            coins: coins));
+        if (reactions.indexWhere(
+                (element) => element.idReaction == reaction.idReaction) ==
+            -1) {
+          reactions.add(reaction);
+          addDataController?.add(ReactionInformationSender(
+              index: null,
+              reaction: reaction,
+              reactionAverage: reactionsAverage,
+              isPremium: isPremium,
+              notify: notify,
+              sync: false,
+              isModified: isModified,
+              isDeleted: isDeleted,
+              coins: coins));
+        }
       }
       if (isModified == true) {
         for (int i = 0; i < reactions.length; i++) {
@@ -226,6 +222,27 @@ class ReactionsControllerImpl implements ReactionController {
     sendReactionData();
   }
 
+  Reaction? rejectReactionBySenderId(String senderId) {
+    int index = reactions.indexWhere((element) => element.senderId == senderId);
+    if (index >= 0) {
+      return reactions[index];
+    } else {
+      return null;
+    }
+  }
+
+  void listenControllerBridgeSignal() {
+    homeScreenControllerBridgeSubscription = homeScreencontrollerbridge
+        .controllerBridgeInformationSenderStream?.stream
+        .listen((event) {
+      if (event["header"] == "new_chat") {
+        String senderId = event["data"];
+        rejectReaction(
+            reactionId: "", removeBySenderId: true, reactionSenderId: senderId);
+      }
+    });
+  }
+
   void initReactionStream() {
     reactionSubscription =
         reactionRepository.streamParserController?.stream.listen((event) {
@@ -238,31 +255,6 @@ class ReactionsControllerImpl implements ReactionController {
       }
     }, onError: (error) {
       addDataController?.addError(error);
-    });
-  }
-
-  void initializeExpiredTimeListener() {
-    expiredReactionSubscription =
-        this.expiredReactionsListener.stream.listen((event) {
-      int reactionIndex = reactions
-          .indexWhere((element) => element.idReaction == event.idReaction);
-
-      reactions.removeAt(reactionIndex);
-
-      streamExpiredReactions.add({"index": reactionIndex, "reaction": event});
-      removeDataController?.add(ReactionInformationSender(
-          index: reactionIndex,
-          isPremium: isPremium,
-          reaction: event,
-          reactionAverage: this.reactionsAverage,
-          notify: false,
-          sync: false,
-          isModified: false,
-          isDeleted: true,
-          coins: coins));
-      sendReactionData();
-    }, onError: (error) {
-      removeDataController?.addError(error);
     });
   }
 
@@ -395,8 +387,19 @@ class ReactionsControllerImpl implements ReactionController {
   }
 
   Future<Either<Failure, bool>> rejectReaction(
-      {required String reactionId}) async {
+      {required String reactionId,
+      required bool removeBySenderId,
+      required String? reactionSenderId}) async {
     syncReactions();
+
+    if (removeBySenderId == true) {
+      String? result = rejectReactionBySenderId(reactionSenderId!)!.idReaction;
+      if (result != null) {
+        reactionId = result;
+      } else {
+        return Right(false);
+      }
+    }
     for (int i = 0; i < this.reactions.length; i++) {
       if (this.reactions[i].idReaction == reactionId) {
         this.reactions[i].setReactionAceptingState =

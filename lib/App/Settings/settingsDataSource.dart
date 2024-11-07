@@ -1,19 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:core';
 
-import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../core/dependencies/dependencyCreator.dart';
-import '../../core/globalData.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
-import '../../core/common/commonUtils/getUserImage.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/iapPurchases/iapPurchases.dart';
-import '../../core/platform/networkInfo.dart';
 
 abstract class SettingsDataSource
     implements DataSource, ModuleCleanerDataSource {

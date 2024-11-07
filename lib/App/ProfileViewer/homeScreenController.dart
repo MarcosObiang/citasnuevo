@@ -21,7 +21,7 @@ abstract class HomeScreenController
   Profile removeProfileFromList({required int profileIndex});
   Future<Either<Failure, void>> fetchProfileList();
   Future<Either<Failure, void>> sendRating(
-      {required ReactionType reactionType, required String idProfileRated});
+      {required int reactionValue, required String idProfileRated});
   Future<Either<Failure, LocationPermission>> requestPermission();
   Future<Either<Failure, bool>> goToLocationSettings();
   void insertAtList({required Profile profile});
@@ -38,6 +38,7 @@ class HomeScreenControllerImpl implements HomeScreenController {
   int newReactions = 0;
   int newChats = 0;
   int newMessages = 0;
+  List<String> profileIds = [];
   HomeScreenControllerImpl(
       {required this.homeScreenRepository,
       required this.homeScreenControllerBridge});
@@ -54,18 +55,28 @@ class HomeScreenControllerImpl implements HomeScreenController {
         bool profileExists = profileAlreadyExists(element);
         if (profileExists == false) {
           profilesList.add(element);
+          profileIds.add(element.id);
         }
       });
     });
     return response;
   }
 
+  // Checks if a given profile already exists in the profilesList or profileIds.
+  // 
+  // Parameters:
+  //   profile (Profile): The profile to check for existence.
+  // 
+  // Returns:
+  //   bool: True if the profile exists, false otherwise.
   bool profileAlreadyExists(Profile profile) {
     bool exists = false;
-    if (profilesList.isNotEmpty == true) {
+    if (profilesList.isNotEmpty == true||profileIds.isNotEmpty==true) {
       int index =
           profilesList.indexWhere((element) => element.id == profile.id);
-      if (index >= 0) {
+
+      int index2 = profileIds.indexWhere((element) => element == profile.id);
+      if (index >= 0 || index2 >= 0) {
         exists = true;
       }
     }
@@ -90,11 +101,10 @@ class HomeScreenControllerImpl implements HomeScreenController {
   ///
   ///
   Future<Either<Failure, void>> sendRating(
-      {required ReactionType reactionType,
-      required String idProfileRated}) async {
+      {required int reactionValue, required String idProfileRated}) async {
     profilesList.removeWhere((element) => element.id == idProfileRated);
     return await homeScreenRepository.sendRating(
-        reactionType: reactionType, idProfileRated: idProfileRated);
+        reactionValue: reactionValue, idProfileRated: idProfileRated);
   }
 
   ///
@@ -167,10 +177,21 @@ class HomeScreenControllerImpl implements HomeScreenController {
           "chat": newChats,
         }));
       }
+      if (event["header"] == "new_chat") {
+        String remitentId = event["data"];
+        updateDataController?.add(
+            HomeScreenInformationSender(information: {"new_chat": remitentId}));
+      }
       if (event["header"] == "message") {
         newMessages = event["data"];
         updateDataController?.add(HomeScreenInformationSender(information: {
           "message": newMessages,
+        }));
+      }
+
+      if (event["header"] == "user_reported") {
+        updateDataController?.add(HomeScreenInformationSender(information: {
+          "user_reported": event["data"],
         }));
       }
     });

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import '../ProfileViewer/ProfileEntity.dart';
 import '../ProfileViewer/ProfilesMapper.dart';
@@ -29,6 +28,8 @@ class ChatRepoImpl implements ChatRepository {
   @override
   StreamController? streamParserController = StreamController();
 
+  @override
+  bool get isUserPremium => chatDataSource.isUserPremium;
   @override
   StreamSubscription? streamParserSubscription;
   @override
@@ -108,7 +109,7 @@ class ChatRepoImpl implements ChatRepository {
     try {
       Map<String, dynamic> data =
           await chatDataSource.getUserProfile(profileId: profileId);
-      List<Profile> value = await ProfileMapper.fromMap({
+      List<Profile> value = ProfileMapper.fromMap({
         "profilesList": data["profileData"],
         "userData": data["userData"],
         "todayDateTime": data["todayDateTime"]
@@ -301,9 +302,13 @@ class ChatRepoImpl implements ChatRepository {
 
   @override
   Future<Either<Failure, bool>> messagesSeen(
-      {required List<String> messaagesIds}) async {
+      {required List<Message> messaages}) async {
     try {
-      await chatDataSource.messagesSeen(messagesIds: messaagesIds);
+      List<Map<String, dynamic>> messaagesParsed = [];
+      messaages.forEach((element) {
+        messaagesParsed.add(MessageConverter.toMap(element));
+      });
+      await chatDataSource.messagesSeen(messages: messaagesParsed);
       return Right(true);
     } catch (e) {
       if (e is NetworkException) {
@@ -383,5 +388,30 @@ class ChatRepoImpl implements ChatRepository {
         return Left(LocationServiceFailure(message: e.toString()));
       }
     }
+  }
+
+  @override
+  StreamController<Map<String, dynamic>> get rewardedStatusListener =>
+      chatDataSource.rewadedAdvertismentStatusListener;
+
+  @override
+  Future<Either<Failure, bool>> showRewarded() async {
+    try {
+      await chatDataSource.showRewardedAd();
+      return Right(true);
+    } catch (e) {
+      if (e is NetworkException) {
+        return Left(NetworkFailure(message: e.toString()));
+      } else if (e is ChatException) {
+        return Left(ChatFailure(message: e.toString()));
+      } else {
+        return Left(GenericModuleFailure(message: e.toString()));
+      }
+    }
+  }
+
+  @override
+  void closeAdsStreams() {
+    chatDataSource.closeAdsStreams();
   }
 }

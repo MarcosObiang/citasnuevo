@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -11,12 +10,13 @@ import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../core/params_types/params_and_types.dart';
 import '../Widgets/profileWidget.dart';
 import '../homeScrenPresentation.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 class HomeAppScreen extends StatefulWidget {
   static const routeName = '/HomeAppScreen';
 
   static final GlobalKey<AnimatedListState> profilesKey = GlobalKey();
-
+  static BoxConstraints boxConstraintsProfileWidget = BoxConstraints();
   @override
   State<StatefulWidget> createState() {
     return _HomeAppScreenState();
@@ -52,6 +52,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
           HomeScreenPresentation homeScreenPresentation, Widget? child) {
         return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
+          HomeAppScreen.boxConstraintsProfileWidget = constraints;
           return Stack(
             children: [
               Container(
@@ -122,7 +123,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
             size: 90.sp,
           ),
           Text(
-            "Hotty necesita acceder a su localizacion para mostrarte perfiles cercanos a ti",
+            AppLocalizations.of(context)!.home_screen_location_acess_message,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -130,7 +131,8 @@ class _HomeAppScreenState extends State<HomeAppScreen>
               onPressed: () {
                 homeScreenPresentation.requestPermission();
               },
-              child: Text("Dar permiso"))
+              child: Text(AppLocalizations.of(context)!
+                  .home_screen_location_grant_permission))
         ],
       ),
     ));
@@ -145,7 +147,8 @@ class _HomeAppScreenState extends State<HomeAppScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Parece que a Hotty se le ha negado el acceso a la ubicacion del telefono, deberás ir a ajustes para darnos permiso",
+            AppLocalizations.of(context)!
+                .home_screen_location_denied_message_go_to_settings_to_give_permission,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           ElevatedButton.icon(
@@ -153,9 +156,11 @@ class _HomeAppScreenState extends State<HomeAppScreen>
                 homeScreenPresentation.openLocationSettings();
               },
               icon: Icon(Icons.settings),
-              label: Text("Ir a ajustes")),
+              label: Text(AppLocalizations.of(context)!
+                  .home_screen_location_go_to_settings_button)),
           Text(
-            "- Si has ya has dato a hotty permiso desde los ajustes pulsa intentar de nuevo",
+            AppLocalizations.of(context)!
+                .home_screen_location_message_if_permission_given_try_again,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           ElevatedButton.icon(
@@ -163,7 +168,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
                 homeScreenPresentation.getProfiles();
               },
               icon: Icon(Icons.refresh),
-              label: Text("Intentar de nuevo"))
+              label: Text(AppLocalizations.of(context)!.try_again))
         ],
       ),
     ));
@@ -178,7 +183,8 @@ class _HomeAppScreenState extends State<HomeAppScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Hotty no puede determinar el estado de tu sistema de localizacion, asegurate de tener tu sistema de localizacion activado, luego reinicia la aplicacion y si el problema persiste contacta con soporte",
+            AppLocalizations.of(context)!
+                .home_screen_location_message_could_not_deterine_location_settings,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -187,7 +193,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
                 homeScreenPresentation.getProfiles();
               },
               icon: Icon(Icons.refresh),
-              label: Text("Intentar de nuevo"))
+              label: Text(AppLocalizations.of(context)!.try_again))
         ],
       ),
     ));
@@ -200,7 +206,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Hotty necesita acceder a su localizacion para mostrarte perfiles cercanos a ti",
+          AppLocalizations.of(context)!.home_screen_location_services_disabled,
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
@@ -208,9 +214,11 @@ class _HomeAppScreenState extends State<HomeAppScreen>
             onPressed: () {
               Geolocator.openLocationSettings();
             },
-            child: Text("Activar servicios ubicacion")),
+            child: Text(AppLocalizations.of(context)!
+                .home_screen_enable__location_button)),
         Text(
-          "Si ya ha activado los servicios de ubicacion pulse en intentar de nuevo",
+          AppLocalizations.of(context)!
+              .home_screen_location_try_if_location_is_enabled,
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
@@ -219,7 +227,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
               homeScreenPresentation.getProfiles();
             },
             icon: Icon(Icons.refresh),
-            label: Text("Intentar de nuevo"))
+            label: Text(AppLocalizations.of(context)!.try_again))
       ],
     ));
   }
@@ -233,7 +241,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Vaya...... no hemos enconotrado a nadie que coincida con tus filtros de busqueda, prueba a cambiarlos",
+            AppLocalizations.of(context)!.home_screen_no_profiles_found_message,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -241,7 +249,14 @@ class _HomeAppScreenState extends State<HomeAppScreen>
               onPressed: () {
                 Navigator.push(context, GoToRoute(page: AppSettingsScreen()));
               },
-              child: Text("Modificar filtros"))
+              child: Text(AppLocalizations.of(context)!
+                  .home_screen_change_filters_button_text)),
+          TextButton.icon(
+              onPressed: () {
+                homeScreenPresentation.getProfiles();
+              },
+              icon: Icon(Icons.refresh),
+              label: Text(AppLocalizations.of(context)!.try_again))
         ],
       ),
     ));
@@ -261,7 +276,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
             size: 90.sp,
           ),
           Text(
-            "No puedes ver perfiles mientras tu perfil esta oculto, activa la visibilidad de tu perfil es Ajustes > Mostrar perfil",
+            AppLocalizations.of(context)!.home_screen_invisible_profile_dialog,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -271,9 +286,11 @@ class _HomeAppScreenState extends State<HomeAppScreen>
 
                 Navigator.push(context, GoToRoute(page: AppSettingsScreen()));
               },
-              child: Text("Ir a ajustes")),
+              child: Text(AppLocalizations.of(context)!
+                  .home_screen_location_go_to_settings_button)),
           Text(
-            "Si sigues viendo este mensaje despues de activar la visibilidad pulsa intentar de nuevo",
+            AppLocalizations.of(context)!
+                .home_screen_invisible_profile_dialog_try_again,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -282,7 +299,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
                 homeScreenPresentation.getProfiles();
               },
               icon: Icon(Icons.refresh),
-              label: Text("Intentar de nuevo"))
+              label: Text(AppLocalizations.of(context)!.try_again))
         ],
       ),
     ));
@@ -294,7 +311,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Ups... ha habido un error buscando perfiles, intentalo de nuevo ahora o mas tarde.Si sigue teniendo problemas contacte con soporte",
+          AppLocalizations.of(context)!.home_screen_server_error,
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
@@ -304,7 +321,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
               homeScreenPresentation.restart();
             },
             icon: Icon(Icons.refresh),
-            label: Text("Intentar de nuevo"))
+            label: Text(AppLocalizations.of(context)!.try_again))
       ],
     ));
   }
@@ -318,7 +335,7 @@ class _HomeAppScreenState extends State<HomeAppScreen>
           width: 200.h,
           child: LoadingIndicator(indicatorType: Indicator.circleStrokeSpin),
         ),
-        Text("Cargando")
+        Text(AppLocalizations.of(context)!.loading)
       ],
     );
   }

@@ -1,14 +1,11 @@
 import 'rewardScreenPresentation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PromotionalRewardWidget extends StatefulWidget {
   RewardScreenPresentation rewardScreenPresentation;
@@ -73,7 +70,7 @@ class _PromotionalRewardWidgetState extends State<PromotionalRewardWidget>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Recompensa promocional',
+                        Text(AppLocalizations.of(context)!.promotional_reward,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -102,7 +99,7 @@ class _PromotionalRewardWidgetState extends State<PromotionalRewardWidget>
                       height: 50.h,
                     ),
                     Text(
-                      'Recompensa por usar un codigo promocional para registrarte',
+                     AppLocalizations.of(context)!.promotional_reward_description,
                       style: Theme.of(context).textTheme.bodyLarge?.apply(
                           color: Theme.of(context).colorScheme.onSurface),
                     ),
@@ -115,7 +112,7 @@ class _PromotionalRewardWidgetState extends State<PromotionalRewardWidget>
                           widget.rewardScreenPresentation.usePromotionalCode();
                         },
                         child: Text(
-                          'Reclamar bono',
+                         AppLocalizations.of(context)!.claim_bonus,
                         )),
                   ],
                 ),
@@ -133,7 +130,7 @@ class _PromotionalRewardWidgetState extends State<PromotionalRewardWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Espere",
+                      AppLocalizations.of(context)!.wait,
                       style: GoogleFonts.roboto(
                           color: Colors.white, fontSize: 60.sp),
                     ),

@@ -6,13 +6,13 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
 import '../../UserSettings/UserSettingsEntity.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/error/Failure.dart';
 import '../../../core/globalData.dart';
@@ -122,8 +122,8 @@ class UserCreatorPresentation extends ChangeNotifier
                 var result = await userCreatorController.logOut();
                 result.fold((l) {
                   PresentationDialogs().showErrorDialog(
-                      title: "Error",
-                      content: "No se pudo cerrar sesión",
+                      title: AppLocalizations.of(startKey.currentContext!)!.error,
+                      content: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_sessionCouldNotBeClosed,
                       context: startKey.currentContext as BuildContext);
                 }, (succes) async {
                   Dependencies.clearDependenciesAfterCreateUser();
@@ -132,15 +132,15 @@ class UserCreatorPresentation extends ChangeNotifier
                       .popUntil((route) => route.isFirst);
                 });
               },
-              text: "Salir"),
+              text: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_exit),
           DialogOptions(
               function: () async {
                 Navigator.pop(startKey.currentContext as BuildContext);
               },
-              text: "Quedarme")
+              text: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_stay)
         ],
-        dialogTitle: "Cerrar sesion",
-        dialogText: "Se acabara con tu sesion");
+        dialogTitle: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_closeSession,
+        dialogText: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_sessionWillEnd);
   }
 
   void createUser() async {
@@ -162,18 +162,16 @@ class UserCreatorPresentation extends ChangeNotifier
               LocationErrorType.LOCATION_PERMISSION_DENIED_FOREVER;
           PresentationDialogs.instance.showErrorDialogWithOptions(
               dialogOptionsList: [],
-              dialogTitle: "Permiso de localizacion",
-              dialogText:
-                  "La aplicacion no tiene permiso para acceder su ubicacion",
+              dialogTitle: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccess,
+              dialogText: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccessDenied,
               context: startKey.currentContext);
         }
         if (failure.message == "LOCATION_PERMISSION_DENIED") {
           setUserCreatorScreenState = UserCreatorScreenState.LOCATION_ERROR;
           setLocationErrorType = LocationErrorType.LOCATION_PERMISSION_DENIED;
           PresentationDialogs.instance.showErrorDialog(
-              title: "Permiso de localizacion",
-              content:
-                  "La aplicacion no tiene permiso para acceder su ubicacion",
+              title: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccess,
+              content: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccessDenied,
               context: startKey.currentContext);
         }
 
@@ -231,14 +229,14 @@ class UserCreatorPresentation extends ChangeNotifier
     if (userName.trim().length < 1) {
       value = false;
       PresentationDialogs().showErrorDialog(
-          title: "Error",
+          title: AppLocalizations.of(startKey.currentContext!)!.error,
           content: "El nombre no puede estar vacio",
           context: startKey.currentContext);
     }
     if (userName.length > 25) {
       value = false;
       PresentationDialogs().showErrorDialog(
-          title: "Error",
+          title: AppLocalizations.of(startKey.currentContext!)!.error,
           content: "El nombre no puede tener mas de 25 caracteres",
           context: startKey.currentContext);
     }
@@ -255,7 +253,7 @@ class UserCreatorPresentation extends ChangeNotifier
       if (userAge < 18) {
         value = false;
         PresentationDialogs().showErrorDialog(
-            title: "Error",
+            title: AppLocalizations.of(startKey.currentContext!)!.error,
             content: "Debes tener 18 años o más",
             context: startKey.currentContext);
       }
@@ -263,7 +261,7 @@ class UserCreatorPresentation extends ChangeNotifier
     if (userAge == null) {
       value = false;
       PresentationDialogs().showErrorDialog(
-          title: "Error",
+          title: AppLocalizations.of(startKey.currentContext!)!.error,
           content: "Debes seneccionar tu fecha de nacimiento",
           context: startKey.currentContext);
     }
@@ -282,7 +280,7 @@ class UserCreatorPresentation extends ChangeNotifier
     }
     if(result==false){
        PresentationDialogs().showErrorDialog(
-          title: "Error",
+          title: AppLocalizations.of(startKey.currentContext!)!.error,
           content: "Debes seleccionar almenos una foto",
           context: startKey.currentContext);
     }
@@ -343,8 +341,8 @@ class UserCreatorPresentation extends ChangeNotifier
             LocationErrorType.LOCATION_PERMISSION_DENIED_FOREVER;
         print("LOCATION_PERMISSION_DENIED_FOREVER");
         PresentationDialogs.instance.showErrorDialog(
-            title: "Permiso de localizacion",
-            content: "La aplicacion no tiene permiso para acceder su ubicacion",
+            title: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccess,
+            content: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccessDenied,
             context: startKey.currentContext);
       }
       if (failure.message == "LOCATION_SERVICE_DISABLED") {
@@ -355,8 +353,8 @@ class UserCreatorPresentation extends ChangeNotifier
       if (failure.message == "LOCATION_PERMISSION_DENIED") {
         setUserCreatorScreenState = UserCreatorScreenState.LOCATION_ERROR;
         PresentationDialogs.instance.showErrorDialog(
-            title: "Permiso de localizacion",
-            content: "La aplicacion no tiene permiso para acceder su ubicacion",
+            title: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccess,
+            content: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_locationAccessDenied,
             context: startKey.currentContext);
         setLocationErrorType = LocationErrorType.LOCATION_PERMISSION_DENIED;
         print("LOCATION_PERMISSION_DENIED");
@@ -398,8 +396,8 @@ class UserCreatorPresentation extends ChangeNotifier
 
   void showPromotionalCodeInfo(){
         PresentationDialogs().showErrorDialog(
-            title: "Codigo de invitacion ",
-            content: "Es un codigo que solo puede generar un usuario registrado de Hotty.\n\nSi un usuario registrado de hotty te da su codigo de invitación, cuando te registres ambos ganareis 5000 creditos extra Gratis",
+            title: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_invitationCode,
+            content: AppLocalizations.of(startKey.currentContext!)!.userCreatorPresentation_invitationCodeInfo,
             context: startKey.currentContext);
 
   }

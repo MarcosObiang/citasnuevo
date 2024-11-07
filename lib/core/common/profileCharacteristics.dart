@@ -1,4 +1,5 @@
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 const Map<String, dynamic> _kProfileCreatorMap = {
   "alcohol": 0,
@@ -61,113 +62,114 @@ Map<String, dynamic> kUserCreatorMockData = {
   "Descripcion": ""
 };
 
-const kProfileCharacteristicsNames_ES = [
-  {"alcohol": "¿Bebes alcohol?"},
-  {"im_looking_for": "¿Qué buscas?"},
-  {"body_type": "Complexión física"},
-  {"children": "¿Hijos?"},
-  {"pets": "¿Mascotas?"},
-  {"politics": "Politica"},
-  {"im_living_with": "Vivo con"},
-  {"smoke": "¿Fumas?"},
-  {"sexual_orientation": "Sexualidad"},
-  {"zodiac_sign": "Horoscopo"},
-  {"personality": "Personalidad"}]
+ final kProfileCharacteristicsNames_ES = [
+  {"alcohol": (context) => AppLocalizations.of(context)!.alcohol},
+  {"im_looking_for": (context) => AppLocalizations.of(context)!.im_looking_for},
+  {"body_type": (context) => AppLocalizations.of(context)!.body_type},
+  {"children": (context) => AppLocalizations.of(context)!.children},
+  {"pets": (context) => AppLocalizations.of(context)!.pets},
+  {"politics": (context) => AppLocalizations.of(context)!.politics},
+  {"im_living_with": (context) => AppLocalizations.of(context)!.im_living_with},
+  {"smoke": (context) => AppLocalizations.of(context)!.smoking},
+  {"sexual_orientation": (context) => AppLocalizations.of(context)!.sexual_orientation},
+  {"zodiac_sign": (context) => AppLocalizations.of(context)!.zodiac_sign},
+  {"personality": (context) => AppLocalizations.of(context)!.personality},]
 ;
 
-const kProfileCharacteristics_LookingFor_ES = [
-  {0: "Sin respuesta"},
-  {1: "Relacion seria"},
-  {2: "Lo que surja"},
-  {3: "Algo casual"},
-  {4: "No lo se"}
+final kProfileCharacteristics_LookingFor_ES = [
+  {0: (context)=> AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context)=> AppLocalizations.of(context)!.im_looking_for_relacion_seria},
+  {2: (context)=> AppLocalizations.of(context)!.im_looking_for_lo_que_surja},
+  {3: (context)=> AppLocalizations.of(context)!.im_looking_for_algo_casual},
+  {4: (context)=> AppLocalizations.of(context)!.im_looking_for_no_lo_se},
 ];
 
-const kProfileCharacteristics_BodyType_ES = [
-  {0: "Sin respuesta"},
-  {1: "Normal"},
-  {2: "Atletica"},
-  {3: "Talla Grande"},
-  {4: "Delgado"}
+final kProfileCharacteristics_BodyType_ES = [
+  {0: (context)=> AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context)=> AppLocalizations.of(context)!.body_type_normal},
+  {2: (context)=> AppLocalizations.of(context)!.body_type_atletica},
+  {3: (context)=> AppLocalizations.of(context)!.body_type_talla_grande},
+  {4: (context)=> AppLocalizations.of(context)!.body_type_delgado},
 ];
 
-const kProfileCharacteristics_Children_ES = [
-  {0: "Sin respuesta"},
-  {1: "Algun dia"},
-  {2: "Nunca"},
-  {3: "Tengo hijos"},
+final kProfileCharacteristics_Children_ES = [
+  {0: (context)=> AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context)=> AppLocalizations.of(context)!.children_algun_dia},
+  {2: (context)=> AppLocalizations.of(context)!.children_nunca},
+  {3: (context)=> AppLocalizations.of(context)!.children_tengo_hijos},
 ];
-const kProfileCharacteristics_Pets_ES = [
-  {0: "Sin respuesta"},
-  {1: "Perro"},
-  {2: "Gato"},
-  {3: "Me gustaría"}
-];
-
-const kProfileCharacteristics_Politics_ES = [
-  {0: "Sin respuesta"},
-  {1: "Derechas"},
-  {2: "Izquierda"},
-  {3: "Centro"},
-  {4: "Apolitico"}
-];
-const kProfileCharacteristics_LivesWith_ES = [
-  {0: "Sin respuesta"},
-  {1: "Solo"},
-  {2: "Familia"},
-  {3: "Amigos"}
+final kProfileCharacteristics_Pets_ES = [
+  {0: (context)=> AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context)=> AppLocalizations.of(context)!.pets_perro},
+  {2: (context)=> AppLocalizations.of(context)!.pets_gato},
+  {3: (context)=> AppLocalizations.of(context)!.pets_me_gustaria}
 ];
 
-const kProfileCharacteristics_Alcohol_ES = [
-  {0: "Sin respuesta"},
-  {1: "En sociedad"},
-  {2: "No bebo"},
-  {3: "No me importa"},
-  {4: "Odio el alcohol"}
+
+final kProfileCharacteristics_Politics_ES = [
+  {0: (context)=> AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.politics_derechas},
+  {2: (context) => AppLocalizations.of(context)!.politics_izquierda},
+  {3: (context)=> AppLocalizations.of(context)!.politics_centro},
+  {4: (context)=> AppLocalizations.of(context)!.politics_apolitico}
+];
+final kProfileCharacteristics_LivesWith_ES = [
+  {0: (context) => AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.im_living_with_solo},
+  {2: (context) => AppLocalizations.of(context)!.im_living_with_familia},
+  {3: (context) => AppLocalizations.of(context)!.im_living_with_amigos}
 ];
 
-const kProfileCharacteristics_Smoking_ES = [
-  {0: "Sin respuesta"},
-  {1: "Fumo"},
-  {2: "No Fumo"},
-  {3: "A veces"},
-  {4: "Odio el tabaco"}
+final kProfileCharacteristics_Alcohol_ES = [
+  {0: (context) => AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.alcohol_en_sociedad},
+  {2: (context) => AppLocalizations.of(context)!.alcohol_no_bebo},
+  {3: (context) => AppLocalizations.of(context)!.alcohol_no_me_importa},
+  {4: (context) => AppLocalizations.of(context)!.alcohol_no_me_importa}
 ];
 
-const kProfileCharacteristics_SexualOrientation_ES = [
-  {0: "Sin respuesta"},
-  {1: "Heterosexual"},
-  {2: "Gay"},
-  {3: "Lesbiana"},
-  {4: "Bisexual"},
-  {5: "Asexual"},
-  {6: "Demisexual"},
-  {7: "Pansexual"},
-  {8: "Queer"},
-];
-const kProfileCharacteristics_zodiacSign_ES = [
-  {0: "Sin respuesta"},
-  {1: "Aries"},
-  {2: "Tauro"},
-  {3: "Geminis"},
-  {4: "Cáncer"},
-  {5: "Leo"},
-  {6: "Virgo"},
-  {7: "Libra"},
-  {8: "Escorpio"},
-  {9: "Sagitario"},
-  {10: "Capricornio"},
-  {11: "Acuario"},
-  {12: "Piscis"},
-];
-const kProfileCharacteristics_Personality_ES = [
-  {0: "Sin respuesta"},
-  {1: "Introvertido"},
-  {2: "Extrovertido"},
-  {3: "Una mezcla de ambos"},
+final kProfileCharacteristics_Smoking_ES = [
+  {0: (context) => AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.smoking_no_fumo},
+  {2: (context) => AppLocalizations.of(context)!.smoking_fumo},
+  {3: (context) => AppLocalizations.of(context)!.smoking_a_veces},
+  {4: (context) => AppLocalizations.of(context)!.smoking_odio_el_tabaco},
 ];
 
-const kProfileCharacteristics_ES = [
+final kProfileCharacteristics_SexualOrientation_ES = [
+  {0: (context) => AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.sexual_orientation_heterosexual},
+  {2: (context) => AppLocalizations.of(context)!.sexual_orientation_gay},
+  {3: (context) => AppLocalizations.of(context)!.sexual_orientation_lesbiana},
+  {4: (context) => AppLocalizations.of(context)!.sexual_orientation_bisexual},
+  {5: (context) => AppLocalizations.of(context)!.sexual_orientation_asexual},
+  {6: (context) => AppLocalizations.of(context)!.sexual_orientation_demisexual},
+  {7: (context) => AppLocalizations.of(context)!.sexual_orientation_pansexual},
+  {8: (context) => AppLocalizations.of(context)!.sexual_orientation_queer},
+];
+final kProfileCharacteristics_zodiacSign_ES = [
+  {0: (context) => AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.zodiac_sign_acuario},
+  {2: (context) => AppLocalizations.of(context)!.zodiac_sign_piscis},
+  {3: (context) => AppLocalizations.of(context)!.zodiac_sign_geminis},
+  {4: (context) => AppLocalizations.of(context)!.zodiac_sign_cancer},
+  {5: (context) => AppLocalizations.of(context)!.zodiac_sign_leo},
+  {6: (context) => AppLocalizations.of(context)!.zodiac_sign_virgo},
+  {7: (context) => AppLocalizations.of(context)!.zodiac_sign_libra},
+  {8: (context) => AppLocalizations.of(context)!.zodiac_sign_escorpio},
+  {9: (context) => AppLocalizations.of(context)!.zodiac_sign_sagitario},
+  {10: (context) => AppLocalizations.of(context)!.zodiac_sign_capricornio},
+  {11: (context) => AppLocalizations.of(context)!.zodiac_sign_tauro},
+  {12: (context) => AppLocalizations.of(context)!.zodiac_sign_piscis},
+];
+final kProfileCharacteristics_Personality_ES = [
+  {0: (context) => AppLocalizations.of(context)!.sin_respuesta},
+  {1: (context) => AppLocalizations.of(context)!.personality_introvertido},
+  {2: (context) => AppLocalizations.of(context)!.personality_extrovertido},
+  {3: (context) => AppLocalizations.of(context)!.personality_una_mezcla_de_ambos},
+];
+
+final kProfileCharacteristics_ES = [
   {"alcohol": kProfileCharacteristics_Alcohol_ES},
   {"im_looking_for": kProfileCharacteristics_LookingFor_ES},
   {"body_type": kProfileCharacteristics_BodyType_ES},
@@ -194,3 +196,8 @@ const kProfileCharacteristics_Icons = [
   {"zodiac_sign": LineAwesomeIcons.star},
   {"personality": LineAwesomeIcons.flushed_face},
 ];
+
+
+
+
+

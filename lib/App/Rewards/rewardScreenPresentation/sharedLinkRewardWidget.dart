@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 import 'rewardScreenPresentation.dart';
 
 class SharedLinkRewardWidget extends StatefulWidget {
@@ -43,6 +42,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
     animation = ColorTween(begin: Colors.white, end: Colors.deepPurple)
         .animate(animationController);
 
+
     animationController.forward();
   }
 
@@ -70,7 +70,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Bono por invitar amigos",
+                          Text(AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinTitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
@@ -98,7 +98,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
                         ],
                       ),
                       Text(
-                          "Recompensa porque tu codigo de invitacion se ha usado ",
+                          AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinMessage,
                           style: Theme.of(context).textTheme.bodyMedium?.apply(
                               color: Theme.of(context).colorScheme.onSurface)),
                       FilledButton.tonal(
@@ -107,7 +107,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
                                 .rewardTicketSuccesfultShares();
                           },
                           child: Text(
-                            'Reclamar bono',
+                            AppLocalizations.of(context)!.sharedLinkRewardWidget_bonusForInviteFriendsButtonText,
                           )),
                     ],
                   )
@@ -115,7 +115,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Cargando",
+                       AppLocalizations.of(context)!.loading,
                         style: Theme.of(context).textTheme.bodyMedium?.apply(
                             color: Theme.of(context).colorScheme.onSurface),
                       ),

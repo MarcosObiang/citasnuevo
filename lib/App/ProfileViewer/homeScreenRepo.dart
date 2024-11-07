@@ -13,5 +13,5 @@ abstract class HomeScreenRepository implements ModuleCleanerRepository {
   Future<Either<Failure, LocationPermission>> requestLocationPermission();
   Future<Either<Failure, bool>> goToAppSettings();
   Future<Either<Failure, void>> sendRating(
-      {required ReactionType reactionType, required String idProfileRated});
+      {required int reactionValue, required String idProfileRated});
 }

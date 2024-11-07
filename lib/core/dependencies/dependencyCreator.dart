@@ -79,7 +79,7 @@ import 'package:citasnuevo/App/Verification/verificationRepoImpl.dart';
 import 'package:citasnuevo/App/Verification/verificationRepository.dart';
 import 'package:citasnuevo/App/principalScreenPresentation.dart';
 import '../services/Ads.dart';
-import '../appwrite_services/appwrite_services.dart';
+import '../atlas_services/atlas_services.dart';
 import '../common/commonUtils/getUserImage.dart';
 import '../services/AuthService.dart';
 import '../globalData.dart';
@@ -89,8 +89,7 @@ import '../platform/networkInfo.dart';
 class Dependencies {
   static late final NetworkInfoContract networkInfoContract = NetworkInfoImpl();
   static late Server serverAPi = new Server();
-  static late final Functions functions =
-      Functions(Dependencies.serverAPi.client as Client);
+  
 
   static late final AdvertisingServices advertisingServices =
       new AdvertisingServices();
@@ -217,7 +216,7 @@ class Dependencies {
   static late final ReportRepository reportRepository =
       new ReportRepositoryImpl(reportDataSource: reportDataSource);
   static late final ReportController reportController =
-      new ReportControllerImpl(reportRepository: reportRepository);
+      new ReportControllerImpl(reportRepository: reportRepository,homeScreenControllerBridge: homeScreenControllerBridge);
   static late final homeReportScreenPresentation =
       new HomeReportScreenPresentation(reportController: reportController);
 
@@ -225,7 +224,7 @@ class Dependencies {
   ///
   ///
   static late final ChatDataSource chatDataSource =
-      new ChatDatsSourceImpl(source: applicationDataSource);
+      new ChatDatsSourceImpl(source: applicationDataSource,advertisingServices: advertisingServices);
 
   static late final ChatRepository chatRepository =
       new ChatRepoImpl(chatDataSource: chatDataSource);
@@ -264,7 +263,6 @@ class Dependencies {
       applicationSettingsDataSource = new ApplicationDataSourceImpl(
           source: applicationDataSource,
           authService: authService,
-          functinos: functions,
           networkInfoContract: networkInfoContract);
   static late final AppSettingsRepository appSettingsRepository =
       ApplicationSettingsRepositoryImpl(
@@ -416,6 +414,7 @@ class Dependencies {
   static Future<void> initializeDependencies() async {
     try {
       //    await PurchasesServices.purchasesServices.initService();
+      await applicationDataSource.initializeMainDataSource();
 
       homeScreenPresentation.initializeModuleData();
       chatPresentation.initializeModuleData();
@@ -431,11 +430,11 @@ class Dependencies {
       verificationPresentation.initializeModuleData();
       userCreatorPresentation.initializeModuleData();
 
-      await applicationDataSource.initializeMainDataSource();
-      NotificationService instance = new NotificationService();
-      await instance.startBackgroundNotificationHandler();
       sanctionsPresentation.initializeModuleData();
       advertisingServices.initializeAdsService();
+      
+     NotificationService instance = new NotificationService();
+      await instance.startBackgroundNotificationHandler();
     } catch (e, s) {
       print(s);
       throw e;

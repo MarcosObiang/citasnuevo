@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import '../controllerDef.dart';
 
 enum ReactionRevealigState { notRevealed, revealed, revealing, error }
 
@@ -21,7 +20,7 @@ class Reaction {
   bool canShowAds = true;
   bool userBlocked = false;
   String reactionType;
-
+  int reactionValue;
   String imageHash;
   Map<String, dynamic> imageUrl;
   String name;
@@ -107,7 +106,10 @@ class Reaction {
       required this.idReaction,
       required this.reactionRevealigState,
       required this.userBlocked,
-      required this.revealed}) {
+      required this.revealed,
+      required this.reactionValue
+      
+      }) {
     this.getExpirationSeconds();
   }
 
@@ -123,6 +125,8 @@ class Reaction {
     }
   }
 
+  /// Resynchronizes the reaction's expiration date by updating
+  /// [secondsUntilExpiration] field.
   void resyncReaction() {
     this.secondsUntilExpiration = reactionExpirationDateInSeconds -
         DateTime.now().millisecondsSinceEpoch ~/ 1000;

@@ -1,17 +1,12 @@
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:another_xlider/another_xlider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../Settings/settingsInputScreen.dart';
 import '../../../UserSettings/UserSettingsEntity.dart';
 import '../../../../core/dependencies/dependencyCreator.dart';
-import '../../../../core/globalData.dart';
 import '../userCreatorPresentation.dart';
 import 'picturesScreen.dart';
 import 'promotionalCodeScreen.dart';
@@ -105,7 +100,7 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                               children: [
                                 LoadingIndicator(
                                     indicatorType: Indicator.ballBeat),
-                                Text("Cargando"),
+                                Text(AppLocalizations.of(context)!.userCreatorScreen_loading),
                               ],
                             ),
                           )
@@ -115,14 +110,13 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                        "Ha habido un error al intentar crear el usuario"),
+                                    Text(AppLocalizations.of(context)!.userCreatorScreen_createUserError),
                                     ElevatedButton.icon(
                                         onPressed: () {
                                           userCreatorPresentation.createUser();
                                         },
                                         icon: Icon(Icons.warning),
-                                        label: Text("Errores"))
+                                        label: Text(AppLocalizations.of(context)!.userCreatorScreen_errors))
                                   ],
                                 ),
                               )
@@ -171,31 +165,29 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error),
-              Text("Ha habido un error"),
+              Text(AppLocalizations.of(context)!.userCreatorScreen_error),
             ],
           ),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text(
-              "Necesitamos conocer tu ubicacion para mostrarte usuarios cercanos a ti"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationNeeded),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text("- Ve a ajustes y asegurate de que tu ubicacion esta activada"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationSettings),
           Divider(
             height: 50.h,
             color: Colors.white,
           ),
-          Text("- Asegurate de que Hotty tiene permiso"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_hottyPermission),
           Divider(
             height: 50.h,
             color: Colors.white,
           ),
-          Text(
-              "- Vuelve a 'Hotty' y pulsa el boton que dice 'Intentar de nuevo'"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_tryAgain),
           Align(
             alignment: Alignment.center,
             child: Column(
@@ -205,13 +197,13 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                       userCreatorPresentation.openLocationSettings();
                     },
                     icon: Icon(Icons.settings),
-                    label: Text("Ir a ajustes")),
+                    label: Text(AppLocalizations.of(context)!.userCreatorScreen_goToSettings)),
                 ElevatedButton.icon(
                     onPressed: () {
                       userCreatorPresentation.createUser();
                     },
                     icon: Icon(Icons.refresh),
-                    label: Text("Intentar de nuevo"))
+                    label: Text(AppLocalizations.of(context)!.userCreatorScreen_tryAgain))
               ],
             ),
           ),
@@ -231,26 +223,25 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error),
-              Text("Ha habido un error"),
+              Text(AppLocalizations.of(context)!.userCreatorScreen_error),
             ],
           ),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text(
-              "Necesitamos conocer tu ubicacion para mostrarte usuarios cercanos a ti"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationNeeded),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text("Es necesario dar permiso a 'Hotty' para continuar"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_hottyPermissionNeeded),
           ElevatedButton.icon(
               onPressed: () {
                 userCreatorPresentation.requestPermission();
               },
               icon: Icon(Icons.location_pin),
-              label: Text("Dar Permiso"))
+              label: Text(AppLocalizations.of(context)!.userCreatorScreen_givePermission))
         ],
       ),
     );
@@ -267,26 +258,25 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error),
-              Text("Ha habido un error"),
+              Text(AppLocalizations.of(context)!.userCreatorScreen_error),
             ],
           ),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text(
-              "Necesitamos conocer tu ubicacion para mostrarte usuarios cercanos a ti"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationNeeded),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text("Es necesario activar la ubicacion del dispositivo"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationNeededDevice),
           ElevatedButton.icon(
               onPressed: () {
                 userCreatorPresentation.openLocationSettings();
               },
               icon: Icon(Icons.settings),
-              label: Text("Activar localizacion"))
+              label: Text(AppLocalizations.of(context)!.userCreatorScreen_activateLocation))
         ],
       ),
     );
@@ -304,31 +294,29 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error),
-              Text("Ha habido un error"),
+              Text(AppLocalizations.of(context)!.userCreatorScreen_error),
             ],
           ),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text(
-              "Necesitamos conocer tu ubicacion para mostrarte usuarios cercanos a ti"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationNeeded),
           Divider(
             height: 100.h,
             color: Colors.white,
           ),
-          Text("- Ve a ajustes y asegurate de que tu ubicacion esta activada"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_locationSettings),
           Divider(
             height: 50.h,
             color: Colors.white,
           ),
-          Text("- Asegurate de que Hotty tiene permiso"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_hottyPermission),
           Divider(
             height: 50.h,
             color: Colors.white,
           ),
-          Text(
-              "- Vuelve a 'Hotty' y pulsa el boton que dice 'Intentar de nuevo'"),
+          Text(AppLocalizations.of(context)!.userCreatorScreen_tryAgain),
           Align(
             alignment: Alignment.center,
             child: Column(
@@ -338,13 +326,13 @@ class _UserCreatorScreenState extends State<UserCreatorScreen> {
                       userCreatorPresentation.openLocationSettings();
                     },
                     icon: Icon(Icons.settings),
-                    label: Text("Ir a ajustes")),
+                    label: Text(AppLocalizations.of(context)!.userCreatorScreen_goToSettings)),
                 ElevatedButton.icon(
                     onPressed: () {
                       userCreatorPresentation.createUser();
                     },
                     icon: Icon(Icons.refresh),
-                    label: Text("Intentar de nuevo"))
+                    label: Text(AppLocalizations.of(context)!.userCreatorScreen_tryAgain))
               ],
             ),
           ),

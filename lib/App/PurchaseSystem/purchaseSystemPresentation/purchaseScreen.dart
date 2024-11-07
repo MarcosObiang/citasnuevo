@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -37,7 +38,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                     children: [
                       AppBar(
                         elevation: 0,
-                        title: Text("Suscripciones"),
+                        title: Text(AppLocalizations.of(context)!.purchase_screen_subscriptions),
                       ),
                       purchaseSystemPresentation.purchaseSystemScreenState ==
                               PurchaseSystemScreenState.LOADED
@@ -106,11 +107,12 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                                                               purchaseSystemPresentation);
                                                     },
                                                     icon: Icon(Icons.settings),
-                                                    label: Text(
-                                                        "Ajustes de suscripcion")),
+                                                    label: Text(AppLocalizations.of(context)!
+                                                        .purchase_screen_subscription_settings)),
                                               ),
                                               Text(
-                                                "Esta es una suscripcion periodica. A menos que la canceles se te cobrará el importe seleccionado en el tiempo indicado en tu cuenta de Google.Puedes cancelar la suscription en cualquier momento",
+                                                AppLocalizations.of(context)!
+                                                    .purchase_screen_subscription_settings_description,
                                                 textAlign: TextAlign.center,
                                                 style: GoogleFonts.lato(
                                                     fontSize: 35.sp),
@@ -127,7 +129,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                                   PurchaseSystemScreenState.LOADING
                               ? Center(
                                   child: Container(
-                                  child: Column(
+                                    child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
@@ -135,23 +137,24 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                                           indicatorType: Indicator.ballRotate,
                                           colors: [Colors.deepPurpleAccent],
                                         ),
-                                        Text("Cargando")
-                                      ]),
-                                ))
+                                        Text(AppLocalizations.of(context)!.purchase_screen_loading)
+                                      ],
+                                    ),
+                                  ))
                               : Center(
                                   child: Container(
                                     child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Text("Error al cargar modulo"),
+                                          Text(AppLocalizations.of(context)!.purchase_screen_error_loading_module),
                                           ElevatedButton.icon(
                                               onPressed: () {
                                                 purchaseSystemPresentation
                                                     .restart();
                                               },
                                               icon: Icon(Icons.refresh),
-                                              label: Text("Intentar de nuevos"))
+                                              label: Text(AppLocalizations.of(context)!.purchase_screen_try_again))
                                         ]),
                                   ),
                                 ),
@@ -166,7 +169,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Porfavor, espera",
+                                  AppLocalizations.of(context)!.purchase_screen_please_wait,
                                   style: GoogleFonts.lato(
                                       color: Colors.white, fontSize: 50.sp),
                                 ),
@@ -198,7 +201,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
           return Container(
             child: Column(children: [
               Text(
-                "Ajustes de suscripcion",
+                AppLocalizations.of(context)!.purchase_screen_subscription_settings_title,
                 style: GoogleFonts.lato(fontSize: 70.sp),
               ),
               Container(
@@ -209,7 +212,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                       purchaseSystemPresentation.openSubscriptionMenu();
                     },
                     icon: Icon(Icons.settings),
-                    label: Text("Ajustes de suscripcion")),
+                    label: Text(AppLocalizations.of(context)!.purchase_screen_google_play_settings)),
               ),
               Container(
                 child: TextButton.icon(
@@ -218,7 +221,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                       purchaseSystemPresentation.restorePurchases();
                     },
                     icon: Icon(Icons.restore),
-                    label: Text("Restaurar compra")),
+                    label: Text(AppLocalizations.of(context)!.purchase_screen_restore_purchase)),
               ),
             ]),
           );
@@ -256,7 +259,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "HOTTY+",
+                    AppLocalizations.of(context)!.purchase_screen_hotty_plus,
                     style: GoogleFonts.lato(
                         letterSpacing: 20.w,
                         fontSize: 80.sp,
@@ -267,7 +270,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                     color: Colors.transparent,
                   ),
                   Text(
-                    "Sin anuncios",
+                    AppLocalizations.of(context)!.purchase_screen_no_ads,
                     style: GoogleFonts.lato(
                         fontSize: 60.sp, fontWeight: FontWeight.bold),
                   ),
@@ -276,7 +279,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                     color: Colors.transparent,
                   ),
                   Text(
-                    "Monedas Infinitas",
+                    AppLocalizations.of(context)!.purchase_screen_infinite_coins,
                     style: GoogleFonts.lato(
                         fontSize: 60.sp, fontWeight: FontWeight.bold),
                   ),
@@ -290,7 +293,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Suscripcion Cancelada:",
+          AppLocalizations.of(context)!.purchase_screen_subscription_cancelled,
           style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
         ),
         Divider(
@@ -306,12 +309,12 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
           color: Colors.transparent,
         ),
         Text(
-          "Tu suscripcion caduca el:",
+          AppLocalizations.of(context)!.purchase_screen_subscription_expires_on,
           style: GoogleFonts.lato(fontSize: 50.sp, fontWeight: FontWeight.bold),
         ),
         Text(
             "${format.format(DateTime.fromMillisecondsSinceEpoch(purchaseSystemPresentation.purchaseSystemController.purchaseEntity.subscriptionExpirationTimestamp))}"),
-        ElevatedButton(onPressed: () {}, child: Text("Volver a suscribirme"))
+        ElevatedButton(onPressed: () {}, child: Text(AppLocalizations.of(context)!.purchase_screen_subscribe_again))
       ],
     );
   }
@@ -321,7 +324,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
     return Column(
       children: [
         Text(
-          "Suscripcion Activa:",
+          AppLocalizations.of(context)!.purchase_screen_active_subscription,
           style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
         ),
         Divider(
@@ -337,7 +340,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
           color: Colors.transparent,
         ),
         Text(
-          "Proximo Pago:",
+          AppLocalizations.of(context)!.purchase_screen_next_payment,
           style: GoogleFonts.lato(fontSize: 70.sp, fontWeight: FontWeight.bold),
         ),
         Text(
@@ -398,7 +401,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                           purchaseSystemPresentation.purchaseSystemController
                                   .purchaseEntity.subscriptionStatus ==
                               SubscriptionStaus.SUBSCRIBED
-                      ? Text("Activa")
+                      ? Text(AppLocalizations.of(context)!.purchase_screen_active)
                       : Text(""),
                   productInfo.productId ==
                               purchaseSystemPresentation
@@ -409,7 +412,7 @@ class _SubscriptionsMenuState extends State<SubscriptionsMenu> {
                           purchaseSystemPresentation.purchaseSystemController
                                   .purchaseEntity.subscriptionStatus ==
                               SubscriptionStaus.CANCELLED
-                      ? Text("Cancelada")
+                      ? Text(AppLocalizations.of(context)!.purchase_screen_cancelled)
                       : Text(""),
                 ],
               )),

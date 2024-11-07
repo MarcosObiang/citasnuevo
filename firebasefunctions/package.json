@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@tensorflow-models/handpose": "^0.0.7",
-    "geolib": "^3.3.3"
-  }
-}

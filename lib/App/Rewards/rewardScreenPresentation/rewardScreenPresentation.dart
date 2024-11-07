@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,12 +10,12 @@ import '../../DataManager.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
 import '../../controllerDef.dart';
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/error/Failure.dart';
 import '../../../main.dart';
 import '../RewardsEntity.dart';
 import '../rewardController.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 enum DailyRewardState {
   inProcess,
@@ -156,14 +155,16 @@ class RewardScreenPresentation extends ChangeNotifier
 
       if (l is NetworkFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: "Hotty npuede conectarse a internet",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_hottyNoInternet,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            content: "Error al intentar realizar la operacion",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_operationFailed,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       }
     }, (r) {
       sharingLink = rewardController.rewards?.dynamicLink;
@@ -182,9 +183,10 @@ class RewardScreenPresentation extends ChangeNotifier
               .showNetworkErrorDialog(context: startKey.currentContext);
         } else {
           PresentationDialogs.instance.showErrorDialog(
-              content: "Error al intentar realizar la operacion",
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .purchase_system_presentation_operationFailed,
               context: startKey.currentContext,
-              title: "Error");
+              title: AppLocalizations.of(startKey.currentContext!)!.error);
         }
       }, (r) async {
         await for (Map<String, dynamic> event in Dependencies
@@ -213,17 +215,22 @@ class RewardScreenPresentation extends ChangeNotifier
                 setDayliRewardState = DailyRewardState.done;
               });
               PresentationDialogs.instance.showErrorDialog(
-                  content: "Error al intentar realizar la operacion",
+                  content: AppLocalizations.of(startKey.currentContext!)!
+                      .purchase_system_presentation_operationFailed,
                   context: startKey.currentContext,
-                  title: "Error");
+                  title: AppLocalizations.of(startKey.currentContext!)!.error);
             }, (r) {
               setRewardedAdShowingstate = RewardedAdShowingState.adNotShowing;
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                 setDayliRewardState = DailyRewardState.done;
               });
               showInAppRewardNotification(
-                  rewardDescription: "Ya tienes 600 creditos",
-                  rewardHeader: "Genial");
+                  rewardDescription: AppLocalizations.of(
+                          startKey.currentContext!)!
+                      .rewardScreenPresentation_dailyRewardNotificationMessage(
+                          "600"),
+                  rewardHeader: AppLocalizations.of(startKey.currentContext!)!
+                      .rewardScreenPresentation_dailyRewardNotificationTitle);
             });
           }
         }
@@ -234,14 +241,17 @@ class RewardScreenPresentation extends ChangeNotifier
       result.fold((l) {
         setDayliRewardState = DailyRewardState.done;
         PresentationDialogs.instance.showErrorDialog(
-            content: "Hotty npuede conectarse a internet",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_hottyNoInternet,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       }, (r) {
         setDayliRewardState = DailyRewardState.done;
         showInAppRewardNotification(
-            rewardDescription: "Ya tienes 600 creditos",
-            rewardHeader: "Genial");
+            rewardDescription: AppLocalizations.of(startKey.currentContext!)!
+                .rewardScreenPresentation_dailyRewardNotificationMessage("600"),
+            rewardHeader: AppLocalizations.of(startKey.currentContext!)!
+                .rewardScreenPresentation_dailyRewardNotificationTitle);
       });
     }
   }
@@ -252,14 +262,17 @@ class RewardScreenPresentation extends ChangeNotifier
     result.fold((l) {
       setFirstRewards = FirstRewards.done;
       PresentationDialogs.instance.showErrorDialog(
-          content: "Error al intentar realizar la operacion",
+          content: AppLocalizations.of(startKey.currentContext!)!
+              .purchase_system_presentation_operationFailed,
           context: startKey.currentContext,
-          title: "Error");
+          title: AppLocalizations.of(startKey.currentContext!)!.error);
     }, (r) {
       setFirstRewards = FirstRewards.done;
       showInAppRewardNotification(
-          rewardDescription: "Te regalamos 15000 creditos",
-          rewardHeader: "Disfruta Hotty");
+          rewardDescription: AppLocalizations.of(startKey.currentContext!)!
+              .rewardScreenPresentation_dailyRewardNotificationMessage("15000"),
+          rewardHeader: AppLocalizations.of(startKey.currentContext!)!
+              .rewardScreenPresentation_dailyRewardNotificationTitle);
     });
   }
 
@@ -269,14 +282,17 @@ class RewardScreenPresentation extends ChangeNotifier
     result.fold((l) {
       setPromotionalCodeState = PromotionalCodeState.done;
       PresentationDialogs.instance.showErrorDialog(
-          content: "Error al intentar realizar la operacion",
+          content: AppLocalizations.of(startKey.currentContext!)!
+              .purchase_system_presentation_operationFailed,
           context: startKey.currentContext,
-          title: "Error");
+          title: AppLocalizations.of(startKey.currentContext!)!.error);
     }, (r) {
       setPromotionalCodeState = PromotionalCodeState.done;
       showInAppRewardNotification(
-          rewardDescription: "Te regalamos 15000 creditos",
-          rewardHeader: "Disfruta Hotty");
+          rewardDescription: AppLocalizations.of(startKey.currentContext!)!
+              .rewardScreenPresentation_dailyRewardNotificationMessage("15000"),
+          rewardHeader: AppLocalizations.of(startKey.currentContext!)!
+              .rewardScreenPresentation_dailyRewardNotificationTitle);
     });
   }
 
@@ -288,20 +304,25 @@ class RewardScreenPresentation extends ChangeNotifier
       setRewardTicketSuccesfulShareState =
           RewardTicketSuccesfulSharesState.done;
       PresentationDialogs.instance.showErrorDialog(
-          content: "Error al intentar realizar la operacion",
+          content: AppLocalizations.of(startKey.currentContext!)!
+              .purchase_system_presentation_operationFailed,
           context: startKey.currentContext,
-          title: "Error");
+          title: AppLocalizations.of(startKey.currentContext!)!.error);
     }, (r) {
       setRewardTicketSuccesfulShareState =
           RewardTicketSuccesfulSharesState.done;
       showInAppRewardNotification(
-          rewardDescription: "Te regalamos 15000 creditos",
-          rewardHeader: "Disfruta Hotty");
+          rewardDescription: AppLocalizations.of(startKey.currentContext!)!
+              .rewardScreenPresentation_dailyRewardNotificationMessage("15000"),
+          rewardHeader: AppLocalizations.of(startKey.currentContext!)!
+              .rewardScreenPresentation_dailyRewardNotificationTitle);
     });
   }
 
   @override
   void update() {
+    dailyRewardTieRemainingStream = new StreamController.broadcast();
+
     updateSubscription =
         rewardController.updateDataController?.stream.listen((event) {
       if (event.rewards != null) {

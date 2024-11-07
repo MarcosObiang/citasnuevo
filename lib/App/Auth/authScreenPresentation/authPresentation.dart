@@ -5,10 +5,7 @@ import '../../PrincipalScreen.dart';
 import '../../UserCreator/userCreatorPresentation/Widgets/userCreatorScreen.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
-import '../../../core/iapPurchases/iapPurchases.dart';
-import '../AuthScreenEntity.dart';
 
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/error/Failure.dart';
@@ -16,9 +13,9 @@ import '../../../core/params_types/params_and_types.dart';
 import '../authScreenController.dart';
 import '../../../main.dart';
 
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../core/globalData.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthScreenPresentation extends ChangeNotifier
     implements Presentation, ModuleCleanerPresentation {
@@ -121,9 +118,9 @@ class AuthScreenPresentation extends ChangeNotifier
             .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            title: "Error",
+            title: AppLocalizations.of(startKey.currentContext!)!.error,
             content:
-                "Ha ocurrido un error al intentar iniciar sesion, intentelo de nuevo o contacte con soporte",
+                AppLocalizations.of(startKey.currentContext!)!.auth_error_login,
             context: startKey.currentContext);
       }
 

@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:citasnuevo/Utils/dialogs.dart';
-import 'package:citasnuevo/Utils/presentationDef.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
-import 'package:citasnuevo/core/error/Exceptions.dart';
-import 'package:citasnuevo/core/platform/networkInfo.dart';
 import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
 import '../globalData.dart';
@@ -25,7 +21,7 @@ class AdvertisingServices {
 
   void consentFormShowedToUser() {
     consentFormShowed =
-        Dependencies.applicationDataSource.getData["adConsentFormShown"];
+        Dependencies.applicationDataSource.getData["adConsentFormSown"];
   }
 
   void userConsentValue() {
@@ -37,7 +33,7 @@ class AdvertisingServices {
     consentFormShowedToUser();
     userConsentValue();
 
-    if (consentFormShowed == true) {
+    if (consentFormShowed == false) {
       Appodeal.setUseSafeArea(true);
       Appodeal.muteVideosIfCallsMuted(true);
       Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
@@ -49,11 +45,11 @@ class AdvertisingServices {
       Appodeal.setLogLevel(Appodeal.LogLevelDebug);
       Appodeal.setTesting(true);
       if (hasUserConsent == true) {
-        Appodeal.updateGDPRUserConsent(GDPRUserConsent.Personalized);
-        Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptIn);
+        //  Appodeal.updateGDPRUserConsent(GDPRUserConsent.Personalized);
+        //  Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptIn);
       } else {
-        Appodeal.updateGDPRUserConsent(GDPRUserConsent.NonPersonalized);
-        Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptOut);
+        // Appodeal.updateGDPRUserConsent(GDPRUserConsent.NonPersonalized);
+        // Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptOut);
       }
 
       if (Platform.isAndroid) {
@@ -174,16 +170,16 @@ class AdvertisingServices {
   Future<bool> setConsentStatus({required bool consentPersonalizedAds}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
+     /*   Functions functions = Functions(Dependencies.serverAPi.client!);
 
         Execution execution = await functions.createExecution(
             functionId: "setAdConsentStatus",
-            data: jsonEncode({
+            body: jsonEncode({
               "userHasGivenConsent": consentPersonalizedAds,
               "userId": GlobalDataContainer.userId
-            }));
+            }));*/
 
-        int status = jsonDecode(execution.response)["status"];
+        int status = 200;
         if (status != 200) {
           return false;
         } else {

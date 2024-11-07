@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../UserSettings/UserSettingsEntity.dart';
-import '../../../../core/dependencies/dependencyCreator.dart';
 import '../userCreatorPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class UserCharacteristicEditScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class _UserCharacteristicEditScreenState
                 fit: FlexFit.loose,
                 child: Container(
                     child: Text(
-                  "Datos rapidos",
+                  AppLocalizations.of(context)!.userCharacteristicsInput_quickData,
                   style: GoogleFonts.lato(fontSize: 70.sp),
                 ))),
             Flexible(
@@ -96,19 +96,19 @@ class _UserCharacteristicEditScreenState
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut),
                           icon: Icon(Icons.arrow_back),
-                          label: Text("Atras")),
+                          label: Text(AppLocalizations.of(context)!.userCharacteristicsInput_back)),
                       ElevatedButton.icon(
                           onPressed: () => widget.pageController.nextPage(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut),
                           icon: Icon(Icons.arrow_forward),
-                          label: Text("Siguiente")),
+                          label: Text(AppLocalizations.of(context)!.userCharacteristicsInput_next)),
                     ],
                   ),
                    ElevatedButton.icon(
                               onPressed: () => widget.userCreatorPresentation.logOut(),
                               icon: Icon(Icons.cancel),
-                              label: Text("Salir"))
+                              label: Text(AppLocalizations.of(context)!.userCharacteristicsInput_exit))
                 ],
               ),
             )
@@ -157,10 +157,10 @@ class _UserCharacteristicEditScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(userCharacteristic.characteristicName,
+                        Text(userCharacteristic.characteristicName.call(),
                             style:
                                 GoogleFonts.lato(fontWeight: FontWeight.bold)),
-                        Text(userCharacteristic.characteristicValue),
+                        Text(userCharacteristic.characteristicValue.call()),
                       ],
                     ),
                   ),
@@ -205,7 +205,7 @@ class _UserCharacteristicEditScreenState
                       children: [
                         Icon(userCharacteristicsList[index].characteristicIcon),
                         Text(
-                          userCharacteristicsList[index].characteristicName,
+                          userCharacteristicsList[index].characteristicName.call(),
                           style: GoogleFonts.lato(
                               fontSize: 60.sp, fontWeight: FontWeight.bold),
                         )
@@ -261,7 +261,7 @@ class _UserCharacteristicEditScreenState
                           Navigator.pop(context);
                         },
                         icon: Icon(Icons.arrow_back),
-                        label: Text("Atras")),
+                        label: Text(AppLocalizations.of(context)!.userCharacteristicsInput_back)),
                   ),
                 ],
               ),

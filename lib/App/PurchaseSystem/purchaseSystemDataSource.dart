@@ -9,7 +9,6 @@ import '../MainDatasource/principalDataSource.dart';
 import '../../../core/globalData.dart';
 import '../DataManager.dart';
 import '../../core/error/Exceptions.dart';
-import '../../core/platform/networkInfo.dart';
 
 abstract class PurchaseSystemDataSource
     implements DataSource, ModuleCleanerDataSource {
@@ -154,39 +153,31 @@ class PurchaseSystemDataSourceImplementation extends PurchaseSystemDataSource {
   }
 
   void sendData() {
-    if (product != null) {
-      purchaseSystemStream?.add({
-        "payloadType": "purchaseSystemEvent",
-        "isUserPremium": userIsAlreadyPremium,
-        "subscriptionStatus": source.getData["subscriptionStatus"],
-        "subscriptionId": source.getData["subscriptionId"],
-        "subscriptionExpirationTimestamp":
-            source.getData["subscriptionExpirationTimestamp"],
-        "productList": processOfferings(offerings: product)
-      });
-    } else {
-      purchaseSystemStream?.addError("No_products_found");
+    purchaseSystemStream?.add({
+      "payloadType": "purchaseSystemEvent",
+      "isUserPremium": userIsAlreadyPremium,
+      "subscriptionStatus": source.getData["subscriptionStatus"],
+      "subscriptionId": source.getData["subscriptionId"],
+      "subscriptionExpirationTimestamp":
+          source.getData["subscriptionExpiryDate"],
+      "productList": processOfferings(offerings: product)
+    });
     }
-  }
 
   @override
   void subscribeToMainDataSource() {
     sourceStreamSubscription = source.dataStream?.stream.listen((event) {
       userIsAlreadyPremium = event["isUserPremium"];
-      if (product != null) {
-        purchaseSystemStream?.add({
-          "payloadType": "purchaseSystemEvent",
-          "subscriptionStatus": event["subscriptionStatus"],
-          "subscriptionId": event["subscriptionId"],
-          "isUserPremium": userIsAlreadyPremium,
-          "subscriptionExpirationTimestamp":
-              event["subscriptionExpirationTimestamp"],
-          "productList": processOfferings(offerings: product)
-        });
-      } else {
-        purchaseSystemStream?.addError("No_products_found");
-      }
-    }, onError: (e) {
+      purchaseSystemStream?.add({
+        "payloadType": "purchaseSystemEvent",
+        "subscriptionStatus": event["subscriptionStatus"],
+        "subscriptionId": event["subscriptionId"],
+        "isUserPremium": userIsAlreadyPremium,
+        "subscriptionExpirationTimestamp":
+            event["subscriptionExpiryDate"],
+        "productList": processOfferings(offerings: product)
+      });
+        }, onError: (e) {
       purchaseSystemStream?.addError(e);
     });
   }

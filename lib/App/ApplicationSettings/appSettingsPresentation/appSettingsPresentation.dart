@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 enum AppSettingsScreenState { loading, loaded, error }
 
@@ -89,7 +90,7 @@ class AppSettingsPresentation extends ChangeNotifier
               function: () {
                 Navigator.pop(startKey.currentContext as BuildContext);
               },
-              text: "Cancelar"),
+              text: AppLocalizations.of(startKey.currentContext!)!.cancel),
           DialogOptions(
               function: () async {
                 var authSate1 = await appSettingsController.logOut();
@@ -99,20 +100,19 @@ class AppSettingsPresentation extends ChangeNotifier
                         context: startKey.currentContext);
                   } else {
                     PresentationDialogs.instance.showErrorDialog(
-                        title: "Error",
-                        content: "Error al intentar cerrar sesion",
+                        title: AppLocalizations.of(startKey.currentContext!)!.error,
+                        content: AppLocalizations.of(startKey.currentContext!)!.app_settings_logout_error,
                         context: startKey.currentContext);
                   }
                 }, (authResponseEnity) async {
-                  Dependencies.clearDependenciesAndUserIdentifiers();
                   Navigator.of(startKey.currentContext as BuildContext)
                       .popUntil((route) => route.isFirst);
                 });
               },
-              text: "Aceptar")
+              text: AppLocalizations.of(startKey.currentContext!)!.accept),
         ],
-        dialogTitle: "Cerrar sesion",
-        dialogText: "Quieres cerar sesión");
+        dialogTitle: AppLocalizations.of(startKey.currentContext!)!.log_out,
+        dialogText: AppLocalizations.of(startKey.currentContext!)!.really_want_to_log_out);
   }
 
   void deleteAccount() async {
@@ -123,7 +123,7 @@ class AppSettingsPresentation extends ChangeNotifier
               function: () {
                 Navigator.pop(startKey.currentContext as BuildContext);
               },
-              text: "Cancelar"),
+              text: AppLocalizations.of(startKey.currentContext!)!.cancel),
           DialogOptions(
               function: () async {
                 var authSate1 = await appSettingsController.deleteAccount();
@@ -133,8 +133,8 @@ class AppSettingsPresentation extends ChangeNotifier
                         context: startKey.currentContext);
                   } else {
                     PresentationDialogs.instance.showErrorDialog(
-                        title: "Error",
-                        content: "Error al intentar borrar usuario",
+                        title: AppLocalizations.of(startKey.currentContext!)!.error,
+                        content: AppLocalizations.of(startKey.currentContext!)!.app_settings_delete_user_error,
                         context: startKey.currentContext);
                   }
                 }, (authResponseEnity) async {
@@ -143,11 +143,11 @@ class AppSettingsPresentation extends ChangeNotifier
                       .popUntil((route) => route.isFirst);
                 });
               },
-              text: "Aceptar")
+              text: AppLocalizations.of(startKey.currentContext!)!.accept)
         ],
-        dialogTitle: "Borrar Usuario",
+        dialogTitle: AppLocalizations.of(startKey.currentContext!)!.app_settings_delete_user_dialog_title,
         dialogText:
-            "¿Estas seguro de que quieres eliminar tu cuenta?.\nTodos tus datos seran borrados permanentemente");
+            AppLocalizations.of(startKey.currentContext!)!.app_settings_delete_user_dialog_content);
   }
 
   void updateSettings(ApplicationSettingsEntity applicationSettingsEntity,
@@ -164,8 +164,8 @@ class AppSettingsPresentation extends ChangeNotifier
         } else {
           Future.delayed(Duration(milliseconds: 500), () {
             PresentationDialogs.instance.showErrorDialog(
-                title: "Error",
-                content: "No se han podido guardar los ajustes",
+                title: AppLocalizations.of(startKey.currentContext!)!.error,
+                content: AppLocalizations.of(startKey.currentContext!)!.app_settings_changes_could_not_be_saved,
                 context: startKey.currentContext);
           });
         }

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 
 import '../UserCreator/ProfileCharacteristicsEntity.dart';
 import '../../core/common/profileCharacteristics.dart';
@@ -9,7 +8,7 @@ import 'ProfileEntity.dart';
 class ProfileMapper {
   static List<Profile> fromMap(Map data) {
     List<Profile> profilesList = [];
-    List<dynamic> profilesFromBackend = jsonDecode(data["profilesList"]);
+    List<dynamic> profilesFromBackend = data["profilesList"];
 
     Map userData = data["userData"];
     for (int i = 0; i < profilesFromBackend.length; i++) {
@@ -25,12 +24,12 @@ class ProfileMapper {
           id: profilesFromBackend[i]["userId"],
           name: profilesFromBackend[i]["userName"],
           age: userAge,
-          profileImage1: profilesFromBackend[i]["userPicture1"],
-          profileImage2: profilesFromBackend[i]["userPicture2"],
-          profileImage3: profilesFromBackend[i]["userPicture3"],
-          profileImage4: profilesFromBackend[i]["userPicture4"],
-          profileImage5: profilesFromBackend[i]["userPicture5"],
-          profileImage6: profilesFromBackend[i]["userPicture6"],
+          profileImage1: jsonDecode(profilesFromBackend[i]["userPicture1"]),
+          profileImage2: jsonDecode(profilesFromBackend[i]["userPicture2"]),
+          profileImage3: jsonDecode(profilesFromBackend[i]["userPicture3"]),
+          profileImage4: jsonDecode(profilesFromBackend[i]["userPicture4"]),
+          profileImage5: jsonDecode(profilesFromBackend[i]["userPicture5"]),
+          profileImage6: jsonDecode(profilesFromBackend[i]["userPicture6"]),
           verified: false,
           distance: profilesFromBackend[i]["distance"],
           profileCharacteristics: characteristicsCoparationResults,

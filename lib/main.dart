@@ -3,6 +3,7 @@ import 'package:citasnuevo/Utils/appThemes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:giphy_get/l10n.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl_standalone.dart';
@@ -20,6 +21,7 @@ import 'App/UserCreator/userCreatorPresentation/Widgets/userCreatorScreen.dart';
 import 'App/UserSettings/userSettingsPresentation/userSettingsScreen.dart';
 import 'App/Verification/verificationPresentation/verificationScreen.dart';
 import 'core/dependencies/dependencyCreator.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 GlobalKey startKey = new GlobalKey();
 GlobalKey sanctionKey = new GlobalKey();
@@ -38,7 +40,7 @@ void main() async {
       options: FirebaseOptions(
           apiKey: "AIzaSyBm3rwlrV7qshSIgASobNLoeb5RgdwwSMI",
           appId: "1:151798284057:android:2f9b0eec10be91eb5e8f88",
-          messagingSenderId: "",
+          messagingSenderId: "151798284057",
           projectId: "hotty-189c7"));
 
 //FirebaseFunctions.instance.useFunctionsEmulator("localhost", 5001);
@@ -62,6 +64,17 @@ void main() async {
       ],
       child: MaterialApp(
         navigatorObservers: [routeObserver],
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          //   const Locale('en'), // English
+          const Locale('es', 'ES'), // Spanish
+        ],
+        locale: Locale(Intl.systemLocale),
         initialRoute: Start.routeName,
         theme: ligthThemeData,
         routes: {

@@ -105,7 +105,10 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
             ),
             bottomNavigationBar: BottomNavigationBar(
                 elevation: 0,
-                type: BottomNavigationBarType.shifting,
+                enableFeedback: true,
+                type: BottomNavigationBarType.fixed,
+                
+                showSelectedLabels: true,
                 key: PrincipalScreen.bottomNavigationKey,
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 currentIndex: _page,
@@ -118,7 +121,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                 items: <BottomNavigationBarItem>[
                   homeScreen(
                       icon: Icon(
-                    Icons.crop_square_outlined,
+                    Icons.home_outlined,
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
                   )),
                   reactionsButton(
@@ -130,7 +133,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                       reactionCount: principalScreenPresentation.newReactions),
                   chatButton(
                       icon: Icon(
-                        Icons.chat_bubble_outline,
+                        Icons.chat_bubble_outline_rounded,
                         color:
                             Theme.of(context).colorScheme.onSecondaryContainer,
                       ),

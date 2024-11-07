@@ -26,12 +26,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:notify_inapp/notify_inapp.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ChatListState { loading, ready, empty, error }
 
 enum BlindDateCreationState { loading, done }
 
 enum BlindDateRevelationState { loading, done }
+
+enum AdShowingState {
+  adLoading,
+  errorLoadingAd,
+  adShown,
+  adShowing,
+  adNotshowing
+}
 
 class ChatPresentation extends ChangeNotifier
     implements
@@ -47,12 +56,19 @@ class ChatPresentation extends ChangeNotifier
   List<Chat> chatListCache = [];
   late ChatListState chatListState = ChatListState.empty;
   BlindDateCreationState blindDateCreationState = BlindDateCreationState.done;
+  AdShowingState _adShowingstate = AdShowingState.adNotshowing;
+
   BlindDateRevelationState blindDateRevelationState =
       BlindDateRevelationState.done;
   String _currentOpenChat = kNotAvailable;
   get getCurrentOpenChat => this._currentOpenChat;
   int newChats = 0;
   int newMessages = 0;
+
+  set setAdShowingState(AdShowingState adShowingState) {
+    this._adShowingstate = adShowingState;
+    notifyListeners();
+  }
 
   set setCurrentOpenChat(currentOpenChat) {
     this._currentOpenChat = currentOpenChat;
@@ -193,16 +209,17 @@ class ChatPresentation extends ChangeNotifier
       if (failure is ChatFailure) {
         if (failure.message == "MESSAGE_QUEQUE_IS_NOT_EMPTY") {
           PresentationDialogs.instance.showErrorDialog(
-              title: "Error al enviar el mensaje",
-              content:
-                  "Tienes mensajes pendientes de ser enviados.\nQuizás se este enviando o haya habido un error en el envio",
+              title: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_error_sending_message,
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_messages_pending,
               context: startKey.currentContext);
         }
         if (failure.message == "INTERNAL_ERROR") {
           PresentationDialogs.instance.showErrorDialog(
-              title: "Error al enviar el mensaje",
-              content:
-                  "Si el problema continua cierre y vuelva a abrir la aplicacion o contacte con soporte",
+              title: AppLocalizations.of(startKey.currentContext!)!.error,
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_error_sending_message,
               context: startKey.currentContext);
         }
       }
@@ -228,8 +245,9 @@ class ChatPresentation extends ChangeNotifier
             .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            title: "Error",
-            content: "Error al intentar eliminar la conversacion",
+            title: AppLocalizations.of(startKey.currentContext!)!.error,
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .chat_presentation_error_deleting_conversation,
             context: startKey.currentContext);
       }
     }, (r) => null);
@@ -258,7 +276,6 @@ class ChatPresentation extends ChangeNotifier
       principalScreenNotifier?.close();
       principalScreenNotifier = null;
       principalScreenNotifier = StreamController();
-
       chatReportSendingState = ChatReportSendingState.notSended;
       chatListState = ChatListState.empty;
       setCurrentOpenChat = kNotAvailable;
@@ -300,7 +317,6 @@ class ChatPresentation extends ChangeNotifier
                 }
                 setChatListState = ChatListState.ready;
                 ChatScreen.chatListState.currentState?.insertItem(0);
-                ChatScreen.newChatListState.currentState?.insertItem(0);
               }
 
               if (chatListFromStream.isEmpty) {
@@ -359,11 +375,13 @@ class ChatPresentation extends ChangeNotifier
                   child: Column(
                     children: [
                       Text(
-                        "Nuevo mensaje",
+                        AppLocalizations.of(startKey.currentContext!)!
+                            .chat_presentation_new_message,
                         style: GoogleFonts.lato(fontSize: 60.sp),
                       ),
                       Text(
-                        "Nuevo mensaje sin leer",
+                        AppLocalizations.of(startKey.currentContext!)!
+                            .chat_presentation_new_unread_message,
                         style: GoogleFonts.lato(fontSize: 40.sp),
                       ),
                     ],
@@ -391,11 +409,13 @@ class ChatPresentation extends ChangeNotifier
                 child: Column(
                   children: [
                     Text(
-                      "Nueva conversacion",
+                      AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_new_conversation_title,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),
                     Text(
-                      "Tienes una nueva conversacion",
+                      AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_new_conversation,
                       style: GoogleFonts.lato(fontSize: 40.sp),
                     ),
                   ],
@@ -536,16 +556,17 @@ class ChatPresentation extends ChangeNotifier
       } else {
         if (l.message == "LOW_MESSAGES_COUNT") {
           PresentationDialogs.instance.showErrorDialog(
-              title: "Pocos mensajes",
-              content:
-                  "Necesitais 20 mensajes o mas para revelar vuestra identidad",
+              title: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_few_messages,
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_reveal_identity_error,
               context: startKey.currentContext);
         }
         if (l.message == "INTERNAL_ERROR") {
           PresentationDialogs.instance.showErrorDialog(
-              title: "Error de servidor",
-              content:
-                  "No podemos realizar la operacion intentalo de nuevo mas tarde, si el problema persiste contacta con soporte",
+              title: AppLocalizations.of(startKey.currentContext!)!.error,
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_problem_continues,
               context: startKey.currentContext);
         }
       }
@@ -555,102 +576,250 @@ class ChatPresentation extends ChangeNotifier
 
   void createBlindDate() async {
     setBlindDateCreationState = BlindDateCreationState.loading;
-    var result = await chatController.createBlindDate();
 
-    result.fold((fail) {
-      if (fail is NetworkFailure) {
-        PresentationDialogs.instance
-            .showNetworkErrorDialog(context: startKey.currentContext);
-      }
-      if (fail is LocationServiceFailure) {
-        if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {
-          PresentationDialogs.instance.showErrorDialogWithOptions(
-              dialogOptionsList: [
-                DialogOptions(
-                    function: () {
-                      openLocationSettings();
-                      Navigator.pop(startKey.currentContext as BuildContext);
-                    },
-                    text: "Dar permiso de ubicacion"),
-                DialogOptions(
-                    function: () =>
-                        Navigator.pop(startKey.currentContext as BuildContext),
-                    text: "Ahora no")
-              ],
-              dialogTitle: "Permiso de localizacion",
-              dialogText:
-                  "Es necesario saber tu ubicaciòn para encontrarte citas a ciegas cerca de ti, dirigete a 'ajuses' para darnos permiso",
-              context: startKey.currentContext);
-        }
-
-        if (fail.message == "LOCATION_PERMISSION_DENIED") {
-          PresentationDialogs.instance.showErrorDialogWithOptions(
-              dialogOptionsList: [
-                DialogOptions(
-                    function: () {
-                      openLocationSettings();
-                      Navigator.pop(startKey.currentContext as BuildContext);
-                    },
-                    text: "Dar permiso de ubicacion"),
-                DialogOptions(
-                    function: () =>
-                        Navigator.pop(startKey.currentContext as BuildContext),
-                    text: "Ahora no")
-              ],
-              dialogTitle: "Ir a ajustes",
-              dialogText:
-                  "Es necesario saber tu ubicaciòn para encontrarte citas a ciegas cerca de ti, dirigete a 'ajuses' para darnos permiso",
-              context: startKey.currentContext);
-        }
-
-        if (fail.message == "UNABLE_TO_DETERMINE_LOCATION_STATUS") {
-          PresentationDialogs.instance.showErrorDialog(
-              title: "Error",
-              content:
-                  "Tenemos problemas para acceder a tu ubicacion, verifica que tu ubicacion esta activada ae intentalo de nuevo ",
-              context: startKey.currentContext);
-        }
-        if (fail.message == "LOCATION_SERVICE_DISABLED") {
-          PresentationDialogs.instance.showErrorDialog(
-              title: "Activar ubicacion",
-              content:
-                  "Parece que tu ubicacion esta desactvada, activala para que puedas hablar con algien cercano a ti ",
-              context: startKey.currentContext);
-        }
-      }
-      if (fail is ChatFailure) {
-        if (fail.message == "NO_USERS_FOUND") {
-          PresentationDialogs.instance.showErrorDialog(
-              title: "Error",
-              content:
-                  "No se han encontrado usuarios disponibles en este momento",
-              context: startKey.currentContext);
+    if (chatController.isUserPremium == false) {
+      var adResult = await chatController.showRewarded();
+      adResult.fold((l) {
+        if (l is NetworkFailure) {
+          PresentationDialogs.instance
+              .showNetworkErrorDialog(context: startKey.currentContext);
         } else {
           PresentationDialogs.instance.showErrorDialog(
-              title: "Error",
-              content: "No se puede crear una cita a ciegas en este momento",
-              context: startKey.currentContext);
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .chat_presentation_error_creating_blind_date,
+              context: startKey.currentContext,
+              title: AppLocalizations.of(startKey.currentContext!)!.error);
         }
-      }
-    }, (r) => null);
-    setBlindDateCreationState = BlindDateCreationState.done;
+      }, (r) async {
+        if (chatController.rewardedAdvertismentStateStream != null) {
+          setAdShowingState = AdShowingState.adLoading;
+
+          await for (Map<String, dynamic> event
+              in chatController.rewardedAdvertismentStateStream.stream) {
+            if (event["status"] == "FAILED") {
+              setAdShowingState = AdShowingState.errorLoadingAd;
+            }
+            if (event["status"] == "CLOSED") {
+              setAdShowingState = AdShowingState.adShown;
+            }
+            if (event["status"] == "EXPIRED") {
+              setAdShowingState = AdShowingState.errorLoadingAd;
+            }
+            if (event["status"] == "NOT_READY") {
+              setAdShowingState = AdShowingState.errorLoadingAd;
+            }
+            if (event["status"] == "SHOWING") {
+              setAdShowingState = AdShowingState.adShowing;
+            }
+            chatController.closeAdsStreams();
+            setAdShowingState = AdShowingState.adNotshowing;
+
+            var result = await chatController.createBlindDate();
+
+            result.fold((fail) {
+              if (fail is NetworkFailure) {
+                PresentationDialogs.instance
+                    .showNetworkErrorDialog(context: startKey.currentContext);
+              }
+              if (fail is LocationServiceFailure) {
+                if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {
+                  PresentationDialogs.instance.showErrorDialogWithOptions(
+                      dialogOptionsList: [
+                        DialogOptions(
+                            function: () {
+                              openLocationSettings();
+                              Navigator.pop(
+                                  startKey.currentContext as BuildContext);
+                            },
+                            text: AppLocalizations.of(startKey.currentContext!)!
+                                .chat_presentation_give_location_permission),
+                        DialogOptions(
+                            function: () => Navigator.pop(
+                                startKey.currentContext as BuildContext),
+                            text: AppLocalizations.of(startKey.currentContext!)!
+                                .cancel)
+                      ],
+                      dialogTitle:
+                          AppLocalizations.of(startKey.currentContext!)!
+                              .chat_presentation_give_location_permission,
+                      dialogText: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_give_location_permission,
+                      context: startKey.currentContext);
+                }
+
+                if (fail.message == "LOCATION_PERMISSION_DENIED") {
+                  PresentationDialogs.instance.showErrorDialogWithOptions(
+                      dialogOptionsList: [
+                        DialogOptions(
+                            function: () {
+                              openLocationSettings();
+                              Navigator.pop(
+                                  startKey.currentContext as BuildContext);
+                            },
+                            text: AppLocalizations.of(startKey.currentContext!)!
+                                .chat_presentation_give_location_permission),
+                        DialogOptions(
+                            function: () => Navigator.pop(
+                                startKey.currentContext as BuildContext),
+                            text: AppLocalizations.of(startKey.currentContext!)!
+                                .cancel)
+                      ],
+                      dialogTitle:
+                          AppLocalizations.of(startKey.currentContext!)!
+                              .home_screen_location_go_to_settings_button,
+                      dialogText: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_location_needed,
+                      context: startKey.currentContext);
+                }
+
+                if (fail.message == "UNABLE_TO_DETERMINE_LOCATION_STATUS") {
+                  PresentationDialogs.instance.showErrorDialog(
+                      title:
+                          AppLocalizations.of(startKey.currentContext!)!.error,
+                      content: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_location_access_error,
+                      context: startKey.currentContext);
+                }
+                if (fail.message == "LOCATION_SERVICE_DISABLED") {
+                  PresentationDialogs.instance.showErrorDialog(
+                      title:
+                          AppLocalizations.of(startKey.currentContext!)!.error,
+                      content: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_location_disabled,
+                      context: startKey.currentContext);
+                }
+              }
+              if (fail is ChatFailure) {
+                if (fail.message == "NO_USERS_FOUND") {
+                  PresentationDialogs.instance.showErrorDialog(
+                      title:
+                          AppLocalizations.of(startKey.currentContext!)!.error,
+                      content: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_no_users,
+                      context: startKey.currentContext);
+                } else {
+                  PresentationDialogs.instance.showErrorDialog(
+                      title:
+                          AppLocalizations.of(startKey.currentContext!)!.error,
+                      content: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_blind_date_error_no_users_found,
+                      context: startKey.currentContext);
+                }
+              }
+            }, (r) => null);
+            setBlindDateCreationState = BlindDateCreationState.done;
+          }
+        }
+      });
+    }
+    if (chatController.isUserPremium) {
+      var result = await chatController.createBlindDate();
+
+      result.fold((fail) {
+        if (fail is NetworkFailure) {
+          PresentationDialogs.instance
+              .showNetworkErrorDialog(context: startKey.currentContext);
+        }
+        if (fail is LocationServiceFailure) {
+          if (fail.message == "LOCATION_PERMISSION_DENIED_FOREVER") {
+            PresentationDialogs.instance.showErrorDialogWithOptions(
+                dialogOptionsList: [
+                  DialogOptions(
+                      function: () {
+                        openLocationSettings();
+                        Navigator.pop(startKey.currentContext as BuildContext);
+                      },
+                      text: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_give_location_permission),
+                  DialogOptions(
+                      function: () => Navigator.pop(
+                          startKey.currentContext as BuildContext),
+                      text:
+                          AppLocalizations.of(startKey.currentContext!)!.cancel)
+                ],
+                dialogTitle: AppLocalizations.of(startKey.currentContext!)!
+                    .location_permission,
+                dialogText: AppLocalizations.of(startKey.currentContext!)!
+                    .chat_presentation_location_needed,
+                context: startKey.currentContext);
+          }
+
+          if (fail.message == "LOCATION_PERMISSION_DENIED") {
+            PresentationDialogs.instance.showErrorDialogWithOptions(
+                dialogOptionsList: [
+                  DialogOptions(
+                      function: () {
+                        openLocationSettings();
+                        Navigator.pop(startKey.currentContext as BuildContext);
+                      },
+                      text: AppLocalizations.of(startKey.currentContext!)!
+                          .chat_presentation_give_location_permission),
+                  DialogOptions(
+                      function: () => Navigator.pop(
+                          startKey.currentContext as BuildContext),
+                      text:
+                          AppLocalizations.of(startKey.currentContext!)!.cancel)
+                ],
+                dialogTitle: AppLocalizations.of(startKey.currentContext!)!
+                    .home_screen_location_go_to_settings_button,
+                dialogText: AppLocalizations.of(startKey.currentContext!)!
+                    .chat_presentation_location_needed,
+                context: startKey.currentContext);
+          }
+
+          if (fail.message == "UNABLE_TO_DETERMINE_LOCATION_STATUS") {
+            PresentationDialogs.instance.showErrorDialog(
+                title: AppLocalizations.of(startKey.currentContext!)!.error,
+                content: AppLocalizations.of(startKey.currentContext!)!
+                    .location_undefined,
+                context: startKey.currentContext);
+          }
+          if (fail.message == "LOCATION_SERVICE_DISABLED") {
+            PresentationDialogs.instance.showErrorDialog(
+                title: AppLocalizations.of(startKey.currentContext!)!
+                    .chat_presentation_enable_location,
+                content: AppLocalizations.of(startKey.currentContext!)!
+                    .chat_presentation_location_disabled,
+                context: startKey.currentContext);
+          }
+        }
+        if (fail is ChatFailure) {
+          if (fail.message == "NO_USERS_FOUND") {
+            PresentationDialogs.instance.showErrorDialog(
+                title: AppLocalizations.of(startKey.currentContext!)!.error,
+                content: AppLocalizations.of(startKey.currentContext!)!
+                    .chat_presentation_blind_date_error_no_users_found,
+                context: startKey.currentContext);
+          } else {
+            PresentationDialogs.instance.showErrorDialog(
+                title: AppLocalizations.of(startKey.currentContext!)!.error,
+                content: AppLocalizations.of(startKey.currentContext!)!
+                    .chat_presentation_blind_date_error_no_users_found,
+                context: startKey.currentContext);
+          }
+        }
+      }, (r) => null);
+      setBlindDateCreationState = BlindDateCreationState.done;
+    }
   }
 
   void openLocationSettings() async {
     var result = await chatController.goToLocationSettings();
     result.fold((failure) {
       PresentationDialogs.instance.showErrorDialog(
-          title: "No se puede acceder a los ajustes de ubicacion",
-          content:
-              "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
+          title: AppLocalizations.of(startKey.currentContext!)!
+              .location_settings_cannot_open_location_settings,
+          content: AppLocalizations.of(startKey.currentContext!)!
+              .location_settings_cannot_open_location_settings_message,
           context: startKey.currentContext);
     }, (succes) {
       if (succes == true) {
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            title: "No se puede acceder a los ajustes de ubicacion",
-            content:
-                "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
+            title: AppLocalizations.of(startKey.currentContext!)!
+                .location_settings_cannot_open_location_settings,
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .location_settings_cannot_open_location_settings_message,
             context: startKey.currentContext);
       }
     });

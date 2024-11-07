@@ -1,7 +1,5 @@
 import '../../core/error/Failure.dart';
-import '../../core/params_types/params_and_types.dart';
 import '../controllerDef.dart';
-import 'AuthScreenEntity.dart';
 import '../DataManager.dart';
 import 'authRepo.dart';
 import 'package:dartz/dartz.dart';

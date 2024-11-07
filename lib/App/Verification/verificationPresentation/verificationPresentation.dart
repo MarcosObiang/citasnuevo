@@ -5,11 +5,9 @@ import 'package:flutter/material.dart';
 
 import '../../DataManager.dart';
 import '../../../Utils/presentationDef.dart';
-import '../../../core/params_types/params_and_types.dart';
 import '../../../main.dart';
 import '../VerificationTicketEntity.dart';
 import '../verificationController.dart';
-import 'verificationScreen.dart';
 
 enum VerificationScreenState {
   LOADING,

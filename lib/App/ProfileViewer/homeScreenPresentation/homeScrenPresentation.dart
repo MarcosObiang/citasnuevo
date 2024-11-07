@@ -14,6 +14,7 @@ import '../ProfileEntity.dart';
 import '../homeScreenController.dart';
 import 'Screens/HomeScreen.dart';
 import 'Widgets/profileWidget.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 class HomeScreenPresentation extends ChangeNotifier
     implements
@@ -73,8 +74,8 @@ class HomeScreenPresentation extends ChangeNotifier
   ///
   ///constrains: to remove the reaction from the animated list, we need the reaction card size
 
-  void sendReaction(ReactionType reactionType, int listIndex,
-      BoxConstraints constraints) async {
+  void sendReaction(
+      int reactionValue, int listIndex, BoxConstraints constraints) async {
     Profile removedProfile =
         homeScreenController.removeProfileFromList(profileIndex: listIndex);
 
@@ -93,7 +94,7 @@ class HomeScreenPresentation extends ChangeNotifier
       getProfiles();
     }
     var result = await homeScreenController.sendRating(
-        reactionType: reactionType, idProfileRated: removedProfile.id);
+        reactionValue: reactionValue, idProfileRated: removedProfile.id);
     result.fold((failure) {
       homeScreenController.insertAtList(profile: removedProfile);
       HomeAppScreen.profilesKey.currentState?.insertItem(0);
@@ -103,8 +104,9 @@ class HomeScreenPresentation extends ChangeNotifier
             .showNetworkErrorDialog(context: startKey.currentContext);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            title: "Error",
-            content: "Error enviar reaccion",
+            title: AppLocalizations.of(startKey.currentContext!)!.error,
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .error_sending_reaction,
             context: startKey.currentContext);
       }
     }, (succes) {});
@@ -130,28 +132,25 @@ class HomeScreenPresentation extends ChangeNotifier
       } else {
         if (succes == LocationPermission.deniedForever) {
           profileListState = ProfileListState.location_forever_denied;
-          print("LOCATION_PERMISSION_DENIED_FOREVER");
           PresentationDialogs.instance.showErrorDialog(
-              title: "Permiso de localizacion",
-              content:
-                  "La aplicacion no tiene permiso para acceder su ubicacion",
+              title: AppLocalizations.of(startKey.currentContext!)!
+                  .location_permission,
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .location_permission_error_permission_denied,
               context: startKey.currentContext);
         }
 
         if (succes == LocationPermission.denied) {
           profileListState = ProfileListState.location_denied;
           PresentationDialogs.instance.showErrorDialog(
-              title: "Permiso de localizacion",
-              content:
-                  "La aplicacion no tiene permiso para acceder su ubicacion",
+              title: AppLocalizations.of(startKey.currentContext!)!
+                  .location_permission,
+              content: AppLocalizations.of(startKey.currentContext!)!
+                  .location_permission_error_permission_denied,
               context: startKey.currentContext);
-
-          print("LOCATION_PERMISSION_DENIED");
         }
 
-        if (succes == LocationPermission.unableToDetermine) {
-          print("UNABLE_TO_DETERMINE_LOCATION_STATUS");
-        }
+        if (succes == LocationPermission.unableToDetermine) {}
       }
     });
   }
@@ -166,17 +165,17 @@ class HomeScreenPresentation extends ChangeNotifier
     var result = await homeScreenController.goToLocationSettings();
     result.fold((failure) {
       PresentationDialogs.instance.showErrorDialog(
-          title: "No se puede acceder a los ajustes de ubicacion",
-          content:
-              "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
+          title: AppLocalizations.of(startKey.currentContext!)!.error,
+          content: AppLocalizations.of(startKey.currentContext!)!
+              .location_settings_cannot_open_location_settings_message,
           context: startKey.currentContext);
     }, (succes) {
       if (succes == true) {
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            title: "No se puede acceder a los ajustes de ubicacion",
-            content:
-                "Debes ir manualmente a los ajustes de localizacion de tu telefono y dar permiso a Hotty",
+            title: AppLocalizations.of(startKey.currentContext!)!.error,
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .location_settings_cannot_open_location_settings_message,
             context: startKey.currentContext);
       }
     });
@@ -208,9 +207,9 @@ class HomeScreenPresentation extends ChangeNotifier
         if (fail.message == "LOCATION_PERMISSION_DENIED") {
           profileListState = ProfileListState.location_denied;
           PresentationDialogs.instance.showErrorDialog(
-              title: "Permiso de localizacion",
+              title: AppLocalizations.of(startKey.currentContext!)!.error,
               content:
-                  "La aplicacion no tiene permiso para acceder su ubicacion",
+                  AppLocalizations.of(startKey.currentContext!)!.location_permission_error_permission_denied,
               context: startKey.currentContext);
         }
 
@@ -271,7 +270,40 @@ class HomeScreenPresentation extends ChangeNotifier
       if (event.information["reaction"] != null) {
         setNewreactions = event.information["reaction"];
       }
+      if (event.information["new_chat"] != null) {
+        checkIfChatUserIsInProfileList(id: event.information["new_chat"]);
+      }
+      if (event.information["user_reported"] != null) {
+        checkIfChatUserIsInProfileList(id: event.information["user_reported"]);
+      }
     });
+  }
+
+  void checkIfChatUserIsInProfileList({required String id}) {
+    int result = homeScreenController.profilesList
+        .indexWhere((element) => element.id == id);
+    if (result > -1) {
+      if (result == 0 && homeScreenController.profilesList.isNotEmpty) {
+        HomeAppScreen.profilesKey.currentState?.removeItem(
+            result,
+            (context, animation) => ProfileWidget(
+                  profile: homeScreenController.profilesList[result],
+                  boxConstraints: HomeAppScreen.boxConstraintsProfileWidget,
+                  listIndex: result,
+                  needRatingWidget: true,
+                  showDistance: true,
+                ),
+            duration: Duration(milliseconds: 100));
+        homeScreenController.removeProfileFromList(profileIndex: result);
+
+        getProfiles();
+      }
+
+      if (result > 0) {
+        homeScreenController.removeProfileFromList(profileIndex: result);
+        getProfiles();
+      }
+    }
   }
 
   @override

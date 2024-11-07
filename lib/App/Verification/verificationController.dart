@@ -7,7 +7,6 @@ import '../DataManager.dart';
 import '../controllerDef.dart';
 import '../../core/error/Failure.dart';
 import 'VerificationTicketEntity.dart';
-import 'VerificationTicketMapper.dart';
 import 'verificationRepository.dart';
 
 abstract class VerificationController

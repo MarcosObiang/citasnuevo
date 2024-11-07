@@ -1,5 +1,3 @@
-
-
 import '../UserCreator/ProfileCharacteristicsEntity.dart';
 
 class Profile {
@@ -12,7 +10,6 @@ class Profile {
   Map profileImage4;
   Map profileImage5;
   Map profileImage6;
-  
   bool verified;
   num distance;
   String bio;
@@ -31,4 +28,5 @@ class Profile {
     required this.verified,
     required this.distance,
     required this.bio,
-  });}
+  });
+}

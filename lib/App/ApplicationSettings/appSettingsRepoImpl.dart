@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:async/async.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../core/error/Exceptions.dart';
 import '../../core/error/Failure.dart';
 import '../../core/params_types/params_and_types.dart';
 import '../../core/platform/networkInfo.dart';
-import 'AplicationDataSettingsMapper.dart';
 import 'ApplicationSettingsDataSource.dart';
 import 'ApplicationSettingsEntity.dart';
 import 'appSettingsRepo.dart';

@@ -4,18 +4,13 @@ import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../core/globalData.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
-import '../../core/common/commonUtils/getUserImage.dart';
-import '../../core/common/commonUtils/idGenerator.dart';
-import '../../core/common/profileCharacteristics.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/params_types/params_and_types.dart';
-import '../../core/platform/networkInfo.dart';
 import 'UserSettingsEntity.dart';
 
 abstract class UserSettingsDataSource
@@ -96,94 +91,76 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
   @override
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
-      if (GlobalDataContainer.userId != null) {
-        try {
-          Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
-          Functions functions = Functions(Dependencies.serverAPi.client!);
-          // var data = await UserSettingsMapper.toMap(userSettingsEntity);
+    /*if (await Dependencies.networkInfoContract.isConnected) {
+      try {
+        // var data = await UserSettingsMapper.toMap(userSettingsEntity);
 
-          List<Map<String, dynamic>> pictureData = data["images"];
+        List<Map<String, dynamic>> pictureData = data["images"];
 
-          String userBio = data["userBio"];
+        String userBio = data["userBio"];
 
-          for (int i = 0; i < pictureData.length; i++) {
-            UserPicutreBoxState userPicutreBoxState = pictureData[i]["type"];
-            String pictureIndex = pictureData[i]["index"];
+        for (int i = 0; i < pictureData.length; i++) {
+          UserPicutreBoxState userPicutreBoxState = pictureData[i]["type"];
+          String pictureIndex = pictureData[i]["index"];
 
-            if (userPicutreBoxState == UserPicutreBoxState.pictureFromBytes) {
-              Uint8List imageFile = pictureData[i]["data"];
-              String pictureHash = pictureData[i]["hash"];
+          if (userPicutreBoxState == UserPicutreBoxState.pictureFromBytes) {
+            Uint8List imageFile = pictureData[i]["data"];
 
-              File result = await appwriteStorage.createFile(
-                  bucketId: "63712fd65399f32a5414",
-                  fileId: "${GlobalDataContainer.userId}_image$pictureIndex",
-                  file: InputFile(
-                      bytes: imageFile,
-                      filename:
-                          "${GlobalDataContainer.userId}_image$pictureIndex.jpg"));
-              String downloadUrl = result.$id;
+            var imageData = base64Encode(imageFile);
 
-              data["userPicture$pictureIndex"] = jsonEncode({
-                "imageId": downloadUrl,
-                "hash": pictureHash,
-                "index": pictureIndex,
-                "removed": false,
-              });
-            }
-
-            if (userPicutreBoxState == UserPicutreBoxState.pictureFromNetwork) {
-              Uint8List imageFile = pictureData[i]["data"];
-              String pictureHash = pictureData[i]["hash"];
-              File result = await appwriteStorage.createFile(
-                  bucketId: "63712fd65399f32a5414",
-                  fileId: "${GlobalDataContainer.userId}_image$pictureIndex",
-                  file: InputFile(
-                      bytes: imageFile,
-                      filename:
-                          "${GlobalDataContainer.userId}_image$pictureIndex.jpg"));
-              String downloadUrl = result.$id;
-
-              data["userPicture$pictureIndex"] = jsonEncode({
-                "imageId": downloadUrl,
-                "hash": pictureHash,
-                "index": pictureIndex,
-                "removed": false,
-              });
-            }
-            if (userPicutreBoxState == UserPicutreBoxState.empty) {
-              data["userPicture$pictureIndex"] = jsonEncode({
-                "imageId": "empty",
-                "hash": "empty",
-                "index": pictureIndex,
-                "removed": true,
-              });
-            }
+            data["userPicture$pictureIndex"] = jsonEncode({
+              "imageData": imageData,
+              "index": pictureIndex,
+              "removed": false,
+            });
           }
-          data.remove("images");
 
-          data["userId"] = GlobalDataContainer.userId;
-          Execution execution = await functions.createExecution(
-              functionId: "updateUserData", data: jsonEncode(data));
+          if (userPicutreBoxState == UserPicutreBoxState.pictureFromNetwork) {
+            Uint8List imageFile = pictureData[i]["data"];
+            var imageData = base64Encode(imageFile);
 
-          if (execution.statusCode == 200) {
-            return true;
-          } else {
-            _addData(data: source.getData);
-
-            throw UserSettingsException(message: "function_error");
+            data["userPicture$pictureIndex"] = jsonEncode({
+              "imageData": imageData,
+              "index": pictureIndex,
+              "removed": false,
+            });
           }
-        } catch (e) {
-          _addData(data: source.getData);
-          throw UserSettingsException(message: e.toString());
+          if (userPicutreBoxState == UserPicutreBoxState.empty) {
+            data["userPicture$pictureIndex"] = jsonEncode({
+              "imageData": "NOT_AVAILABLE",
+              "index": pictureIndex,
+              "removed": true,
+            });
+          }
         }
-      } else {
-        throw UserSettingsException(message: kUserIdNullError);
+        data.remove("images");
+
+        data["userId"] = GlobalDataContainer.userId;
+
+        final response = await Dependencies
+            .serverAPi.app!.currentUser!.functions
+            .call("updateUserData", [jsonEncode(data)]);
+
+        var responseParsed = jsonDecode(response);
+
+        int status = responseParsed["executionCode"];
+        String message = responseParsed["message"];
+
+        if (status == 200) {
+          return true;
+        } else {
+          _addData(data: source.getData);
+
+          throw UserSettingsException(message: message);
+        }
+      } catch (e) {
+        _addData(data: source.getData);
+        throw UserSettingsException(message: e.toString());
       }
     } else {
       _addData(data: source.getData);
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/ return true;
   }
 
   @override

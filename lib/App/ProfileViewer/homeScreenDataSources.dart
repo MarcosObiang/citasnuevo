@@ -9,7 +9,6 @@ import '../../core/error/Exceptions.dart';
 import '../../core/globalData.dart';
 import '../../core/location_services/locatio_service.dart';
 import '../MainDatasource/principalDataSource.dart';
-import '../../core/platform/networkInfo.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
@@ -42,7 +41,7 @@ abstract class HomeScreenDataSource
   /// Sends the profile rating the user has given to a profile
   ///
   Future<void> sendRating(
-      {required ReactionType reactionType, required String idProfileRated});
+      {required int reactionValue, required String idProfileRated});
 
   Future<bool> setConsent({required bool cosent});
 }
@@ -61,36 +60,36 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   Future<Map<dynamic, dynamic>> _callProfilesFromTheServer({
     required Map<String, dynamic> positionData,
   }) async {
-    Map<dynamic, dynamic> functionResult = Map();
+   /* Map<dynamic, dynamic> functionResult = Map();
 
-    String profilesCache;
-    Functions functions = Functions(Dependencies.serverAPi.client!);
+    List<dynamic> profilesCache;
 
-    Execution execution = await functions.createExecution(
-        functionId: "fetchUserProfiles",
-        data: jsonEncode({
-          "lat": positionData["lat"],
-          "lon": positionData["lon"],
-          "distance": 6,
-          "userId": GlobalDataContainer.userId
-        }));
+    final response = await Dependencies.serverAPi.app!.currentUser!.functions
+        .call("fetchProfiles", [
+      jsonEncode({
+        "lat": positionData["lat"],
+        "distance": 60,
+        "lon": positionData["lon"],
+        "userId": GlobalDataContainer.userId
+      })
+    ]);
 
-    if (jsonDecode(execution.response)["status"] == "correct") {
-      profilesCache = jsonDecode(execution.response)["payload"];
+    if (jsonDecode(response)["executionCode"] == 200) {
+      profilesCache = jsonDecode(response)["payload"];
 
       functionResult["userData"] = source.getData;
       functionResult["profilesList"] = profilesCache;
       functionResult["todayDateTime"] = DateTime.now();
       return functionResult;
-    } else if (execution.status == "error") {
-      if (execution.status == "error_perfil_invisible") {
+    } else if (response.status == "error") {
+      if (response.status == "error_perfil_invisible") {
         throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
       } else {
         throw FetchProfilesException(message: "INTERNAL_ERROR");
       }
     } else {
       throw FetchProfilesException(message: "PROFILES_FETCHING_FAILED");
-    }
+    }*/ return {};
   }
 
   /// Fetch profiles from the backend, make sure to call [subscribeToMainDataSource] first in the same object
@@ -137,23 +136,27 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
 
   @override
   Future<void> sendRating(
-      {required ReactionType reactionType,
+      {required int reactionValue,
       required String idProfileRated}) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+   /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-
-        Execution execution = await functions.createExecution(
-            functionId: "rateUsers",
-            data: jsonEncode({
-              "recieverId": idProfileRated,
-              "senderName": dataSourceStreamData["userName"],
-              "userId": dataSourceStreamData["userId"],
-              "reactionType": reactionType.name,
-            }));
-        int statusCode = (jsonDecode(execution.response))["status"];
+        final response = await Dependencies
+            .serverAPi.app!.currentUser!.functions
+            .call("rateUsers", [
+          jsonEncode({
+            "recieverId": idProfileRated,
+            "senderName": dataSourceStreamData["userName"],
+            "userId": dataSourceStreamData["userId"],
+            "reactionValue": reactionValue,
+          })
+        ]);
+var responseParsed = jsonDecode(response);
+        int statusCode = responseParsed["executionCode"];
+        String message = responseParsed["message"];
         if (statusCode != 200) {
-          throw Exception();
+          throw Exception(message
+          
+          );
         }
       } catch (e) {
         if (e is AppwriteException) {
@@ -165,7 +168,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
   }
 
   @override
@@ -212,16 +215,16 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   Future<bool> setConsent({required bool cosent}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
+       /* Functions functions = Functions(Dependencies.serverAPi.client!);
 
         Execution execution = await functions.createExecution(
             functionId: "setAdConsentStatus",
-            data: jsonEncode({
+            body: jsonEncode({
               "userHasGivenConsent": cosent,
               "userId": GlobalDataContainer.userId
-            }));
+            }));*/
 
-        int status = jsonDecode(execution.response)["status"];
+        int status = 200;
 
         if (status != 200) {
           throw Exception(["FAILED"]);

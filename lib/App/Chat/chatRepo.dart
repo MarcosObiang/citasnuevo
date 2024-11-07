@@ -16,6 +16,7 @@ abstract class ChatRepository implements ModuleCleanerRepository, StreamParser {
   Future<Either<Failure, bool>> initializeMessageListener();
   Future<Either<Failure, List<Message>>> loadMoreMessages(
       {required String chatId, required String lastMessageId});
+   bool get isUserPremium;
   Future<Either<Failure, Profile>> getUserProfile(
       {required String profileId, required String chatId});
   Future<Either<Failure, bool>> deleteChat(
@@ -29,10 +30,14 @@ abstract class ChatRepository implements ModuleCleanerRepository, StreamParser {
       required String messageNotificationToken,
       required String remitentId});
   Future<Either<Failure, bool>> messagesSeen({
-    required List<String> messaagesIds,
+    required List<Message> messaages,
   });
   Future<Either<Failure, bool>> createBlindDate();
   Future<Either<Failure, Uint8List?>> getImage();
   Future<Either<Failure, bool>> goToAppSettings();
   Future<Either<Failure, bool>> revealBlindDate({required String chatId});
+
+  Future<Either<Failure, bool>> showRewarded();
+  StreamController<Map<String, dynamic>> get rewardedStatusListener;
+  void closeAdsStreams();
 }

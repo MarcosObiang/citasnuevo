@@ -23,7 +23,8 @@ class ReactionMapper implements Mapper<Reaction> {
           idReaction: data["reactionId"],
           reactionRevealigState: revealed
               ? ReactionRevealigState.revealed
-              : ReactionRevealigState.notRevealed);
+              : ReactionRevealigState.notRevealed,
+          reactionValue: data["reactionValue"]);
     } else {
       return Reaction(
           userBlocked: data["userBlocked"],
@@ -35,11 +36,12 @@ class ReactionMapper implements Mapper<Reaction> {
           imageHash: "",
           imageUrl: {"imageId": null},
           name: "",
-          senderId: "",
+          senderId: data["senderId"],
           idReaction: data["reactionId"],
           reactionRevealigState: revealed
               ? ReactionRevealigState.revealed
-              : ReactionRevealigState.notRevealed);
+              : ReactionRevealigState.notRevealed,
+          reactionValue: data["reactionValue"]);
     }
   }
 

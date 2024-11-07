@@ -134,7 +134,7 @@ class UserCreatorMapper {
             userHasValue: true,
             positionIndex: i,
             valuesList: kProfileCharacteristics_ES[i].entries.first.value,
-            characteristicName: kProfileCharacteristics_ES[i].entries.first.key,
+            characteristicName: kProfileCharacteristicsNames_ES[i].values.first,
             characteristicValue: kProfileCharacteristics_ES[i]
                 .entries
                 .first

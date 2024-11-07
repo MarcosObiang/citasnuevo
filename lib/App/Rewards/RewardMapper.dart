@@ -12,10 +12,10 @@ class RewardMapper{
       coins: data["userCoins"],
       promotionalCodeUsedByUser:data["promotionalCodeUsedByUser"] ,
       rewardTicketSuccesfulShares:data["rewardTicketSuccesfulShares"] ,
-            timeUntilDailyReward: data["nextRewardTimestamp"],
+            timeUntilDailyReward: data["nextRewardDate"],
             waitingFirstReward: data["giveFirstReward"],
-            promotionalCodePendingOfUse:  data["promotionalCodePendingOfUse"],
+            promotionalCodePendingOfUse:  data["isUserPromotionalCodeUsed"],
             rewardForVerificationRigth: false,
-            waitingReward: data["waitingReward"]);
+            waitingReward: data["waitingRewards"]);
   }
 }

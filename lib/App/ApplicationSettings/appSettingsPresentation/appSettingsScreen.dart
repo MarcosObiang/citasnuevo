@@ -10,7 +10,7 @@ import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../main.dart';
 import '../ApplicationSettingsEntity.dart';
 import 'appSettingsPresentation.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class AppSettingsScreen extends StatefulWidget {
   const AppSettingsScreen();
 
@@ -68,7 +68,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("¿Guardar cambios?"),
+                  title: Text(AppLocalizations.of(context)!.app_settings_save_changes_question),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -101,7 +101,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                               false);
                           Navigator.pop(context);
                         },
-                        child: Text("No",
+                        child: Text(AppLocalizations.of(context)!.no,
                             style: GoogleFonts.lato(color: Colors.black))),
                     ElevatedButton(
                         onPressed: () {
@@ -134,7 +134,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                               true);
                           Navigator.pop(context);
                         },
-                        child: Text("Si")),
+                        child: Text(AppLocalizations.of(context)!.yes)),
                   ],
                 );
               });
@@ -156,7 +156,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                 children: [
                   AppBar(
                     title: Text(
-                      "Ajustes",
+                      AppLocalizations.of(context)!.settings,
                       style: GoogleFonts.lato(fontSize: 65.sp),
                     ),
                   ),
@@ -180,7 +180,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Text("Ajustes de busqueda"),
+                                            Text(AppLocalizations.of(context)!.app_settings_search_title),
                                             Icon(LineAwesomeIcons.search)
                                           ],
                                         ),
@@ -196,7 +196,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text("Distancia de busqueda"),
+                                                Text(AppLocalizations.of(context)!.app_settings_distance_title),
                                                 Row(
                                                   children: [
                                                     Flexible(
@@ -245,7 +245,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text("Rango de edad"),
+                                              Text(AppLocalizations.of(context)!.app_settings_age_range_title),
                                               Row(
                                                 children: [
                                                   Flexible(
@@ -304,7 +304,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Mostrar ambos sexos"),
+                                              Text(AppLocalizations.of(context)!.app_settings_show_both_sexes),
                                               Switch.adaptive(
                                                   value: appSettingsPresentation
                                                       .applicationSettingsEntity
@@ -326,7 +326,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Mostrar mujeres"),
+                                              Text(AppLocalizations.of(context)!.app_settings_show_only_female),
                                               Switch.adaptive(
                                                   value: appSettingsPresentation
                                                       .applicationSettingsEntity
@@ -348,7 +348,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Mostrar perfil"),
+                                              Text(AppLocalizations.of(context)!.app_settings_show_profile),
                                               Switch.adaptive(
                                                   value: appSettingsPresentation
                                                       .applicationSettingsEntity
@@ -370,7 +370,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Mostrar distancia en Km"),
+                                              Text(AppLocalizations.of(context)!.app_settings_show_distance_in_meters),
                                               Switch.adaptive(
                                                   value: appSettingsPresentation
                                                       .applicationSettingsEntity
@@ -393,7 +393,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Text("Ajustes de sesion"),
+                                            Text(AppLocalizations.of(context)!.app_Settings_session_settings_title),
                                             Icon(Icons.key)
                                           ],
                                         ),
@@ -408,7 +408,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
 
                                           appSettingsPresentation.logOut();
                                         },
-                                        label: Text("Cerrar sesion"),
+                                        label: Text(AppLocalizations.of(context)!.log_out),
                                       ),
                                       ElevatedButton.icon(
                                         onPressed: () {
@@ -416,7 +416,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                           appSettingsPresentation
                                               .deleteAccount();
                                         },
-                                        label: Text("Borrar cuenta"),
+                                        label: Text(AppLocalizations.of(context)!.app_settings_delete_user_dialog_title),
                                         icon: Icon(Icons.delete),
                                       ),
                                     ],
@@ -432,12 +432,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with RouteAware {
                                       indicatorType: Indicator.ballGridPulse))
                               : Column(
                                   children: [
-                                    Text("Error"),
+                                    Text(AppLocalizations.of(context)!.error),
                                     ElevatedButton.icon(
                                         onPressed: () =>
                                             appSettingsPresentation.restart(),
                                         icon: Icon(Icons.refresh),
-                                        label: Text("Restart"))
+                                        label: Text(AppLocalizations.of(context)!.reload_button_title))
                                   ],
                                 ),
                     ),

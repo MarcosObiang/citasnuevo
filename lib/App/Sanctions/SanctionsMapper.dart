@@ -19,7 +19,7 @@ class SanctionMapper {
     }
 
     return SanctionsEntity(
-        sanctionTimeStamp: data["penalizationEndTimestampMs"],
+        sanctionTimeStamp: data["penalizationEndDate"],
         penalizationState: penalizationState);
   }
 }

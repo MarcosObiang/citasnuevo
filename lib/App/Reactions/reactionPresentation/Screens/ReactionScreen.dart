@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +44,7 @@ class _ReactionScreenState extends State<ReactionScreen> {
                 children: [
                   Center(
                     child: Container(
-                      height: kBottomNavigationBarHeight * 1.5,
+                      height: kBottomNavigationBarHeight * 1.3,
                       width: ScreenUtil.defaultSize.width,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -261,28 +259,20 @@ class _ReactionScreenState extends State<ReactionScreen> {
                                                 ),
                                               ),
                                             )
-                                          : GestureDetector(
-                                              onTap: () {
-                                                reactionPresentation
-                                                    .revealReaction(
-                                                        reactionId:
-                                                            "reactionId");
-                                              },
-                                              child: Container(
-                                                child: Center(
-                                                    child: Text(
-                                                  "Lista vacia",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.apply(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .onSurface),
-                                                )),
-                                              ),
+                                          : Container(
+                                            child: Center(
+                                                child: Text(
+                                              "Lista vacia",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.apply(
+                                                      color:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurface),
                                             )),
+                                          )),
                         ],
                       );
                     }),

@@ -3,8 +3,6 @@ import 'package:dartz/dartz.dart';
 import '../controllerDef.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/error/Failure.dart';
-import '../../core/params_types/params_and_types.dart';
-import 'AuthScreenEntity.dart';
 import 'authDataSourceImpl.dart';
 import 'authRepo.dart';
 

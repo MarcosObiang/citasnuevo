@@ -41,6 +41,17 @@ class NotificationService {
   static NotificationService instance = new NotificationService();
 
   Future<void> startBackgroundNotificationHandler() async {
+    await FirebaseMessaging.instance.setAutoInitEnabled(true);
+    final notificationSettings =
+        await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: true,
+      sound: true,
+    );
     notificationToken = await FirebaseMessaging.instance.getToken();
     iniciarEscuchadorSegudoPlano();
     SystemNotifications.instance.inicializarNotificaciones();
@@ -48,8 +59,7 @@ class NotificationService {
 
   void iniciarEscuchadorSegudoPlano() async {
     notificationToken = await FirebaseMessaging.instance.getToken();
-     await changeUserToken(notificationToken as String);
-    
+    await changeUserToken(notificationToken as String);
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.instance.onTokenRefresh
@@ -69,58 +79,62 @@ class NotificationService {
   }
 
   @protected
- Future <void> changeUserToken(String token) async {
-    Functions functions = Functions(Dependencies.serverAPi.client!);
+  Future<void> changeUserToken(String token) async {
+   /* try {
+      notificationToken = await FirebaseMessaging.instance.getToken();
+      UserModel? user = Dependencies.applicationDataSource.userDataSet;
+      notificationToken =
+          jsonEncode({"token": notificationToken!, "platform": "android"});
 
-    Execution execution = await functions.createExecution(
-        functionId: "notificationTokenManager",
-        data: jsonEncode({
-          "updateToken": true,
-          "deleteToken": false,
-          "token": token,
-          "userId": GlobalDataContainer.userId
-        }));
+      await Dependencies.applicationDataSource.realm!.writeAsync(() {
+        UserModel userModel = Dependencies.applicationDataSource.realm!
+            .query<UserModel>(
+                r'userId == $0', [GlobalDataContainer.userId]).first;
 
-    if (execution.statusCode != 200) {
-      throw Exception("NotificationError");
-    }
+        userModel.notificationToken = notificationToken!;
+        Dependencies.applicationDataSource.realm!
+            .add<UserModel>(user!, update: true);
+      });
+    } catch (error) {
+      throw Exception("CHANGE_NOTIFICATION_TOKEN_ERROR: $error");
+    }*/
   }
 
   @protected
   void establishUserToken() async {
-    Functions functions = Functions(Dependencies.serverAPi.client!);
-    notificationToken = await FirebaseMessaging.instance.getToken();
+    /*try {
+      notificationToken = await FirebaseMessaging.instance.getToken();
+      UserModel? user = Dependencies.applicationDataSource.userDataSet;
+      if (user != null && notificationToken != null) {
+        user.notificationToken =
+            jsonEncode({"token": notificationToken!, "platform": "android"});
+      }
 
-    Execution execution = await functions.createExecution(
-        functionId: "notificationTokenManager",
-        data: jsonEncode({
-          "updateToken": true,
-          "deleteToken": false,
-          "token": notificationToken,
-          "userId": GlobalDataContainer.userId
-        }));
-
-    if (execution.response != "ok") {
-      throw Exception("NotificationError");
-    }
+      await Dependencies.applicationDataSource.realm!.writeAsync(() {
+        Dependencies.applicationDataSource.realm!
+            .add<UserModel>(user!, update: true);
+      });
+    } catch (error) {
+      throw Exception("ESTABLISH_NOTIFICATION_TOKEN_ERROR: $error");
+    }*/
   }
 
   void revokeToken() async {
-    Functions functions = Functions(Dependencies.serverAPi.client!);
+   /* try {
+     notificationToken = await FirebaseMessaging.instance.getToken();
+      UserModel? user = Dependencies.applicationDataSource.userDataSet;
+      if (user != null && notificationToken != null) {
+        user.notificationToken =
+            jsonEncode({"token": "NOT_AVAILABLE", "platform": "NOT_AVAILABLE"});
+      }
 
-    Execution execution = await functions.createExecution(
-        functionId: "notificationTokenManager",
-        data: jsonEncode({
-          "updateToken": false,
-          "deleteToken": true,
-          "token": notificationToken,
-          "userId": GlobalDataContainer.userId
-        }));
-    await FirebaseMessaging.instance.deleteToken();
-
-    if (execution.response != "ok") {
-      throw Exception("NotificationError");
-    }
+      await Dependencies.applicationDataSource.realm!.writeAsync(() {
+        Dependencies.applicationDataSource.realm!
+            .add<UserModel>(user!, update: true);
+      });
+    } catch (error) {
+      throw Exception("REVOKE_NOTIFICATION_TOKEN_ERROR: $error");
+    }*/
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../userCreatorPresentation.dart';
 
@@ -29,7 +30,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                 child: Container(
                     child: Center(
                       child: Text(
-                                  "Selecciona tus unidades",
+                                  AppLocalizations.of(context)!.userUnitSystem_selectYourUnits,
                                   style: GoogleFonts.lato(fontSize: 50.sp),
                                 ),
                     ))),
@@ -42,7 +43,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                 children: [
                   Container(
                       child: Text(
-                    "Mostrar altura en:",
+                    AppLocalizations.of(context)!.userUnitSystem_showHeightIn,
                     style: GoogleFonts.lato(fontSize: 50.sp),
                   )),
                   CheckboxListTile(
@@ -53,7 +54,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                           .userCreatorEntity.useMeters = true;
                       setState(() {});
                     },
-                    title: Text("Mostrar altura en cm"),
+                    title: Text(AppLocalizations.of(context)!.userUnitSystem_showHeightInCm),
                   ),
                   CheckboxListTile(
                     value: widget.userCreatorPresentation
@@ -63,11 +64,11 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                           .userCreatorEntity.useMeters = false;
                       setState(() {});
                     },
-                    title: Text("Mostrar altura en pies"),
+                    title: Text(AppLocalizations.of(context)!.userUnitSystem_showHeightInFeet),
                   ),
                   Container(
                       child: Text(
-                    "Mostrar distancia en:",
+                    AppLocalizations.of(context)!.userUnitSystem_showDistanceIn,
                     style: GoogleFonts.lato(fontSize: 50.sp),
                   )),
                   CheckboxListTile(
@@ -78,7 +79,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                           .userCreatorEntity.useMiles = true;
                       setState(() {});
                     },
-                    title: Text("Mostrar distancia en millas"),
+                    title: Text(AppLocalizations.of(context)!.userUnitSystem_showDistanceInMiles),
                   ),
                   CheckboxListTile(
                     value: widget.userCreatorPresentation
@@ -88,7 +89,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                           .userCreatorEntity.useMiles = false;
                       setState(() {});
                     },
-                    title: Text("Mostrar distancia en kilometros"),
+                    title: Text(AppLocalizations.of(context)!.userUnitSystem_showDistanceInKilometers),
                   ),
                   Divider(
                     height: 150.h,
@@ -96,7 +97,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                   ),
                   Container(
                       child: Text(
-                    "Se puede modificar luego en los ajustes",
+                    AppLocalizations.of(context)!.userUnitSystem_canBeModifiedLaterInSettings,
                     style: GoogleFonts.lato(fontSize: 50.sp),
                   )),
                 ],
@@ -108,7 +109,7 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                 child: Column(
                   children: [
                      Text(
-                        "7/8",
+                       "7/8",
                         style: GoogleFonts.lato(fontSize: 60.sp),
                       ),
                     Row(
@@ -119,19 +120,19 @@ class _UserUnitSystemState extends State<UserUnitSystem> {
                                 duration: Duration(milliseconds: 300),
                                 curve: Curves.easeInOut),
                             icon: Icon(Icons.arrow_back),
-                            label: Text("Atras")),
+                            label: Text(AppLocalizations.of(context)!.back)),
                         ElevatedButton.icon(
                             onPressed: () => widget.pageController.nextPage(
                                 duration: Duration(milliseconds: 300),
                                 curve: Curves.easeInOut),
                             icon: Icon(Icons.arrow_forward),
-                            label: Text("Siguiente")),
+                            label: Text(AppLocalizations.of(context)!.userUnitSystem_next)),
                       ],
                     ),
                      ElevatedButton.icon(
                               onPressed: () => widget.userCreatorPresentation.logOut(),
                               icon: Icon(Icons.cancel),
-                              label: Text("Salir"))
+                              label: Text(AppLocalizations.of(context)!.userUnitSystem_exit))
                   ],
                 ))
           ],

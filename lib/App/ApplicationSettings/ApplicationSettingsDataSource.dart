@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import '../DataManager.dart';
 import '../controllerDef.dart';
-import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/services/AuthService.dart';
 import '../../core/globalData.dart';
@@ -17,8 +17,7 @@ abstract class ApplicationSettingsDataSource
         DataSource,
         AuthenticationSignOutCapacity,
         ModuleCleanerDataSource,
-        NetwrokServices,
-        UsesServerFunctions {
+        NetwrokServices {
   /// Send the current state of app settings
   StreamController<Map<String, dynamic>>?
       // ignore: close_sinks
@@ -49,15 +48,12 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   StreamController<Map<String, dynamic>>? listenAppSettingsUpdate =
       new StreamController.broadcast();
   @override
-  Functions functinos;
-
   @override
   StreamSubscription? sourceStreamSubscription;
   @override
   NetworkInfoContract networkInfoContract;
   ApplicationDataSourceImpl(
       {required this.source,
-      required this.functinos,
       required this.authService,
       required this.networkInfoContract});
 
@@ -122,13 +118,17 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
     if (await networkInfoContract.isConnected) {
       try {
-        Execution execution = await functinos.createExecution(
-            functionId: "appSettingsUpdate", data: jsonEncode(data));
+        //)
+          var response = await Dependencies.serverAPi.functions.createExecution(
+            functionId: "appSettingsUpdate", body: jsonEncode(data));
 
-        if (execution.statusCode == 200) {
+
+        int status = response.responseStatusCode;
+        String message = response.responseBody;
+        if (status == 200) {
           return true;
         } else {
-          throw AppSettingsException(message: "CLOUD_FUNCTION_ERROR");
+          throw AppSettingsException(message: message);
         }
       } catch (e) {
         revertChanges();
@@ -160,10 +160,20 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   Future<bool> deleteAccount() async {
     if (await networkInfoContract.isConnected == true) {
       try {
-        Execution execution = await functinos.createExecution(
+
+         Execution execution = await Dependencies.serverAPi.functions.createExecution(
             functionId: "deleteUser",
-            data: jsonEncode({"userId": GlobalDataContainer.userId}));
-        if (execution.statusCode == 200) {
+            body: jsonEncode({"userId": GlobalDataContainer.userId}));
+
+       
+
+    var response = jsonDecode(execution.responseBody);
+        int status = response["executionCode"];
+        String message = response["message"];
+        if (status == 200) {
+          await Dependencies.serverAPi.account.deleteIdentity(identityId: GlobalDataContainer.userId);
+          await authService.logOut();
+
           return true;
         } else {
           throw AppSettingsException(message: "SERVER_ERROR");

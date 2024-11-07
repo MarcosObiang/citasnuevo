@@ -2,12 +2,10 @@
 
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:giphy_get/giphy_get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +19,7 @@ import '../chatPresentation.dart';
 import 'chatMessage.dart';
 import 'chatProfileDetailScreen.dart';
 import 'chatReportScreen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class ChatMessagesScreen extends StatefulWidget {
@@ -157,14 +156,14 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                                       remitentId: widget.remitentId)));
                         },
                         leading: Icon(Icons.person),
-                        title: Text("Ver perfil"),
-                        subtitle: Text("Pulsa para ver el perfil"),
+                        title: Text(AppLocalizations.of(context)!.chat_view_profile),
+                        subtitle: Text(AppLocalizations.of(context)!.chat_press_to_see_profile_button),
                       )
                     : Container(),
                 ListTile(
                     leading: Icon(Icons.delete),
-                    title: Text("Eliminar conversacion"),
-                    subtitle: Text("Pulsa para eliminar la conversacion"),
+                    title: Text(AppLocalizations.of(context)!.chat_delete_chat_button),
+                    subtitle: Text(AppLocalizations.of(context)!.chat_delete_profile_button_description),
                     onTap: () {
                       Navigator.pop(context);
                       showDeleteChatDialog();
@@ -185,9 +184,9 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                         },
                         leading: Icon(Icons.report),
                         title: Text(
-                            "Eliminar y denuciar a ${chatPresentation.chatListCache[chatLitIndex].remitentName}"),
+                            AppLocalizations.of(context)!.chat_delete_and_report_profile_button),
                         subtitle: Text(
-                            "Pulsa para denunciar a ${chatPresentation.chatListCache[chatLitIndex].remitentName}"),
+                            AppLocalizations.of(context)!.chat_delete_and_report_profile_button_description),
                       )
                     : ListTile(
                         onTap: () {
@@ -201,9 +200,9 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                               )));
                         },
                         leading: Icon(Icons.report),
-                        title: Text("Eliminar y denuciar perfil"),
+                        title: Text(AppLocalizations.of(context)!.chat_delete_and_report_profile_button),
                         subtitle: Text(
-                            "Pulsa para denunciar a este perfil y eliminar la conversacion"),
+                            AppLocalizations.of(context)!.chat_delete_and_report_profile_button_description),
                       )
               ],
             ),
@@ -300,7 +299,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
             children: [
               Icon(Icons.delete),
               Text(
-                "Conversacion eliminada",
+               AppLocalizations.of(context)!.chat_deleted_message,
                 style: Theme.of(context).textTheme.titleMedium?.apply(
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
@@ -309,7 +308,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 height: 50.h,
               ),
               Text(
-                "Lo sentimos,el remitente ha borrado la conversacion",
+                AppLocalizations.of(context)!.chat_has_been_deleted_by_remitent,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.apply(
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
@@ -319,7 +318,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 height: 50.h,
               ),
               ElevatedButton(
-                  onPressed: () => Navigator.pop(context), child: Text("Atras"))
+                  onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.back))
             ],
           ),
         ),
@@ -350,12 +349,12 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 height: 50.h,
               ),
               Text(
-                "Usuario bloqueado",
+                AppLocalizations.of(context)!.chat_screen_blocked_user_title,
                 style: Theme.of(context).textTheme.headlineLarge?.apply(
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
               Text(
-                "Lo sentimos, este usuario ha sido bloqueado por infringir las normas de la comunidad",
+                AppLocalizations.of(context)!.chat_user_has_been_blocked,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.apply(
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
@@ -368,10 +367,10 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                   onPressed: () {
                     showDeleteChatDialog();
                   },
-                  child: Text("Eliminar conversacion")),
+                  child: Text(AppLocalizations.of(context)!.chat_delete_chat_button)),
               ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("Atras")),
+                  child: Text(AppLocalizations.of(context)!.back)),
             ],
           ),
         ),
@@ -517,7 +516,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                       : Row(
                           children: [
                             Text(
-                              "Secreto",
+                             AppLocalizations.of(context)!.chat_anonymous_chat,
                             ),
                             Icon(LineAwesomeIcons.lock)
                           ],
@@ -547,7 +546,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                     presentation.chatController.chatList[chatLitIndex].chatId);
           },
           icon: Icon(LineAwesomeIcons.unlock),
-          label: Text("Revelar perfil")),
+          label: Text(AppLocalizations.of(context)!.chat_reveal_profile_button)),
     );
   }
 
@@ -567,7 +566,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                 onPressed: () async {
                   final gif = await GiphyGet.getGif(
                       tabColor: Colors.deepPurple,
-                      searchText: "Busca tu GIPHY",
+                      searchText: AppLocalizations.of(context)!.chat_search_giphy,
                       context: context,
                       apiKey: "vP5aepaZgPJxh3uVvRjYPcm2cWoFmJpd");
                   if (gif != null) {
@@ -676,12 +675,12 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("Eliminar conversacion"),
+            title: Text(AppLocalizations.of(context)!.chat_delete_chat_button),
             actions: [
               TextButton(
                   onPressed: () {
                     Dependencies.chatPresentation.deleteChat(
-                        remitent1: GlobalDataContainer.userId as String,
+                        remitent1: GlobalDataContainer.userId,
                         remitent2: widget.remitentId,
                         reportDetails: "NOT_AVAILABLE",
                         chatId: widget.chatId);
@@ -689,12 +688,12 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
-                  child: Text("Si")),
+                  child: Text(AppLocalizations.of(context)!.yes)),
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("No"))
+                  child: Text(AppLocalizations.of(context)!.no))
             ],
           );
         });

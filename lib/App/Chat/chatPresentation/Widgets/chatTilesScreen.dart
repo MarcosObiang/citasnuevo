@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../main.dart';
 import '../chatPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   static const routeName = "/ChatScreen";
@@ -78,17 +79,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
   }
 
   int countChats() {
-    int reslult = 0;
-
-    for (int i = 0;
-        i < Dependencies.chatPresentation.chatListCache.length;
-        i++) {
-      if (Dependencies
-          .chatPresentation.chatListCache[i].messagesList.isNotEmpty) {
-        reslult += 1;
-      }
-    }
-    return reslult;
+    return Dependencies.chatPresentation.chatListCache.length;
   }
 
   ScrollController controller = new ScrollController();
@@ -106,98 +97,46 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (chatPresentation.chatListState == ChatListState.ready) ...[
-                Flexible(
+              Flexible(
                   flex: 1,
                   fit: FlexFit.tight,
-                  child: Container(
-                      child: Text(
-                    "Nuevos chats:${countNewChats()}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Theme.of(context).colorScheme.onSurface),
-                  )),
-                ),
+                  child: chatPresentation.chatListState ==
+                              ChatListState.ready ||
+                          chatPresentation.chatListState == ChatListState.empty
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        AppLocalizations.of(context)!
+                                            .chat_tile_screen_counter(
+                                                countChats().toString()),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.apply(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface))
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Container()),
+              if (chatPresentation.chatListState == ChatListState.ready) ...[
                 Flexible(
-                  flex: 3,
-                  fit: FlexFit.tight,
-                  child: Container(
-                    child: AnimatedList(
-                        scrollDirection: Axis.horizontal,
-                        controller: newChatListController,
-                        key: ChatScreen.newChatListState,
-                        physics: BouncingScrollPhysics(),
-                        initialItemCount: chatPresentation.chatListCache.length,
-                        itemBuilder: (BuildContext context, int index,
-                            Animation<double> animation) {
-                          return chatPresentation
-                                  .chatListCache[index].messagesList.isEmpty
-                              ? EmptyChatWidget(
-                                  index: index,
-                                  animation: animation,
-                                  chat: chatPresentation.chatListCache[index],
-                                )
-                              : Container();
-                        }),
-                  ),
-                ),
-                Flexible(
-                  flex: 16,
+                  flex: 10,
                   fit: FlexFit.tight,
                   child: Container(
                     child: Column(
                       children: [
-                        Flexible(
-                          flex: 2,
-                          fit: FlexFit.tight,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Chats:${countChats()}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.apply(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface)),
-                                  chatPresentation.blindDateCreationState ==
-                                          BlindDateCreationState.done
-                                      ? ElevatedButton.icon(
-                                          onPressed: () {
-                                            chatPresentation.createBlindDate();
-                                          },
-                                          icon: Container(
-                                              height: 100.h,
-                                              width: 100.h,
-                                              child: Icon(LineAwesomeIcons
-                                                  .theater_masks)),
-                                          label: Text("Crear cita a ciegas"))
-                                      : TextButton.icon(
-                                          onPressed: () {},
-                                          icon: Container(
-                                            height: 100.h,
-                                            width: 100.h,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: LoadingIndicator(
-                                                  indicatorType: Indicator
-                                                      .lineSpinFadeLoader),
-                                            ),
-                                          ),
-                                          label: Text(
-                                              "Buscando a alguien para ti"))
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
                         Flexible(
                           flex: 10,
                           fit: FlexFit.tight,
@@ -214,15 +153,12 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                                       chatPresentation.chatListCache.length,
                                   itemBuilder: (BuildContext context, int index,
                                       Animation<double> animation) {
-                                    return chatPresentation.chatListCache[index]
-                                            .messagesList.isNotEmpty
-                                        ? ChatCard(
-                                            index: index,
-                                            chatData: chatPresentation
-                                                .chatListCache[index],
-                                            animationValue: animation,
-                                          )
-                                        : Container();
+                                    return ChatCard(
+                                      index: index,
+                                      chatData:
+                                          chatPresentation.chatListCache[index],
+                                      animationValue: animation,
+                                    );
                                   }),
                             ),
                           ),
@@ -230,7 +166,39 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                       ],
                     ),
                   ),
-                )
+                ),
+                Flexible(
+                    flex: 1,
+                    fit: FlexFit.loose,
+                    child: chatPresentation.blindDateCreationState ==
+                            BlindDateCreationState.done
+                        ? Center(
+                            child: ElevatedButton.icon(
+                                onPressed: () {
+                                  chatPresentation.createBlindDate();
+                                },
+                                icon: Container(
+                                    height: 100.h,
+                                    width: 100.h,
+                                    child:
+                                        Icon(LineAwesomeIcons.theater_masks)),
+                                label: Text(AppLocalizations.of(context)!.chat_blinddate_button)),
+                          )
+                        : Center(
+                            child: TextButton.icon(
+                                onPressed: () {},
+                                icon: Container(
+                                  height: 100.h,
+                                  width: 100.h,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: LoadingIndicator(
+                                        indicatorType:
+                                            Indicator.lineSpinFadeLoader),
+                                  ),
+                                ),
+                                label: Text(AppLocalizations.of(context)!.chat_blind_date_progress_message)),
+                          ))
               ],
               if (chatPresentation.chatListState == ChatListState.empty) ...[
                 Flexible(
@@ -239,13 +207,45 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                   child: Container(
                       child: Center(
                     child: Text(
-                      "No hay conversaciones",
+                      AppLocalizations.of(context)!.chat_tile_screen_no_chats_message,
                       style: GoogleFonts.lato(
                         color: Colors.black,
                       ),
                     ),
                   )),
-                )
+                ),
+                Flexible(
+                    flex: 1,
+                    fit: FlexFit.loose,
+                    child: chatPresentation.blindDateCreationState ==
+                            BlindDateCreationState.done
+                        ? Center(
+                            child: ElevatedButton.icon(
+                                onPressed: () {
+                                  chatPresentation.createBlindDate();
+                                },
+                                icon: Container(
+                                    height: 100.h,
+                                    width: 100.h,
+                                    child:
+                                        Icon(LineAwesomeIcons.theater_masks)),
+                                label: Text(AppLocalizations.of(context)!.chat_blinddate_button)),
+                          )
+                        : Center(
+                            child: TextButton.icon(
+                                onPressed: () {},
+                                icon: Container(
+                                  height: 100.h,
+                                  width: 100.h,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: LoadingIndicator(
+                                        indicatorType:
+                                            Indicator.lineSpinFadeLoader),
+                                  ),
+                                ),
+                                label: Text(AppLocalizations.of(context)!.chat_blind_date_progress_message)),
+                          ))
               ],
               if (chatPresentation.chatListState == ChatListState.error) ...[
                 Flexible(
@@ -257,7 +257,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Error al cargar coversaciones",
+                          AppLocalizations.of(context)!.chat_tile_screen_error_loading_chats,
                           style: GoogleFonts.lato(
                             color: Colors.black,
                           ),
@@ -266,7 +266,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                             onPressed: () {
                               chatPresentation.restart();
                             },
-                            child: Text("Cargar de nuevo"))
+                            child: Text(AppLocalizations.of(context)!.try_again))
                       ],
                     ),
                   )),
@@ -287,7 +287,7 @@ class _ChatScreenState extends State<ChatScreen> with RouteAware {
                             child: LoadingIndicator(
                                 indicatorType: Indicator.ballScale)),
                         Text(
-                          "Cargando",
+                          AppLocalizations.of(context)!.loading,
                           style: GoogleFonts.lato(
                             color: Colors.black,
                           ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import 'rewardScreenPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RewardCardWidget extends StatefulWidget {
   RewardScreenPresentation rewardScreenPresentation;
@@ -76,7 +76,7 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Recompensa diaria',
+                            Text(AppLocalizations.of(context)!.daily_reward,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -106,7 +106,8 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
                           height: 50.h,
                         ),
                         Text(
-                          'Cuando tengas menos de 200 creditos, en 24 horas te reponemos hasta los 600 creditos',
+                          AppLocalizations.of(context)!
+                              .daily_reward_description,
                           style: Theme.of(context).textTheme.bodyMedium?.apply(
                               color: Theme.of(context).colorScheme.onSurface),
                         ),
@@ -115,10 +116,11 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
                           height: 50.h,
                         ),
                         widget.rewardScreenPresentation.rewardController
-                                    .secondsUntilDailyReward !=
+                                    .secondsUntilDailyReward >
                                 1
                             ? Text(
-                                " Tiempo restante: ${dateFormat.format(DateTime(0, 0, 0, 0, 0, (data.data ?? 0)))}",
+                                AppLocalizations.of(context)!.time_remaining(
+                                    "${dateFormat.format(DateTime(0, 0, 0, 0, 0, (data.data ?? 0)))}"),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -130,7 +132,7 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
                             : FilledButton.tonalIcon(
                                 onPressed: () {
                                   if (widget.rewardScreenPresentation.rewards
-                                              .coins <
+                                              .coins <=
                                           200 &&
                                       data.data! <= 0) {
                                     widget.rewardScreenPresentation
@@ -141,7 +143,7 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
                                   LineAwesomeIcons.film,
                                 ),
                                 label: Text(
-                                  'Reclamar recompensa',
+                                  AppLocalizations.of(context)!.claim_reward,
                                 )),
                       ],
                     )
@@ -149,7 +151,7 @@ class _RewardCardWidgetState extends State<RewardCardWidget>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Espere",
+                          AppLocalizations.of(context)!.loading,
                           style: Theme.of(context).textTheme.bodyMedium?.apply(
                               color: Theme.of(context).colorScheme.onSurface),
                         ),

@@ -1,18 +1,17 @@
-import 'dart:ui';
-
 import 'package:citasnuevo/App/controllerDef.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../core/params_types/params_and_types.dart';
 import '../../../../main.dart';
 import '../authPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -69,59 +68,44 @@ class _AuthScreenState extends State<AuthScreen> implements RouteAware {
         return Material(
           child: SafeArea(
             child: Container(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                Colors.red,
-                Colors.deepOrange,
-                Colors.orange,
-                Colors.green
-              ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+              color: Theme.of(context).colorScheme.primaryContainer,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
                     "Hotty",
-                    style: GoogleFonts.lato(
-                        color: Colors.black,
-                        fontSize: 90.sp,
-                        fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.displayLarge?.apply(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeightDelta: 2),
                   ),
-                  if (authScreenPresentation.authState ==
-                      AuthState.signingIn) ...[
-                    Container(
-                      height: 600.h,
-                      width: 600.h,
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.lineSpinFadeLoader,
-                        colors: [Colors.red, Colors.orange, Colors.green],
-                      ),
-                    ),
-                  ],
-                  if (authScreenPresentation.authState == AuthState.error)
-                    ...[],
-                  if (authScreenPresentation.authState == AuthState.succes) ...[
-                    Text("Dentro"),
-                  ],
-                  Column(
-                    children: [
-                      ElevatedButton.icon(
-                        icon: Icon(LineAwesomeIcons.facebook),
-                        onPressed: () async {
-                          authScreenPresentation.signIn(
-                              signInProviders: SignInProviders.facebook);
-                        },
-                        label: const Text("Iniciar sesion con Facebook"),
-                      ),
-                      ElevatedButton.icon(
-                        icon: Icon(LineAwesomeIcons.google_logo),
-                        onPressed: () async {
-                          authScreenPresentation.signIn(
-                              signInProviders: SignInProviders.google);
-                        },
-                        label: const Text("Iniciar sesion con Google"),
-                      ),
-                    ],
-                  ),
+                  authScreenPresentation.authState == AuthState.signingIn
+                      ? Container(
+                          height: 100.h,
+                          width: 100.h,
+                          child: LoadingIndicator(
+                            indicatorType: Indicator.circleStrokeSpin,
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            SignInButton(
+                              Buttons.facebookNew,
+                              text: AppLocalizations.of(context)!.auth_log_in_with_facebook,
+                              onPressed: () async {
+                                authScreenPresentation.signIn(
+                                    signInProviders: SignInProviders.facebook);
+                              },
+                            ),
+                            SignInButton(
+                              Buttons.googleDark,
+                              text: AppLocalizations.of(context)!.auth_log_in_with_google,
+                              onPressed: () async {
+                                authScreenPresentation.signIn(
+                                    signInProviders: SignInProviders.google);
+                              },
+                            ),
+                          ],
+                        ),
                 ],
               ),
             ),

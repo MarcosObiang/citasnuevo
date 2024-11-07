@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:citasnuevo/core/globalData.dart';
@@ -42,6 +43,8 @@ abstract class ChatController
   Future<Either<Failure, bool>> initializeMessageListener();
   Future<Either<Failure, bool>> createBlindDate();
   Future<Either<Failure, bool>> revealBlinDate({required String chatId});
+  void closeAdsStreams();
+  StreamController<Map<String, dynamic>> get rewardedAdvertismentStateStream;
 
   bool get getAnyChatOpen => this.anyChatOpen;
   set setAnyChatOpen(bool value);
@@ -67,12 +70,17 @@ abstract class ChatController
       {required String messageId, required String chatId});
   Future<Either<Failure, Uint8List?>> getImage();
   Future<Either<Failure, bool>> goToLocationSettings();
+  Future<Either<Failure, bool>> showRewarded();
 
   bool isAppInForeground = false;
+   bool get isUserPremium;
 }
 
 class ChatControllerImpl implements ChatController {
   bool isAppInForeground = false;
+
+  @override
+  bool get isUserPremium => chatRepository.isUserPremium;
 
   ChatRepository chatRepository;
   List<Chat> chatList = [];
@@ -134,6 +142,15 @@ class ChatControllerImpl implements ChatController {
     return await chatRepository.initializeChatListener();
   }
 
+  /// Processes the chat data received from the event.
+  ///
+  /// This function takes a [Map] of [String] to [dynamic] as input, which represents the chat data received from the event.
+  /// It checks if the event is an [Exception] and if so, adds the error to the [addDataController] and cancels the [chatListenerSubscription].
+  /// If the event is not an [Exception], it extracts the necessary information from the event, such as whether the chat is modified or removed,
+  /// whether it is the first query, and the list of chat objects.
+  /// If it is the first query, it checks if each chat object exists in the [chatList] and adds it if it doesn't.
+  /// It then calculates the new chats and messages, and adds a [ChatInformationSender] object to the [addDataController] with the updated chat list.
+  /// If it is not the first query and the chat is not removed or modified, it performs the same steps as the first query.
   void _chatDataProcessing(Map<String, dynamic> event) {
     if (event is Exception) {
       addDataController?.addError(event);
@@ -147,6 +164,11 @@ class ChatControllerImpl implements ChatController {
         chatListFromStream.forEach((element) {
           if (_checkIfChatExists(chatId: element.chatId) == false) {
             chatList.add(element);
+              homeScreenControllreBridge.addInformation(information: {
+                "data": element.remitentId,
+                "header": "new_chat"
+              });
+            
           }
         });
         calculatenewChats();
@@ -167,6 +189,13 @@ class ChatControllerImpl implements ChatController {
         chatListFromStream.forEach((element) {
           if (_checkIfChatExists(chatId: element.chatId) == false) {
             chatList.add(element);
+            if (element.isBlindDate) {
+              print("new blind chat");
+              homeScreenControllreBridge.addInformation(information: {
+                "data": element.remitentId,
+                "header": "new_blind_chat"
+              });
+            }
           }
         });
         calculatenewChats();
@@ -802,6 +831,11 @@ class ChatControllerImpl implements ChatController {
     }
   }
 
+@override
+   Future<Either<Failure, bool>> showRewarded() async {
+    return chatRepository.showRewarded();
+  }
+
   @override
   void removeMessageFromChatList(
       {required String messageId, required String chatId}) {
@@ -884,7 +918,7 @@ class ChatControllerImpl implements ChatController {
   ///
 
   Future<void> setMessagesOnSeen({required String chatId}) async {
-    List<String> messagesIdList = [];
+    List<Message> messagesIdList = [];
     for (int i = 0; i < chatList.length; i++) {
       if (chatList[i].chatId == chatId) {
         chatList[i].unreadMessages = 0;
@@ -893,7 +927,7 @@ class ChatControllerImpl implements ChatController {
               chatList[i].messagesList[b].senderId !=
                   GlobalDataContainer.userId &&
               chatList[i].messagesList[b].messageType != MessageType.DATE) {
-            messagesIdList.add(chatList[i].messagesList[b].messageId);
+            messagesIdList.add(chatList[i].messagesList[b]);
           }
           if (chatList[i].messagesList[b].read == true &&
               chatList[i].messagesList[b].senderId !=
@@ -916,7 +950,7 @@ class ChatControllerImpl implements ChatController {
         index: null,
         isDeleted: false));
 
-    await chatRepository.messagesSeen(messaagesIds: messagesIdList);
+    await chatRepository.messagesSeen(messaages: messagesIdList);
   }
 
   @override
@@ -933,4 +967,12 @@ class ChatControllerImpl implements ChatController {
   Future<Either<Failure, bool>> revealBlinDate({required String chatId}) async {
     return await chatRepository.revealBlindDate(chatId: chatId);
   }
+  
+  @override
+  void closeAdsStreams() {
+this.chatRepository.closeAdsStreams();  }
+  
+  @override
+  // TODO: implement rewardedAdvertismentStateStream
+  StreamController<Map<String, dynamic>> get rewardedAdvertismentStateStream =>this.chatRepository.rewardedStatusListener;
 }

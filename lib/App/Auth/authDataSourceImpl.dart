@@ -6,8 +6,6 @@ import '../MainDatasource/principalDataSource.dart';
 import '../controllerDef.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/services/AuthService.dart';
-import '../../core/globalData.dart';
-import '../../core/platform/networkInfo.dart';
 
 abstract class AuthScreenDataSource
     implements

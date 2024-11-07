@@ -1,6 +1,4 @@
-import 'package:dartz/dartz.dart';
 
-import '../../core/error/Failure.dart';
 import '../DataManager.dart';
 import '../../core/streamParser/streamPareser.dart';
 import 'settingsDataSource.dart';

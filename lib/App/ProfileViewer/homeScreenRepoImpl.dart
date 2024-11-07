@@ -42,11 +42,11 @@ class HomeScreenRepositoryImpl implements HomeScreenRepository {
 
   @override
   Future<Either<Failure, void>> sendRating(
-      {required ReactionType reactionType,
+      {required int reactionValue,
       required String idProfileRated}) async {
     try {
       await homeScreenDataSource.sendRating(
-          reactionType: reactionType, idProfileRated: idProfileRated);
+          reactionValue: reactionValue, idProfileRated: idProfileRated);
       return Right(Void);
     } catch (e) {
       if (e is RatingProfilesException) {

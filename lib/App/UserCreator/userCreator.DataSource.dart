@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
 import '../../core/services/AuthService.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
@@ -15,7 +13,6 @@ import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/location_services/locatio_service.dart';
 import '../../core/params_types/params_and_types.dart';
-import '../../core/platform/networkInfo.dart';
 
 import 'package:geolocator/geolocator.dart';
 
@@ -64,38 +61,36 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
 
   @override
   Future<bool> createUser({required Map<String, dynamic> userData}) async {
-    if (await Dependencies.networkInfoContract.isConnected == true) {
+  /*  if (await Dependencies.networkInfoContract.isConnected == true) {
       try {
         Map<String, dynamic> locationData =
             await LocationService.instance.locationServicesState();
         if (locationData["status"] == "correct") {
-          Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
-          Functions functions = Functions(Dependencies.serverAPi.client!);
           List<Map<String, dynamic>> userPictureList = userData["images"];
           Map<String, dynamic> dataToCloud = Map();
           dataToCloud["userPicture1"] = jsonEncode({
-            "imageId": "empty",
-            "index": "empty",
+            "imageData": null,
+            "index": 1,
           });
           dataToCloud["userPicture2"] = jsonEncode({
-            "imageId": "empty",
-            "index": "empty",
+            "imageData": null,
+            "index": 2,
           });
           dataToCloud["userPicture3"] = jsonEncode({
-            "imageId": "empty",
-            "index": "empty",
+            "imageData": null,
+            "index": 3,
           });
           dataToCloud["userPicture4"] = jsonEncode({
-            "imageId": "empty",
-            "index": "empty",
+            "imageData": null,
+            "index": 4,
           });
           dataToCloud["userPicture5"] = jsonEncode({
-            "imageId": "empty",
-            "index": "empty",
+            "imageData": null,
+            "index": 5,
           });
           dataToCloud["userPicture6"] = jsonEncode({
-            "imageId": "empty",
-            "index": "empty",
+            "imageData": null,
+            "index": 6,
           });
           String userBio = userData["userBio"];
           Map<String, dynamic> userFilters = userData["userFilters"];
@@ -119,19 +114,9 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
             if (userPicutreBoxState == UserPicutreBoxState.pictureFromBytes) {
               Uint8List imageFile = userPictureList[i]["data"];
 
-              File result = await appwriteStorage.createFile(
-                  bucketId: "63712fd65399f32a5414",
-                  fileId: "${GlobalDataContainer.userId}_image$pictureIndex",
-                  file: InputFile.fromBytes(
-                      bytes: imageFile,
-                      filename:
-                          "${GlobalDataContainer.userId}_image$pictureIndex.jpg"));
-
-              String downloadUrl = result.$id;
-
               dataToCloud["userPicture$pictureIndex"] = jsonEncode({
-                "imageId": downloadUrl,
-                "index": pictureIndex,
+                "imageData": base64Encode(imageFile.toList()),
+                "index": int.parse(pictureIndex),
                 "removed": false,
               });
             }
@@ -139,13 +124,30 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           dataToCloud["userId"] = GlobalDataContainer.userId;
           dataToCloud["userName"] = userName;
           dataToCloud["userSex"] = userIsWoman ? "female" : "male";
-          dataToCloud["birthDateInMilliseconds"] = userAgeMills;
-          dataToCloud["userBio"] = userBio;
+          dataToCloud["userBirthDate"] = userAgeMills;
+          dataToCloud["userBiography"] = userBio;
           dataToCloud["email"] = GlobalDataContainer.userEmail;
-          dataToCloud["positionLon"] = locationData["lon"];
-          dataToCloud["positionLat"] = locationData["lat"];
-          dataToCloud["userCharacteristics"] = jsonEncode(userFilters);
-          dataToCloud["promotionalCode"] = promotionalCode;
+          dataToCloud["lon"] = locationData["lon"];
+          dataToCloud["lat"] = locationData["lat"];
+
+          dataToCloud["userCharacteristics_alcohol"] = userFilters["alcohol"];
+          dataToCloud["userCharacteristics_what_he_looks_for"] =
+              userFilters["im_looking_for"];
+          dataToCloud["userCharacteristics_bodyType"] =
+              userFilters["body_type"];
+          dataToCloud["userCharacteristics_children"] = userFilters["children"];
+          dataToCloud["userCharacteristics_pets"] = userFilters["pets"];
+          dataToCloud["userCharacteristics_politics"] = userFilters["politics"];
+          dataToCloud["userCharacteristics_lives_with"] =
+              userFilters["im_living_with"];
+          dataToCloud["userCharacteristics_smokes"] = userFilters["smoke"];
+          dataToCloud["userCharacteristics_sexual_orientation"] =
+              userFilters["sexual_orientation"];
+          dataToCloud["userCharacteristics_zodiak"] =
+              userFilters["zodiac_sign"];
+          dataToCloud["userCharacteristics_personality"] =
+              userFilters["personality"];
+          dataToCloud["promotionalCodeUsedByUser"] = promotionalCode;
           dataToCloud["userSettings"] = jsonEncode({
             "maxDistance": maxDistance,
             "maxAge": maxAge,
@@ -158,22 +160,19 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           });
 
           String json = jsonEncode(dataToCloud);
-          Execution execution = await functions.createExecution(
-              functionId: "createUser", data: json, xasync: false);
 
-          if (execution.statusCode == 200) {
-            Map<String, dynamic> executionResponse =
-                jsonDecode(execution.response);
-            int status = executionResponse["status"];
-            String message = executionResponse["message"];
+          final response = await Dependencies
+              .serverAPi.app!.currentUser!.functions
+              .call("createUser", [json]);
 
-            if (status == 200) {
-              return true;
-            } else {
-              throw Exception(message);
-            }
+          int executionCode = jsonDecode(response)["executionCode"];
+          String executionMessage = jsonDecode(response)["message"];
+
+          if (executionCode == 200) {
+            return true;
           } else {
-            throw Exception("USER_CREATOR_EXCEPTION");
+            throw Exception(
+                "USER_CREATOR_EXCEPTION $executionCode $executionMessage");
           }
         } else {
           throw LocationServiceException(message: locationData["status"]);
@@ -187,7 +186,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/ return true;
   }
 
   @override

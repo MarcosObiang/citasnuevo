@@ -9,8 +9,8 @@ import '../../MessageEntity.dart';
 import 'chatScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 class ChatCard extends StatefulWidget {
   ChatCard(
@@ -111,7 +111,7 @@ class _ChatCardState extends State<ChatCard> {
                                         .onErrorContainer,
                                   ),
                                   Text(
-                                    "Usuario bloqueado",
+                                    AppLocalizations.of(context)!.chat_screen_blocked_user_title,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyLarge
@@ -137,7 +137,7 @@ class _ChatCardState extends State<ChatCard> {
                                           )));
                                     }
                                   },
-                                  child: Text("Detalles"))
+                                  child: Text(AppLocalizations.of(context)!.details))
                             ],
                           ),
                         ),
@@ -161,7 +161,7 @@ class _ChatCardState extends State<ChatCard> {
                                         .onTertiary,
                                   ),
                                   Text(
-                                    "Eliminando conversacion",
+                                    AppLocalizations.of(context)!.chat_delete_chat_button,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -251,7 +251,7 @@ class _ChatCardState extends State<ChatCard> {
                       ),
                     )
                   : Text(
-                      "Secreto",
+                      AppLocalizations.of(context)!.chat_anonymous_chat,
                       style: widget.chatData.unreadMessages > 0
                           ? Theme.of(context).textTheme.titleMedium?.apply(
                               color: Theme.of(context).colorScheme.onPrimary,
@@ -263,41 +263,49 @@ class _ChatCardState extends State<ChatCard> {
                               fontWeightDelta: 1),
                       textAlign: TextAlign.left,
                     ),
-              if (widget.chatData.messagesList.first.messageType ==
-                  MessageType.TEXT) ...[
-                Container(
-                  width: boxConstraints.maxWidth,
-                  child: Text(
-                    widget.chatData.messagesList.first.data,
-                    overflow: TextOverflow.ellipsis,
-                    style: widget.chatData.unreadMessages > 0
-                        ? Theme.of(context).textTheme.bodyMedium?.apply(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            )
-                        : Theme.of(context).textTheme.bodyMedium?.apply(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                            ),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-              ],
-              if (widget.chatData.messagesList.first.messageType !=
-                  MessageType.TEXT) ...[
-                Text(
-                  "GIF",
-                  style: widget.chatData.unreadMessages > 0
-                      ? Theme.of(context).textTheme.bodyMedium?.apply(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          )
-                      : Theme.of(context).textTheme.bodyMedium?.apply(
+              widget.chatData.messagesList.isNotEmpty == true
+                  ? widget.chatData.messagesList.first.messageType ==
+                          MessageType.TEXT
+                      ? Container(
+                          width: boxConstraints.maxWidth,
+                          child: Text(
+                            widget.chatData.messagesList.first.data,
+                            overflow: TextOverflow.ellipsis,
+                            style: widget.chatData.unreadMessages > 0
+                                ? Theme.of(context).textTheme.bodyMedium?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    )
+                                : Theme.of(context).textTheme.bodyMedium?.apply(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                    ),
+                            textAlign: TextAlign.left,
+                          ))
+                      : Text(
+                          AppLocalizations.of(context)!.chat_GIF,
+                          style: widget.chatData.unreadMessages > 0
+                              ? Theme.of(context).textTheme.bodyMedium?.apply(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  )
+                              : Theme.of(context).textTheme.bodyMedium?.apply(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer,
+                                  ),
+                        )
+                  : Text(
+                      AppLocalizations.of(context)!.chat_starter_message,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.apply(
                             color: Theme.of(context)
                                 .colorScheme
                                 .onPrimaryContainer,
                           ),
-                ),
-              ]
+                    ),
             ],
           ),
         );

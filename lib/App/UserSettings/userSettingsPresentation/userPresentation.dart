@@ -3,16 +3,15 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 import '../../DataManager.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../../core/error/Failure.dart';
 import '../../../main.dart';
 import '../UserSettingsEntity.dart';
 import '../userSettingsController.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 
 enum UserSettingsScreenState { loading, loaded, error }
@@ -80,8 +79,8 @@ class UserSettingsPresentation extends ChangeNotifier
               .showNetworkErrorDialog(context: startKey.currentContext);
         } else {
           PresentationDialogs.instance.showErrorDialog(
-              title: "Error",
-              content: "No se han podido guardar los cambios",
+              title: AppLocalizations.of(startKey.currentContext!)!.error,
+              content:  AppLocalizations.of(startKey.currentContext!)!.userPresentation_changesCouldNotBeSaved,
               context: startKey.currentContext);
         }
       }, (r) {

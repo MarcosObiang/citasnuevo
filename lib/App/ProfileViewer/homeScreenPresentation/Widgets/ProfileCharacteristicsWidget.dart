@@ -1,15 +1,14 @@
 import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../UserCreator/ProfileCharacteristicsEntity.dart';
 
 class ProfileCharateristicsWidget extends StatefulWidget {
   final List<ProfileCharacteristics> profileCharateristicsData;
+  bool _isInitialized = false;
 
   final BoxConstraints constraints;
-  const ProfileCharateristicsWidget(
+   ProfileCharateristicsWidget(
       {required this.profileCharateristicsData, required this.constraints});
 
   @override
@@ -21,14 +20,26 @@ class _ProfileCharateristicsWidgetState
     extends State<ProfileCharateristicsWidget> {
   void initState() {
     super.initState();
-    characteristics = createProfileCharacteristicsWidgets(false);
+
+  }
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if(widget._isInitialized == false) {
+            characteristics = createProfileCharacteristicsWidgets(false);
     comonInterests = createProfileCharacteristicsWidgets(true);
+    widget._isInitialized = true;
+      
+    }
+  
   }
 
   List<Widget> characteristics = [];
   List<Widget> comonInterests = [];
   @override
   Widget build(BuildContext context) {
+
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -36,7 +47,7 @@ class _ProfileCharateristicsWidgetState
           children: [
             comonInterests.isNotEmpty
                 ? Text(
-                    "Intereses comunes",
+                    AppLocalizations.of(context)!.common_interests_between_users,
                     style: Theme.of(context).textTheme.bodyMedium?.apply(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                         fontWeightDelta: 2),
@@ -47,7 +58,7 @@ class _ProfileCharateristicsWidgetState
             ),
             characteristics.isNotEmpty
                 ? Text(
-                    "Intereses",
+                   AppLocalizations.of(context)!.intereses,
                     style: Theme.of(context).textTheme.bodyMedium?.apply(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                         fontWeightDelta: 2),
@@ -65,30 +76,33 @@ class _ProfileCharateristicsWidgetState
     var data = widget.profileCharateristicsData;
     int i = 1;
 
-    data.forEach((element) {
-      if (element.characteristicIndex == 0) {
-        if (i % 2 == 0 && sameInterestAsUSer == false) {
-          widgetList.add(widgetValor(sameInterestAsUSer, Icon(element.iconData),
-              element.characteristicValue));
-        }
-        if (i % 3 == 0 && sameInterestAsUSer == true) {
-          widgetList.add(widgetValor(sameInterestAsUSer, Icon(element.iconData),
-              element.characteristicValue));
-        }
 
-        i = i + 1;
+
+    data.forEach((element) {
+      if (element.characteristicIndex != 0&&sameInterestAsUSer==true&&element.sameAsUser==true) {
+          widgetList.add(widgetValor(element.sameAsUser, Icon(element.iconData, color: Theme.of(context).colorScheme.onPrimary,),
+              element.characteristicValue,true));
+        
+      
+
+      }
+      if(element.characteristicIndex != 0&&sameInterestAsUSer==false) {
+        widgetList.add(widgetValor(element.sameAsUser, Icon(element.iconData ,color: Theme.of(context).colorScheme.onPrimaryContainer,),
+            element.characteristicValue,false));
       }
     });
 
     return widgetList;
   }
 
-  Widget widgetValor(bool esIgual, Icon icono, String valor) {
+  Widget widgetValor(bool esIgual, Icon icono, String valor, bool commonInterest) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: FilterChip(
         avatar: icono,
         selected: true,
+        selectedColor:  commonInterest==true?Theme.of(context).colorScheme.primary:Theme.of(context).colorScheme.primaryContainer,
+        
         showCheckmark: false,
         label: Text(
           valor,
@@ -96,9 +110,9 @@ class _ProfileCharateristicsWidgetState
               .textTheme
               .labelSmall
               ?.apply(
-                  color: Theme.of(startKey.currentContext as BuildContext)
+                  color: commonInterest==true? Theme.of(startKey.currentContext as BuildContext)
                       .colorScheme
-                      .onPrimaryContainer,
+                      .onPrimary:Theme.of(context).colorScheme.onPrimaryContainer,
                   fontWeightDelta: 2),
         ),
         onSelected: (onSelected) {},

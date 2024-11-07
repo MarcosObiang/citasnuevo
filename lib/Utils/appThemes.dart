@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 ThemeData ligthThemeData = ThemeData(
@@ -29,7 +28,7 @@ const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
   primary: Color(0xFF9B00CB),
   onPrimary: Color(0xFFFFFFFF),
-  primaryContainer: Color(0xFFFAD7FF),
+  primaryContainer: Color.fromARGB(255, 250, 215, 255),
   onPrimaryContainer: Color(0xFF330045),
   secondary: Color(0xFF6A596C),
   onSecondary: Color(0xFFFFFFFF),

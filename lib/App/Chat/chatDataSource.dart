@@ -6,13 +6,14 @@ import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+
 import 'package:citasnuevo/App/controllerDef.dart';
 import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
-import 'package:citasnuevo/core/platform/networkInfo.dart';
+import 'package:citasnuevo/core/services/Ads.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -23,10 +24,16 @@ import 'MessageEntity.dart';
 import '../DataManager.dart';
 
 abstract class ChatDataSource
-    implements DataSource, ModuleCleanerDataSource, ImmageMediaPickerCapacity {
-  StreamSubscription<RealtimeMessage>? chatListenerSubscription;
+    implements
+        DataSource,
+        ModuleCleanerDataSource,
+        ImmageMediaPickerCapacity,
+        AdvertisementShowCapacity {
+  late StreamSubscription<Map<String, dynamic>>
+      chatListenerSubscription;
   late List<Message> messagesWithOutChat;
   Future<bool> goToLocationSettings();
+  bool isUserPremium = false;
 
   StreamController<dynamic>? chatStream;
 
@@ -36,7 +43,7 @@ abstract class ChatDataSource
       required String reportDetails,
       required String chatId});
 
-  Future<bool> messagesSeen({required List<String> messagesIds});
+  Future<bool> messagesSeen({required List<Map<String, dynamic>> messages});
 
   void initializeChatListener();
   void listenToMessages();
@@ -61,6 +68,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
   String userId = kNotAvailable;
   @override
   List<Message> messagesWithOutChat = [];
+  @override
+  bool isUserPremium = false;
 
   @override
   StreamSubscription? sourceStreamSubscription;
@@ -69,15 +78,15 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   StreamController? chatStream = new StreamController.broadcast();
-  StreamSubscription<RealtimeMessage>? chatListenerSubscription;
-  StreamSubscription<RealtimeMessage>? messageListenerSubscription;
+  late StreamSubscription<Map<String, dynamic>>
+      chatListenerSubscription;
+  late StreamSubscription<Map<String, dynamic>>
+      messageListenerSubscription;
   @override
   StreamController<Map<String, dynamic>> messageStream =
       new StreamController.broadcast();
 
-  ChatDatsSourceImpl({
-    required this.source,
-  });
+  ChatDatsSourceImpl({required this.source, required this.advertisingServices});
 
   Future<void> _addCurrentConversations() async {
     try {
@@ -189,36 +198,53 @@ class ChatDatsSourceImpl implements ChatDataSource {
     });
   }
 
+  Map<String, dynamic> chatModelToMap(Map<String,dynamic> chatModel) {
+    List<Map<String, dynamic>> messagesList = [];
+
+  /*  return {
+      "conversationId": chatModel.conversationId,
+      "user1Id": chatModel.user1Id,
+      "user2Id": chatModel.user2Id,
+      "isDeleted": chatModel.isDeleted,
+      "messages": messagesList,
+      "isBlindDate": chatModel.isBlindDate,
+      "user1Name": chatModel.user1Name,
+      "user2Name": chatModel.user2Name,
+      "user1Picture": chatModel.user1Picture,
+      "user2Picture": chatModel.user2Picture,
+      "user1Blocked": chatModel.user1Blocked,
+      "user2Blocked": chatModel.user2Blocked,
+      "user1NotificationToken": chatModel.user1NotificationToken,
+      "user2NotificationToken": chatModel.user2NotificationToken,
+    };*/
+
+    return {};
+  }
+
   Future<List<Map<String, dynamic>>> loadChats() async {
     List<Map<String, dynamic>> data = [];
-    Databases databases = Databases(Dependencies.serverAPi.client!);
-    DocumentList documentList = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d10c17be1c3d1544d",
-        queries: [
-          Query.equal("user1Id", GlobalDataContainer.userId),
-        ]);
-    DocumentList documentList2 = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d10c17be1c3d1544d",
-        queries: [Query.equal("user2Id", GlobalDataContainer.userId)]);
 
-    documentList.documents.addAll(documentList2.documents);
-    for (int i = 0; i < documentList.documents.length; i++) {
-      var messages = await databases.listDocuments(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "637d18ff8b3927cce18d",
-          queries: [
-            Query.orderDesc("timestamp"),
-            Query.equal("conversationId", documentList.documents[i].$id),
-          ]);
+   /* final realmReference = source.realm!.query<ChatModel>(
+        r'user1Id == $0 OR user2Id == $0', [GlobalDataContainer.userId, false]);
 
-      data.add({
-        "chat": documentList.documents[i].data,
-        "messages": messages.documents.map((e) => e.data).toList(),
-        "userId": GlobalDataContainer.userId,
-      });
-    }
+    realmReference.forEach((element) {
+      if (element.isDeleted == false) {
+        final realmReferenceMessages = source.realm!.query<MessageModel>(
+          r'conversationId == $0 SORT(timestamp DESC)',
+          ['${element.conversationId}'],
+        );
+        List<Map<String, dynamic>> messagesList = [];
+        realmReferenceMessages.forEach((element) {
+          messagesList.add(messageModelToMap(element));
+        });
+
+        data.add({
+          "chat": chatModelToMap(element),
+          "messages": messagesList,
+          "userId": GlobalDataContainer.userId,
+        });
+      }
+    });*/
     return data;
   }
 
@@ -227,42 +253,55 @@ class ChatDatsSourceImpl implements ChatDataSource {
   /// Listen to new chats, when a chat is removed, or when is modified
   @override
   void initializeChatListener() async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+    /*if (await Dependencies.networkInfoContract.isConnected) {
       try {
         await _addCurrentConversations();
-        Realtime realtime = Realtime(Dependencies.serverAPi.client!);
-        chatListenerSubscription = realtime
-            .subscribe([
-              "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents"
-            ])
-            .stream
-            .listen((dato) async {
-              try {
-                String createEvent =
-                    "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents.${dato.payload["conversationId"]}.create";
-                String updateEvent =
-                    "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents.${dato.payload["conversationId"]}.update";
-                String deleteEvent =
-                    "databases.636d59d7a2f595323a79.collections.637d10c17be1c3d1544d.documents.${dato.payload["conversationId"]}.delete";
-                if (dato.events.first.contains(createEvent)) {
-                  await _addNewConversation(doc: dato.payload);
-                }
-                if (dato.events.first.contains(updateEvent)) {
-                  _modifyConversation(doc: dato.payload);
-                }
-                if (dato.events.first.contains(deleteEvent)) {
-                  _removeConversation(doc: dato.payload);
-                }
-              } catch (e) {
-                if (e is AppwriteException) {
-                  chatStream
-                      ?.addError(ChatException(message: e.message.toString()));
-                } else {
-                  chatStream?.addError(ChatException(message: e.toString()));
+
+        chatListenerSubscription = source.realm!
+            .query<ChatModel>(r'user1Id == $0 OR user2Id == $0',
+                ['${GlobalDataContainer.userId}'])
+            .changes
+            .listen((RealmResultsChanges<ChatModel> event) async {
+              if (event.inserted.isNotEmpty) {
+                List<int> indexes = event.inserted;
+
+                for (int i = 0; i < indexes.length; i++) {
+                  if (event.results[indexes[i]].isDeleted == true) {
+                    _removeConversation(
+                        doc: chatModelToMap(event.results[indexes[i]]));
+                  } else {
+                    _addNewConversation(
+                        doc: chatModelToMap(event.results[indexes[i]]));
+                  }
                 }
               }
-            }, onError: (error) {
-              _addError(e: ChatException(message: "ERROR_FROM_BACKEND"));
+              if (event.modified.isNotEmpty) {
+                List<int> indexes = event.modified;
+
+                for (int i = 0; i < indexes.length; i++) {
+                  if (event.results[indexes[i]].isDeleted == true) {
+                    _removeConversation(
+                        doc: chatModelToMap(event.results[indexes[i]]));
+                  } else {
+                    _modifyConversation(
+                        doc: chatModelToMap(event.results[indexes[i]]));
+                  }
+                }
+              }
+
+              if (event.newModified.isNotEmpty) {
+                List<int> indexes = event.newModified;
+
+                for (int i = 0; i < indexes.length; i++) {
+                  if (event.results[indexes[i]].isDeleted == true) {
+                    _removeConversation(
+                        doc: chatModelToMap(event.results[indexes[i]]));
+                  } else {
+                    _modifyConversation(
+                        doc: chatModelToMap(event.results[indexes[i]]));
+                  }
+                }
+              }
             });
 
         chatListenerSubscription?.onError((_) {
@@ -277,53 +316,77 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
   }
 
   void _addMessage({required Map<String, dynamic> data}) {
     _addData(data: data);
   }
 
+  Map<String, dynamic> messageModelToMap(Map <String,dynamic> messageModel) {
+   /* return {
+      "senderId": messageModel.senderId,
+      "recieverId": messageModel.recieverId,
+      "message": messageModel.message,
+      "messageId": messageModel.messageId,
+      "timestamp": messageModel.timestamp,
+      "messageType": messageModel.messageType,
+      "conversationId": messageModel.conversationId,
+      "readByReciever": messageModel.readByReciever,
+    };*/
+
+    return {};
+  }
+
   @override
   void listenToMessages() async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+    /*if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Realtime realtime = Realtime(Dependencies.serverAPi.client!);
-        messageListenerSubscription = realtime
-            .subscribe([
-              "databases.636d59d7a2f595323a79.collections.637d18ff8b3927cce18d.documents"
-            ])
-            .stream
-            .listen((dato) {
-              try {
-                String createEvent =
-                    "databases.636d59d7a2f595323a79.collections.637d18ff8b3927cce18d.documents.${dato.payload["messageId"]}.create";
-                String updateEvent =
-                    "databases.636d59d7a2f595323a79.collections.637d18ff8b3927cce18d.documents.${dato.payload["messageId"]}.update";
-
-                if (dato.events.first.contains(createEvent)) {
+       messageListenerSubscription = source.realm!
+            .query<MessageModel>(r'recieverId == $0 OR senderId == $0',
+                ["${GlobalDataContainer.userId}"])
+            .changes
+            .listen((event) {
+              if (event.inserted.isNotEmpty) {
+                List<int> indexes = event.inserted;
+                for (int i = 0; i < indexes.length; i++) {
                   _addMessage(data: {
                     "payloadType": "message",
-                    "message": dato.payload,
+                    "message": messageModelToMap(event.results[indexes[i]]),
                     "modified": false
                   });
                 }
-                if (dato.events.first.contains(updateEvent)) {
+              }
+
+              if (event.modified.isNotEmpty) {
+                List<int> indexes = event.modified;
+
+                for (int i = 0; i < indexes.length; i++) {
+                  if (event.newModified.contains(event.newModified[i])) {
+                    break;
+                  }
                   _addMessage(data: {
                     "payloadType": "message",
-                    "message": (dato.payload),
+                    "message": messageModelToMap(event.results[indexes[i]]),
                     "modified": true
                   });
                 }
-              } catch (e) {
-                if (e is AppwriteException) {
-                  _addError(e: ChatException(message: e.message.toString()));
-                } else {
-                  _addError(e: ChatException(message: e.toString()));
+              }
+
+              if (event.newModified.isNotEmpty) {
+                List<int> indexes = event.newModified;
+
+                for (int i = 0; i < indexes.length; i++) {
+                  if (event.modified.contains(indexes[i])) {
+                    break;
+                  }
+                  _addMessage(data: {
+                    "payloadType": "message",
+                    "message": messageModelToMap(event.results[indexes[i]]),
+                    "modified": true
+                  });
                 }
               }
-            }, onError: (e) {
-              _addError(e: ChatException(message: e.toString()));
             });
       } catch (e) {
         _addError(e: ChatException(message: e.toString()));
@@ -341,31 +404,11 @@ class ChatDatsSourceImpl implements ChatDataSource {
       userId = source.getData["userId"];
       sourceStreamSubscription = source.dataStream?.stream.listen((event) {
         userId = event["userId"];
+        isUserPremium = event["isUserPremium"];
       });
     } catch (e) {
       throw Exception(e);
-    }
-  }
-
-  Future<String> uploadFile(
-      {required Uint8List fileData, required String remitentId}) async {
-    try {
-      String id = IdGenerator.instancia.createId();
-      Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
-
-      File result = await appwriteStorage.createFile(
-          bucketId: "63712fd65399f32a5414",
-          fileId: "chatFile$id",
-          file: InputFile.fromBytes(bytes: fileData, filename: "chatFile$id"));
-
-      return result.name;
-    } catch (e) {
-      if (e is AppwriteException) {
-        throw Exception(e.message);
-      } else {
-        throw Exception(e.toString());
-      }
-    }
+    }*/
   }
 
   /// Send messages to the receptor
@@ -377,35 +420,29 @@ class ChatDatsSourceImpl implements ChatDataSource {
       required String messageNotificationToken,
       required String remitentId}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
-      try {
+   /*   try {
         String userMessage = message["messageContent"];
 
         if (message["messageType"] == MessageType.AUDIO.name ||
             message["messageType"] == MessageType.IMAGE.name) {
-          userMessage = await uploadFile(
-              fileData: message["fileData"], remitentId: remitentId);
+          userMessage = base64Encode(message["fileData"]);
         }
-        Functions functions = Functions(Dependencies.serverAPi.client!);
 
-        Execution execution = await functions.createExecution(
-            xasync: false,
-            functionId: "sendMessages",
-            data: jsonEncode({
-              "senderId": GlobalDataContainer.userId,
-              "recieverNotificationId": messageNotificationToken,
-              "recieverId": remitentId,
-              "message": userMessage,
-              "conversationId": message["conversationId"],
-              "messageType": message["messageType"],
-            }));
+        var realmReference = await source.realm!.writeAsync<MessageModel>(() {
+          ObjectId id = ObjectId();
 
-        int status = jsonDecode(execution.response)["status"];
-        String messageResponse = jsonDecode(execution.response)["message"];
-
-        if (status == 200) {
-        } else {
-          throw ChatException(message: messageResponse);
-        }
+          return source.realm!.add(MessageModel(
+            id,
+            userMessage,
+            GlobalDataContainer.userId,
+            remitentId,
+            message["conversationId"],
+            DateTime.now().millisecondsSinceEpoch,
+            id.toString(),
+            false,
+            message["messageType"],
+          ));
+        });
 
         return true;
       } catch (e) {
@@ -413,7 +450,12 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
+
+  }
+      return true;
+
+
   }
 
   @override
@@ -435,17 +477,18 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<Map<String, dynamic>> getUserProfile(
       {required String profileId}) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+   /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-        Execution execution = await functions.createExecution(
-            functionId: "getSingleUserProfile",
-            data: jsonEncode({"userId": profileId}));
-        int status = jsonDecode(execution.response)["status"];
+        final response = await Dependencies
+            .serverAPi.app!.currentUser!.functions
+            .call("getSingleUserProfile", [
+          jsonEncode({"userId": profileId})
+        ]);
+        int status = jsonDecode(response)["executionCode"];
 
         if (status == 200) {
           return {
-            "profileData": jsonDecode(execution.response)["payload"],
+            "profileData": jsonDecode(response)["payload"],
             "userData": source.getData,
             "todayDateTime": await DateNTP.instance.getTime()
           };
@@ -457,7 +500,9 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
+
+    return {};
   }
 
   @override
@@ -467,46 +512,47 @@ class ChatDatsSourceImpl implements ChatDataSource {
     required String reportDetails,
     required String chatId,
   }) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+   /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-        Execution execution = await functions.createExecution(
-            functionId: "deleteConversation",
-            data: jsonEncode({
-              "conversationId": chatId,
-              "userReported": reportDetails != kNotAvailable ? true : false,
-              "reportDetails": reportDetails,
-              "userId": GlobalDataContainer.userId,
-              "userReportedId": remitent1 == GlobalDataContainer.userId
-                  ? remitent2
-                  : remitent1
-            }));
-
-        int status = jsonDecode(execution.response)["status"];
-        String messageResponse = jsonDecode(execution.response)["message"];
+        final response = await Dependencies
+            .serverAPi.app!.currentUser!.functions
+            .call("deleteChat", [
+          jsonEncode({
+            "conversationId": chatId,
+            "isUserBeingReported":
+                reportDetails != kNotAvailable ? true : false,
+            "reportDetails": reportDetails,
+            "userId": GlobalDataContainer.userId,
+            "userReportedId":
+                remitent1 == GlobalDataContainer.userId ? remitent2 : remitent1
+          })
+        ]);
+        int status = jsonDecode(response)["executionCode"];
+        String message = jsonDecode(response)["message"];
 
         if (status == 200) {
           return true;
         } else {
-          throw ChatException(message: messageResponse);
+          throw ChatException(message: message);
         }
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
+
+    return true;
   }
 
   @override
   void clearModuleData() {
     try {
-      chatListenerSubscription?.cancel();
+      chatListenerSubscription.cancel();
       chatStream?.close();
-      messageListenerSubscription?.cancel();
+      messageListenerSubscription.cancel();
       messageStream.close();
       chatIds.clear();
-      chatListenerSubscription = null;
       chatStream = null;
       chatStream = new StreamController.broadcast();
       messageStream = new StreamController.broadcast();
@@ -529,28 +575,38 @@ class ChatDatsSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<bool> messagesSeen({required List<String> messagesIds}) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+  Future<bool> messagesSeen(
+      {required List<Map<String, dynamic>> messages}) async {
+   /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-        Execution execution = await functions.createExecution(
-            functionId: "confirmMessagesHadBeenRead",
-            data: jsonEncode({"messagesIds": messagesIds}));
+        List<MessageModel> messagesParsed = [];
+        messages.forEach((element) {
+          messagesParsed.add(MessageModel(
+            ObjectId.fromHexString(element["messageId"]),
+            element["messageContent"],
+            element["senderId"],
+            GlobalDataContainer.userId,
+            element["conversationId"],
+            element["timestamp"],
+            element["messageId"],
+            true,
+            element["messageType"],
+          ));
+        });
 
-        int status = jsonDecode(execution.response)["status"];
-        String messageResponse = jsonDecode(execution.response)["message"];
+        await source.realm!.writeAsync(() {
+          source.realm?.addAll(messagesParsed, update: true);
+        });
 
-        if (status == 200) {
-          return true;
-        } else {
-          throw ChatException(message: messageResponse);
-        }
+        return true;
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
+
+    return true;
   }
 
   @override
@@ -572,28 +628,28 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> createBlindDate() async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+   /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Map<String, dynamic> locationServicesStatus =
             await LocationService.instance.locationServicesState();
         if (locationServicesStatus["status"] == "correct") {
-          Functions functions = Functions(Dependencies.serverAPi.client!);
-          Execution execution = await functions.createExecution(
-              functionId: "createBlindDate",
-              data: jsonEncode({
-                "userId": GlobalDataContainer.userId,
-                "distance": 6,
-                "lat": locationServicesStatus["lat"],
-                "lon": locationServicesStatus["lon"],
-              }));
-
-          int status = jsonDecode(execution.response)["status"];
-          String messageResponse = jsonDecode(execution.response)["message"];
+          final response = await Dependencies
+              .serverAPi.app!.currentUser!.functions
+              .call("createBlindDate", [
+            jsonEncode({
+              "userId": GlobalDataContainer.userId,
+              "distance": 60,
+              "lat": locationServicesStatus["lat"],
+              "lon": locationServicesStatus["lon"],
+            })
+          ]);
+          int status = jsonDecode(response)["executionCode"];
+          String message = jsonDecode(response)["message"];
 
           if (status == 200) {
             return true;
           } else {
-            throw ChatException(message: messageResponse);
+            throw ChatException(message: "Something went wrong");
           }
         } else {
           throw LocationServiceException(
@@ -608,7 +664,9 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/
+
+    return true;
   }
 
   @override
@@ -623,24 +681,60 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> revealBlindDate({required String chatId}) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+  /*  if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-        Execution execution = await functions.createExecution(
-            functionId: "revealBlindDate",
-            data: jsonEncode({"chatId": chatId}));
-        int status = jsonDecode(execution.response)["status"];
-        String messageResponse = jsonDecode(execution.response)["message"];
+        final response = await Dependencies
+            .serverAPi.app!.currentUser!.functions
+            .call("revealBlindDate", [
+          jsonEncode({"chatId": chatId})
+        ]);
+
+        int status = jsonDecode(response)["executionCode"];
+
         if (status == 200) {
           return true;
         } else {
-          throw ChatException(message: messageResponse);
+          throw ChatException(message: "Something went wrong");
         }
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
+    }*/
+
+    return true;
+  }
+
+  @override
+  AdvertisingServices advertisingServices;
+
+  @override
+  void closeAdsStreams() {
+    advertisingServices.closeStream();
+  }
+
+  @override
+  // TODO: implement rewadedAdvertismentStatusListener
+  StreamController<Map<String, dynamic>>
+      get rewadedAdvertismentStatusListener =>
+          advertisingServices.rewardedAdvertismentStateStream;
+
+  @override
+  Future<bool> showRewardedAd() async {
+    if (await Dependencies.networkInfoContract.isConnected) {
+      try {
+        return advertisingServices.showAd();
+      } catch (e) {
+        throw ChatException(message: "FAILED");
+      }
+    } else {
+      throw NetworkException(message: kNetworkErrorMessage);
     }
+  }
+  
+  @override
+  void subscribeToMainDataSource() {
+    // TODO: implement subscribeToMainDataSource
   }
 }

@@ -1,16 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:octo_image/octo_image.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
-import '../../../ReportUsers/ReportScreen.dart';
-import '../../../../core/common/profileCharacteristics.dart';
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../controllerDef.dart';
 import '../../ProfileEntity.dart';
@@ -18,6 +14,7 @@ import '../homeScrenPresentation.dart';
 import 'ProfileCharacteristicsWidget.dart';
 import 'ProfileDescription.dart';
 import 'ProfilePicture.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 // ignore: must_be_immutable
 class ProfileWidget extends StatefulWidget {
@@ -48,8 +45,9 @@ enum ScreenRatingType { NONE, MAYBE, PASS, LIKE }
 class _ProfileWidgetState extends State<ProfileWidget> {
   ScreenRatingType screenReactionType = ScreenRatingType.NONE;
   List<Widget> widgetList = [];
-  double ratingValue = 5;
+  double ratingValue = 50;
   bool showAd = true;
+  bool showRatingWall = false;
 
   @override
   void initState() {
@@ -66,6 +64,14 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     generateList();
   }
 
+  setScreenReactionType(ScreenRatingType screenReactionType) {
+    this.screenReactionType = screenReactionType;
+  }
+
+  void onSelecionChanged(Set<ScreenRatingType> selected) {
+    if (screenReactionType == ScreenRatingType.NONE) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -76,139 +82,88 @@ class _ProfileWidgetState extends State<ProfileWidget> {
             ? Container(
                 height: widget.boxConstraints.maxHeight,
                 width: widget.boxConstraints.maxWidth,
-                child: Stack(
+                child: Column(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                          border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outlineVariant)),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(30)),
-                        child: Container(
-                          color: Theme.of(context).colorScheme.surface,
-                          child: ListView(
-                              addAutomaticKeepAlives: true,
-                              children: widgetList),
-                        ),
-                      ),
-                    ),
-                    profileInfo(
-                        name: widget.profile.name,
-                        age: widget.profile.age.toString(),
-                        distance: widget.profile.distance.toString(),
-                        showDistance: widget.showDistance),
-                    screenReactionType == ScreenRatingType.MAYBE
-                        ? maybeRatingScreen(homeScreenPresentation)
-                        : screenReactionType == ScreenRatingType.LIKE
-                            ? likeRatingScreen(homeScreenPresentation)
-                            : screenReactionType == ScreenRatingType.PASS
-                                ? passRatingScreen(homeScreenPresentation)
-                                : Container(),
-                    widget.needRatingWidget
-                        ? Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: EdgeInsets.only(bottom: 30.h),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      showRatingScreen(ReactionType.PASS,
-                                          homeScreenPresentation);
-                                    },
-                                    child: Container(
-                                      height: 150.h,
-                                      width: 150.h,
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              spreadRadius: 5.h,
-                                              blurRadius: 5.h,
-                                              blurStyle: BlurStyle.normal)
-                                        ],
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: SvgPicture.asset(
-                                        "assets/passEmoji.svg",
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      showRatingScreen(ReactionType.MAYBE,
-                                          homeScreenPresentation);
-                                    },
-                                    child: Container(
-                                      height: 150.h,
-                                      width: 150.h,
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              spreadRadius: 5.h,
-                                              blurRadius: 5.h,
-                                              blurStyle: BlurStyle.normal)
-                                        ],
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: SvgPicture.asset(
-                                        "assets/maybeEmoji.svg",
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      showRatingScreen(ReactionType.LIKE,
-                                          homeScreenPresentation);
-                                    },
-                                    child: Container(
-                                      height: 150.h,
-                                      width: 150.h,
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              spreadRadius: 5.h,
-                                              blurRadius: 5.h,
-                                              blurStyle: BlurStyle.normal)
-                                        ],
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: SvgPicture.asset(
-                                        "assets/likeEmojy.svg",
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                    Flexible(
+                      flex: 25,
+                      fit: FlexFit.tight,
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                border: Border.all(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant)),
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              child: Container(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: ListView(
+                                    addAutomaticKeepAlives: true,
+                                    children: widgetList),
                               ),
                             ),
-                          )
-                        : Container()
+                          ),
+                          profileInfo(
+                              name: widget.profile.name,
+                              age: widget.profile.age.toStringAsFixed(0),
+                              distance:
+                                  widget.profile.distance.toStringAsFixed(0),
+                              showDistance: widget.showDistance),
+                          showRatingWall == true
+                              ? maybeRatingScreen(homeScreenPresentation)
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                    Flexible(
+                      flex: 4,
+                      fit: FlexFit.loose,
+                      child: Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            fit: FlexFit.loose,
+                            child: SvgPicture.asset(
+                              "assets/passEmoji.svg",
+                              height: 150.sp,
+                              width: 150.sp,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 10,
+                            fit: FlexFit.tight,
+                            child: Slider.adaptive(
+                                onChangeStart: (value) {
+                                  showRatingWall = true;
+                                  setState(() {});
+                                },
+                                max: 100,
+                                min: 1,
+                                value: ratingValue,
+                                onChanged: (value) {
+                                  ratingValue = value;
+                                  setState(() {});
+                                }),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            fit: FlexFit.loose,
+                            child: Icon(
+                              LineAwesomeIcons.heart_1,
+                              size: 150.sp,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      )),
+                    )
                   ],
                 ))
             : Center(
@@ -232,7 +187,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         width: widget.boxConstraints.maxWidth,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             gradient: LinearGradient(
                 colors: [Colors.black, Colors.transparent],
                 begin: Alignment.topCenter,
@@ -280,143 +235,128 @@ class _ProfileWidgetState extends State<ProfileWidget> {
         ));
   }
 
-  Widget likeRatingScreen(HomeScreenPresentation homeScreenPresentation) {
-    return Container(
-      height: widget.boxConstraints.maxHeight,
-      width: widget.boxConstraints.maxWidth,
-      decoration: BoxDecoration(
-          color: Colors.green,
-          borderRadius: BorderRadius.all(Radius.circular(30))),
-      child: Padding(
-        padding: EdgeInsets.all(40.h),
-        child: Column(
-          children: [
-            Container(
-              height: 400.h,
-              width: 400.h,
-              child: SvgPicture.asset("assets/likeEmojy.svg"),
-            ),
-            Text(
-              "Te gusta",
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .apply(fontWeightDelta: 2),
-            ),
-            Divider(
-              height: 100.h,
-              color: Colors.transparent,
-            ),
-            Text(
-              "Te gusta mucho....... ¿El anillo pa cuando?",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            Divider(
-              height: 100.h,
-              color: Colors.transparent,
-            ),
-            FilledButton(
-              onPressed: () {
-                rateWithLike(homeScreenPresentation);
-              },
-              child: Text("Continuar"),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget passRatingScreen(HomeScreenPresentation homeScreenPresentation) {
-    return Container(
-      height: widget.boxConstraints.maxHeight,
-      width: widget.boxConstraints.maxWidth,
-      decoration: BoxDecoration(
-          color: Colors.red.shade800,
-          borderRadius: BorderRadius.all(Radius.circular(30))),
-      child: Padding(
-        padding: EdgeInsets.all(40.h),
-        child: Column(
-          children: [
-            Container(
-              height: 400.h,
-              width: 400.h,
-              child: SvgPicture.asset("assets/passEmoji.svg"),
-            ),
-            Text(
-              "No te gusta",
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .apply(fontWeightDelta: 2),
-            ),
-            Divider(
-              height: 100.h,
-              color: Colors.transparent,
-            ),
-            Text(
-              "No es tu tipo",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            Divider(
-              height: 100.h,
-              color: Colors.transparent,
-            ),
-            FilledButton(
-              onPressed: () {
-                rateWithMaybe(homeScreenPresentation);
-              },
-              child: Text("Continuar"),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget maybeRatingScreen(HomeScreenPresentation homeScreenPresentation) {
     return Container(
       height: widget.boxConstraints.maxHeight,
       width: widget.boxConstraints.maxWidth,
       decoration: BoxDecoration(
-          color: Colors.amber.withAlpha(255),
-          borderRadius: BorderRadius.all(Radius.circular(30))),
+          color: Theme.of(context).colorScheme.surface.withAlpha(200),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Padding(
         padding: EdgeInsets.all(40.h),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(
-              height: 400.h,
-              width: 400.h,
+            CircularPercentIndicator(
+                circularStrokeCap: CircularStrokeCap.round,
+                progressColor: Theme.of(context).colorScheme.primary,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                lineWidth: 50.w,
+                radius: 250.sp,
+                startAngle: 360,
+                percent: ratingValue / 100,
+                center: Text(
+                  "${ratingValue.toStringAsFixed(0)}% ",
+                  style: Theme.of(context).textTheme.displaySmall,
+                )),
+            /*  Container(
+              height: 200.h,
+              width: 200.h,
               child: SvgPicture.asset("assets/maybeEmoji.svg"),
-            ),
-            Text(
-              "Quizas te guste",
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium!
-                  .apply(fontWeightDelta: 2),
-            ),
+            ),*/
+            ratingValue <= 33
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.rating_dislike,
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall!
+                                .apply(fontWeightDelta: 2),
+                          ),
+                          SvgPicture.asset("assets/passEmoji.svg")
+                        ],
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.rating_dislike_description,
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ],
+                  )
+                : ratingValue > 33 && ratingValue <= 66
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                               AppLocalizations.of(context)!.rating_maybe,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall!
+                                    .apply(fontWeightDelta: 2),
+                              ),
+                              SvgPicture.asset("assets/maybeEmoji.svg")
+                            ],
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.rating_maybe_description,
+                            textAlign: TextAlign.left,
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!.rating_like,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall!
+                                    .apply(fontWeightDelta: 2),
+                              ),
+                              SvgPicture.asset("assets/likeEmojy.svg")
+                            ],
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.rating_like_description,
+                            textAlign: TextAlign.left,
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
             Divider(
               height: 100.h,
               color: Colors.transparent,
             ),
-            Text(
-              "No lo tienes claro y quieres ver si pasa algo o no",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            Divider(
-              height: 100.h,
-              color: Colors.transparent,
-            ),
-            FilledButton(
-              onPressed: () {
-                rateWithMaybe(homeScreenPresentation);
-              },
-              child: Text("Continuar"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    showRatingWall = false;
+                    setState(() {});
+                  },
+                  child: Text(AppLocalizations.of(context)!.rating_go_back_to_profile_button),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    rateWithMaybe(homeScreenPresentation);
+                    ratingValue = 50;
+                  },
+                  child: Text(AppLocalizations.of(context)!.rating_send_rating_and_continue_button),
+                ),
+              ],
             )
           ],
         ),
@@ -426,17 +366,17 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
   void rateWithLike(HomeScreenPresentation homeScreenPresentation) {
     homeScreenPresentation.sendReaction(
-        ReactionType.LIKE, widget.listIndex, widget.boxConstraints);
+        ratingValue.toInt(), widget.listIndex, widget.boxConstraints);
   }
 
   void rateWithMaybe(HomeScreenPresentation homeScreenPresentation) {
     homeScreenPresentation.sendReaction(
-        ReactionType.MAYBE, widget.listIndex, widget.boxConstraints);
+        ratingValue.toInt(), widget.listIndex, widget.boxConstraints);
   }
 
   void rateWithPass(HomeScreenPresentation homeScreenPresentation) {
     homeScreenPresentation.sendReaction(
-        ReactionType.PASS, widget.listIndex, widget.boxConstraints);
+        ratingValue.toInt(), widget.listIndex, widget.boxConstraints);
     screenReactionType = ScreenRatingType.NONE;
     setState(() {});
   }
@@ -461,8 +401,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
 
   void generateList() {
     for (int i = 0; i < widget.images.length; i++) {
-      dynamic imagen = widget.images[i]["imageId"];
-      if (imagen != "empty") {
+      dynamic imagen = widget.images[i]["imageData"];
+      if (imagen != null) {
         widgetList.add(ProfilePicture(
           isFirstPicture: i == 0 ? true : false,
           profilePicture: widget.images[i],

@@ -5,7 +5,6 @@ import 'package:dartz/dartz.dart';
 
 import '../../core/error/Failure.dart';
 import '../DataManager.dart';
-import '../Rewards/RewardScreenControllerBridge.dart';
 import '../UserSettings/UserSettingsToSettingsControllerBridge.dart';
 import '../controllerDef.dart';
 import 'SettingsEntity.dart';
@@ -46,7 +45,6 @@ class SettingsControllerImpl implements SettingsController {
   @override
   void initialize() {
     settingsRepository.getStreamParserController?.stream.listen((event) {
-      String payloadType = event["payloadType"];
       settingsEntity = event["payload"];
       appSettingstoSettingscontrollerBridge.initializeStream();
       userSettingsToSettingsControllerBridge.initializeStream();
@@ -108,11 +106,11 @@ class SettingsControllerImpl implements SettingsController {
         .controllerBridgeInformationSenderStream?.stream
         .listen((event) {
       String data = event["data"]["price"];
-      bool isPremium=event["data"]["isUserPremium"];
+      bool isPremium = event["data"]["isUserPremium"];
 
       if (settingsEntity != null) {
         settingsEntity!.subscriptionPrice = data;
-        settingsEntity!.isUserPremium=isPremium;
+        settingsEntity!.isUserPremium = isPremium;
         updateDataController?.add(SettingsInformationSender(
             isAppSettingsUpdating: false,
             isUserSettingsUpdating: null,

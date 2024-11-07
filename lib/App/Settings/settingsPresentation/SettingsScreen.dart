@@ -1,21 +1,16 @@
 import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
-import 'package:purchases_flutter/models/offering_wrapper.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../Utils/getImageFile.dart';
 import '../../../Utils/routes.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
-import '../../../core/iapPurchases/iapPurchases.dart';
 import '../../ApplicationSettings/appSettingsPresentation/appSettingsScreen.dart';
 import '../../PurchaseSystem/purchaseSystemPresentation/purchaseScreen.dart';
 import '../../UserSettings/userSettingsPresentation/userSettingsScreen.dart';
@@ -24,7 +19,6 @@ import 'settingsScreenPresentation.dart';
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/SettingsScreen';
   Uint8List? imageData;
-  final storage = Storage(Dependencies.serverAPi.client!);
 
   SettingsScreen();
 
@@ -66,14 +60,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ChangeNotifierProvider.value(
       value: Dependencies.settingsScreenPresentation,
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         child: SafeArea(
           child: Consumer<SettingsScreenPresentation>(builder:
               (BuildContext context,
                   SettingsScreenPresentation settingsScreenPresentation,
                   Widget? child) {
             return Container(
-              color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
               child: settingsScreenPresentation.settingsScreenState ==
                       SettingsScreenState.loaded
                   ? Column(children: [
@@ -120,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               TextButton.icon(
-                                  label: Text("Ajustes"),
+                                  label: Text(AppLocalizations.of(context)!.settings_title),
                                   onPressed: () {
                                     Navigator.push(context,
                                         GoToRoute(page: AppSettingsScreen()));
@@ -147,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ],
                                   )),
                               TextButton.icon(
-                                  label: Text("Editar perfil"),
+                                  label: Text(AppLocalizations.of(context)!.settings_editProfile),
                                   onPressed: () {
                                     Navigator.push(context,
                                         GoToRoute(page: UserSettingsScreen()));
@@ -191,14 +185,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: () =>
                                     settingsScreenPresentation.restart(),
                                 icon: Icon(Icons.refresh),
-                                label: Text("Intentar de nuevo")),
+                                label: Text(AppLocalizations.of(context)!
+                                    .try_again)),
                           ))
                       : Container(
                           color: Colors.white,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Cargando"),
+                              Text(AppLocalizations.of(context)!.loading),
                               Container(
                                 height: 300.h,
                                 width: 300.h,
@@ -232,26 +227,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Text(
-                          "Hotty Plus",
+                          AppLocalizations.of(context)!.settings_hottyPlus,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 90.sp),
                         ),
                         Text(
-                          "-Monedas Infinitas",
+                          AppLocalizations.of(context)!.settings_hottyPlus_infiniteCoins,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 60.sp),
                         ),
                         Text(
-                          "Revela reacciones sin parar, tú pones el límite",
+                          AppLocalizations.of(context)!.settings_hottyPlus_infiniteCoinsDescription,
                           style: GoogleFonts.lato(color: Colors.white),
                         ),
                         Text(
-                          "-Sin anuncios",
+                          AppLocalizations.of(context)!.settings_hottyPlus_noAds,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 60.sp),
                         ),
                         Text(
-                          "Disfruta de una experiencia mas fluida sin anuncios",
+                          AppLocalizations.of(context)!.settings_hottyPlus_noAdsDescription,
                           style: GoogleFonts.lato(color: Colors.white),
                         ),
                       ],
@@ -265,7 +260,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text("Desde solo"),
+                          Text(AppLocalizations.of(context)!.settings_hottyPlus_from),
                           Text(settingsScreenPresentation
                               .settingsEntity.subscriptionPrice),
                         ],
@@ -281,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Text(
-                          "Hotty Plus",
+                          AppLocalizations.of(context)!.settings_hottyPlus,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 90.sp),
                         ),
@@ -290,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.transparent,
                         ),
                         Text(
-                          "Gracias por usar Hotty+",
+                          AppLocalizations.of(context)!.settings_hottyPlus_thanksForUsing,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 60.sp),
                         ),
@@ -299,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.transparent,
                         ),
                         Text(
-                          "Puedes gestionar tu suscription pulsando 'Gestionar suscripción'",
+                          AppLocalizations.of(context)!.settings_hottyPlus_manageSubscription,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.lato(color: Colors.white),
                         ),
@@ -311,7 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Navigator.push(
                             context, GoToRoute(page: SubscriptionsMenu()));
                       },
-                      child: Text("Gestionar suscripción"))
+                      child: Text(AppLocalizations.of(context)!.settings_hottyPlus_manageSubscriptionButton))
                 ],
               ),
       ),

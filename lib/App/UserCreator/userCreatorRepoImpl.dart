@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
-import 'package:geolocator_platform_interface/src/enums/location_permission.dart';
 
 import '../../core/error/Exceptions.dart';
 import '../../core/error/Failure.dart';

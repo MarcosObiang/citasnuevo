@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../userCreatorPresentation.dart';
 
@@ -25,7 +26,7 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Tu sexo",
+              AppLocalizations.of(context)!.userSexPreferences_yourSex,
               style: GoogleFonts.lato(fontSize: 80.sp),
             ),
             CheckboxListTile(
@@ -36,7 +37,7 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
                   widget.userCreatorPresentation.setUserSex(isUserWoman: false);
                 }
               },
-              title: Text("Masculino"),
+              title: Text(AppLocalizations.of(context)!.userSexPreferences_male),
             ),
             CheckboxListTile(
               value: widget.userCreatorPresentation.getUserCreatorEntity
@@ -47,11 +48,11 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
                   widget.userCreatorPresentation.setUserSex(isUserWoman: true);
                 }
               },
-              title: Text("Femenino"),
+              title: Text(AppLocalizations.of(context)!.userSexPreferences_female),
             ),
             Text(
-              "Me interesan",
-              style: GoogleFonts.lato(fontSize: 80.sp),
+              AppLocalizations.of(context)!.userSexPreferences_meInteresan,
+              style: GoogleFonts.lato(fontSize: 60.sp),
             ),
             CheckboxListTile(
               value: widget.userCreatorPresentation.getUserCreatorEntity
@@ -66,7 +67,7 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
                       showBothSexes: false, showWoman: false);
                 }
               },
-              title: Text("Hombres"),
+              title: Text(AppLocalizations.of(context)!.userSexPreferences_hombres),
             ),
             CheckboxListTile(
               value: widget.userCreatorPresentation.getUserCreatorEntity
@@ -81,7 +82,7 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
                       showBothSexes: false, showWoman: true);
                 }
               },
-              title: Text("Mujeres"),
+              title: Text(AppLocalizations.of(context)!.userSexPreferences_mujeres),
             ),
             CheckboxListTile(
               value: widget
@@ -92,16 +93,16 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
                       showBothSexes: true, showWoman: true);
                 }
               },
-              title: Text("Ambos"),
+              title: Text(AppLocalizations.of(context)!.userSexPreferences_ambos),
             ),
             Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
 
               children: [
-                  Text(
-                    "3/8",
-                    style: GoogleFonts.lato(fontSize: 60.sp),
-                  ),
+                Text(
+                  "3/8",
+                  style: GoogleFonts.lato(fontSize: 60.sp),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -111,20 +112,20 @@ class _UserSexPreferencesState extends State<UserSexPreferences> {
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut);
                         },
-                        icon: Icon(Icons.arrow_back),
-                        label: Text("Atras")),
+                        icon: Icon(Icons.arrow_back_ios_new),
+                        label: Text(AppLocalizations.of(context)!.userSexPreferences_atras)),
                     ElevatedButton.icon(
                         onPressed: () => widget.pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.easeInOut),
-                        icon: Icon(Icons.arrow_forward),
-                        label: Text("Siguiente")),
+                        icon: Icon(Icons.arrow_forward_ios),
+                        label: Text(AppLocalizations.of(context)!.userSexPreferences_siguiente)),
                   ],
                 ),
-                 ElevatedButton.icon(
+                ElevatedButton.icon(
                               onPressed: () => widget.userCreatorPresentation.logOut(),
                               icon: Icon(Icons.cancel),
-                              label: Text("Salir"))
+                              label: Text(AppLocalizations.of(context)!.userSexPreferences_salir))
               ],
             )
           ],

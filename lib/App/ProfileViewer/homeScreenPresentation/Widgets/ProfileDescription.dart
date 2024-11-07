@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../ReportUsers/ReportScreen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileDescription extends StatefulWidget {
   final String bio;
@@ -24,7 +25,7 @@ class _ProfileDescriptionState extends State<ProfileDescription> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Bio",
+              AppLocalizations.of(context)!.sobre_mi,
               style: Theme.of(context).textTheme.bodyLarge?.apply(
                   fontWeightDelta: 2,
                   color: Theme.of(context).colorScheme.onPrimaryContainer),
@@ -34,7 +35,9 @@ class _ProfileDescriptionState extends State<ProfileDescription> {
               child: Padding(
                 padding: EdgeInsets.all(10.h),
                 child: Text(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."),
+                  widget.bio,
+                  style: Theme.of(context).textTheme.bodyLarge?.apply(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer),),
               ),
             ),
           ],
@@ -44,6 +47,8 @@ class _ProfileDescriptionState extends State<ProfileDescription> {
   }
 }
 
+
+
 class ProfileFoot extends StatelessWidget {
   final BoxConstraints constraints;
   final String profileId;
@@ -52,11 +57,11 @@ class ProfileFoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: constraints.maxHeight / 2,
+      height: constraints.maxHeight / 3,
       width: constraints.maxWidth,
       child: Center(
         child: FilledButton.icon(
-            label: Text("Denunciar perfil"),
+            label: Text(AppLocalizations.of(context)!.report_user),
             onPressed: () {
               goToReportScreen(profileId, context);
             },

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:dart_appwrite/models.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dart_appwrite/dart_appwrite.dart';

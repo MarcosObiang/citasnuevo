@@ -3,11 +3,8 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'rewardScreenPresentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 // ignore: must_be_immutable
 class ShareCodeRewardCard extends StatefulWidget {
@@ -46,7 +43,7 @@ class _ShareCodeRewardCardState extends State<ShareCodeRewardCard>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Invita a un amigo y gana",
+                      Text(AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinTitle,
                           style: Theme.of(context).textTheme.titleMedium?.apply(
                               color: Theme.of(context).colorScheme.onSurface)),
                       Row(
@@ -70,7 +67,7 @@ class _ShareCodeRewardCardState extends State<ShareCodeRewardCard>
                     height: 50.h,
                   ),
                   Text(
-                      "Comparte este codigo con un amigo y gana cuando se registre",
+                      AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinMessage,
                       style: Theme.of(context).textTheme.bodyMedium?.apply(
                           color: Theme.of(context).colorScheme.onSurface)),
                   Divider(
@@ -80,7 +77,7 @@ class _ShareCodeRewardCardState extends State<ShareCodeRewardCard>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text("Codigo",
+                      Text(AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinCodeTitle,
                           style: Theme.of(context).textTheme.bodyMedium?.apply(
                               color: Theme.of(context).colorScheme.onSurface)),
                       SelectableText(
@@ -97,7 +94,7 @@ class _ShareCodeRewardCardState extends State<ShareCodeRewardCard>
                                     .sharingLink as String));
                           },
                           child: Text(
-                            'Copiar codigo',
+                            AppLocalizations.of(context)!.sharedLinkRewardWidget_bonusForInviteFriendsTitle,
                           ))
                     ],
                   ),

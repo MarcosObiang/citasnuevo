@@ -6,7 +6,6 @@ import 'package:citasnuevo/App/ApplicationSettings/appSettingsController.dart';
 import 'package:citasnuevo/App/ApplicationSettings/appSettingsRepo.dart';
 import 'package:citasnuevo/App/ApplicationSettings/appSettingsRepoImpl.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
-import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';

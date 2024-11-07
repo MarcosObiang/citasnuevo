@@ -75,8 +75,8 @@ class UserCharacteristic {
   int characteristicValueIndex;
   int positionIndex;
   bool userHasValue;
-  String characteristicName;
-  String characteristicValue;
+  Function characteristicName;
+  Function characteristicValue;
   String characteristicCode;
   List<Map<int, dynamic>> valuesList;
   IconData characteristicIcon;

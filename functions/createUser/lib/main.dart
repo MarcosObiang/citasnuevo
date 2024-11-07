@@ -173,8 +173,7 @@ Future<void> start(final req, final res) async {
           "penalizationEndTimestampMs": 0,
           "verificationImageLink": "NOT_AVAILABLE",
           "imageExpectedHandGesture": "NOT_AVAILABLE",
-          "verificationStatus":
-              VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
+          "verificationStatus":VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
           "adConsentFormShown": false,
           "showPersonalizedAds": false,
           "isBlindDateActive": true,

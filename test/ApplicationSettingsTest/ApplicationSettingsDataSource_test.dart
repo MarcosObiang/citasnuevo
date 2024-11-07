@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:citasnuevo/App/ApplicationSettings/ApplicationSettingsDataSource.dart';
 import 'package:citasnuevo/App/MainDatasource/principalDataSource.dart';
-import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
 import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
@@ -51,7 +50,6 @@ void main() {
     applicationSettingsDataSource = ApplicationDataSourceImpl(
         authService: mockAuthService,
         source: mockApplicationDataSource,
-        functinos: mockFunctions,
         networkInfoContract: mockNetworkInfoContract);
   });
 
@@ -96,7 +94,7 @@ void main() {
           .thenAnswer((value) => Future.value(true));
       when(mockFunctions.createExecution(
               functionId: "appSettingsUpdate",
-              data: jsonEncode(userSettingsMock)))
+              body: jsonEncode(userSettingsMock)))
           .thenAnswer((value) => Future.value(Execution(
               $id: "id",
               $createdAt: "createdAt",
@@ -124,7 +122,7 @@ void main() {
           .thenAnswer((value) => Future.value(true));
       when(mockFunctions.createExecution(
               functionId: "appSettingsUpdate",
-              data: jsonEncode(userSettingsMock)))
+              body: jsonEncode(userSettingsMock)))
           .thenAnswer((value) => Future.value(Execution(
               $id: "id",
               $createdAt: "createdAt",
@@ -163,7 +161,7 @@ void main() {
 
     when(mockFunctions.createExecution(
             functionId: "deleteUser",
-            data: jsonEncode({"userId": GlobalDataContainer.userId})))
+            body: jsonEncode({"userId": GlobalDataContainer.userId})))
         .thenAnswer((_) => Future.value(Execution(
             $id: "id",
             $createdAt: "createdAt",
@@ -188,7 +186,7 @@ void main() {
 
     when(mockFunctions.createExecution(
             functionId: "deleteUser",
-            data: jsonEncode({"userId": GlobalDataContainer.userId})))
+            body: jsonEncode({"userId": GlobalDataContainer.userId})))
         .thenAnswer((_) => Future.value(Execution(
             $id: "id",
             $createdAt: "createdAt",

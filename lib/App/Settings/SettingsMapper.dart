@@ -1,4 +1,3 @@
-import '../../core/iapPurchases/iapPurchases.dart';
 import 'SettingsEntity.dart';
 
 class SettingsMapper {
@@ -10,7 +9,7 @@ class SettingsMapper {
    
     SettingsEntity settingsEntity = SettingsEntity(
         userName: latestSettings["name"],
-        userPicture: latestSettings["userPicture1"]["imageId"],
+        userPicture: latestSettings["userPicture1"]["imageData"],
         userAge: latestSettings["age"],
       );
 

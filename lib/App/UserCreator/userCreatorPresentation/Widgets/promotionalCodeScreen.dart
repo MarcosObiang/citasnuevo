@@ -1,16 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../../../core/globalData.dart';
 import '../userCreatorPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PromotionalCodeScreen extends StatefulWidget {
   PageController pageController;
@@ -57,7 +52,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Codigo de invitación",
+                    AppLocalizations.of(context)!.promotionalCodeScreen_invitationCode,
                     style: GoogleFonts.lato(fontSize: 90.sp),
                   ),
                 ],
@@ -82,7 +77,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                           decoration: InputDecoration(
                             counterText: "",
                             border: InputBorder.none,
-                            hintText: 'Codigo promocional',
+                            hintText: AppLocalizations.of(context)!.promotionalCodeScreen_promotionalCode,
                           ),
                           maxLength: 25,
                           onChanged: (value) {
@@ -98,7 +93,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                       color: Colors.transparent,
                     ),
                     Text(
-                      "Si tienes un codigo de invitacion te regalamos 5000 creditos gratis",
+                      AppLocalizations.of(context)!.promotionalCodeScreen_invitationCodeDescription,
                       style: GoogleFonts.lato(fontSize: 45.sp),
                     ),
                     Divider(
@@ -106,7 +101,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                       color: Colors.transparent,
                     ),
                     Text(
-                      "Si no tienes uno pulsa siguiente",
+                      AppLocalizations.of(context)!.promotionalCodeScreen_noInvitationCode,
                       style: GoogleFonts.lato(fontSize: 45.sp),
                     ),
                     Divider(
@@ -121,7 +116,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                                 .showPromotionalCodeInfo();
                           },
                           icon: Icon(Icons.help),
-                          label: Text("¿Que es un codigo de invitacion?")),
+                          label: Text(AppLocalizations.of(context)!.promotionalCodeScreen_whatIsInvitationCode)),
                     )
                   ],
                 ),
@@ -134,7 +129,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "1/7",
+                    AppLocalizations.of(context)!.promotionalCodeScreen_step,
                     style: GoogleFonts.lato(fontSize: 60.sp),
                   ),
                   Row(
@@ -145,7 +140,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                             widget.userCreatorPresentation.logOut();
                           },
                           icon: Icon(Icons.cancel_outlined),
-                          label: Text("Salir")),
+                          label: Text(AppLocalizations.of(context)!.promotionalCodeScreen_exit)),
                       ElevatedButton.icon(
                           onPressed: () {
                             widget.pageController.nextPage(
@@ -153,7 +148,7 @@ class _PromotionalCodeScreenState extends State<PromotionalCodeScreen> {
                                 curve: Curves.easeInOut);
                           },
                           icon: Icon(Icons.arrow_forward),
-                          label: Text("Siguiente")),
+                          label: Text(AppLocalizations.of(context)!.promotionalCodeScreen_next)),
                     ],
                   ),
                 ],

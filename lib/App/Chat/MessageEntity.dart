@@ -17,7 +17,7 @@ class Message {
   late String messageId;
   late String messageDateText;
   Uint8List? fileData;
-  Future<Uint8List?>? remitentFile = null;
+  Future<Uint8List?>? remitentFile;
 
   late MessageSendingState messageSendingState = MessageSendingState.SENT;
   MessageType messageType;

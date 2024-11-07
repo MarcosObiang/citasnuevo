@@ -1,5 +1,4 @@
 import '../ProfileViewer/ProfileEntity.dart';
-import '../../core/globalData.dart';
 import 'MessageEntity.dart';
 
 

@@ -9,6 +9,7 @@ import '../../DataManager.dart';
 import '../../../Utils/presentationDef.dart';
 import '../../../core/error/Exceptions.dart';
 import '../purchaseSystemController.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum PurchaseSystemScreenState { LOADED, LOADING, ERROR }
 
@@ -106,14 +107,16 @@ class PurchaseSystemPresentation extends ChangeNotifier
       setPurchaseOperationState = PurchaseOperationState.NOT_WAITING;
       if (l is NetworkFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: "Hotty npuede conectarse a internet",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_hottyNoInternet,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            content: "No se pudo realizar la operacion",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_operationFailed,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       }
     }, (r) {
       setPurchaseOperationState = PurchaseOperationState.NOT_WAITING;
@@ -135,21 +138,25 @@ class PurchaseSystemPresentation extends ChangeNotifier
       setPurchaseOperationState = PurchaseOperationState.NOT_WAITING;
       if (l is NetworkFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: "Hotty npuede conectarse a internet",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_hottyNoInternet,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       } else {
         PresentationDialogs.instance.showErrorDialog(
-            content: "No se pudo realizar la operacion",
+            content: AppLocalizations.of(startKey.currentContext!)!
+                .purchase_system_presentation_operationFailed,
             context: startKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(startKey.currentContext!)!.error);
       }
     }, (r) {
       setPurchaseOperationState = PurchaseOperationState.NOT_WAITING;
       PresentationDialogs.instance.showErrorDialog(
-          content: "La compra ha sido restaurada",
+          content: AppLocalizations.of(startKey.currentContext!)!
+              .purchase_system_presentation_purchaseRestored,
           context: startKey.currentContext,
-          title: "Compra restaurada");
+          title: AppLocalizations.of(startKey.currentContext!)!
+              .purchase_system_presentation_restoreCompleted);
     });
   }
 }

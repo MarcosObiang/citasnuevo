@@ -1,10 +1,7 @@
 import 'package:citasnuevo/App/PurchaseSystem/purchaseSystemPresentation/purchaseScreen.dart';
-import 'package:citasnuevo/App/Settings/settingsPresentation/SettingsScreen.dart';
 import 'package:citasnuevo/App/Verification/verificationPresentation/verificationScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -18,6 +15,8 @@ import 'promotionalRewardWidget.dart';
 import 'rewardScreenPresentation.dart';
 import 'shareCodeRewardWidget.dart';
 import 'sharedLinkRewardWidget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class RewardScreen extends StatefulWidget {
   static const routeName = '/RewardScreen';
@@ -60,7 +59,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              'Monedas gratis',
+                                             AppLocalizations.of(context)!.free_coins,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headlineSmall
@@ -84,7 +83,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                                   rewardScreenPresentation
                                                               .rewards
                                                               .waitingFirstReward ==
-                                                          false
+                                                          true
                                                       ? RepaintBoundary(
                                                           child: FirstRewardWidget(
                                                               rewardScreenPresentation:
@@ -94,7 +93,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                                   rewardScreenPresentation
                                                               .rewards
                                                               .promotionalCodePendingOfUse ==
-                                                          false
+                                                          true
                                                       ? RepaintBoundary(
                                                           child: PromotionalRewardWidget(
                                                               rewardScreenPresentation:
@@ -104,7 +103,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                                   rewardScreenPresentation
                                                               .rewards
                                                               .rewardTicketSuccesfulShares >
-                                                          -1
+                                                          0
                                                       ? RepaintBoundary(
                                                           child: SharedLinkRewardWidget(
                                                               rewardScreenPresentation:
@@ -158,7 +157,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                   ],
                                 )
                               : Center(
-                                  child: Text("Eres premium",
+                                  child: Text(AppLocalizations.of(context)!.you_are_a_premium_user,
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall
@@ -178,7 +177,7 @@ class _RewardScreenState extends State<RewardScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text("Cargando",
+                                  Text(AppLocalizations.of(context)!.loading,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyLarge
@@ -210,7 +209,7 @@ class _RewardScreenState extends State<RewardScreen> {
                               child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Error de carga",
+                              Text(AppLocalizations.of(context)!.loading_error,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
@@ -227,7 +226,7 @@ class _RewardScreenState extends State<RewardScreen> {
                                     rewardScreenPresentation.restart();
                                   },
                                   icon: Icon(Icons.refresh),
-                                  label: Text("Cargar de nuevo"))
+                                  label: Text(AppLocalizations.of(context)!.try_again))
                             ],
                           )),
                         )
@@ -251,12 +250,12 @@ class _RewardScreenState extends State<RewardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Anuncio incompleto",
+              AppLocalizations.of(context)!.ad_incomplete,
               style: Theme.of(context).textTheme.headlineSmall?.apply(
                   color: Theme.of(context).colorScheme.onErrorContainer),
             ),
             Text(
-              "Debes completar el anuncio para obtener tu recompensa",
+              AppLocalizations.of(context)!.you_must_complete_the_ad_to_get_your_reward,
               style: Theme.of(context).textTheme.bodyLarge?.apply(
                   color: Theme.of(context).colorScheme.onErrorContainer),
             ),
@@ -266,7 +265,7 @@ class _RewardScreenState extends State<RewardScreen> {
                       RewardedAdShowingState.adNotShowing;
                 },
                 child: Text(
-                  "Entendido",
+                AppLocalizations.of(context)!.understood,
                 ))
           ],
         ),
@@ -294,7 +293,7 @@ class _RewardScreenState extends State<RewardScreen> {
                   color: Theme.of(context).colorScheme.error,
                 ),
                 Text(
-                  "Error al mostrar anuncio",
+                 AppLocalizations.of(context)!.error_displaying_ad,
                   style: Theme.of(context).textTheme.headlineSmall?.apply(
                       color: Theme.of(context).colorScheme.onErrorContainer),
                 ),
@@ -305,7 +304,7 @@ class _RewardScreenState extends State<RewardScreen> {
               color: Colors.transparent,
             ),
             Text(
-              "No te preocupes, podras reclamar tu recompensa",
+              AppLocalizations.of(context)!.dont_worry_you_can_claim_your_reward,
               style: Theme.of(context).textTheme.bodyLarge?.apply(
                   color: Theme.of(context).colorScheme.onErrorContainer),
             ),
@@ -320,7 +319,7 @@ class _RewardScreenState extends State<RewardScreen> {
                 rewardScreenPresentation.askDailyReward(showAd: false);
               },
               child: Text(
-                "Reclamar recompensa",
+                AppLocalizations.of(context)!.claim_reward,
               ),
             )
           ],
@@ -339,7 +338,7 @@ class _RewardScreenState extends State<RewardScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Cargando anuncio",
+            AppLocalizations.of(context)!.loading,
             style: Theme.of(context).textTheme.titleMedium?.apply(
                 color: Theme.of(context).colorScheme.onSecondaryContainer),
           ),
@@ -369,21 +368,21 @@ class _RewardScreenState extends State<RewardScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Hotty Premium',
+              AppLocalizations.of(context)!.hotty_premium,
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
                   ?.apply(color: Theme.of(context).colorScheme.onSurface),
             ),
             Text(
-              'Consigue monedas infinitas',
+              AppLocalizations.of(context)!.get_infinite_coins,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
                   ?.apply(color: Theme.of(context).colorScheme.onSurface),
             ),
             Text(
-              'Experiecia sin anuncios',
+             AppLocalizations.of(context)!.ad_free_experience,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -394,7 +393,8 @@ class _RewardScreenState extends State<RewardScreen> {
                   Navigator.push(context, GoToRoute(page: SubscriptionsMenu()));
                 },
                 child: Text(
-                  'Desde ${rewardScreenPresentation.premiumPrice}',
+                  AppLocalizations.of(context)!.from(rewardScreenPresentation.premiumPrice)
+           ,
                 )),
           ],
         ),
@@ -414,7 +414,7 @@ class _RewardScreenState extends State<RewardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Verifica tu perfil y gana",
+                  Text(AppLocalizations.of(context)!.verify_your_profile_and_win,
                       style: Theme.of(context).textTheme.titleMedium?.apply(
                           color: Theme.of(context).colorScheme.onSurface)),
                   Row(
@@ -429,7 +429,7 @@ class _RewardScreenState extends State<RewardScreen> {
                   )
                 ],
               ),
-              Text("Gana 2000 monedas por verificar tu perfil",
+              Text(AppLocalizations.of(context)!.win_2000_coins_for_verifying_your_profile,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -440,7 +440,7 @@ class _RewardScreenState extends State<RewardScreen> {
                         context, GoToRoute(page: VerificationScreen()));
                   },
                   child: Text(
-                    'Verificar',
+                    AppLocalizations.of(context)!.verify,
                   )),
             ],
           ),

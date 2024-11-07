@@ -10,6 +10,7 @@ import '../../../ProfileViewer/ProfileEntity.dart';
 import '../../../ProfileViewer/homeScreenPresentation/Widgets/profileWidget.dart';
 import '../../ChatEntity.dart';
 import '../chatPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatProfileDetailsScreen extends StatefulWidget {
   String remitentId;
@@ -85,7 +86,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                 AppBar(
                   backgroundColor: Colors.transparent,
                   title: Text(
-                    "Detalles perfil",
+                    AppLocalizations.of(context)!.chat_profile_details_title,
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
@@ -145,7 +146,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                                                     padding:
                                                         const EdgeInsets.all(
                                                             8.0),
-                                                    child: Text("Error",
+                                                    child: Text(AppLocalizations.of(context)!.error,
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .headlineMedium
@@ -165,7 +166,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                                             color: Colors.transparent,
                                             height: 50.h,
                                           ),
-                                          Text("No se puede cargar el perfil",
+                                          Text(AppLocalizations.of(context)!.chat_error_loading_profile,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyLarge
@@ -185,7 +186,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                                                           widget.remitentId,
                                                       chatId: widget.chatId);
                                             },
-                                            child: Text("Intentar de nuevo"),
+                                            child: Text(AppLocalizations.of(context)!.try_again),
                                           )
                                         ],
                                       )
@@ -213,7 +214,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                                               ),
                                               Container(
                                                 child: Center(
-                                                  child: Text("Cargando",
+                                                  child: Text(AppLocalizations.of(context)!.loading,
                                                       style: Theme.of(context)
                                                           .textTheme
                                                           .bodyMedium
@@ -236,7 +237,7 @@ class _ChatProfileDetailsScreenState extends State<ChatProfileDetailsScreen> {
                           child: ElevatedButton.icon(
                               onPressed: () => Navigator.pop(context),
                               icon: Icon(Icons.arrow_back),
-                              label: Text("Atras")),
+                              label: Text(AppLocalizations.of(context)!.back)),
                         )),
                       )
                     ],

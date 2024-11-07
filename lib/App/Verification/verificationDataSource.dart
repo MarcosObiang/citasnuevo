@@ -11,7 +11,6 @@ import '../MainDatasource/principalDataSource.dart';
 import '../../core/error/Exceptions.dart';
 import '../../core/globalData.dart';
 import '../../core/params_types/params_and_types.dart';
-import '../../core/platform/networkInfo.dart';
 
 abstract class VerificationDataSource
     implements DataSource, ModuleCleanerDataSource {
@@ -60,7 +59,7 @@ class VerificationDataSourceImpl implements VerificationDataSource {
   Future<bool> submitVerificationData({required Uint8List pictureBytes}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
+      /*  Storage appwriteStorage = Storage(Dependencies.serverAPi.client!);
         Functions functions = Functions(Dependencies.serverAPi.client!);
         File result = await appwriteStorage.createFile(
             bucketId: "63712fd65399f32a5414",
@@ -72,9 +71,9 @@ class VerificationDataSourceImpl implements VerificationDataSource {
         String downloadUrl = result.$id;
         Execution execution = await functions.createExecution(
             functionId: "initVerificationProcess",
-            data: jsonEncode({"imageLink": downloadUrl}));
-        int status = jsonDecode(execution.response)["status"];
-        String message = jsonDecode(execution.response)["message"];
+            body: jsonEncode({"imageLink": downloadUrl}));*/
+        int status = 200;
+        String message = "casa";
         if (status == 200) {
           return true;
         } else {
@@ -107,12 +106,12 @@ class VerificationDataSourceImpl implements VerificationDataSource {
   @override
   Future<bool> requestVerificationProcess() async {
     if (await Dependencies.networkInfoContract.isConnected) {
-      Functions functions = Functions(Dependencies.serverAPi.client!);
+     /* Functions functions = Functions(Dependencies.serverAPi.client!);
 
       Execution execution = await functions.createExecution(
-          functionId: "createNewVerificationInstance");
-      int status = jsonDecode(execution.response)["status"];
-      String message = jsonDecode(execution.response)["message"];
+          functionId: "createNewVerificationInstance");*/
+      int status = 200;
+      String message = "casa";
 
       if (status == 200) {
         return true;

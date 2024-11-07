@@ -6,7 +6,6 @@ import 'package:appwrite/models.dart';
 
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../core/error/Exceptions.dart';
-import '../../../../core/platform/networkInfo.dart';
 import '../MainDatasource/principalDataSource.dart';
 
 abstract class ReportDataSource implements DataSource {
@@ -32,31 +31,35 @@ class ReportDataSourceImpl implements ReportDataSource {
       required String idUserReported,
       required String reportDetails,
       required bool blockUser}) async {
-    if (await Dependencies.networkInfoContract.isConnected) {
+  /*  if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        Functions functions = Functions(Dependencies.serverAPi.client!);
-        Execution execution = await functions.createExecution(
-            functionId: "reportUser",
-            data: jsonEncode({
-              "userReported": idUserReported,
-              "userId": idReporter,
-              "reportDetails": reportDetails,
-              "includeMessages": false,
-              "chatId": ""
-            }));
+        final response = await Dependencies
+            .serverAPi.app!.currentUser!.functions
+            .call("reportUsers", [
+          jsonEncode({
+            "userReported": idUserReported,
+            "userId": idReporter,
+            "reportDetails": reportDetails,
+            "includeMessages": false,
+            "chatId": ""
+          })
+        ]);
 
-        int status = jsonDecode(execution.response)["status"];
+        var responseParsed=jsonDecode(response);
+
+        int status = responseParsed["executionCode"];
+        String message = responseParsed["message"];
         if (status == 200) {
           return true;
         } else {
-          throw ReportException(message: execution.response);
+          throw ReportException(message: message);
         }
       } catch (e) {
         throw ReportException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }
+    }*/ return true;
   }
 
   @override

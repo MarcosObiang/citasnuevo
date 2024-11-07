@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FirstRewardWidget extends StatefulWidget {
   RewardScreenPresentation rewardScreenPresentation;
@@ -70,7 +71,7 @@ class _FirstRewardWidgetState extends State<FirstRewardWidget>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Bono de bienvenida",
+                            AppLocalizations.of(context)!.welcome_bonus,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -101,7 +102,7 @@ class _FirstRewardWidgetState extends State<FirstRewardWidget>
                       ),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text("Monedas gratis registrarte",
+                        child: Text(   AppLocalizations.of(context)!.free_coins_to_register,
                             textAlign: TextAlign.start,
                             style: Theme.of(context)
                                 .textTheme
@@ -116,7 +117,7 @@ class _FirstRewardWidgetState extends State<FirstRewardWidget>
                             widget.rewardScreenPresentation.askFirstReward();
                           },
                           child: Text(
-                            'Reclamar bono',
+                              AppLocalizations.of(context)!.claim_bonus,
                           )),
                     ],
                   ),
@@ -135,7 +136,7 @@ class _FirstRewardWidgetState extends State<FirstRewardWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Espere",
+                         AppLocalizations.of(context)!.wait,
                       style: GoogleFonts.roboto(
                           color: Colors.white, fontSize: 60.sp),
                     ),

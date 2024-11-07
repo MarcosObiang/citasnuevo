@@ -1,5 +1,5 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:appwrite/enums.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../App/controllerDef.dart';
@@ -25,37 +25,28 @@ class AuthServiceImpl implements AuthService {
   Future<Map<String, dynamic>> logUser(
       {required SignInProviders signInProviders}) async {
     try {
-      await Dependencies.serverAPi.account?.createOAuth2Session(
-          provider: signInProviders.name, success: "", failure: "");
+      final f = await Dependencies.serverAPi.account
+          .createOAuth2Session(provider: OAuthProvider.google,scopes: [
 
-      var userData = await Dependencies.serverAPi.account?.get();
+      ]);
+      final user = await Dependencies.serverAPi.account.get();
 
-      if (userData != null) {
-        GlobalDataContainer.userId = userData.$id;
-        GlobalDataContainer.userEmail = userData.email;
-        GlobalDataContainer.userName = userData.name;
-        Dependencies.applicationDataSource.setUserId(userData.$id);
-        bool userDataExists =
-            await Dependencies.applicationDataSource.checkIfUserDataExists();
-        if (userDataExists) {
-          await Dependencies.applicationDataSource.initializeMainDataSource();
-        }
-        return {
-          "status": "SIGNED_IN",
-          "userId": userData.$id,
-          "email": userData.email,
-          "userName": userData.name,
-          "userDataExists": userDataExists
-        };
-      } else {
-        return {
-          "status": "NOT_SIGNED_IN",
-          "userId": kNotAvailable,
-          "email": kNotAvailable,
-          "userName": kNotAvailable,
-          "userDataExists": false
-        };
+      GlobalDataContainer.userId = user.$id;
+      GlobalDataContainer.userEmail = user.email ?? "";
+      GlobalDataContainer.userName = user.name ?? "";
+      Dependencies.applicationDataSource.setUserId(user.$id);
+      bool userDataExists =
+          await Dependencies.applicationDataSource.checkIfUserModelExists();
+      if (userDataExists) {
+        await Dependencies.applicationDataSource.initializeMainDataSource();
       }
+      return {
+        "status": "SIGNED_IN",
+        "userId": user.$id,
+        "email": user.email,
+        "userName": user.name,
+        "userDataExists": userDataExists
+      };
     } catch (e) {
       if (e is AppwriteException) {
         throw Exception(e.message);
@@ -68,24 +59,30 @@ class AuthServiceImpl implements AuthService {
   @override
   Future<Map<String, dynamic>> userAlreadySignedIn() async {
     try {
-      var userData = await Dependencies.serverAPi.account?.get();
+      final session = await Dependencies.serverAPi.account.getSession(
+        sessionId: "current",
+      );
+      final user;
 
-      if (userData != null) {
-        GlobalDataContainer.userId = userData.$id;
-        GlobalDataContainer.userEmail = userData.email;
-        GlobalDataContainer.userName = userData.name;
-        Dependencies.applicationDataSource.setUserId(userData.$id);
+   
+
+      if (session.current) {
+        user= await Dependencies.serverAPi.account.get();
+        GlobalDataContainer.userId = user.$id;
+        GlobalDataContainer.userEmail = user.email ?? "";
+        GlobalDataContainer.userName = user.name ?? "";
+        Dependencies.applicationDataSource.setUserId(user.$id);
         bool userDataExists =
-            await Dependencies.applicationDataSource.checkIfUserDataExists();
+            await Dependencies.applicationDataSource.checkIfUserModelExists();
         if (userDataExists) {
           await Dependencies.applicationDataSource.initializeMainDataSource();
         }
 
         return {
           "status": "SIGNED_IN",
-          "userId": userData.$id,
-          "email": userData.email,
-          "userName": userData.name,
+          "userId": user.id,
+          "email": user.profile.email,
+          "userName": user.profile.name,
           "userDataExists": userDataExists
         };
       } else {
@@ -98,32 +95,21 @@ class AuthServiceImpl implements AuthService {
         };
       }
     } catch (e) {
-      if (e is AppwriteException) {
-        if (e.message == "User (role: guests) missing scope (account)") {
-          return {
-            "status": "NOT_SIGNED_IN",
-            "userId": kNotAvailable,
-            "email": kNotAvailable,
-            "userName": kNotAvailable,
-            "userDataExists": false
-          };
-        } else {
-          throw Exception(e.message);
-        }
-      } else {
-        throw Exception(e.toString());
-      }
+      throw Exception(e.toString());
     }
   }
 
   @override
   Future<Map<String, dynamic>> logOut() async {
     try {
-      await Dependencies.serverAPi.account?.deleteSessions();
+      
+      await Dependencies.serverAPi.account.deleteSession(sessionId: "current");
+
+      Dependencies.clearDependenciesAndUserIdentifiers();
 
       return {"status": "OK"};
-    } on AppwriteException {
-      throw AuthException(message: "e.toString()");
+    } catch (e) {
+      throw AuthException(message: "${e.toString()}");
     }
   }
 }

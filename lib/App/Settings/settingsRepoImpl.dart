@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/Failure.dart';

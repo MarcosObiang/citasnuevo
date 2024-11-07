@@ -1,11 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -15,6 +10,7 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import '../../../UserSettings/UserSettingsEntity.dart';
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../userCreatorPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // ignore: must_be_immutable
 class UserPicturesInput extends StatefulWidget {
@@ -60,7 +56,7 @@ class _UserPicturesInputState extends State<UserPicturesInput> {
               Flexible(
                   child: Container(
                       child: Text(
-                "Añade tus fotos",
+                AppLocalizations.of(context)!.picturesScreen_addPictures,
                 style: GoogleFonts.lato(fontSize: 50.sp),
               ))),
               Flexible(
@@ -85,7 +81,7 @@ class _UserPicturesInputState extends State<UserPicturesInput> {
                                   duration: Duration(milliseconds: 300),
                                   curve: Curves.easeInOut),
                               icon: Icon(Icons.arrow_back),
-                              label: Text("Atras")),
+                              label: Text(AppLocalizations.of(context)!.picturesScreen_back)),
                           ElevatedButton.icon(
                               onPressed: () {
                                 if (widget.userCreatorPresentation
@@ -97,13 +93,13 @@ class _UserPicturesInputState extends State<UserPicturesInput> {
                                 }
                               },
                               icon: Icon(Icons.arrow_forward),
-                              label: Text("Siguiente")),
+                              label: Text(AppLocalizations.of(context)!.picturesScreen_next)),
                         ],
                       ),
                       ElevatedButton.icon(
                               onPressed: () => widget.userCreatorPresentation.logOut(),
                               icon: Icon(Icons.cancel),
-                              label: Text("Salir"))
+                              label: Text(AppLocalizations.of(context)!.picturesScreen_exit))
                     ],
                   ))
             ],
@@ -219,6 +215,8 @@ class _UserPicturesInputState extends State<UserPicturesInput> {
       compressQuality: 70,
     );
     Uint8List? uint8list = await imageFile!.readAsBytes();
+
+    
 
     userCreatorPresentation.addPicture(imageData: uint8list, index: index);
     setState(() {});

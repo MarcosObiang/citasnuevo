@@ -1,10 +1,7 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison
 
 import 'dart:async';
-import 'dart:math';
 
-import 'package:citasnuevo/core/common/commonUtils/DateNTP.dart';
-import 'package:citasnuevo/core/common/common_widgets.dart/errorWidget.dart';
 import 'package:citasnuevo/core/error/Failure.dart';
 import 'package:citasnuevo/main.dart';
 
@@ -21,11 +18,12 @@ import '../../Rewards/rewardScreenPresentation/rewardScreen.dart';
 import '../../../Utils/dialogs.dart';
 import '../../../Utils/presentationDef.dart';
 import '../../controllerDef.dart';
-import '../../../core/dependencies/dependencyCreator.dart';
 import '../ReactionEntity.dart';
 import '../reactionsController.dart';
 import 'Screens/ReactionScreen.dart';
 import 'Widgets/RevealingCard.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 enum RevealingAnimationState { notTurning, turned, turning }
 
@@ -63,6 +61,8 @@ class ReactionPresentation extends ChangeNotifier
   bool readyToSincronize = false;
   int lastSincronizationTimeInSeconds = 0;
   bool isPremium = false;
+  StreamSubscription<Map<String, dynamic>>?
+      homeScreenControllreBridgeSubscription;
 
   @override
   StreamSubscription<ReactionInformationSender>? addDataSubscription;
@@ -151,17 +151,18 @@ class ReactionPresentation extends ChangeNotifier
       }
       if (failure is ReactionFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: "Error al intentar realizar la operacion",
+            content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
             context: ReactionScreen.reactionsListKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
       }
     }, (r) {});
   }
 
   void rejectReaction({required String reactionId}) async {
     var result = await reactionsController.rejectReaction(
-      reactionId: reactionId,
-    );
+        reactionId: reactionId,
+        reactionSenderId: null,
+        removeBySenderId: false);
 
     result.fold((failure) {
       if (failure is NetworkFailure) {
@@ -170,9 +171,9 @@ class ReactionPresentation extends ChangeNotifier
       }
       if (failure is ReactionFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: "Error al intentar realizar la operacion",
+            content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
             context: ReactionScreen.reactionsListKey.currentContext,
-            title: "Error");
+            title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
       }
     }, (r) {});
   }
@@ -181,9 +182,9 @@ class ReactionPresentation extends ChangeNotifier
     required this.reactionsController,
   });
 
-  void revealReaction({required String reactionId}) async {
+  void revealReaction({required String reactionId,required int price}) async {
     if (isPremium == false) {
-      if (getCoins >= 200) {
+      if (getCoins >= price) {
         if (reactionsController.checkIfReactionCanShowAds(reactionId)) {
           var adResult = await reactionsController.showRewarded();
 
@@ -193,9 +194,9 @@ class ReactionPresentation extends ChangeNotifier
                   .showNetworkErrorDialog(context: startKey.currentContext);
             } else {
               PresentationDialogs.instance.showErrorDialog(
-                  content: "Error al intentar realizar la operacion",
+                  content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
                   context: startKey.currentContext,
-                  title: "Error");
+                  title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
             }
           }, (r) async {
             if (reactionsController.rewardedAdvertismentStateStream != null) {
@@ -230,9 +231,9 @@ class ReactionPresentation extends ChangeNotifier
                   }
                   if (failure is ReactionFailure) {
                     PresentationDialogs.instance.showErrorDialog(
-                        content: "Error al intentar realizar la operacion",
+                        content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
                         context: ReactionScreen.reactionsListKey.currentContext,
-                        title: "Error");
+                        title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
                   }
                 }, (r) {});
               }
@@ -250,22 +251,22 @@ class ReactionPresentation extends ChangeNotifier
             }
             if (failure is ReactionFailure) {
               PresentationDialogs.instance.showErrorDialog(
-                  content: "Error al intentar realizar la operacion",
+                  content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
                   context: ReactionScreen.reactionsListKey.currentContext,
-                  title: "Error");
+                  title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
             }
           }, (r) {});
         }
       } else {
         PresentationDialogs.instance.showErrorDialogWithOptions(
             context: ReactionScreen.reactionsListKey.currentContext,
-            dialogText: "No tienes gemas suficientes",
-            dialogTitle: "Gemas Insuficientes",
+            dialogText: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_no_enough_gems,
+            dialogTitle: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_insuficient_gems,
             dialogOptionsList: [
               DialogOptions(
                   function: () =>
                       Navigator.pop(startKey.currentContext as BuildContext),
-                  text: "Entendido"),
+                  text: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_understood),
               DialogOptions(
                   function: () {
                     Navigator.pop(startKey.currentContext as BuildContext);
@@ -279,7 +280,7 @@ class ReactionPresentation extends ChangeNotifier
                       }
                     }
                   },
-                  text: "Ganar Gemas"),
+                  text: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_earn_gems),
             ]);
       }
     } else {
@@ -292,9 +293,9 @@ class ReactionPresentation extends ChangeNotifier
         }
         if (failure is ReactionFailure) {
           PresentationDialogs.instance.showErrorDialog(
-              content: "Error al intentar realizar la operacion",
+              content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
               context: ReactionScreen.reactionsListKey.currentContext,
-              title: "Error");
+              title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
         }
       }, (r) {});
     }
@@ -437,11 +438,11 @@ class ReactionPresentation extends ChangeNotifier
                 child: Column(
                   children: [
                     Text(
-                      "Nueva reacción",
+                      AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_new_reaction,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),
                     Text(
-                      "Tienes una nueva reacción",
+                      AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_you_have_new_reaction,
                       style: GoogleFonts.lato(fontSize: 40.sp),
                     ),
                   ],
@@ -470,7 +471,7 @@ class ReactionPresentation extends ChangeNotifier
                 child: Column(
                   children: [
                     Text(
-                      "Reaccion caducada",
+                      AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_expired_reaction,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),
                     Text(

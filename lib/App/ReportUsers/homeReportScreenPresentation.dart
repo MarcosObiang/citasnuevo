@@ -1,16 +1,13 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
-import '../../../core/common/common_widgets.dart/errorWidget.dart';
 import '../../../core/error/Failure.dart';
 import '../../../core/params_types/params_and_types.dart';
 import '../../../main.dart';
 import '../../Utils/dialogs.dart';
 import '../../Utils/presentationDef.dart';
 import 'reportController.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 class HomeReportScreenPresentation extends ChangeNotifier
     implements Presentation {
@@ -65,8 +62,11 @@ class HomeReportScreenPresentation extends ChangeNotifier
                           context: startKey.currentContext);
                     } else {
                       PresentationDialogs.instance.showErrorDialog(
-                          title: "Error",
-                          content: "Error enviar denuncia",
+                          title: AppLocalizations.of(startKey.currentContext!)!
+                              .error,
+                          content:
+                              AppLocalizations.of(startKey.currentContext!)!
+                                  .report_sending_error,
                           context: startKey.currentContext);
                     }
                   }, (succes) {
@@ -74,19 +74,22 @@ class HomeReportScreenPresentation extends ChangeNotifier
                   });
                 } else {
                   PresentationDialogs.instance.showErrorDialog(
-                      title: "Error",
-                      content: "El campo 'Denuncia' no puede estar vacio",
+                      title:
+                          AppLocalizations.of(startKey.currentContext!)!.error,
+                      content: AppLocalizations.of(startKey.currentContext!)!
+                          .the_report_field_cannot_be_empty,
                       context: startKey.currentContext);
                 }
               },
-              text: "Si"),
+              text: AppLocalizations.of(startKey.currentContext!)!.yes),
           DialogOptions(
               function: () =>
                   Navigator.pop(startKey.currentContext as BuildContext),
-              text: "No")
+              text: AppLocalizations.of(startKey.currentContext!)!.no)
         ],
-        dialogTitle: "¿Enviar denuncia?",
-        dialogText: "denunciar al usuario");
+        dialogTitle: AppLocalizations.of(startKey.currentContext!)!.send_report,
+        dialogText:
+            AppLocalizations.of(startKey.currentContext!)!.report_the_user);
   }
 
   void showThanksForReportingDialog() {}

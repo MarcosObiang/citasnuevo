@@ -8,6 +8,7 @@ import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../../../core/globalData.dart';
 import '../../../../core/params_types/params_and_types.dart';
 import '../chatPresentation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ReportChatScreen extends StatefulWidget {
   final String chatId;
@@ -40,7 +41,7 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
               child: Column(
                 children: [
                   Icon(Icons.report, color: Colors.red, size: 400.sp),
-                  Text("Ayudanos a mantener Hotty seguro",
+                  Text(AppLocalizations.of(context)!.report_user,
                       style: GoogleFonts.lato(fontSize: 55.sp)),
                   Divider(
                     height: 100.h,
@@ -49,7 +50,7 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
                       ChatReportSendingState.sending) ...[
                     LoadingIndicator(indicatorType: Indicator.ballScale)
                   ] else ...[
-                    Text("Describenos el motivo de tu denuncia",
+                    Text(AppLocalizations.of(context)!.report_screen_message,
                         style: GoogleFonts.lato(fontSize: 45.sp)),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -88,7 +89,7 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
                           showTextfieldIsEmpty(context);
                         }
                       },
-                      child: Text("Enviar denuncia"))
+                      child: Text(AppLocalizations.of(context)!.report_screen_send_report_button))
                 ],
               ),
             ),
@@ -104,9 +105,9 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            title: Text("¿Enviar denuncia?"),
+            title: Text(AppLocalizations.of(context)!.report_question_dialog_title),
             content:
-                Text("Se enviará tu denuncia y la conversacion será eliminada"),
+                Text(AppLocalizations.of(context)!.chat_report_dialog_content),
             actions: [
               TextButton(
                   onPressed: () async {
@@ -119,12 +120,12 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
-                  child: Text("Enviar")),
+                  child: Text(AppLocalizations.of(context)!.yes)),
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("Cancelar"))
+                  child: Text(AppLocalizations.of(context)!.no))
             ],
           );
         });
@@ -136,13 +137,13 @@ class _ReportChatScreenState extends State<ReportChatScreen> {
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            title: Text("No Puede enviar una denuncia vacia"),
+            title: Text(AppLocalizations.of(context)!.report_empty_error_message),
             actions: [
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("Entendido")),
+                  child: Text(AppLocalizations.of(context)!.accept)),
             ],
           );
         });

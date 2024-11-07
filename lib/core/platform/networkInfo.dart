@@ -17,7 +17,7 @@ class NetworkInfoImpl implements NetworkInfoContract {
   @override
   Future<bool> checkConnection() async {
     bool internet = await SimpleConnectionChecker.isConnectedToInternet(
-        lookUpAddress: "www.hottyserver.com");
+        lookUpAddress: "www.google.com");
 
     return internet;
   }

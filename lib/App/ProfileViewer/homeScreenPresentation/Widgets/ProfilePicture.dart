@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,6 @@ import '../../../../core/dependencies/dependencyCreator.dart';
 class ProfilePicture extends StatefulWidget {
   final Map profilePicture;
   final BoxConstraints boxConstraints;
-  final storage = Storage(Dependencies.serverAPi.client!);
   Uint8List? imageData;
   final bool isFirstPicture;
 
@@ -33,10 +34,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   void _getImageData() async {
     try {
-      widget.imageData = await widget.storage.getFileDownload(
-        bucketId: '63712fd65399f32a5414',
-        fileId: widget.profilePicture["imageId"],
-      );
+      widget.imageData = base64Decode(widget.profilePicture["imageData"]);
       setState(() {});
     } catch (e) {
       if (e is AppwriteException) {
@@ -48,14 +46,14 @@ class _ProfilePictureState extends State<ProfilePicture> {
   Widget build(BuildContext context) {
     return widget.imageData != null
         ? Container(
-            height: widget.boxConstraints.maxHeight,
+            height: widget.boxConstraints.maxHeight*0.86,
             child: Image.memory(
               widget.imageData!,
               fit: BoxFit.cover,
             ),
           )
         : Container(
-            height: widget.boxConstraints.maxHeight,
+            height: widget.boxConstraints.maxHeight*0.86,
             child: Center(
               child: Container(
                   color: Colors.transparent,

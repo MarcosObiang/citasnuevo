@@ -2,31 +2,30 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citasnuevo/App/controllerDef.dart';
-import 'package:citasnuevo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:octo_image/octo_image.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 
 import '../../../../Utils/getImageFile.dart';
 import '../../../../core/dependencies/dependencyCreator.dart';
 import '../../ReactionEntity.dart';
 import '../Screens/ReactionScreen.dart';
 import '../reactionPresentation.dart';
+import "package:flutter_gen/gen_l10n/app_localizations.dart";
 
 class ReactionCard extends StatefulWidget {
   final BoxConstraints boxConstraints;
   final int index;
   final Animation<double> animation;
   final Reaction reaction;
-  final storage = Storage(Dependencies.serverAPi.client!);
   Uint8List? imageData;
 
   ReactionCard(
@@ -86,9 +85,9 @@ class _ReactionCardState extends State<ReactionCard>
       revealingAnimationState = RevealingAnimationState.turned;
       _reactionTypeBadgeAnimationController.forward();
 
-      if (widget.reaction.imageUrl["imageId"] != "empty") {
+      if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
         remitentImageData =
-            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageId"]);
+            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageData"]);
       }
       showCard = true;
     } else {
@@ -110,9 +109,9 @@ class _ReactionCardState extends State<ReactionCard>
             ReactionRevealigState.revealed &&
         revealingAnimationState == RevealingAnimationState.turned) {
       _revealingRotationValue = pi;
-      if (widget.reaction.imageUrl["imageId"] != "empty") {
+      if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
         remitentImageData =
-            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageId"]);
+            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageData"]);
       }
       showCard = true;
     }
@@ -140,9 +139,9 @@ class _ReactionCardState extends State<ReactionCard>
                 showCard == false) {
               if (_revealingAnimation.isCompleted ||
                   _revealingAnimation.isDismissed) {
-                if (widget.reaction.imageUrl["imageId"] != "empty") {
+                if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
                   remitentImageData = ImageFile.getFile(
-                      fileId: widget.reaction.imageUrl["imageId"]);
+                      fileId: widget.reaction.imageUrl["imageData"]);
                 }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   _revealingAnimation.reset();
@@ -180,9 +179,7 @@ class _ReactionCardState extends State<ReactionCard>
                         alignment: FractionalOffset.center,
                         child: Container(
                             decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(20))),
                             height: widget.boxConstraints.biggest.height -
@@ -200,14 +197,12 @@ class _ReactionCardState extends State<ReactionCard>
   }
 
   Widget profileInfo(
-      {required String name,
-      required String age,
-      required String reactionType}) {
+      {required String name, required String age, required int reactionValue}) {
     return Container(
         height: kBottomNavigationBarHeight * 1.5,
         width: ReactionScreen.boxConstraints.maxWidth,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
             gradient: LinearGradient(
                 colors: [Colors.black54, Colors.transparent],
                 begin: Alignment.topCenter,
@@ -216,6 +211,7 @@ class _ReactionCardState extends State<ReactionCard>
           padding: const EdgeInsets.all(8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,50 +228,6 @@ class _ReactionCardState extends State<ReactionCard>
                   )
                 ],
               ),
-              reactionType == ReactionType.LIKE.name
-                  ? AnimatedBuilder(
-                      animation: _reactionTypeBadgeAnimationController,
-                      builder: (BuildContext context, Widget? widget) {
-                        return Container(
-                            decoration: BoxDecoration(
-                                color: colorAnimation.value,
-                                shape: BoxShape.circle),
-                            height: 200.h,
-                            width: 200.h,
-                            child: SvgPicture.asset(
-                              "assets/likeEmojy.svg",
-                              fit: BoxFit.cover,
-                            ));
-                      })
-                  : reactionType == ReactionType.MAYBE.name
-                      ? AnimatedBuilder(
-                          animation: _reactionTypeBadgeAnimationController,
-                          builder: (BuildContext context, Widget? widget) {
-                            return Container(
-                                decoration: BoxDecoration(
-                                    color: colorAnimation.value,
-                                    shape: BoxShape.circle),
-                                height: 200.h,
-                                width: 200.h,
-                                child: SvgPicture.asset(
-                                  "assets/maybeEmoji.svg",
-                                  fit: BoxFit.cover,
-                                ));
-                          })
-                      : AnimatedBuilder(
-                          animation: _reactionTypeBadgeAnimationController,
-                          builder: (BuildContext context, Widget? widget) {
-                            return Container(
-                                decoration: BoxDecoration(
-                                    color: colorAnimation.value,
-                                    shape: BoxShape.circle),
-                                height: 200.h,
-                                width: 200.h,
-                                child: SvgPicture.asset(
-                                  "assets/passEmoji.svg",
-                                  fit: BoxFit.cover,
-                                ));
-                          })
             ],
           ),
         ));
@@ -293,7 +245,7 @@ class _ReactionCardState extends State<ReactionCard>
             Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
               height: widget.boxConstraints.biggest.height,
               width: widget.boxConstraints.biggest.width,
               child: Center(
@@ -302,7 +254,7 @@ class _ReactionCardState extends State<ReactionCard>
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text("Alguien ha visto tu perfil",
+                            Text(AppLocalizations.of(context)!.revealing_card_someone_saw_your_profile,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -311,43 +263,29 @@ class _ReactionCardState extends State<ReactionCard>
                                           .colorScheme
                                           .onPrimaryContainer,
                                     )),
-                            Text(
-                              reactionTimeFormat.format(DateTime(
-                                  0, 0, 0, 0, 0, snapshot.data as int)),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayLarge
-                                  ?.apply(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                      fontWeightDelta: 2),
-                            ),
-                            Text(
-                                "Averigua quien es antes de que se acabe el tiempo",
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.apply(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimaryContainer,
-                                        fontWeightDelta: 1)),
-                            widget.reaction.secondsUntilExpiration >= 5
-                                ? FilledButton(
-                                    onPressed: () {
-                                      if (widget
-                                              .reaction.secondsUntilExpiration >
-                                          5) {
-                                        Dependencies.reactionPresentation
-                                            .revealReaction(
-                                                reactionId:
-                                                    widget.reaction.idReaction);
-                                      }
-                                    },
-                                    child: Text("Revelar"))
-                                : Container(),
+                            FilledButton(
+                                onPressed:
+                                    widget.reaction.secondsUntilExpiration > 5
+                                        ? () {
+                                            if (widget.reaction
+                                                    .secondsUntilExpiration >
+                                                5) {
+                                              Dependencies.reactionPresentation
+                                                  .revealReaction(
+                                                      reactionId: widget
+                                                          .reaction.idReaction,
+                                                      price: 200);
+                                            }
+                                          }
+                                        : null,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(AppLocalizations.of(context)!.revealing_card_reveal),
+                                    Icon(LineAwesomeIcons.coins)
+                                  ],
+                                )),
                           ],
                         )
                       : Column(
@@ -358,7 +296,7 @@ class _ReactionCardState extends State<ReactionCard>
                               child: LoadingIndicator(
                                   indicatorType: Indicator.orbit),
                             ),
-                            Text("Revelando")
+                            Text(AppLocalizations.of(context)!.revealing_card_revealing)
                           ],
                         )),
             ),
@@ -381,7 +319,7 @@ class _ReactionCardState extends State<ReactionCard>
                             size: 300.sp,
                           ),
                           Text(
-                            "Usuario bloqueado",
+                            AppLocalizations.of(context)!.revealing_card_user_blocked,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
@@ -395,7 +333,7 @@ class _ReactionCardState extends State<ReactionCard>
                             height: 70.h,
                           ),
                           Text(
-                            "El usuario ha sido bloqueado por infringir normas de la comunidad",
+                           AppLocalizations.of(context)!.revealing_card_user_blocked_description,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyLarge?.apply(
                                 color: Theme.of(context)
@@ -412,7 +350,7 @@ class _ReactionCardState extends State<ReactionCard>
                                     .rejectReaction(
                                         reactionId: widget.reaction.idReaction);
                               },
-                              child: Text("Eliminar reaccion"))
+                              child: Text(AppLocalizations.of(context)!.revealing_card_delete_reaction))
                         ],
                       ),
                     ))
@@ -429,49 +367,61 @@ class _ReactionCardState extends State<ReactionCard>
       alignment: FractionalOffset.center,
       child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            child: Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                width: widget.boxConstraints.maxWidth,
-                child: FutureBuilder(
-                    future: remitentImageData,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Uint8List> imageData) {
-                      return imageData.data != null
-                          ? Image.memory(
-                              imageData.data!,
-                              fit: BoxFit.cover,
-                            )
-                          : Center(
-                              child: Container(
-                                  height: 200.h,
-                                  width: 200.h,
-                                  child: LoadingIndicator(
-                                      indicatorType: Indicator.orbit)),
-                            );
-                    })),
+          Column(
+            children: [
+              Flexible(
+                flex: 10,
+                fit: FlexFit.tight,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      width: widget.boxConstraints.maxWidth,
+                      child: FutureBuilder(
+                          future: remitentImageData,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Uint8List> imageData) {
+                            return imageData.data != null
+                                ? Image.memory(
+                                    imageData.data!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Center(
+                                    child: Container(
+                                        height: 200.h,
+                                        width: 200.h,
+                                        child: LoadingIndicator(
+                                            indicatorType: Indicator.orbit)),
+                                  );
+                          })),
+                ),
+              ),
+              Flexible(
+                  flex: 3,
+                  fit: FlexFit.loose,
+                  child: revealedSideButtons(
+                      reaction.reactionValue, reaction.name)),
+            ],
           ),
           profileInfo(
               name: reaction.name,
               age: reaction.age.toString(),
-              reactionType: reaction.reactionType),
-          revealedSideButtons(),
+              reactionValue: reaction.reactionValue),
           widget.reaction.getReactionAceptingState ==
                   ReactionAceptingState.inProcessAcepting
               ? Container(
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                   width: widget.boxConstraints.maxWidth,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Creando conversación",
+                          AppLocalizations.of(context)!.revealing_card_creating_conversation,
                           style: Theme.of(context).textTheme.titleMedium?.apply(
                               color: Theme.of(context)
                                   .colorScheme
@@ -495,13 +445,13 @@ class _ReactionCardState extends State<ReactionCard>
                       width: widget.boxConstraints.maxWidth,
                       decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Eliminando reacción",
+                              AppLocalizations.of(context)!.revealing_card_deleting_reaction,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
@@ -543,7 +493,7 @@ class _ReactionCardState extends State<ReactionCard>
                         size: 500.sp,
                       ),
                       Text(
-                        "Usuario bloqueado",
+                        AppLocalizations.of(context)!.revealing_card_user_blocked_description,
                         style: GoogleFonts.lato(
                             color: Colors.white, fontSize: 70.sp),
                       ),
@@ -552,7 +502,7 @@ class _ReactionCardState extends State<ReactionCard>
                             Dependencies.reactionPresentation.rejectReaction(
                                 reactionId: widget.reaction.idReaction);
                           },
-                          child: Text("Eliminar reaccion"))
+                          child: Text(AppLocalizations.of(context)!.revealing_card_delete_reaction))
                     ],
                   ))
               : Container(),
@@ -561,12 +511,8 @@ class _ReactionCardState extends State<ReactionCard>
                   width: widget.boxConstraints.maxWidth,
                   height: widget.boxConstraints.maxHeight,
                   decoration: BoxDecoration(
-                      color: reaction.reactionType == ReactionType.LIKE.name
-                          ? Colors.green
-                          : reaction.reactionType == ReactionType.MAYBE.name
-                              ? Colors.amber
-                              : Colors.red,
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: Padding(
                     padding: EdgeInsets.only(left: 30.w, right: 30.w),
                     child: Column(
@@ -579,60 +525,89 @@ class _ReactionCardState extends State<ReactionCard>
                             return Container(
                               height: boxConstraints.maxHeight,
                               width: boxConstraints.maxHeight,
-                              child: reaction.reactionType ==
-                                      ReactionType.LIKE.name
-                                  ? SvgPicture.asset("assets/likeEmojy.svg")
-                                  : reaction.reactionType ==
-                                          ReactionType.MAYBE.name
-                                      ? SvgPicture.asset(
-                                          "assets/maybeEmoji.svg")
-                                      : SvgPicture.asset(
-                                          "assets/passEmoji.svg"),
+                              child: CircularPercentIndicator(
+                                  circularStrokeCap: CircularStrokeCap.round,
+                                  animation: true,
+                                  animateFromLastPercent: true,
+                                  progressColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  lineWidth: 50.w,
+                                  radius: 250.sp,
+                                  startAngle: 360,
+                                  percent:
+                                      (reaction.reactionValue / 100).toDouble(),
+                                  center: Text(
+                                    "${(reaction.reactionValue).toDouble().toStringAsFixed(0)}% ",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall,
+                                  )),
                             );
                           }),
                         ),
-                        reaction.reactionType == ReactionType.LIKE.name
+                        reaction.reactionValue >= 66
                             ? Flexible(
                                 flex: 3,
                                 fit: FlexFit.loose,
                                 child: Column(
                                   children: [
-                                    Text(
-                                      "Le gustas",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall!
-                                          .apply(fontWeightDelta: 2),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                         AppLocalizations.of(context)!.revealing_card_likes_you,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineMedium!
+                                              .apply(fontWeightDelta: 2),
+                                        ),
+                                        Container(
+                                            child: SvgPicture.asset(
+                                                "assets/likeEmojy.svg"))
+                                      ],
                                     ),
                                     Text(
-                                      "Parece que le gustas mucho, empieza a chatear y disfrutar",
+                                      AppLocalizations.of(context)!.revealing_card_likes_you_description,
                                       style:
                                           Theme.of(context).textTheme.bodyLarge,
-                                      textAlign: TextAlign.center,
+                                      textAlign: TextAlign.left,
                                     ),
                                   ],
                                 ),
                               )
-                            : reaction.reactionType == ReactionType.MAYBE.name
+                            : reaction.reactionValue >= 33 &&
+                                    reaction.reactionValue < 66
                                 ? Flexible(
                                     flex: 3,
                                     fit: FlexFit.loose,
                                     child: Column(
                                       children: [
-                                        Text(
-                                          "Quizas le gustes",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge!
-                                              .apply(fontWeightDelta: 2),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              AppLocalizations.of(context)!.revealing_card_maybe_likes_you,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headlineMedium!
+                                                  .apply(fontWeightDelta: 2),
+                                            ),
+                                            SvgPicture.asset(
+                                                "assets/maybeEmoji.svg")
+                                          ],
                                         ),
                                         Divider(
                                           height: 50.h,
                                           color: Colors.transparent,
                                         ),
                                         Text(
-                                            "Cree que puedes llegar a gustarle pero no esta seguro, suerte....",
-                                            textAlign: TextAlign.center,
+                                            AppLocalizations.of(context)!.revealing_card_maybe_likes_you_description,
+                                            textAlign: TextAlign.left,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyLarge),
@@ -644,16 +619,24 @@ class _ReactionCardState extends State<ReactionCard>
                                     fit: FlexFit.loose,
                                     child: Column(
                                       children: [
-                                        Text(
-                                          "No le gustas",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge!
-                                              .apply(fontWeightDelta: 2),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              AppLocalizations.of(context)!.revealing_card_doesnt_like_you,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headlineMedium!
+                                                  .apply(fontWeightDelta: 2),
+                                            ),
+                                            SvgPicture.asset(
+                                                "assets/passEmoji.svg")
+                                          ],
                                         ),
                                         Text(
-                                            "Que pena, animos y sigue intentandolo",
-                                            textAlign: TextAlign.center,
+                                            AppLocalizations.of(context)!.revealing_card_doesnt_like_you_description,
+                                            textAlign: TextAlign.left,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyLarge),
@@ -669,7 +652,7 @@ class _ReactionCardState extends State<ReactionCard>
                                   justRevealed = false;
                                   setState(() {});
                                 },
-                                child: Text("Ver perfil")),
+                                child: Text(AppLocalizations.of(context)!.revealing_card_view_profile)),
                           ),
                         )
                       ],
@@ -682,25 +665,53 @@ class _ReactionCardState extends State<ReactionCard>
     );
   }
 
-  Align revealedSideButtons() {
+  Align revealedSideButtons(
+    int reactionValue,
+    String name,
+  ) {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
         children: [
-          ElevatedButton(
-              onPressed: () {
-                Dependencies.reactionPresentation.acceptReaction(
-                    reactionId: widget.reaction.idReaction,
-                    reactionSenderId: widget.reaction.senderId);
-              },
-              child: Text("Aceptar")),
-          ElevatedButton(
-              onPressed: () {
-                Dependencies.reactionPresentation
-                    .rejectReaction(reactionId: widget.reaction.idReaction);
-              },
-              child: Text("Rechazar"))
+          Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Row(
+                children: [
+                  Flexible(
+                      flex: 2,
+                      fit: FlexFit.loose,
+                      child: reactionValue >= 66
+                          ? Text(
+                             AppLocalizations.of(context)!.revealing_card_high_chances( reactionValue.toString()),
+                              style: Theme.of(context).textTheme.bodyLarge)
+                          : Text(
+                              AppLocalizations.of(context)!.revealing_card_chances(reactionValue.toString()),
+                            ))
+                ],
+              )),
+          Flexible(
+            flex: 3,
+            fit: FlexFit.loose,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                    onPressed: () {
+                      Dependencies.reactionPresentation.acceptReaction(
+                          reactionId: widget.reaction.idReaction,
+                          reactionSenderId: widget.reaction.senderId);
+                    },
+                    child: Text(AppLocalizations.of(context)!.revealing_card_accept)),
+                TextButton(
+                    onPressed: () {
+                      Dependencies.reactionPresentation.rejectReaction(
+                          reactionId: widget.reaction.idReaction);
+                    },
+                    child: Text(AppLocalizations.of(context)!.revealing_card_reject))
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -1,12 +1,11 @@
 import 'package:citasnuevo/App/Sanctions/SanctionsEntity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/dependencies/dependencyCreator.dart';
 import '../../../main.dart';
@@ -56,7 +55,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Estamos revisando su perfil",
+                                  AppLocalizations.of(context)!.sanctionsScreen_reviewProfile,
                                   style: GoogleFonts.lato(
                                       color: Colors.black,
                                       fontSize: 70.sp,
@@ -67,7 +66,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                   height: 60.h,
                                 ),
                                 Text(
-                                  "Hemos recibido varias denuncias sobre ti. \nPor precaución tu perfil será bloqueado mientras esta siendo revisado por nuestros moderadores.\nEste proceso puede durar hasta 48 horas, disculpa las molestias",
+                                  AppLocalizations.of(context)!.sanctionsScreen_reportReceived,
                                   style: GoogleFonts.lato(
                                       color: Colors.black, fontSize: 60.sp),
                                 ),
@@ -75,7 +74,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                     onPressed: () {
                                       sanctionsPresentation.logOut();
                                     },
-                                    child: Text("Cerrar sesion"))
+                                    child: Text(AppLocalizations.of(context)!.sanctionsScreen_logOut))
                               ],
                             ),
                           )
@@ -87,7 +86,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      "Perfil bloqueado",
+                                      AppLocalizations.of(context)!.sanctionsScreen_profileBlocked,
                                       style: GoogleFonts.lato(
                                           color: Colors.black,
                                           fontSize: 70.sp,
@@ -98,7 +97,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                       height: 60.h,
                                     ),
                                     Text(
-                                      "Tu perfil ha sido bloqueado 30 dias por incumplir las normas de nuestra comunidad",
+                                      AppLocalizations.of(context)!.sanctionsScreen_blocked30Days,
                                       style: GoogleFonts.lato(
                                           color: Colors.black, fontSize: 60.sp),
                                     ),
@@ -106,7 +105,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                         height: 100.h,
                                         color: Colors.transparent),
                                     Text(
-                                      "Perfil bloqueado hasta:",
+                                      AppLocalizations.of(context)!.sanctionsScreen_blockedUntil,
                                       style: GoogleFonts.lato(
                                           color: Colors.black, fontSize: 60.sp),
                                     ),
@@ -123,7 +122,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                         onPressed: () {
                                           sanctionsPresentation.logOut();
                                         },
-                                        child: Text("Cerrar sesion")),
+                                        child: Text(AppLocalizations.of(context)!.sanctionsScreen_logOut)),
                                   ],
                                 ),
                               )
@@ -138,7 +137,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              "Ya puedes desbloquear tu perfil",
+                                              AppLocalizations.of(context)!.sanctionsScreen_unlockProfile,
                                               style: GoogleFonts.lato(
                                                   color: Colors.black,
                                                   fontSize: 70.sp,
@@ -149,7 +148,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                               height: 60.h,
                                             ),
                                             Text(
-                                              "Revisa tu perfil y asegurate de que cumple con nuestras reglas lo antes posible para evitar otra sancion o el bloqueo permanente y la eliminacion de tu cuenta",
+                                              AppLocalizations.of(context)!.sanctionsScreen_reviewRules,
                                               style: GoogleFonts.lato(
                                                   color: Colors.black,
                                                   fontSize: 60.sp),
@@ -159,14 +158,13 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                                   sanctionsPresentation
                                                       .logOut();
                                                 },
-                                                child: Text("Cerrar sesion")),
+                                                child: Text(AppLocalizations.of(context)!.sanctionsScreen_logOut)),
                                             ElevatedButton(
                                                 onPressed: () {
                                                   sanctionsPresentation
                                                       .unlockProfile();
                                                 },
-                                                child:
-                                                    Text("Desbloquear perfil"))
+                                                child: Text(AppLocalizations.of(context)!.sanctionsScreen_unlockProfileButton))
                                           ],
                                         ),
                                       ),
@@ -182,7 +180,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
                                                 children: [
-                                                  Text("Espere",
+                                                  Text(AppLocalizations.of(context)!.sanctionsScreen_wait,
                                                       style: GoogleFonts.lato(
                                                           color: Colors.white,
                                                           fontSize: 60.sp)),
@@ -208,7 +206,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              "Ya puedes desbloquear tu perfil",
+                                              AppLocalizations.of(context)!.sanctionsScreen_unlockProfile,
                                               style: GoogleFonts.lato(
                                                   color: Colors.black,
                                                   fontSize: 70.sp,
@@ -219,7 +217,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                               height: 60.h,
                                             ),
                                             Text(
-                                              "Hemos revisado tu perfil y todo parece estar en orden, sentimos las molestias",
+                                              AppLocalizations.of(context)!.sanctionsScreen_profileReviewed,
                                               style: GoogleFonts.lato(
                                                   color: Colors.black,
                                                   fontSize: 60.sp),
@@ -229,14 +227,13 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                                   sanctionsPresentation
                                                       .logOut();
                                                 },
-                                                child: Text("Cerrar sesion")),
+                                                child: Text(AppLocalizations.of(context)!.sanctionsScreen_logOut)),
                                             ElevatedButton(
                                                 onPressed: () {
                                                   sanctionsPresentation
                                                       .unlockProfile();
                                                 },
-                                                child:
-                                                    Text("Desbloquear perfil"))
+                                                child: Text(AppLocalizations.of(context)!.sanctionsScreen_unlockProfileButton))
                                           ],
                                         ),
                                       ),
@@ -252,7 +249,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
                                                 children: [
-                                                  Text("Espere",
+                                                  Text(AppLocalizations.of(context)!.sanctionsScreen_wait,
                                                       style: GoogleFonts.lato(
                                                           color: Colors.white,
                                                           fontSize: 60.sp)),
@@ -311,7 +308,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                               color: Colors.black, fontSize: 60.sp),
                         ),
                         Text(
-                          " Dias ",
+                          AppLocalizations.of(context)!.sanctionScreen_days,
                           style: GoogleFonts.lato(
                               color: Colors.black, fontSize: 60.sp),
                         )
@@ -330,7 +327,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                               color: Colors.black, fontSize: 60.sp),
                         ),
                         Text(
-                          " Horas ",
+                          AppLocalizations.of(context)!.sanctionScreen_hours,
                           style: GoogleFonts.lato(
                               color: Colors.black, fontSize: 60.sp),
                         )
@@ -349,7 +346,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                               color: Colors.black, fontSize: 60.sp),
                         ),
                         Text(
-                          " Minutos ",
+                          AppLocalizations.of(context)!.sanctionScreen_minutes,
                           style: GoogleFonts.lato(
                               color: Colors.black, fontSize: 60.sp),
                         )
@@ -368,7 +365,7 @@ class _SanctionsScreenState extends State<SanctionsScreen> {
                               color: Colors.black, fontSize: 60.sp),
                         ),
                         Text(
-                          " Segundos ",
+                          AppLocalizations.of(context)!.sanctionScreen_seconds,
                           style: GoogleFonts.lato(
                               color: Colors.black, fontSize: 60.sp),
                         )

@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -97,7 +96,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     final CameraController controller = cameraController;
 
     // App state changed before we got the chance to initialize.
-    if (controller == null || !controller.value.isInitialized) {
+    if (!controller.value.isInitialized) {
       return;
     }
 
@@ -622,10 +621,10 @@ class _CameraWidgetState extends State<CameraWidget> {
 
   void captureImage() async {
     XFile file = await cameraController.takePicture();
-    Uint8List byte =
-        await FlutterImageCompress.compressWithList(await file.readAsBytes());
+    //   Uint8List byte =
+    //     await FlutterImageCompress.compressWithList(await file.readAsBytes());
 
-    verificationImage = byte;
+    //   verificationImage = byte;
     showPreviewPicture = true;
     setState(() {});
   }

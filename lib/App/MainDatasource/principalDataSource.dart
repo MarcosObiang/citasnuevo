@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:appwrite/appwrite.dart';
+
 import '../../core/dependencies/dependencyCreator.dart';
 import '../../core/globalData.dart';
 import 'package:flutter/cupertino.dart';
+
 
 ///MANDATORY:use the [ApplicationDataSource] in any class that will act as a [DataSource]
 ///
@@ -49,6 +52,8 @@ class ApplicationDataSource {
     dataStream = StreamController.broadcast();
   }
 
+
+
   ///
 
   Future<void> initializeMainDataSource() async {
@@ -62,62 +67,125 @@ class ApplicationDataSource {
   }
 
   Future<void> getDataFromDb() async {
-    var dataToUse;
-    Databases database = Databases(Dependencies.serverAPi.client!);
-    var userData = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
-        documentId: userId!);
+   /* if (realm == null) {
+      await initializeRealm();
+    }
+    var realmData = realm!.query<UserModel>('id = oid($userId)').first;
 
-    dataToUse = userData.data;
-    dataToUse["userPicture1"] = jsonDecode(dataToUse["userPicture1"]);
-    dataToUse["userPicture2"] = jsonDecode(dataToUse["userPicture2"]);
-    dataToUse["userPicture3"] = jsonDecode(dataToUse["userPicture3"]);
-    dataToUse["userPicture4"] = jsonDecode(dataToUse["userPicture4"]);
-    dataToUse["userPicture5"] = jsonDecode(dataToUse["userPicture5"]);
-    dataToUse["userPicture6"] = jsonDecode(dataToUse["userPicture6"]);
-    dataToUse["userSettings"] = jsonDecode(dataToUse["userSettings"]);
+    userDataSet = realmData;
 
-    setData = dataToUse;
+    setData = mapUserModelModelToMap(userDataSet!);
 
-    addDataToStream(data: getData);
+    addDataToStream(data: getData);*/
   }
+
+  Map<String, dynamic> mapUserModelModelToMap(Map<String,dynamic> userDataSet) {
+  /*  return {
+      "id": userDataSet.id.toString(),
+      "userId": userDataSet.userId,
+      "userName": userDataSet.userName,
+      "userBrithDate": userDataSet.userBrithDate,
+      "userBiography": userDataSet.userBiography,
+      "userSex": userDataSet.userSex,
+      "userCoins": userDataSet.userCoins,
+      "userPosition": {
+        "lat": userDataSet.userPosition?.lat ?? 0,
+        "lon": userDataSet.userPosition?.lon ?? 0
+      },
+      "userSettings": jsonDecode(userDataSet.userSettings),
+      "waitingRewards": userDataSet.waitingRewards,
+      "giveFirstReward": userDataSet.giveFirstReward,
+      "email": userDataSet.email,
+      "nextRewardDate": userDataSet.nextRewardDate,
+      "isUserPremium": userDataSet.isUserPremium,
+      "lastRatingTimeStamp": userDataSet.lastRatingTimeStamp,
+      "notificationToken": userDataSet.notificationToken,
+      "isUserVisible": userDataSet.isUserVisible,
+      "subscriptionStatus": userDataSet.subscriptionStatus,
+      "lastBlindDate": userDataSet.lastBlindDate,
+      "subscriptionId": userDataSet.subscriptionId,
+      "subscriptionExpiryDate": userDataSet.subscriptionExpiryDate,
+      "subscriptionPaused": userDataSet.subscriptionPaused,
+      "endSubscriptionDate": userDataSet.endSubscriptionDate,
+      "userBlocked": userDataSet.userBlocked,
+      "rewardTicketCode": userDataSet.rewardTicketCode,
+      "rewardTicketSuccesfulShares": userDataSet.rewardTicketSuccesfulShares,
+      "promotionalCodeUsedByUser": userDataSet.promotionalCodeUsedByUser,
+      "isUserPromotionalCodeUsed": userDataSet.isUserPromotionalCodeUsed,
+      "alcohol": userDataSet.userCharacteristics_alcohol,
+      "im_looking_for": userDataSet.userCharacteristics_what_he_looks_for,
+      "body_type": userDataSet.userCharacteristics_bodyType,
+      "children": userDataSet.userCharacteristics_children,
+      "pets": userDataSet.userCharacteristics_pets,
+      "politics": userDataSet.userCharacteristics_politics,
+      "im_living_with": userDataSet.userCharacteristics_lives_with,
+      "smoke": userDataSet.userCharacteristics_smokes,
+      "sexual_orientation": userDataSet.userCharacteristics_sexualOrientation,
+      "zodiac_sign": userDataSet.userCharacteristics_zodiak,
+      "personality": userDataSet.userCharacteristics_personality,
+      "penalizationState": userDataSet.penalizationState,
+      "penalizationEndDate": userDataSet.penalizationEndDate,
+      "adConsentFormSown": userDataSet.adConsentFormSown,
+      "adConsentFormSownDate": userDataSet.adConsentFormSownDate,
+      "showPersonalizedAds": userDataSet.showPersonalizedAds,
+      "isBlindDateActive": userDataSet.isBlindDateActive,
+      "reactionAveracePoints": userDataSet.reactionAveracePoints,
+      "reactionCount": userDataSet.reactionCount,
+      "totalReactionPoints": userDataSet.totalReactionPoints,
+      "verificationImageLink": userDataSet.verificationImageLink,
+      "imageExpectedHandGesture": userDataSet.imageExpectedHandGesture,
+      "verificationStatus": userDataSet.verificationStatus,
+      "userPicture1": jsonDecode(userDataSet.userPicture1),
+      "userPicture2": jsonDecode(userDataSet.userPicture2),
+      "userPicture3": jsonDecode(userDataSet.userPicture3),
+      "userPicture4": jsonDecode(userDataSet.userPicture4),
+      "userPicture5": jsonDecode(userDataSet.userPicture5),
+      "userPicture6": jsonDecode(userDataSet.userPicture6),
+    };*/
+
+    return {};
+  }
+
+
 
   /// Checks if there is user data from the signed in user.
   ///  Returns true if the user has data in the database, returns false if not
-  Future<bool> checkIfUserDataExists() async {
-    try {
-      Databases database = Databases(Dependencies.serverAPi.client!);
-      await database.getDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "636d59df12dcf7a399d5",
-          documentId: userId!);
+  Future<bool> checkIfUserModelExists() async {
+   /* try {
+      if (realm == null) {
+        await initializeRealm();
+      }
+      var realmData = realm!.query<UserModel>('id = oid($userId)').first;
+
       return true;
     } catch (e) {
-      return false;
-    }
+      if (e is StateError) {
+        return false;
+      } else {
+        throw Exception(e.toString());
+      }
+    }*/
+
+   return true;
   }
 
   void listenDataFromDb() async {
-    Realtime realtime = Realtime(Dependencies.serverAPi.client!);
-    String userDataReference =
-        "databases.636d59d7a2f595323a79.collections.636d59df12dcf7a399d5.documents.${GlobalDataContainer.userId}";
-    appSubscription =
-        realtime.subscribe([userDataReference]).stream.listen((event) {
-              var dataToUse;
+   /* realm
+        ?.query<UserModel>("id = oid($userId)")
+        .changes
+        .listen((RealmResultsChanges<UserModel> event) {
+      if (event.modified.isNotEmpty) {
+        setData = mapUserModelModelToMap(event.results.first);
 
-              dataToUse = event.payload;
-              dataToUse["userPicture1"] = jsonDecode(dataToUse["userPicture1"]);
-              dataToUse["userPicture2"] = jsonDecode(dataToUse["userPicture2"]);
-              dataToUse["userPicture3"] = jsonDecode(dataToUse["userPicture3"]);
-              dataToUse["userPicture4"] = jsonDecode(dataToUse["userPicture4"]);
-              dataToUse["userPicture5"] = jsonDecode(dataToUse["userPicture5"]);
-              dataToUse["userPicture6"] = jsonDecode(dataToUse["userPicture6"]);
-              dataToUse["userSettings"] = jsonDecode(dataToUse["userSettings"]);
-              setData = dataToUse;
+        addDataToStream(data: getData);
+      }
 
-              addDataToStream(data: getData);
-            });
+      if (event.newModified.isNotEmpty) {
+        setData = mapUserModelModelToMap(event.results.first);
+        addDataToStream(data: getData);
+      }
+    });*/
+
   }
 }
 

@@ -1,18 +1,16 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:octo_image/octo_image.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 import '../../../Utils/routes.dart';
 import '../../../core/dependencies/dependencyCreator.dart';
@@ -95,7 +93,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
   late List<Key> userPicturesListKeys;
   late List<UserCharacteristic> userCharacteristicsList = [];
   late List<UserCharacteristic> userCharacteristicsListEditing = [];
-  final storage = Storage(Dependencies.serverAPi.client!);
 
   FocusNode focusNode = new FocusNode();
   @override
@@ -112,7 +109,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("¿Guardar cambios?"),
+                  title: Text( AppLocalizations.of(context!)!.userSettingsScreen_saveChanges),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -120,7 +117,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                               false;
                           Navigator.pop(context);
                         },
-                        child: Text("No",
+                        child: Text(AppLocalizations.of(context!)!.no,
                             style: GoogleFonts.lato(color: Colors.black))),
                     ElevatedButton(
                         onPressed: () {
@@ -128,7 +125,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                               true;
                           Navigator.pop(context);
                         },
-                        child: Text("Si")),
+                        child: Text(AppLocalizations.of(context!)!.yes)),
                   ],
                 );
               });
@@ -157,7 +154,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                                       ScreenUtil.defaultSize.height + 3000.h,
                                   child: Column(
                                     children: [
-                                      AppBar(title: Text(" Editar perfil"),),
+                                      AppBar(
+                                        title: Text(AppLocalizations.of(context!)!.settings_editProfile),
+                                      ),
                                       Flexible(
                                           flex: 3,
                                           fit: FlexFit.tight,
@@ -180,7 +179,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                                                 flex: 1,
                                                 fit: FlexFit.tight,
                                                 child: Text(
-                                                  "Filtros",
+                                                  AppLocalizations.of(context!)!.userSettingsScreen_filters,
                                                   style: GoogleFonts.lato(
                                                       fontSize: 80.sp),
                                                 )),
@@ -198,8 +197,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                                                         (BuildContext context,
                                                             int index) {
                                                       return profileCharacteristic(
-                                                          userCharacteristicsList[
-                                                              index],
                                                           index);
                                                     }),
                                               ),
@@ -228,7 +225,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                                                   indicatorType:
                                                       Indicator.ballRotate)),
                                           Text(
-                                            "Guardando cambios, porfavor espere...",
+                                            AppLocalizations.of(context!)!.loading,
                                             style: GoogleFonts.lato(
                                                 color: Colors.white),
                                           )
@@ -306,7 +303,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Descripcion"),
+        Text(AppLocalizations.of(context!)!.sobre_mi),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
@@ -333,11 +330,99 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
     );
   }
 
-  Widget profileCharacteristic(
-      UserCharacteristic userCharacteristic, int index) {
+  Future characteristicValuesEditor({
+    required int index,
+  }) {
+    ScrollController controllerTwo = ScrollController();
+
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: EdgeInsets.all(50.w),
+              child: Column(
+                children: [
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(userCharacteristicsList[index].characteristicIcon),
+                        Text(
+                          userCharacteristicsList[index].characteristicName.call(context),
+                          style: GoogleFonts.lato(
+                              fontSize: 60.sp, fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    flex: 10,
+                    fit: FlexFit.tight,
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      controller: controllerTwo,
+                      child: ListView.builder(
+                          controller: controllerTwo,
+                          itemCount:
+                              userCharacteristicsList[index].valuesList.length,
+                          itemBuilder: (BuildContext context, int indexInside) {
+                            return CheckboxListTile(
+                                title: Text(userCharacteristicsList[index]
+                                    .valuesList[indexInside]
+                                    .values
+                                    .first.call(context)),
+                                value: userCharacteristicsList[index]
+                                        .valuesList[indexInside]
+                                        .keys
+                                        .first ==
+                                    userCharacteristicsList[index]
+                                        .characteristicValueIndex,
+                                onChanged: (value) {
+                                  userCharacteristicsList[index].userHasValue =
+                                      value as bool;
+
+                                  userCharacteristicsList[index]
+                                      .characteristicValueIndex = indexInside;
+                                  userCharacteristicsList[index]
+                                      .setCharacteristicName();
+                                  /* widget.userCreatorPresentation
+                                      .updateUserCharacteristicListState(
+                                          userCharacteristicsList);*/
+
+                                  print(index);
+
+                                  setState(() {});
+                                });
+                          }),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(Icons.arrow_back),
+                        label: Text(AppLocalizations.of(context!)!.back)),
+                  ),
+                ],
+              ),
+            );
+          });
+        });
+  }
+
+  Widget profileCharacteristic(int index) {
     return GestureDetector(
       onTap: () {
-        userCharacteristicsListEditing
+        characteristicValuesEditor(index: index);
+
+        /*  userCharacteristicsListEditing
             .sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
 
         UserCharacteristic characteristic =
@@ -351,36 +436,70 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
             GoToRoute(
                 page: ProfileCharacteristicEditing(
               userCharacteristic: userCharacteristicsListEditing,
-            )));
+            )));*/
       },
       child: Card(
-        child: Container(
-          height: 200.h,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(
-                  flex: 2,
+        color: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.all(10.h),
+          child: Container(
+            height: 150.h,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Icon(Dependencies
+                        .userSettingsPresentation
+                        .userSettingsController
+                        .userSettingsEntityUpdate
+                        .userCharacteristics[index]
+                        .characteristicIcon)),
+                Flexible(
+                  flex: 10,
                   fit: FlexFit.tight,
-                  child: Icon(userCharacteristic.characteristicIcon)),
-              Flexible(
-                flex: 10,
-                fit: FlexFit.tight,
-                child: Container(
-                  color: Colors.red,
-                  child: Center(
+                  child: Container(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(userCharacteristic.characteristicName),
-                        Text(userCharacteristic.characteristicValue),
+                        Text(
+                            Dependencies
+                                .userSettingsPresentation
+                                .userSettingsController
+                                .userSettingsEntityUpdate
+                                .userCharacteristics[index]
+                                .characteristicName.call(context),
+                            style:
+                                GoogleFonts.lato(fontWeight: FontWeight.bold)),
+                        Text(Dependencies
+                            .userSettingsPresentation
+                            .userSettingsController
+                            .userSettingsEntityUpdate
+                            .userCharacteristics[index]
+                            .characteristicValue.call(context)),
                       ],
                     ),
                   ),
                 ),
-              ),
-            ],
+                Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Icon(
+                      Icons.check_box,
+                      color: Dependencies
+                                  .userSettingsPresentation
+                                  .userSettingsController
+                                  .userSettingsEntityUpdate
+                                  .userCharacteristics[index]
+                                  .characteristicValueIndex >
+                              0
+                          ? Colors.green
+                          : Colors.transparent,
+                    )),
+              ],
+            ),
           ),
         ),
       ),
@@ -408,29 +527,13 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
     setState(() {});
   }
 
-  Future<Uint8List> _getImageData(String imageId) async {
-    Uint8List? imageData;
-
-    try {
-      imageData = await storage.getFileDownload(
-        bucketId: '63712fd65399f32a5414',
-        fileId: imageId,
-      );
-      return imageData;
-    } catch (e) {
-      if (e is AppwriteException) {
-        throw Exception();
-      } else {
-        throw Exception();
-      }
-    }
-  }
-
   Widget pictureBox(Key key, UserPicture userPictureData, int index,
       BoxConstraints boxConstraints) {
     return Container(
         height: boxConstraints.biggest.height,
-        decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
         key: key,
         child: Stack(
           children: [
@@ -459,7 +562,13 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                           addPictureFromDevice(index);
                         },
                         child: Container(
-                            color: Color.fromARGB(124, 158, 158, 158),
+                            decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            height: boxConstraints.biggest.height,
                             child: Center(
                               child: Icon(
                                 Icons.add_a_photo_outlined,
@@ -491,118 +600,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
 }
 
 // ignore: must_be_immutable
-class ProfileCharacteristicEditing extends StatefulWidget {
-  List<UserCharacteristic> userCharacteristic;
-  ProfileCharacteristicEditing({
-    required this.userCharacteristic,
-  });
-  static const routeName = '/ProfileCharacteristicEditing';
-
-  @override
-  State<ProfileCharacteristicEditing> createState() =>
-      _ProfileCharacteristicEditingState();
-}
-
-class _ProfileCharacteristicEditingState
-    extends State<ProfileCharacteristicEditing> {
-  List<Widget> checkboxList = [];
-  List<UserCharacteristic> userCharacteristicsList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    addCheckBoxList();
-  }
-
-  void addCheckBoxList() {
-    userCharacteristicsList = new List.from(widget.userCharacteristic);
-  }
-
-  void changeValue() {}
-
-  @override
-  void dispose() {
-    userCharacteristicsList
-        .sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
-
-    Dependencies.userSettingsPresentation.userSettingsController
-        .userSettingsEntityUpdate.userCharacteristics = userCharacteristicsList;
-
-    super.dispose();
-  }
-
-  Text title({required int listBuilderIndex, required int pageViewIndex}) {
-    return Text(userCharacteristicsList[pageViewIndex]
-        .valuesList[listBuilderIndex]
-        .values
-        .first);
-  }
-
-  bool? value({required int listViewIndex, required int pageViewIndex}) {
-    return userCharacteristicsList[pageViewIndex]
-                .valuesList[listViewIndex]
-                .entries
-                .first
-                .key ==
-            userCharacteristicsList[pageViewIndex].characteristicValue ||
-        (listViewIndex == 0 &&
-            userCharacteristicsList[pageViewIndex].characteristicValueIndex ==
-                0);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        height: ScreenUtil().screenHeight,
-        color: Colors.white,
-        child: SafeArea(
-          child: PageView.builder(
-              itemCount: userCharacteristicsList.length,
-              itemBuilder: (BuildContext context, int pageViewIndex) {
-                return Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(userCharacteristicsList[pageViewIndex]
-                        .characteristicIcon),
-                    Container(
-                      height: 700.h,
-                      child: ListView.builder(
-                          itemCount: userCharacteristicsList[pageViewIndex]
-                              .valuesList
-                              .length,
-                          itemBuilder:
-                              (BuildContext context, int listViewIndex) {
-                            return CheckboxListTile(
-                                title: title(
-                                    listBuilderIndex: listViewIndex,
-                                    pageViewIndex: pageViewIndex),
-                                value: value(
-                                    listViewIndex: listViewIndex,
-                                    pageViewIndex: pageViewIndex),
-                                onChanged: (value) {
-                                  userCharacteristicsList[listViewIndex]
-                                      .userHasValue = value as bool;
-                                  userCharacteristicsList[pageViewIndex]
-                                          .characteristicValue =
-                                     "";
-
-                                  userCharacteristicsList[pageViewIndex]
-                                      .characteristicValueIndex = listViewIndex;
-
-                                  setState(() {});
-                                });
-                          }),
-                    )
-                  ],
-                ));
-              }),
-        ),
-      ),
-    );
-  }
-}
 
 class BioEditingScreen extends StatefulWidget {
   static const routeName = '/BioEditingScreen';
@@ -621,7 +618,7 @@ class _BioEditingScreenState extends State<BioEditingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Descripcion")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context!)!.sobre_mi)),
       resizeToAvoidBottomInset: true,
       body: ChangeNotifierProvider.value(
         value: Dependencies.userSettingsPresentation,

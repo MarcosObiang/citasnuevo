@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:blurhash_dart/blurhash_dart.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -11,7 +12,6 @@ import 'UserSettingsEntity.dart';
 
 
 class UserSettingsMapper {
-  static final storage = Storage(Dependencies.serverAPi.client!);
 
   static Future<UserSettingsEntity> fromMap(Map<String, dynamic> data) async {
     List<UserCharacteristic> userCharacteristics =
@@ -36,11 +36,11 @@ class UserSettingsMapper {
 
     for (int i = 0; i < userImages.length; i++) {
       if (userImages[i] != null) {
-        if (userImages[i]!["imageId"] != "empty") {
+        if (userImages[i]!["imageData"] != kNotAvailable&&userImages[i]!["imageData"] != null) {
           list.add(UserPicture(index: i)
             ..setNetworkPicture(
-                imageBytes: await _getImageData(userImages[i]!["imageId"]),
-                pictureUrlData: userImages[i]!["imageId"]));
+                imageBytes: await _getImageData(userImages[i]!["imageData"]),
+                pictureUrlData: userImages[i]!["imageData"]));
         } else {
           list.add(UserPicture(index: i));
         }
@@ -50,7 +50,7 @@ class UserSettingsMapper {
     }
 
     UserSettingsEntity userSettingsEntity = new UserSettingsEntity(
-        userBio: data["userBio"],
+        userBio: data["userBiography"],
         userPicruresList: list,
         userCharacteristics: userCharacteristics);
 
@@ -61,10 +61,7 @@ class UserSettingsMapper {
     Uint8List? imageData;
 
     try {
-      imageData = await storage.getFileDownload(
-        bucketId: '63712fd65399f32a5414',
-        fileId: imageId,
-      );
+      imageData = base64Decode(imageId);
       return imageData;
     } catch (e) {
       if (e is AppwriteException) {
@@ -94,7 +91,7 @@ class UserSettingsMapper {
     Map<String, dynamic> response = Map<String, dynamic>();
 
     for (int i = 0; i < data.length; i++) {
-      response[data[i].characteristicName] = data[i].characteristicValueIndex;
+      response[data[i].characteristicCode] = data[i].characteristicValueIndex;
     }
     return response;
   }
@@ -122,7 +119,7 @@ class UserSettingsMapper {
 
       if (userPictureList[i].getUserPictureBoxstate ==
           UserPicutreBoxState.empty) {
-        response.add({
+        bytesList.add({
           "index": (userPictureList[i].index + 1).toString(),
           "data": userPictureList[i].getImageFile,
           "empty": true,
@@ -144,24 +141,13 @@ class UserSettingsMapper {
       }
     }
 
-    List<Map<String, dynamic>> computedImages =
-        await compute(_blurHashImage, bytesList);
-    response.addAll(computedImages);
-    return response;
+ 
+    return bytesList;
   }
 
   static List<Map<String, dynamic>> _blurHashImage(
       List<Map<String, dynamic>> data) {
     List<Map<String, dynamic>> blredImagesHashes = [];
-    for (int i = 0; i < data.length; i++) {
-      blredImagesHashes.add({
-        "hash": BlurHash.encode(data[i]["Bytes"]).hash,
-        "index": data[i]["index"],
-        "data": data[i]["data"],
-        "empty": data[i]["empty"],
-        "type": data[i]["type"]
-      });
-    }
 
     return blredImagesHashes;
   }
@@ -179,10 +165,10 @@ class UserSettingsMapper {
     for (int i = 0; i < attributes.length; i++) {
       int characterisitcValue = data[attributes[i]];
 
-      String characteristicName = attributes[i];
+      Function characteristicName = kProfileCharacteristicsNames_ES[i].values.first;
       List<Map<int, dynamic>> kProfileCharacteristicsCopy =
           kProfileCharacteristics_ES[i].values.first;
-      String characteristicStringValue =
+      Function characteristicStringValue =
           kProfileCharacteristicsCopy[characterisitcValue].values.first;
 
       userCharacteristics.add(UserCharacteristic(
