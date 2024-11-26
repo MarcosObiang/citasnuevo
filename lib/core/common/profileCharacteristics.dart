@@ -170,17 +170,17 @@ final kProfileCharacteristics_Personality_ES = [
 ];
 
 final kProfileCharacteristics_ES = [
-  {"alcohol": kProfileCharacteristics_Alcohol_ES},
-  {"im_looking_for": kProfileCharacteristics_LookingFor_ES},
-  {"body_type": kProfileCharacteristics_BodyType_ES},
-  {"children": kProfileCharacteristics_Children_ES},
-  {"pets": kProfileCharacteristics_Pets_ES},
-  {"politics": kProfileCharacteristics_Politics_ES},
-  {"im_living_with": kProfileCharacteristics_LivesWith_ES},
-  {"smoke": kProfileCharacteristics_Smoking_ES},
-  {"sexual_orientation": kProfileCharacteristics_SexualOrientation_ES},
-  {"zodiac_sign": kProfileCharacteristics_zodiacSign_ES},
-  {"personality": kProfileCharacteristics_Personality_ES},
+  {"userCharacteristics_alcohol": kProfileCharacteristics_Alcohol_ES},
+  {"userCharacteristics_what_he_looks": kProfileCharacteristics_LookingFor_ES},
+  {"userCharacteristics_bodyType": kProfileCharacteristics_BodyType_ES},
+  {"userCharacteristics_children": kProfileCharacteristics_Children_ES},
+  {"userCharacteristics_pets": kProfileCharacteristics_Pets_ES},
+  {"userCharacteristics_politics": kProfileCharacteristics_Politics_ES},
+  {"userCharacteristics_smokes": kProfileCharacteristics_LivesWith_ES},
+  {"userCharacteristics_lives_with": kProfileCharacteristics_Smoking_ES},
+  {"userCharacteristics_sexualO": kProfileCharacteristics_SexualOrientation_ES},
+  {"userCharacteristics_zodiak": kProfileCharacteristics_zodiacSign_ES},
+  {"userCharacteristics_personality": kProfileCharacteristics_Personality_ES},
 ];
 
 const kProfileCharacteristics_Icons = [

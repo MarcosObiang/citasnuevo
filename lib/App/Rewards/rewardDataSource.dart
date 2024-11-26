@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
@@ -126,6 +127,7 @@ class RewardDataSourceImpl implements RewardDataSource {
   void subscribeToMainDataSource() {
     try {
       rewardStream?.add(source.getData);
+      log(source.getData.toString());
 
       sourceStreamSubscription = source.dataStream?.stream.listen((event) {
         rewardStream?.add(event);

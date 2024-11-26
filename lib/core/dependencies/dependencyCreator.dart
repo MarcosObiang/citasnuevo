@@ -89,7 +89,6 @@ import '../platform/networkInfo.dart';
 class Dependencies {
   static late final NetworkInfoContract networkInfoContract = NetworkInfoImpl();
   static late Server serverAPi = new Server();
-  
 
   static late final AdvertisingServices advertisingServices =
       new AdvertisingServices();
@@ -216,15 +215,17 @@ class Dependencies {
   static late final ReportRepository reportRepository =
       new ReportRepositoryImpl(reportDataSource: reportDataSource);
   static late final ReportController reportController =
-      new ReportControllerImpl(reportRepository: reportRepository,homeScreenControllerBridge: homeScreenControllerBridge);
+      new ReportControllerImpl(
+          reportRepository: reportRepository,
+          homeScreenControllerBridge: homeScreenControllerBridge);
   static late final homeReportScreenPresentation =
       new HomeReportScreenPresentation(reportController: reportController);
 
   ///CHAT
   ///
   ///
-  static late final ChatDataSource chatDataSource =
-      new ChatDatsSourceImpl(source: applicationDataSource,advertisingServices: advertisingServices);
+  static late final ChatDataSource chatDataSource = new ChatDatsSourceImpl(
+      source: applicationDataSource, advertisingServices: advertisingServices);
 
   static late final ChatRepository chatRepository =
       new ChatRepoImpl(chatDataSource: chatDataSource);
@@ -419,7 +420,6 @@ class Dependencies {
       homeScreenPresentation.initializeModuleData();
       chatPresentation.initializeModuleData();
       reactionPresentation.initializeModuleData();
-
       authScreenPresentation.clearModuleData();
       homeReportScreenPresentation.initializeModuleData();
       settingsScreenPresentation.initializeModuleData();
@@ -432,8 +432,8 @@ class Dependencies {
 
       sanctionsPresentation.initializeModuleData();
       advertisingServices.initializeAdsService();
-      
-     NotificationService instance = new NotificationService();
+
+      NotificationService instance = new NotificationService();
       await instance.startBackgroundNotificationHandler();
     } catch (e, s) {
       print(s);

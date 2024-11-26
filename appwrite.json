@@ -1,6 +1,6 @@
 {
-    "projectId": "636bd00b90e7666f0f6f",
-    "projectName": "hottyapp",
+    "projectId": "6723890e00073730d5e5",
+    "projectName": "Aplicacion de citas",
     "functions": [
         {
             "$id": "createUser",
@@ -560,6 +560,25 @@
             "events": [],
             "schedule": "",
             "timeout": 15
+        },
+        {
+            "$id": "6733762100162ebe805d",
+            "name": "hola",
+            "runtime": "dart-3.5",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "scopes": [
+                "users.read"
+            ],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "lib/main.dart",
+            "commands": "dart pub get",
+            "path": "functions/hola"
         }
     ]
 }

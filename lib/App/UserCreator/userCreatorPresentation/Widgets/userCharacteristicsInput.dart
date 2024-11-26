@@ -157,10 +157,10 @@ class _UserCharacteristicEditScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(userCharacteristic.characteristicName.call(),
+                        Text(userCharacteristic.characteristicName.call(context),
                             style:
                                 GoogleFonts.lato(fontWeight: FontWeight.bold)),
-                        Text(userCharacteristic.characteristicValue.call()),
+                        Text(userCharacteristic.characteristicValue.call(context)),
                       ],
                     ),
                   ),
@@ -205,7 +205,7 @@ class _UserCharacteristicEditScreenState
                       children: [
                         Icon(userCharacteristicsList[index].characteristicIcon),
                         Text(
-                          userCharacteristicsList[index].characteristicName.call(),
+                          userCharacteristicsList[index].characteristicName.call(context),
                           style: GoogleFonts.lato(
                               fontSize: 60.sp, fontWeight: FontWeight.bold),
                         )
@@ -227,7 +227,7 @@ class _UserCharacteristicEditScreenState
                                 title: Text(userCharacteristicsList[index]
                                     .valuesList[indexInside]
                                     .values
-                                    .first),
+                                    .first.call(context)),
                                 value: userCharacteristicsList[index]
                                         .valuesList[indexInside]
                                         .keys

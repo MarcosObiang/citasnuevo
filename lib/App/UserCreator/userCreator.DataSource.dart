@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
+
 import '../../core/services/AuthService.dart';
 import '../DataManager.dart';
 import '../MainDatasource/principalDataSource.dart';
@@ -59,9 +62,18 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
     }
   }
 
+  Future<String> updateUserPicture(Uint8List imageFile, String userId,int index) async {
+    String picutreUrl = kNotAvailable;
+    Storage storage = Storage(Dependencies.serverAPi.client);
+
+    final file= await storage.createFile(bucketId: "userPictures", fileId: "${userId}-image$index", file: InputFile.fromBytes(bytes: imageFile, filename: "${userId}-image$index"),permissions: [Permission.read(Role.any())]);
+    picutreUrl = file.$id;
+    return picutreUrl;
+  }
+
   @override
   Future<bool> createUser({required Map<String, dynamic> userData}) async {
-  /*  if (await Dependencies.networkInfoContract.isConnected == true) {
+      if (await Dependencies.networkInfoContract.isConnected == true) {
       try {
         Map<String, dynamic> locationData =
             await LocationService.instance.locationServicesState();
@@ -69,27 +81,27 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           List<Map<String, dynamic>> userPictureList = userData["images"];
           Map<String, dynamic> dataToCloud = Map();
           dataToCloud["userPicture1"] = jsonEncode({
-            "imageData": null,
+            "imageData": kNotAvailable,
             "index": 1,
           });
           dataToCloud["userPicture2"] = jsonEncode({
-            "imageData": null,
+            "imageData": kNotAvailable,
             "index": 2,
           });
           dataToCloud["userPicture3"] = jsonEncode({
-            "imageData": null,
+            "imageData": kNotAvailable,
             "index": 3,
           });
           dataToCloud["userPicture4"] = jsonEncode({
-            "imageData": null,
+            "imageData": kNotAvailable,
             "index": 4,
           });
           dataToCloud["userPicture5"] = jsonEncode({
-            "imageData": null,
+            "imageData": kNotAvailable,
             "index": 5,
           });
           dataToCloud["userPicture6"] = jsonEncode({
-            "imageData": null,
+            "imageData": kNotAvailable,
             "index": 6,
           });
           String userBio = userData["userBio"];
@@ -115,7 +127,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
               Uint8List imageFile = userPictureList[i]["data"];
 
               dataToCloud["userPicture$pictureIndex"] = jsonEncode({
-                "imageData": base64Encode(imageFile.toList()),
+                "imageData": await updateUserPicture(imageFile, GlobalDataContainer.userId, int.parse(pictureIndex)),
                 "index": int.parse(pictureIndex),
                 "removed": false,
               });
@@ -125,10 +137,10 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           dataToCloud["userName"] = userName;
           dataToCloud["userSex"] = userIsWoman ? "female" : "male";
           dataToCloud["userBirthDate"] = userAgeMills;
-          dataToCloud["userBiography"] = userBio;
+          dataToCloud["userBio"] = userBio;
           dataToCloud["email"] = GlobalDataContainer.userEmail;
-          dataToCloud["lon"] = locationData["lon"];
-          dataToCloud["lat"] = locationData["lat"];
+          dataToCloud["positionLon"] = locationData["lon"];
+          dataToCloud["positionLat"] = locationData["lat"];
 
           dataToCloud["userCharacteristics_alcohol"] = userFilters["alcohol"];
           dataToCloud["userCharacteristics_what_he_looks_for"] =
@@ -160,13 +172,13 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           });
 
           String json = jsonEncode(dataToCloud);
+          Functions functions = Functions(Dependencies.serverAPi.client);
+          Execution execution= await functions.createExecution(functionId: "createUser", body: json);
+          
 
-          final response = await Dependencies
-              .serverAPi.app!.currentUser!.functions
-              .call("createUser", [json]);
 
-          int executionCode = jsonDecode(response)["executionCode"];
-          String executionMessage = jsonDecode(response)["message"];
+          int executionCode = execution.responseStatusCode;
+          String executionMessage = execution.responseBody;
 
           if (executionCode == 200) {
             return true;
@@ -186,7 +198,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }
   }
 
   @override

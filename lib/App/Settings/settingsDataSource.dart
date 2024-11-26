@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 
@@ -114,19 +115,19 @@ class SettingsDataSourceImpl implements SettingsDataSource {
         shoulUpdate = true;
       }
 
-      if (latestSettings["subscriptionId"] != dataFromSource["idSuscripcion"]) {
+      if (latestSettings["subscriptionId"] != dataFromSource["subscriptionId"]) {
         shoulUpdate = true;
       }
       if (latestSettings["subscriptionStatus"] !=
           dataFromSource["subscriptionStatus"]) {
         shoulUpdate = true;
       }
-      if (latestSettings["subscriptionExpirationTimestamp"] !=
-          dataFromSource["subscriptionExpirationTimestamp"]) {
+      if (latestSettings["subscriptionExpiryDate"] !=
+          dataFromSource["subscriptionExpiryDate"]) {
         shoulUpdate = true;
       }
-      if (latestSettings["endSubscriptionPauseTimestamp"] !=
-          dataFromSource["endSubscriptionPauseTimestamp"]) {
+      if (latestSettings["endSubscriptionPauseTimeStamp"] !=
+          dataFromSource["endSubscriptionPauseTimeStamp"]) {
         shoulUpdate = true;
       }
       if (latestSettings["subscriptionPaused"] !=
@@ -143,7 +144,7 @@ class SettingsDataSourceImpl implements SettingsDataSource {
       Map<String, dynamic> dataFromSource = source.getData;
       latestSettings["name"] = dataFromSource["userName"];
       latestSettings["age"] = 30;
-      latestSettings["isPremium"] = dataFromSource["isUserPremium"];
+      latestSettings["isUserPremium"] = dataFromSource["isUserPremium"];
       latestSettings["userPicture1"] = dataFromSource["userPicture1"];
       latestSettings["userPicture2"] = dataFromSource["userPicture2"];
       latestSettings["userPicture3"] = dataFromSource["userPicture3"];
@@ -154,16 +155,15 @@ class SettingsDataSourceImpl implements SettingsDataSource {
       latestSettings["subscriptionId"] = dataFromSource["subscriptionId"];
       latestSettings["subscriptionStatus"] =
           dataFromSource["subscriptionStatus"];
-      latestSettings["subscriptionExpirationTimestamp"] =
-          dataFromSource["subscriptionExpirationTimestamp"];
-      latestSettings["endSubscriptionPauseTimestamp"] =
-          dataFromSource["endSubscriptionPauseTimestamp"];
+      latestSettings["subscriptionExpiryDate"] =
+          dataFromSource["subscriptionExpiryDate"];
+      latestSettings["endSubscriptionPauseTimeStamp"] =
+          dataFromSource["endSubscriptionPauseTimeStamp"];
       latestSettings["subscriptionPaused"] =
           dataFromSource["subscriptionPaused"];
 
       onUserSettingsUpdate?.add(latestSettings);
     } catch (e) {
-      print(e);
       throw e;
     }
   }

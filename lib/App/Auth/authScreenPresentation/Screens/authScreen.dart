@@ -88,22 +88,25 @@ class _AuthScreenState extends State<AuthScreen> implements RouteAware {
                         )
                       : Column(
                           children: [
-                            SignInButton(
-                              Buttons.facebookNew,
-                              text: AppLocalizations.of(context)!.auth_log_in_with_facebook,
-                              onPressed: () async {
-                                authScreenPresentation.signIn(
-                                    signInProviders: SignInProviders.facebook);
-                              },
-                            ),
-                            SignInButton(
-                              Buttons.googleDark,
-                              text: AppLocalizations.of(context)!.auth_log_in_with_google,
-                              onPressed: () async {
-                                authScreenPresentation.signIn(
-                                    signInProviders: SignInProviders.google);
-                              },
-                            ),
+                            ElevatedButton.icon(
+                                onPressed: () async {
+                                  authScreenPresentation.signIn(
+                                      signInProviders:
+                                          SignInProviders.facebook);
+                                },
+                                icon: Icon(LineAwesomeIcons.google_logo),
+                                label: Text(AppLocalizations.of(context)!
+                                    .auth_log_in_with_google)),
+                                     ElevatedButton.icon(
+                                onPressed: () async {
+                                  authScreenPresentation.signIn(
+                                      signInProviders:
+                                          SignInProviders.facebook);
+                                },
+                                icon: Icon(LineAwesomeIcons.facebook),
+                                label: Text(AppLocalizations.of(context)!
+                                    .auth_log_in_with_facebook)),
+                  
                           ],
                         ),
                 ],

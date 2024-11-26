@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/enums.dart';
+import 'package:appwrite/models.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../App/controllerDef.dart';
@@ -67,7 +68,7 @@ class AuthServiceImpl implements AuthService {
    
 
       if (session.current) {
-        user= await Dependencies.serverAPi.account.get();
+       User user= await Dependencies.serverAPi.account.get();
         GlobalDataContainer.userId = user.$id;
         GlobalDataContainer.userEmail = user.email ?? "";
         GlobalDataContainer.userName = user.name ?? "";
@@ -80,9 +81,9 @@ class AuthServiceImpl implements AuthService {
 
         return {
           "status": "SIGNED_IN",
-          "userId": user.id,
-          "email": user.profile.email,
-          "userName": user.profile.name,
+          "userId": user.$id,
+          "email": user.email,
+          "userName": user.name,
           "userDataExists": userDataExists
         };
       } else {

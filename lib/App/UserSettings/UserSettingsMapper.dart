@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:citasnuevo/Utils/getImageFile.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
@@ -39,7 +40,7 @@ class UserSettingsMapper {
         if (userImages[i]!["imageData"] != kNotAvailable&&userImages[i]!["imageData"] != null) {
           list.add(UserPicture(index: i)
             ..setNetworkPicture(
-                imageBytes: await _getImageData(userImages[i]!["imageData"]),
+                imageBytes: await ImageFile.getFile(fileId:userImages[i]!["imageData"]  ),
                 pictureUrlData: userImages[i]!["imageData"]));
         } else {
           list.add(UserPicture(index: i));
@@ -50,27 +51,14 @@ class UserSettingsMapper {
     }
 
     UserSettingsEntity userSettingsEntity = new UserSettingsEntity(
-        userBio: data["userBiography"],
+        userBio: data["userBio"],
         userPicruresList: list,
         userCharacteristics: userCharacteristics);
 
     return userSettingsEntity;
   }
 
-  static Future<Uint8List> _getImageData(String imageId) async {
-    Uint8List? imageData;
 
-    try {
-      imageData = base64Decode(imageId);
-      return imageData;
-    } catch (e) {
-      if (e is AppwriteException) {
-        throw Exception();
-      } else {
-        throw Exception();
-      }
-    }
-  }
 
   static Future<Map<String, dynamic>> toMap(
       UserSettingsEntity userSettingsEntity) async {
@@ -129,7 +117,7 @@ class UserSettingsMapper {
       if (userPictureList[i].getUserPictureBoxstate ==
           UserPicutreBoxState.pictureFromNetwork) {
         Uint8List dataFromNetwork =
-            await _getImageData(userPictureList[i].getPictureUrl);
+            await ImageFile.getFile(fileId:userPictureList[i].getPictureUrl);
         img.Image? imagex = img.decodeImage(dataFromNetwork);
         bytesList.add({
           "Bytes": imagex,

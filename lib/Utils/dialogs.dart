@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:citasnuevo/Utils/adConsentDialog.dart';
 import 'package:citasnuevo/Utils/routes.dart';
 import 'package:citasnuevo/core/dependencies/dependencyCreator.dart';
@@ -33,6 +35,8 @@ class PresentationDialogs {
   }
 
   void showAdConsentDialog() {
+
+    log("Mostrando consentimiento de anuncios");
     Navigator.push(startKey.currentContext as BuildContext,
         GoToRoute(page: AdConsentform()));
   }

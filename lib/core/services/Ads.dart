@@ -21,7 +21,7 @@ class AdvertisingServices {
 
   void consentFormShowedToUser() {
     consentFormShowed =
-        Dependencies.applicationDataSource.getData["adConsentFormSown"];
+        Dependencies.applicationDataSource.getData["adConsentFormShown"];
   }
 
   void userConsentValue() {

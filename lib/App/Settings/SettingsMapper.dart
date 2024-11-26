@@ -1,3 +1,6 @@
+
+import 'dart:developer';
+
 import 'SettingsEntity.dart';
 
 class SettingsMapper {
@@ -5,7 +8,7 @@ class SettingsMapper {
    
      
      
-
+log(latestSettings.toString());
    
     SettingsEntity settingsEntity = SettingsEntity(
         userName: latestSettings["name"],

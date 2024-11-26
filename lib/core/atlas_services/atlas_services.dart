@@ -12,7 +12,7 @@ class Server {
   }
   void initializeServer() async {
     client = Client();
-    client.setEndpoint('https://cloud.appwrite.io/v1')..setProject('6723890e00073730d5e5');
+    client.setEndpoint('https://cloud.appwrite.io/v1').setProject('6723890e00073730d5e5');
     account = Account(client);
     functions = Functions(client);
   }

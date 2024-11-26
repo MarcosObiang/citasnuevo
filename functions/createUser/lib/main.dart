@@ -31,29 +31,43 @@ enum PenalizationState {
   IN_MODERATION_DONE
 }
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824'); // Your secret API key
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject('6723890e00073730d5e5').setKey("standard_8499cc7de8cfc0f2981a3e64b3b5cbf889b96c988cdfcd8972c8e345f9d91f1154bb8e329b00ab54c318eb944da90c526d32e4413e839b1d97705773da4ca6b460a278051053e77b13957f2d5ae5d30e7484130f4fc49d12b0f11c92538d4a17c97f9c2e5e5307b386d0e9df69200f34fd06888c1d3c0693cb95b14d772cbc1a"); // Your project ID
+
+
+
+
     final databases = Databases(client);
-    final data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
     final storage = Storage(client);
-    String? userId = req.variables["APPWRITE_FUNCTION_USER_ID"].toString();
+    String userId = data["userId"];
     Map<String, dynamic> userPicture1 = jsonDecode(data["userPicture1"]);
     Map<String, dynamic> userPicture2 = jsonDecode(data["userPicture2"]);
     Map<String, dynamic> userPicture3 = jsonDecode(data["userPicture3"]);
     Map<String, dynamic> userPicture4 = jsonDecode(data["userPicture4"]);
     Map<String, dynamic> userPicture5 = jsonDecode(data["userPicture5"]);
     Map<String, dynamic> userPicture6 = jsonDecode(data["userPicture6"]);
-    String promotionalCode = data["promotionalCode"];
+    String promotionalCode = data["promotionalCodeUsedByUser"];
     bool promotionalCodeExists = await verifyPromotionalCode(
         promotionalCode: promotionalCode, databases: databases);
     bool promotionalCodePendingOfUse = false;
-    Map<String, dynamic> userCharacteristicsMap =
-        jsonDecode(data["userCharacteristics"]);
+    Map<String, dynamic> userCharacteristicsMap = {
+      "alcohol": data["userCharacteristics_alcohol"],
+      "im_looking_for": data["userCharacteristics_what_he_looks_for"],
+      "body_type": data["userCharacteristics_bodyType"],
+      "children": data["userCharacteristics_children"],
+      "pets": data["userCharacteristics_pets"],
+      "politics": data["userCharacteristics_politics"],
+      "im_living_with": data["userCharacteristics_lives_with"],
+      "smoke": data["userCharacteristics_smokes"],
+      "sexual_orientation": data["userCharacteristics_sexual_orientation"],
+      "zodiac_sign": data["userCharacteristics_zodiak"],
+      "personality": data["userCharacteristics_personality"]
+    };
+     
     List<Map<String, dynamic>> userPicturesIds = [
       userPicture1,
       userPicture2,
@@ -72,15 +86,15 @@ Future<void> start(final req, final res) async {
     verifyPictureId(userPicturesIds, userId);
     verifyAppSettings(jsonDecode(data["userSettings"]));
     verifyPositionData(data["positionLat"], data["positionLon"]);
-    verifyUserAge(data["birthDateInMilliseconds"]);
-    verifyUserCharacterisitcs(jsonDecode(data["userCharacteristics"]));
+    verifyUserAge(data["userBirthDate"]);
+    verifyUserCharacterisitcs(userCharacteristicsMap);
 
     for (int i = 0; i < userPicturesIds.length; i++) {
-      if (userPicturesIds[i]["imageId"] != null &&
-          userPicturesIds[i]["imageId"] != "empty") {
+      if (userPicturesIds[i]["imageData"] != null &&
+          userPicturesIds[i]["imageData"] != "NOT_AVAILABLE") {
         await storage.updateFile(
-            bucketId: "63712fd65399f32a5414",
-            fileId: userPicturesIds[i]["imageId"]!,
+            bucketId: "userPictures",
+            fileId: userPicturesIds[i]["imageData"]!,
             permissions: [
               Permission.read(Role.users("verified")),
               Permission.update(Role.user(userId))
@@ -88,8 +102,8 @@ Future<void> start(final req, final res) async {
       }
     }
     await databases.createDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374cbd1eb8543d64263",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "reportModel",
         documentId: userId,
         data: {
           "userPicture1": data["userPicture1"],
@@ -102,26 +116,36 @@ Future<void> start(final req, final res) async {
           "userId": userId,
           "userBio": data["userBio"],
           "amountReports": 0,
-          "reports": [],
+          "reports": jsonEncode([""]),
           "penalizationState": PenalizationState.NOT_PENALIZED.name,
           "sanctionTimestamp": 0,
-          "penalizationEndTimestampMs": 0,
+          "penalizationEndTimestamp": 0,
           "penalizationCounter": 0,
         });
     await databases.createDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "643532127e8e23305b84",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "67334609000211639278",
         documentId: userId,
         data: {
-          "imageLink": "NOT_AVAILABLE",
-          "imageExpectedHandGesture": "NOT_AVAILABLE",
+          "userId":userId,
+          "imageId": "NOT_AVAILABLE",
+          "expectedHandGesture": "NOT_AVAILABLE",
           "verificationStatus":
               VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name
         });
 
+        await databases.createDocument(databaseId: "6729a8be001c8e5fa57a", collectionId: "usersToAvoid", documentId: userId, data: {
+          "userId":userId,
+          "usersToAvoid":[]
+        });
+
+        Map<String,double> coordenadas=transformarCoordenadas( data["positionLat"], data["positionLon"]);
+        data["positionLat"]=coordenadas["latitud"];
+        data["positionLon"]=coordenadas["longitud"];
+
     await databases.createDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: userId,
         data: {
           "userPicture1": data["userPicture1"],
@@ -131,15 +155,15 @@ Future<void> start(final req, final res) async {
           "userPicture5": data["userPicture5"],
           "userPicture6": data["userPicture6"],
           "userId": userId,
-          "birthDateInMilliseconds": data["birthDateInMilliseconds"],
+          "userBirthDate": data["userBirthDate"],
           "userName": data["userName"],
           "userSex": data["userSex"],
           "userBio": data["userBio"],
           "userCoins": 0,
-          "positionLon": data["positionLon"],
-          "positionLat": data["positionLat"],
+          "userLongitude": [data["positionLon"]],
+          "userLatitude": data["positionLat"],
           "userSettings": data["userSettings"],
-          "waitingReward": false,
+          "waitingRewards": false,
           "giveFirstReward": true,
           "email": data["email"],
           "nextRewardTimestamp": 0,
@@ -150,34 +174,35 @@ Future<void> start(final req, final res) async {
           "subscriptionStatus": "NOT_SUBCRIBED",
           "lastBlindDate": 0,
           "subscriptionId": "",
-          "subscriptionExpirationTimestamp": 0,
+          "subscriptionExpiryDate": 0,
           "subscriptionPaused": false,
-          "endSubscriptionPauseTimestamp": 0,
+          "endSubscriptionPauseTimeStamp": 0,
           "userBlocked": false,
           "rewardTicketCode": createId(idLength: 6),
           "rewardTicketSuccesfulShares": 0,
           "promotionalCodeUsedByUser": promotionalCode,
-          "promotionalCodePendingOfUse": promotionalCodePendingOfUse,
-          "alcohol": userCharacteristicsMap["alcohol"],
-          "im_looking_for": userCharacteristicsMap["im_looking_for"],
-          "body_type": userCharacteristicsMap["body_type"],
-          "children": userCharacteristicsMap["children"],
-          "pets": userCharacteristicsMap["pets"],
-          "politics": userCharacteristicsMap["politics"],
-          "im_living_with": userCharacteristicsMap["im_living_with"],
-          "smoke": userCharacteristicsMap["smoke"],
-          "sexual_orientation": userCharacteristicsMap["sexual_orientation"],
-          "zodiac_sign": userCharacteristicsMap["zodiac_sign"],
-          "personality": userCharacteristicsMap["personality"],
+          "isUserPromotionalCodeUsed": promotionalCodePendingOfUse,
+          "userCharacteristics_alcohol": userCharacteristicsMap["alcohol"],
+          "userCharacteristics_what_he_looks": userCharacteristicsMap["im_looking_for"],
+          "userCharacteristics_bodyType": userCharacteristicsMap["body_type"],
+          "userCharacteristics_children": userCharacteristicsMap["children"],
+          "userCharacteristics_pets": userCharacteristicsMap["pets"],
+          "userCharacteristics_politics": userCharacteristicsMap["politics"],
+          "userCharacteristics_lives_with": userCharacteristicsMap["im_living_with"],
+          "userCharacteristics_smokes": userCharacteristicsMap["smoke"],
+          "userCharacteristics_sexualO": userCharacteristicsMap["sexual_orientation"],
+          "userCharacteristics_zodiak": userCharacteristicsMap["zodiac_sign"],
+          "userCharacteristics_personality": userCharacteristicsMap["personality"],
           "penalizationState": "NOT_PENALIZED",
-          "penalizationEndTimestampMs": 0,
+          "penalizationEndDate": 0,
           "verificationImageLink": "NOT_AVAILABLE",
           "imageExpectedHandGesture": "NOT_AVAILABLE",
           "verificationStatus":VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
           "adConsentFormShown": false,
+          "adConsentFormShownDate":0,
           "showPersonalizedAds": false,
           "isBlindDateActive": true,
-          "reactionAverage": 0,
+          "reactionAveragePoints": 0,
           "reactionCount": 0,
           "totalReactionPoints": 0,
         },
@@ -185,35 +210,54 @@ Future<void> start(final req, final res) async {
           Permission.read(Role.user(data["userId"], "verified")),
         ]);
 
-    res.json({"status": 200, "message": "OK"});
-  } catch (e) {
+  } catch ( e,s) {
+
+    context.log(s);
+
+    
+          
+                      // Raw request body, contains request data
+
     if (e is AppwriteException) {
-      res.json(
+      
+      
+
+    return  context.res.json(
           {"status": 500, "message": "INTERNAL_ERROR", "details": e.message});
     } else {
-      res.json({
+     return context.res.json({
         "status": 500,
         "message": "INTERNAL_ERROR",
         "details": e.toString()
       });
 
-      if (e.toString().contains("EXPECTED_ERROR")) {
-        Map<String, dynamic> errorData = jsonDecode(e.toString());
-        res.json({
-          "status": 501,
-          "message": errorData["error"],
-        });
-      } else {
-        res.json({
-          "status": 500,
-          "message": "INTERNAL_ERROR",
-        });
-      }
     }
   }
 }
 
 ///Verifies that user pictures ids are  in the expected format
+
+
+Map<String, double> transformarCoordenadas(double latitud, double longitud) {
+  // Validar que las coordenadas están dentro del rango esperado
+  if (latitud < -90 || latitud > 90) {
+    throw ArgumentError('La latitud debe estar entre -90 y 90 grados.');
+  }
+  if (longitud < -180 || longitud > 180) {
+    throw ArgumentError('La longitud debe estar entre -180 y 180 grados.');
+  }
+
+  // Transformar las coordenadas
+  double nuevaLatitud = latitud + 90;
+  double nuevaLongitud = longitud + 180;
+
+  // Retornar un mapa con los resultados
+  return {
+    'latitud': nuevaLatitud,
+    'longitud': nuevaLongitud,
+  };
+}
+
 
 bool verifyPictureId(
   List<Map<String, dynamic>?> pircutreIds,
@@ -223,9 +267,9 @@ bool verifyPictureId(
     bool result = true;
 
     for (int i = 0; i < pircutreIds.length; i++) {
-      if (pircutreIds[i]?["imageId"]!.contains(userId)) {
-        String desiredStructure = "${userId}_image${i + 1}";
-        if (pircutreIds[i]?["imageId"] != desiredStructure) {
+      if (pircutreIds[i]?["imageData"]!.contains(userId)) {
+        String desiredStructure = "${userId}-image${i + 1}";
+        if (pircutreIds[i]?["imageData"] != desiredStructure) {
           result = false;
         }
       }
@@ -248,20 +292,22 @@ Future<bool> verifyPromotionalCode(
   try {
     if (promotionalCode.isNotEmpty) {
       var ownerOfPromotionalCodeUserData = await databases.listDocuments(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "636d59df12dcf7a399d5",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "6729a8c50029409cd062",
           queries: [Query.equal("rewardTicketCode", promotionalCode)]);
       if (ownerOfPromotionalCodeUserData.total > 0) {
         int amountOfRewardTicketSuccesfulShares = ownerOfPromotionalCodeUserData
                 .documents.first.data["rewardTicketSuccesfulShares"] +
             1;
         await databases.updateDocument(
-            databaseId: "636d59d7a2f595323a79",
-            collectionId: "636d59df12dcf7a399d5",
+            databaseId: "6729a8be001c8e5fa57a",
+            collectionId: "6729a8c50029409cd062",
             documentId: ownerOfPromotionalCodeUserData.documents.first.$id,
             data: {
               "rewardTicketSuccesfulShares": amountOfRewardTicketSuccesfulShares
             });
+
+          
 
         verified = true;
       }
@@ -399,9 +445,9 @@ Future<void> pictureVerification(
     bool result = false;
 
     for (int i = 0; i < images.length; i++) {
-      if (images[i]["imageId"] != "empty") {
+      if (images[i]["imageData"] != "NOT_AVAILABLE") {
         await storage.getFile(
-            bucketId: "63712fd65399f32a5414", fileId: images[i]["imageId"]);
+            bucketId: "userPictures", fileId: images[i]["imageData"]);
         result = true;
       }
     }

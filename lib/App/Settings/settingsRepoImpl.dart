@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
 
@@ -66,8 +67,9 @@ class SettingsRepoImpl implements SettingsRepository {
           SettingsEntity settingsEntity = SettingsMapper.fromMap(event);
           streamParserController!.add(
               {"payloadType": "settingsEntity", "payload": settingsEntity});
-        } catch (e) {
+        } catch (e,s) {
           streamParserController!.addError(e);
+      log("Log de la funcion parseStreams", error: e,stackTrace: s);
         }
       }, onError: (error) {
         streamParserController!.addError(error);

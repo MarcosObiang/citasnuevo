@@ -80,7 +80,7 @@ class _ProfileCharacteristicEditingCreatorState
                                     .characteristicIcon),
                                 Text(
                                   userCharacteristicsList[index]
-                                      .characteristicName.call(),
+                                      .characteristicName.call(context),
                                   style: GoogleFonts.lato(
                                       fontWeight: FontWeight.bold),
                                 ),
