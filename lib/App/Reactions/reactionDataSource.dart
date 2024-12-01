@@ -248,7 +248,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       });
       userID = source.getData["userId"];
       isPremium = source.getData["isUserPremium"];
-      reactionAverage = source.getData["reactionAveracePoints"];
+      reactionAverage = source.getData["reactionAveragePoints"];
 
       coins = source.getData["userCoins"];
       _sendAdditionalData();

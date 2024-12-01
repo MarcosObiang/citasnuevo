@@ -78,6 +78,7 @@ class ApplicationDataSource {
     userData["userPicture4"]=jsonDecode(userData["userPicture4"]);
     userData["userPicture5"]=jsonDecode(userData["userPicture5"]);
     userData["userPicture6"]=jsonDecode(userData["userPicture6"]);
+    userData["userSettings"]=jsonDecode(userData["userSettings"]);
 
 
     return userData;

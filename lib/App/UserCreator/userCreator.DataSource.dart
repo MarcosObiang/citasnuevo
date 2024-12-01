@@ -142,23 +142,23 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
           dataToCloud["positionLon"] = locationData["lon"];
           dataToCloud["positionLat"] = locationData["lat"];
 
-          dataToCloud["userCharacteristics_alcohol"] = userFilters["alcohol"];
-          dataToCloud["userCharacteristics_what_he_looks_for"] =
-              userFilters["im_looking_for"];
+          dataToCloud["userCharacteristics_alcohol"] = userFilters["userCharacteristics_alcohol"];
+          dataToCloud["userCharacteristics_what_he_looks"] =
+              userFilters["userCharacteristics_what_he_looks"];
           dataToCloud["userCharacteristics_bodyType"] =
-              userFilters["body_type"];
-          dataToCloud["userCharacteristics_children"] = userFilters["children"];
-          dataToCloud["userCharacteristics_pets"] = userFilters["pets"];
-          dataToCloud["userCharacteristics_politics"] = userFilters["politics"];
+              userFilters["userCharacteristics_bodyType"];
+          dataToCloud["userCharacteristics_children"] = userFilters["userCharacteristics_children"];
+          dataToCloud["userCharacteristics_pets"] = userFilters["userCharacteristics_pets"];
+          dataToCloud["userCharacteristics_politics"] = userFilters["userCharacteristics_politics"];
           dataToCloud["userCharacteristics_lives_with"] =
-              userFilters["im_living_with"];
-          dataToCloud["userCharacteristics_smokes"] = userFilters["smoke"];
-          dataToCloud["userCharacteristics_sexual_orientation"] =
-              userFilters["sexual_orientation"];
+              userFilters["userCharacteristics_lives_with"];
+          dataToCloud["userCharacteristics_smokes"] = userFilters["userCharacteristics_smokes"];
+          dataToCloud["userCharacteristics_sexualO"] =
+              userFilters["userCharacteristics_sexualO"];
           dataToCloud["userCharacteristics_zodiak"] =
-              userFilters["zodiac_sign"];
+              userFilters["userCharacteristics_zodiak"];
           dataToCloud["userCharacteristics_personality"] =
-              userFilters["personality"];
+              userFilters["userCharacteristics_personality"];
           dataToCloud["promotionalCodeUsedByUser"] = promotionalCode;
           dataToCloud["userSettings"] = jsonEncode({
             "maxDistance": maxDistance,

@@ -63,17 +63,18 @@ Map<String, dynamic> kUserCreatorMockData = {
 };
 
  final kProfileCharacteristicsNames_ES = [
-  {"alcohol": (context) => AppLocalizations.of(context)!.alcohol},
-  {"im_looking_for": (context) => AppLocalizations.of(context)!.im_looking_for},
-  {"body_type": (context) => AppLocalizations.of(context)!.body_type},
-  {"children": (context) => AppLocalizations.of(context)!.children},
-  {"pets": (context) => AppLocalizations.of(context)!.pets},
-  {"politics": (context) => AppLocalizations.of(context)!.politics},
-  {"im_living_with": (context) => AppLocalizations.of(context)!.im_living_with},
-  {"smoke": (context) => AppLocalizations.of(context)!.smoking},
-  {"sexual_orientation": (context) => AppLocalizations.of(context)!.sexual_orientation},
-  {"zodiac_sign": (context) => AppLocalizations.of(context)!.zodiac_sign},
-  {"personality": (context) => AppLocalizations.of(context)!.personality},]
+  {"userCharacteristics_alcohol": (context) => AppLocalizations.of(context)!.alcohol},
+  {"userCharacteristics_what_he_looks": (context) => AppLocalizations.of(context)!.im_looking_for},
+  {"userCharacteristics_bodyType": (context) => AppLocalizations.of(context)!.body_type},
+  {"userCharacteristics_children": (context) => AppLocalizations.of(context)!.children},
+  {"userCharacteristics_pets": (context) => AppLocalizations.of(context)!.pets},
+  {"userCharacteristics_politics": (context) => AppLocalizations.of(context)!.politics},
+  {"userCharacteristics_smokes": (context) => AppLocalizations.of(context)!.smoking},
+
+  {"userCharacteristics_lives_with": (context) => AppLocalizations.of(context)!.im_living_with},
+  {"userCharacteristics_sexualO": (context) => AppLocalizations.of(context)!.sexual_orientation},
+  {"userCharacteristics_zodiak": (context) => AppLocalizations.of(context)!.zodiac_sign},
+  {"userCharacteristics_personality": (context) => AppLocalizations.of(context)!.personality},]
 ;
 
 final kProfileCharacteristics_LookingFor_ES = [
@@ -176,25 +177,26 @@ final kProfileCharacteristics_ES = [
   {"userCharacteristics_children": kProfileCharacteristics_Children_ES},
   {"userCharacteristics_pets": kProfileCharacteristics_Pets_ES},
   {"userCharacteristics_politics": kProfileCharacteristics_Politics_ES},
-  {"userCharacteristics_smokes": kProfileCharacteristics_LivesWith_ES},
-  {"userCharacteristics_lives_with": kProfileCharacteristics_Smoking_ES},
+  {"userCharacteristics_smokes": kProfileCharacteristics_Smoking_ES},
+  {"userCharacteristics_lives_with": kProfileCharacteristics_LivesWith_ES},
   {"userCharacteristics_sexualO": kProfileCharacteristics_SexualOrientation_ES},
   {"userCharacteristics_zodiak": kProfileCharacteristics_zodiacSign_ES},
   {"userCharacteristics_personality": kProfileCharacteristics_Personality_ES},
 ];
 
 const kProfileCharacteristics_Icons = [
-  {"alcohol": LineAwesomeIcons.beer},
-  {"im_looking_for": LineAwesomeIcons.ring},
-  {"body_type": LineAwesomeIcons.snowboarding},
-  {"children": LineAwesomeIcons.baby},
-  {"pets": LineAwesomeIcons.dog},
-  {"politics": LineAwesomeIcons.landmark},
-  {"im_living_with": LineAwesomeIcons.home},
-  {"smoke": LineAwesomeIcons.smoking},
-  {"sexual_orientation": LineAwesomeIcons.venus_mars},
-  {"zodiac_sign": LineAwesomeIcons.star},
-  {"personality": LineAwesomeIcons.flushed_face},
+  {"userCharacteristics_alcohol": LineAwesomeIcons.beer},
+  {"userCharacteristics_what_he_looks": LineAwesomeIcons.ring},
+  {"userCharacteristics_bodyType": LineAwesomeIcons.snowboarding},
+  {"userCharacteristics_children": LineAwesomeIcons.baby},
+  {"userCharacteristics_pets": LineAwesomeIcons.dog},
+  {"userCharacteristics_politics": LineAwesomeIcons.landmark},
+    {"userCharacteristics_smokes": LineAwesomeIcons.smoking},
+  {"userCharacteristics_lives_with": LineAwesomeIcons.home},
+
+  {"userCharacteristics_sexualO": LineAwesomeIcons.venus_mars},
+  {"userCharacteristics_zodiak": LineAwesomeIcons.star},
+  {"userCharacteristics_personality": LineAwesomeIcons.flushed_face},
 ];
 
 

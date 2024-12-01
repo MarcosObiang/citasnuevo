@@ -1,7 +1,25 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
+import 'package:dart_appwrite/models.dart';
+
+enum PenalizationState {
+  NOT_PENALIZED,
+  IN_MODERATION_WAITING,
+  PENALIZED,
+  IN_MODERATION_DONE
+}
+
+enum VerificationProcessStatus {
+  VERIFICATION_NOT_INITIALIZED,
+  VERIFICATION_INITIALIZED,
+
+  VERIFICATION_WAITING_MODERATION,
+  VERIFICATION_NOT_SUCCESFULL,
+  VERIFICATION_SUCCESFULL
+}
 
 /*
   'req' variable has:
@@ -15,30 +33,15 @@ import 'package:dart_appwrite/dart_appwrite.dart';
   
   If an error is thrown, a response with code 500 will be returned.
 */
-enum VerificationProcessStatus {
-  VERIFICATION_NOT_INITIALIZED,
-  VERIFICATION_INITIALIZED,
-
-  VERIFICATION_WAITING_MODERATION,
-  VERIFICATION_NOT_SUCCESFULL,
-  VERIFICATION_SUCCESFULL
-}
-
-enum PenalizationState {
-  NOT_PENALIZED,
-  IN_MODERATION_WAITING,
-  PENALIZED,
-  IN_MODERATION_DONE
-}
 
 Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
         .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
-        .setProject('6723890e00073730d5e5').setKey("standard_8499cc7de8cfc0f2981a3e64b3b5cbf889b96c988cdfcd8972c8e345f9d91f1154bb8e329b00ab54c318eb944da90c526d32e4413e839b1d97705773da4ca6b460a278051053e77b13957f2d5ae5d30e7484130f4fc49d12b0f11c92538d4a17c97f9c2e5e5307b386d0e9df69200f34fd06888c1d3c0693cb95b14d772cbc1a"); // Your project ID
-
-
-
+        .setProject(projectId as String)
+        .setKey(apiKey);
 
     final databases = Databases(client);
     final data = context.req.bodyJson;
@@ -50,24 +53,12 @@ Future<dynamic> main(final context) async {
     Map<String, dynamic> userPicture4 = jsonDecode(data["userPicture4"]);
     Map<String, dynamic> userPicture5 = jsonDecode(data["userPicture5"]);
     Map<String, dynamic> userPicture6 = jsonDecode(data["userPicture6"]);
+    Map<String, double> coordenadas;
     String promotionalCode = data["promotionalCodeUsedByUser"];
     bool promotionalCodeExists = await verifyPromotionalCode(
         promotionalCode: promotionalCode, databases: databases);
     bool promotionalCodePendingOfUse = false;
-    Map<String, dynamic> userCharacteristicsMap = {
-      "alcohol": data["userCharacteristics_alcohol"],
-      "im_looking_for": data["userCharacteristics_what_he_looks_for"],
-      "body_type": data["userCharacteristics_bodyType"],
-      "children": data["userCharacteristics_children"],
-      "pets": data["userCharacteristics_pets"],
-      "politics": data["userCharacteristics_politics"],
-      "im_living_with": data["userCharacteristics_lives_with"],
-      "smoke": data["userCharacteristics_smokes"],
-      "sexual_orientation": data["userCharacteristics_sexual_orientation"],
-      "zodiac_sign": data["userCharacteristics_zodiak"],
-      "personality": data["userCharacteristics_personality"]
-    };
-     
+
     List<Map<String, dynamic>> userPicturesIds = [
       userPicture1,
       userPicture2,
@@ -82,161 +73,200 @@ Future<dynamic> main(final context) async {
       promotionalCodePendingOfUse = false;
     }
 
+    await updatePicturesPermissions(
+        userPicturesIds: userPicturesIds, userId: userId, storage: storage);
+
     await pictureVerification(images: userPicturesIds, storage: storage);
     verifyPictureId(userPicturesIds, userId);
     verifyAppSettings(jsonDecode(data["userSettings"]));
     verifyPositionData(data["positionLat"], data["positionLon"]);
     verifyUserAge(data["userBirthDate"]);
-    verifyUserCharacterisitcs(userCharacteristicsMap);
+    verifyUserCharacterisitcs(data);
 
-    for (int i = 0; i < userPicturesIds.length; i++) {
-      if (userPicturesIds[i]["imageData"] != null &&
-          userPicturesIds[i]["imageData"] != "NOT_AVAILABLE") {
-        await storage.updateFile(
-            bucketId: "userPictures",
-            fileId: userPicturesIds[i]["imageData"]!,
-            permissions: [
-              Permission.read(Role.users("verified")),
-              Permission.update(Role.user(userId))
-            ]);
-      }
-    }
-    await databases.createDocument(
-        databaseId: "6729a8be001c8e5fa57a",
-        collectionId: "reportModel",
-        documentId: userId,
-        data: {
-          "userPicture1": data["userPicture1"],
-          "userPicture2": data["userPicture2"],
-          "userPicture3": data["userPicture3"],
-          "userPicture4": data["userPicture4"],
-          "userPicture5": data["userPicture5"],
-          "userPicture6": data["userPicture6"],
-          "userBlocked": false,
-          "userId": userId,
-          "userBio": data["userBio"],
-          "amountReports": 0,
-          "reports": jsonEncode([""]),
-          "penalizationState": PenalizationState.NOT_PENALIZED.name,
-          "sanctionTimestamp": 0,
-          "penalizationEndTimestamp": 0,
-          "penalizationCounter": 0,
-        });
+    coordenadas =
+        transformarCoordenadas(data["positionLat"], data["positionLon"]);
+    data["positionLat"] = coordenadas["latitud"];
+    data["positionLon"] = coordenadas["longitud"];
+
     await databases.createDocument(
         databaseId: "6729a8be001c8e5fa57a",
         collectionId: "67334609000211639278",
         documentId: userId,
         data: {
-          "userId":userId,
+          "userId": userId,
           "imageId": "NOT_AVAILABLE",
           "expectedHandGesture": "NOT_AVAILABLE",
           "verificationStatus":
               VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name
         });
 
-        await databases.createDocument(databaseId: "6729a8be001c8e5fa57a", collectionId: "usersToAvoid", documentId: userId, data: {
-          "userId":userId,
-          "usersToAvoid":[]
-        });
-
-        Map<String,double> coordenadas=transformarCoordenadas( data["positionLat"], data["positionLon"]);
-        data["positionLat"]=coordenadas["latitud"];
-        data["positionLon"]=coordenadas["longitud"];
-
     await databases.createDocument(
         databaseId: "6729a8be001c8e5fa57a",
-        collectionId: "6729a8c50029409cd062",
+        collectionId: "usersToAvoid",
         documentId: userId,
-        data: {
-          "userPicture1": data["userPicture1"],
-          "userPicture2": data["userPicture2"],
-          "userPicture3": data["userPicture3"],
-          "userPicture4": data["userPicture4"],
-          "userPicture5": data["userPicture5"],
-          "userPicture6": data["userPicture6"],
-          "userId": userId,
-          "userBirthDate": data["userBirthDate"],
-          "userName": data["userName"],
-          "userSex": data["userSex"],
-          "userBio": data["userBio"],
-          "userCoins": 0,
-          "userLongitude": [data["positionLon"]],
-          "userLatitude": data["positionLat"],
-          "userSettings": data["userSettings"],
-          "waitingRewards": false,
-          "giveFirstReward": true,
-          "email": data["email"],
-          "nextRewardTimestamp": 0,
-          "isUserPremium": false,
-          "lastRatingTimestamp": 0,
-          "notificationToken": "absd",
-          "isUserVisible": true,
-          "subscriptionStatus": "NOT_SUBCRIBED",
-          "lastBlindDate": 0,
-          "subscriptionId": "",
-          "subscriptionExpiryDate": 0,
-          "subscriptionPaused": false,
-          "endSubscriptionPauseTimeStamp": 0,
-          "userBlocked": false,
-          "rewardTicketCode": createId(idLength: 6),
-          "rewardTicketSuccesfulShares": 0,
-          "promotionalCodeUsedByUser": promotionalCode,
-          "isUserPromotionalCodeUsed": promotionalCodePendingOfUse,
-          "userCharacteristics_alcohol": userCharacteristicsMap["alcohol"],
-          "userCharacteristics_what_he_looks": userCharacteristicsMap["im_looking_for"],
-          "userCharacteristics_bodyType": userCharacteristicsMap["body_type"],
-          "userCharacteristics_children": userCharacteristicsMap["children"],
-          "userCharacteristics_pets": userCharacteristicsMap["pets"],
-          "userCharacteristics_politics": userCharacteristicsMap["politics"],
-          "userCharacteristics_lives_with": userCharacteristicsMap["im_living_with"],
-          "userCharacteristics_smokes": userCharacteristicsMap["smoke"],
-          "userCharacteristics_sexualO": userCharacteristicsMap["sexual_orientation"],
-          "userCharacteristics_zodiak": userCharacteristicsMap["zodiac_sign"],
-          "userCharacteristics_personality": userCharacteristicsMap["personality"],
-          "penalizationState": "NOT_PENALIZED",
-          "penalizationEndDate": 0,
-          "verificationImageLink": "NOT_AVAILABLE",
-          "imageExpectedHandGesture": "NOT_AVAILABLE",
-          "verificationStatus":VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
-          "adConsentFormShown": false,
-          "adConsentFormShownDate":0,
-          "showPersonalizedAds": false,
-          "isBlindDateActive": true,
-          "reactionAveragePoints": 0,
-          "reactionCount": 0,
-          "totalReactionPoints": 0,
-        },
-        permissions: [
-          Permission.read(Role.user(data["userId"], "verified")),
-        ]);
+        data: {"userId": userId, "usersToAvoid": []});
+    await createReportModel(client: client, data: data);
 
-  } catch ( e,s) {
+    await createUserData(
+        client: client,
+        promotionalCode: promotionalCode,
+        promotionalCodePendingOfUse: promotionalCodePendingOfUse,
+        data: data);
 
+    return context.res
+        .json({"message": "REQUEST_SUCCESFULL", "details": "COMPLETED"}, 200);
+  } catch (e, s) {
     context.log(s);
 
-    
-          
-                      // Raw request body, contains request data
-
     if (e is AppwriteException) {
-      
-      
-
-    return  context.res.json(
-          {"status": 500, "message": "INTERNAL_ERROR", "details": e.message});
+      return context.res
+          .json({"message": "INTERNAL_ERROR", "details": e.message}, 500);
     } else {
-     return context.res.json({
-        "status": 500,
-        "message": "INTERNAL_ERROR",
-        "details": e.toString()
+      return context.res
+          .json({"message": "INTERNAL_ERROR", "details": e.toString()}, 500);
+    }
+  }
+}
+
+Future<Document> createReportModel(
+    {required Client client, required Map<String, dynamic> data}) async {
+  Databases databases = Databases(client);
+  Document document = await databases.createDocument(
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "reportModel",
+      documentId: data["userId"],
+      data: {
+        "userPicture1": data["userPicture1"],
+        "userPicture2": data["userPicture2"],
+        "userPicture3": data["userPicture3"],
+        "userPicture4": data["userPicture4"],
+        "userPicture5": data["userPicture5"],
+        "userPicture6": data["userPicture6"],
+        "userBlocked": false,
+        "userId": data["userId"],
+        "userBio": data["userBio"],
+        "amountReports": 0,
+        "reports": jsonEncode([""]),
+        "penalizationState": PenalizationState.NOT_PENALIZED.name,
+        "sanctionTimestamp": 0,
+        "penalizationEndTimestamp": 0,
+        "penalizationCounter": 0,
       });
 
+  return document;
+}
+
+String createId({required int idLength}) {
+  const String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+  var random = Random();
+  String finalCode = characters[random.nextInt(characters.length)];
+
+  for (var i = 0; i < idLength; i++) {
+    finalCode += characters[random.nextInt(characters.length)];
+  }
+
+  return finalCode;
+}
+
+Future<Document> createUserData(
+    {required Client client,
+    required String promotionalCode,
+    required bool promotionalCodePendingOfUse,
+    required Map<String, dynamic> data}) async {
+  Databases databases = Databases(client);
+  Document document = await databases.createDocument(
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "6729a8c50029409cd062",
+      documentId: data["userId"],
+      data: {
+        "userPicture1": data["userPicture1"],
+        "userPicture2": data["userPicture2"],
+        "userPicture3": data["userPicture3"],
+        "userPicture4": data["userPicture4"],
+        "userPicture5": data["userPicture5"],
+        "userPicture6": data["userPicture6"],
+        "userId": data["userId"],
+        "userBirthDate": data["userBirthDate"],
+        "userName": data["userName"],
+        "userSex": data["userSex"],
+        "userBio": data["userBio"],
+        "userCoins": 0,
+        "userLongitude": [data["positionLon"]],
+        "userLatitude": data["positionLat"],
+        "userSettings": data["userSettings"],
+        "waitingRewards": false,
+        "giveFirstReward": true,
+        "email": data["email"],
+        "nextRewardTimestamp": 0,
+        "isUserPremium": false,
+        "lastRatingTimestamp": 0,
+        "notificationToken": "absd",
+        "isUserVisible": true,
+        "subscriptionStatus": "NOT_SUBCRIBED",
+        "lastBlindDate": 0,
+        "subscriptionId": "",
+        "subscriptionExpiryDate": 0,
+        "subscriptionPaused": false,
+        "endSubscriptionPauseTimeStamp": 0,
+        "userBlocked": false,
+        "rewardTicketCode": createId(idLength: 10),
+        "rewardTicketSuccesfulShares": 0,
+        "promotionalCodeUsedByUser": promotionalCode,
+        "isUserPromotionalCodeUsed": promotionalCodePendingOfUse,
+        "userCharacteristics_alcohol": data["userCharacteristics_alcohol"],
+        "userCharacteristics_what_he_looks":
+            data["userCharacteristics_what_he_looks"],
+        "userCharacteristics_bodyType": data["userCharacteristics_bodyType"],
+        "userCharacteristics_children": data["userCharacteristics_children"],
+        "userCharacteristics_pets": data["userCharacteristics_pets"],
+        "userCharacteristics_politics": data["userCharacteristics_politics"],
+        "userCharacteristics_lives_with":
+            data["userCharacteristics_lives_with"],
+        "userCharacteristics_smokes": data["userCharacteristics_smokes"],
+        "userCharacteristics_sexualO": data["userCharacteristics_sexualO"],
+        "userCharacteristics_zodiak": data["userCharacteristics_zodiak"],
+        "userCharacteristics_personality":
+            data["userCharacteristics_personality"],
+        "penalizationState": "NOT_PENALIZED",
+        "penalizationEndDate": 0,
+        "verificationImageLink": "NOT_AVAILABLE",
+        "imageExpectedHandGesture": "NOT_AVAILABLE",
+        "verificationStatus":
+            VerificationProcessStatus.VERIFICATION_NOT_INITIALIZED.name,
+        "adConsentFormShown": false,
+        "adConsentFormShownDate": 0,
+        "showPersonalizedAds": false,
+        "isBlindDateActive": true,
+        "reactionAveragePoints": 0,
+        "reactionCount": 0,
+        "totalReactionPoints": 0,
+      },
+      permissions: [
+        Permission.read(Role.user(data["userId"], "verified")),
+      ]);
+
+  return document;
+}
+
+Future<void> updatePicturesPermissions(
+    {required List<Map<String, dynamic>> userPicturesIds,
+    required String userId,
+    required Storage storage}) async {
+  for (int i = 0; i < userPicturesIds.length; i++) {
+    if (userPicturesIds[i]["imageData"] != null &&
+        userPicturesIds[i]["imageData"] != "NOT_AVAILABLE") {
+      await storage.updateFile(
+          bucketId: "userPictures",
+          fileId: userPicturesIds[i]["imageData"]!,
+          permissions: [
+            Permission.read(Role.users("verified")),
+            Permission.update(Role.user(userId))
+          ]);
     }
   }
 }
 
 ///Verifies that user pictures ids are  in the expected format
-
 
 Map<String, double> transformarCoordenadas(double latitud, double longitud) {
   // Validar que las coordenadas están dentro del rango esperado
@@ -257,7 +287,6 @@ Map<String, double> transformarCoordenadas(double latitud, double longitud) {
     'longitud': nuevaLongitud,
   };
 }
-
 
 bool verifyPictureId(
   List<Map<String, dynamic>?> pircutreIds,
@@ -307,8 +336,6 @@ Future<bool> verifyPromotionalCode(
               "rewardTicketSuccesfulShares": amountOfRewardTicketSuccesfulShares
             });
 
-          
-
         verified = true;
       }
     }
@@ -336,16 +363,19 @@ Future<bool> verifyPromotionalCode(
 
 void verifyUserCharacterisitcs(Map<String, dynamic> userCharacteristic) {
   try {
-    int alcohol = userCharacteristic["alcohol"];
-    int lookingFor = userCharacteristic["im_looking_for"];
-    int bodyType = userCharacteristic["body_type"];
-    int children = userCharacteristic["children"];
-    int pets = userCharacteristic["pets"];
-    int politics = userCharacteristic["politics"];
-    int livingWith = userCharacteristic["im_living_with"];
-    int smoke = userCharacteristic["smoke"];
-    int personality = userCharacteristic["personality"];
-    int zodiacSign = userCharacteristic["zodiac_sign"];
+    int alcohol = userCharacteristic["userCharacteristics_alcohol"];
+    int lookingFor =
+        userCharacteristic["userCharacteristics_what_he_looks"];
+    int bodyType = userCharacteristic["userCharacteristics_bodyType"];
+    int children = userCharacteristic["userCharacteristics_children"];
+    int pets = userCharacteristic["userCharacteristics_pets"];
+    int politics = userCharacteristic["userCharacteristics_politics"];
+    int livingWith = userCharacteristic["userCharacteristics_lives_with"];
+    int smoke = userCharacteristic["userCharacteristics_smokes"];
+    int personality = userCharacteristic["userCharacteristics_personality"];
+    int zodiacSign = userCharacteristic["userCharacteristics_zodiak"];
+    int sexuality=userCharacteristic["userCharacteristics_sexualO"];
+
 
     if ((alcohol >= 0 && alcohol <= 4) &&
         (lookingFor >= 0 && lookingFor <= 4) &&
@@ -356,14 +386,14 @@ void verifyUserCharacterisitcs(Map<String, dynamic> userCharacteristic) {
         (livingWith >= 0 && livingWith <= 3) &&
         (smoke >= 0 && smoke <= 4) &&
         (personality >= 0 && personality <= 3) &&
-        (zodiacSign >= 0 && zodiacSign <= 12)) {
+        (zodiacSign >= 0 && zodiacSign <= 12&&sexuality>=0&&sexuality<=8)) {
     } else {
       throw Exception("error_verify_user_characteristcs");
     }
   } catch (e, s) {
     throw Exception(
       {
-        "error": "EXPECTED_ERROR:ERROR_VERIFYING_USER_CHARACTERISITCS",
+        "error": "ERROR:ERROR_VERIFYING_USER_CHARACTERISITCS",
         "errorMessage": e.toString(),
         "stackTrace": s
       },
@@ -408,7 +438,8 @@ void verifyPositionData(double lat, double lon) {
   try {
     if ((lat <= 90 && lat >= -90) && (lon <= 180 && lon >= -180)) {
     } else {
-      throw Exception("verifyPositionData");
+      throw Exception(
+          "THE POSITION DATA DOES NOT HAVE THE EXPECTED FORMAT OR BOUNDS");
     }
   } catch (e, s) {
     throw Exception(
@@ -480,65 +511,4 @@ void verifyUserAge(int birthDateInMilliseconds) {
       },
     );
   }
-}
-
-String createId({required int idLength}) {
-  List<String> letras = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z"
-  ];
-  List<String> numero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-  var random = Random();
-  int primeraLetra = random.nextInt(26);
-  String finalCode = letras[primeraLetra];
-
-  for (int i = 0; i <= idLength; i++) {
-    int characterTypeIndicator = random.nextInt(20);
-    int randomWord = random.nextInt(27);
-    int randomNumber = random.nextInt(9);
-    if (characterTypeIndicator <= 2) {
-      characterTypeIndicator = 2;
-    }
-    if (characterTypeIndicator % 2 == 0) {
-      finalCode = "$finalCode${(numero[randomNumber])}";
-    }
-    if (randomWord % 3 == 0) {
-      int mayuscula = random.nextInt(9);
-      if (characterTypeIndicator <= 2) {
-        int suerte = random.nextInt(2);
-        suerte == 0 ? characterTypeIndicator = 3 : characterTypeIndicator = 2;
-      }
-      if (mayuscula % 2 == 0) {
-        finalCode = "$finalCode${(letras[randomWord]).toUpperCase()}";
-      }
-      if (mayuscula % 3 == 0) {
-        finalCode = "$finalCode${(letras[randomWord]).toLowerCase()}";
-      }
-    }
-  }
-  return finalCode;
 }
