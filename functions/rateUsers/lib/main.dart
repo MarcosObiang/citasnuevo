@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
-import 'package:dio/dio.dart' as dio;
+//import 'package:dio/dio.dart' as dio;
 
 /*
   'req' variable has:
@@ -19,21 +20,20 @@ import 'package:dio/dio.dart' as dio;
 */
 
 enum ReactionType { PASS, MAYBE, LIKE }
-
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+        String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
 
-    var data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
     String userId = data["userId"];
     String reactionType = data["reactionType"];
     bool reactionTypeIsValid = false;
-    String reactionId = createId();
+    String reactionId = createId(idLength: 10);
     String recieverId = data["recieverId"];
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     int expirationTimestamp =
@@ -125,8 +125,8 @@ Future<void> start(final req, final res) async {
           permissions: [
             Permission.read(Role.user(recieverId))
           ]);
-      await sendPushNotification(
-          dataabases: databases, recieverNotificationToken: notificationToken);
+     /* await sendPushNotification(
+          dataabases: databases, recieverNotificationToken: notificationToken);*/
 
       res.json({
         'status': 200,
@@ -155,7 +155,7 @@ Future<void> start(final req, final res) async {
   }
 }
 
-Future<void> sendPushNotification(
+/*Future<void> sendPushNotification(
     {required Databases dataabases,
     required String recieverNotificationToken}) async {
   try {
@@ -180,68 +180,20 @@ Future<void> sendPushNotification(
   } catch (e) {
     throw NotificationException(message: e.toString());
   }
-}
+}*/
 
-String createId() {
-  List<String> letras = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z"
-  ];
-  List<String> numero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+String createId({required int idLength}) {
+  const String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
   var random = Random();
-  int primeraLetra = random.nextInt(26);
-  String finalCode = letras[primeraLetra];
+  String finalCode = characters[random.nextInt(characters.length)];
 
-  for (int i = 0; i <= 20; i++) {
-    int characterTypeIndicator = random.nextInt(20);
-    int randomWord = random.nextInt(27);
-    int randomNumber = random.nextInt(9);
-    if (characterTypeIndicator <= 2) {
-      characterTypeIndicator = 2;
-    }
-    if (characterTypeIndicator % 2 == 0) {
-      finalCode = "$finalCode${(numero[randomNumber])}";
-    }
-    if (randomWord % 3 == 0) {
-      int mayuscula = random.nextInt(9);
-      if (characterTypeIndicator <= 2) {
-        int suerte = random.nextInt(2);
-        suerte == 0 ? characterTypeIndicator = 3 : characterTypeIndicator = 2;
-      }
-      if (mayuscula % 2 == 0) {
-        finalCode = "$finalCode${(letras[randomWord]).toUpperCase()}";
-      }
-      if (mayuscula % 3 == 0) {
-        finalCode = "$finalCode${(letras[randomWord]).toLowerCase()}";
-      }
-    }
+  for (var i = 0; i < idLength; i++) {
+    finalCode += characters[random.nextInt(characters.length)];
   }
+
   return finalCode;
 }
+
 
 class NotificationException implements Exception {
   String message;

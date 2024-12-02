@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 class ProfileCharacteristics {
 
-  final String characteristicValue;
+  final Function characteristicValue;
   final int characteristicIndex;
   final bool sameAsUser;
   final IconData iconData;

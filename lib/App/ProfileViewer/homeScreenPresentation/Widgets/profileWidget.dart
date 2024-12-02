@@ -411,7 +411,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       }
     }
 
-    widgetList.insert(
+   widgetList.insert(
         1,
         ProfileDescription(
           bio: widget.profile.bio,

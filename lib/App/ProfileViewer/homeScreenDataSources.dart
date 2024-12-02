@@ -60,36 +60,39 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   Future<Map<dynamic, dynamic>> _callProfilesFromTheServer({
     required Map<String, dynamic> positionData,
   }) async {
-   /* Map<dynamic, dynamic> functionResult = Map();
+    Map<dynamic, dynamic> functionResult = Map();
 
     List<dynamic> profilesCache;
+    Functions functions = Functions(Dependencies.serverAPi.client);
+    Execution execution = await functions.createExecution(
+        functionId: "fetchUserProfiles",
+        body: jsonEncode({
+          "lat": positionData["lat"],
+          "distance": 60,
+          "lon": positionData["lon"],
+          "userId": GlobalDataContainer.userId
+        }));
 
-    final response = await Dependencies.serverAPi.app!.currentUser!.functions
-        .call("fetchProfiles", [
-      jsonEncode({
-        "lat": positionData["lat"],
-        "distance": 60,
-        "lon": positionData["lon"],
-        "userId": GlobalDataContainer.userId
-      })
-    ]);
+    int statusCode = execution.responseStatusCode;
+    String response = execution.responseBody;
+    String message = jsonDecode(response)["message"];
 
-    if (jsonDecode(response)["executionCode"] == 200) {
-      profilesCache = jsonDecode(response)["payload"];
+    if (statusCode == 200) {
+      profilesCache = jsonDecode(jsonDecode(execution.responseBody)["payload"]);
 
       functionResult["userData"] = source.getData;
       functionResult["profilesList"] = profilesCache;
       functionResult["todayDateTime"] = DateTime.now();
       return functionResult;
-    } else if (response.status == "error") {
-      if (response.status == "error_perfil_invisible") {
+    } else if (execution.responseStatusCode == "error") {
+      if (statusCode== "error_perfil_invisible") {
         throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
       } else {
         throw FetchProfilesException(message: "INTERNAL_ERROR");
       }
     } else {
       throw FetchProfilesException(message: "PROFILES_FETCHING_FAILED");
-    }*/ return {};
+    }
   }
 
   /// Fetch profiles from the backend, make sure to call [subscribeToMainDataSource] first in the same object
@@ -136,9 +139,8 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
 
   @override
   Future<void> sendRating(
-      {required int reactionValue,
-      required String idProfileRated}) async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+      {required int reactionValue, required String idProfileRated}) async {
+    /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         final response = await Dependencies
             .serverAPi.app!.currentUser!.functions
@@ -215,7 +217,7 @@ var responseParsed = jsonDecode(response);
   Future<bool> setConsent({required bool cosent}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
       try {
-       /* Functions functions = Functions(Dependencies.serverAPi.client!);
+        /* Functions functions = Functions(Dependencies.serverAPi.client!);
 
         Execution execution = await functions.createExecution(
             functionId: "setAdConsentStatus",

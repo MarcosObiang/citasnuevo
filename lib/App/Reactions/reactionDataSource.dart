@@ -242,7 +242,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       sourceStreamSubscription = source.dataStream?.stream.listen((event) {
         coins = event["userCoins"];
         isPremium = event["isUserPremium"];
-        reactionAverage = event["reactionAveracePoints"];
+        reactionAverage = event["reactionAveragePoints"];
 
         _sendAdditionalData();
       });

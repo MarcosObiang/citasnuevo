@@ -24,12 +24,12 @@ class ProfileMapper {
           id: profilesFromBackend[i]["userId"],
           name: profilesFromBackend[i]["userName"],
           age: userAge,
-          profileImage1: jsonDecode(profilesFromBackend[i]["userPicture1"]),
-          profileImage2: jsonDecode(profilesFromBackend[i]["userPicture2"]),
-          profileImage3: jsonDecode(profilesFromBackend[i]["userPicture3"]),
-          profileImage4: jsonDecode(profilesFromBackend[i]["userPicture4"]),
-          profileImage5: jsonDecode(profilesFromBackend[i]["userPicture5"]),
-          profileImage6: jsonDecode(profilesFromBackend[i]["userPicture6"]),
+          profileImage1: (profilesFromBackend[i]["userPicture1"]),
+          profileImage2: (profilesFromBackend[i]["userPicture2"]),
+          profileImage3: (profilesFromBackend[i]["userPicture3"]),
+          profileImage4: (profilesFromBackend[i]["userPicture4"]),
+          profileImage5: (profilesFromBackend[i]["userPicture5"]),
+          profileImage6: (profilesFromBackend[i]["userPicture6"]),
           verified: false,
           distance: profilesFromBackend[i]["distance"],
           profileCharacteristics: characteristicsCoparationResults,
@@ -50,10 +50,10 @@ class ProfileMapper {
     for (int i = 0; i < attributes.length; i++) {
       int characterisitcValue = profileData[attributes[i]];
 
-      String characteristicName = attributes[i];
+      Function characteristicName = kProfileCharacteristicsNames_ES[i].values.first;
       List<Map<int, dynamic>> kProfileCharacteristicsCopy =
           kProfileCharacteristics_ES[i].values.first;
-      String characteristicStringValue =
+      Function characteristicStringValue =
           kProfileCharacteristicsCopy[characterisitcValue].values.first;
 
       characteristicsList.add(ProfileCharacteristics(

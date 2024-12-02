@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:citasnuevo/Utils/getImageFile.dart';
+import 'package:citasnuevo/core/common/commonUtils/getUserImage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,7 +36,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   void _getImageData() async {
     try {
-      widget.imageData = base64Decode(widget.profilePicture["imageData"]);
+      widget.imageData = await ImageFile.getFile( fileId:widget.profilePicture["imageData"]);
       setState(() {});
     } catch (e) {
       if (e is AppwriteException) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
@@ -17,61 +18,61 @@ import 'package:georange/georange.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
 
     final database = Databases(client);
-    var data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
     List<String> usersFetched = [];
-    double currentLon = data["lon"];
-    double currentLat = data["lat"];
+    double currentLon = double.parse((data["lon"] + 180 as double).toStringAsFixed(1));
+    double currentLat = double.parse((data["lat"] + 90 as double).toStringAsFixed(1));
     int maxDistance = data["distance"];
     String userId = data["userId"];
     await database.updateDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: userId,
-        data: {"positionLon": currentLon, "positionLat": currentLat});
- 
+        data: {
+          "userLongitude": [currentLon],
+          "userLatitude": currentLat
+        });
+
+        context.log(getAllLongitudesRange(currentLon, maxDistance));
 
     DocumentList documentList = await database.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         queries: [
+          Query.equal(
+              "userLongitude", getAllLongitudesRange(currentLon, maxDistance)),
           Query.greaterThanEqual(
-              "positionLon", getMinLongitude(currentLon, maxDistance)),
+              "userLatitude", getMinLatitude(currentLat, maxDistance)),
           Query.lessThanEqual(
-              "positionLon", getMaxLongitude(currentLon, maxDistance)),
-          Query.greaterThanEqual(
-              "positionLat", getMinLatitude(currentLat, maxDistance)),
-          Query.lessThanEqual(
-              "positionLat", getMaxLatitude(currentLat, maxDistance)),
+              "userLatitude", getMaxLatitude(currentLat, maxDistance)),
         ]);
 
-    res.json({
-      "status": "correct",
-      'payload': jsonEncode(processUserData(
+    return context.res.json({
+      "message": "REQUEST_SUCCESFULL",
+      "details": "COMPLETED",
+      "payload": jsonEncode(processUserData(
           documentList: documentList.documents,
           currentLat: currentLat,
           currentLon: currentLon,
-          userId: userId)),
-    });
+          userId: userId))
+    }, 200);
   } catch (e) {
     if (e is AppwriteException) {
-      res.json({
-        'payload': e.message,
-      });
+      return context.res
+          .json({"message": "INTERNAL_ERROR", "details": e.message}, 500);
     } else {
-      res.json({
-        "status": "error",
-        'payload': e.toString(),
-      });
+      return context.res
+          .json({"message": "INTERNAL_ERROR", "details": e.toString()}, 500);
     }
   }
 }
@@ -84,8 +85,8 @@ List<Map<String, dynamic>> processUserData(
   List<Map<String, dynamic>> returnData = [];
 
   for (int i = 0; i < documentList.length; i++) {
-    double userLon = documentList[i].data["positionLon"];
-    double userLat = documentList[i].data["positionLat"];
+    double userLon = documentList[i].data["userLongitude"][0];
+    double userLat = documentList[i].data["userLatitude"];
     GeoRange geoRange = GeoRange();
     Point startCoordinate = Point(latitude: currentLat, longitude: currentLon);
     Point endCoordinate = Point(latitude: userLat, longitude: userLon);
@@ -94,7 +95,7 @@ List<Map<String, dynamic>> processUserData(
           geoRange.distance(startCoordinate, endCoordinate).toInt();
 
       int userBirthDateInMillisecondsSinceEpoch =
-          documentList[i].data["birthDateInMilliseconds"];
+          documentList[i].data["userBirthDate"];
       int userAge = DateTime.now()
               .difference(DateTime.fromMillisecondsSinceEpoch(
                   userBirthDateInMillisecondsSinceEpoch))
@@ -114,17 +115,28 @@ List<Map<String, dynamic>> processUserData(
         "userPicture4": jsonDecode(documentList[i].data["userPicture4"]),
         "userPicture5": jsonDecode(documentList[i].data["userPicture6"]),
         "userPicture6": jsonDecode(documentList[i].data["userPicture6"]),
-        "alcohol": documentList[i].data["alcohol"],
-        "im_looking_for": documentList[i].data["im_looking_for"],
-        "body_type": documentList[i].data["body_type"],
-        "children": documentList[i].data["children"],
-        "pets": documentList[i].data["pets"],
-        "politics": documentList[i].data["politics"],
-        "im_living_with": documentList[i].data["im_living_with"],
-        "smoke": documentList[i].data["smoke"],
-        "sexual_orientation": documentList[i].data["sexual_orientation"],
-        "zodiac_sign": documentList[i].data["zodiac_sign"],
-        "personality": documentList[i].data["personality"],
+        "userCharacteristics_alcohol":
+            documentList[i].data["userCharacteristics_alcohol"],
+        "userCharacteristics_what_he_looks":
+            documentList[i].data["userCharacteristics_what_he_looks"],
+        "userCharacteristics_bodyType":
+            documentList[i].data["userCharacteristics_bodyType"],
+        "userCharacteristics_children":
+            documentList[i].data["userCharacteristics_children"],
+        "userCharacteristics_pets":
+            documentList[i].data["userCharacteristics_pets"],
+        "userCharacteristics_politics":
+            documentList[i].data["userCharacteristics_politics"],
+        "userCharacteristics_lives_with":
+            documentList[i].data["userCharacteristics_lives_with"],
+        "userCharacteristics_smokes":
+            documentList[i].data["userCharacteristics_smokes"],
+        "userCharacteristics_sexualO":
+            documentList[i].data["userCharacteristics_sexualO"],
+        "userCharacteristics_zodiak":
+            documentList[i].data["userCharacteristics_zodiak"],
+        "userCharacteristics_personality":
+            documentList[i].data["userCharacteristics_personality"],
       };
       returnData.add(dataToJson);
     }
@@ -143,6 +155,31 @@ double getMaxLongitude(double currentLon, int distance) {
   }
   double result = lon - 360;
   return result;
+}
+
+List<double> getAllLongitudesRange(double currentLon, int distance) {
+  List<double> longitudes = [];
+  double firstLongitude = currentLon;
+  double finalLongitude = firstLongitude - 0.1;
+  longitudes.add(finalLongitude);
+  longitudes.add(currentLon);
+
+  for (int i = 0; i < 5; i++) {
+    finalLongitude = finalLongitude - 0.1;
+
+    longitudes.add(finalLongitude);
+  }
+
+  finalLongitude = firstLongitude + 0.1;
+  longitudes.add(finalLongitude);
+
+  for (int i = 0; i < 5; i++) {
+    finalLongitude = finalLongitude + 0.1;
+
+    longitudes.add(finalLongitude);
+  }
+
+  return longitudes;
 }
 
 double getMinLongitude(double currentLon, int distance) {

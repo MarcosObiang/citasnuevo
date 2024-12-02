@@ -81,14 +81,14 @@ class _ProfileCharateristicsWidgetState
     data.forEach((element) {
       if (element.characteristicIndex != 0&&sameInterestAsUSer==true&&element.sameAsUser==true) {
           widgetList.add(widgetValor(element.sameAsUser, Icon(element.iconData, color: Theme.of(context).colorScheme.onPrimary,),
-              element.characteristicValue,true));
+              element.characteristicValue(context),true));
         
       
 
       }
       if(element.characteristicIndex != 0&&sameInterestAsUSer==false) {
         widgetList.add(widgetValor(element.sameAsUser, Icon(element.iconData ,color: Theme.of(context).colorScheme.onPrimaryContainer,),
-            element.characteristicValue,false));
+            element.characteristicValue(context),false));
       }
     });
 

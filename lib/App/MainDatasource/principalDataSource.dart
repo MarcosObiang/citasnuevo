@@ -133,7 +133,7 @@ class ApplicationDataSource {
               .contains('databases.*.collections.*.documents.*.update')) {
             Map<String, dynamic> updatedData = message.payload;
 
-            _data = updatedData;
+            _data = transformDataFromSource(updatedData);
 
             dataStream?.add(_data);
           }
