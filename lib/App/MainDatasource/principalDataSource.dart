@@ -130,7 +130,7 @@ class ApplicationDataSource {
         .stream
         .listen((message) {
           if (message.events
-              .contains('databases.*.collections.*.documents.*.update')) {
+              .contains('databases.${kDatabaseId}.collections.${kUserCollecitonId}.documents.${userId}.update')) {
             Map<String, dynamic> updatedData = message.payload;
 
             _data = transformDataFromSource(updatedData);

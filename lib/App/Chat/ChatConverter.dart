@@ -39,8 +39,8 @@ class ChatConverter {
         messagesId: chatData["conversationId"],
         remitentPicture: isBlindDate == false
             ? thisIsUser1
-                ? jsonDecode(chatData["user2Picture"])["imageData"]
-                : jsonDecode(chatData["user1Picture"])["imageData"]
+                ? chatData["user2Picture"]
+                : chatData["user1Picture"]
             : kNotAvailable,
         remitentName:
             thisIsUser1 ? chatData["user2Name"] : chatData["user1Name"],

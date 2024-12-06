@@ -27,7 +27,9 @@ class SettingsScreenPresentation extends ChangeNotifier
   late StreamSubscription<SettingsInformationSender>? updateSubscription;
   SettingsScreenPresentation({
     required this.settingsController,
-  });
+  }){
+    settingsEntity = settingsController.settingsEntity!;
+  }
 
  
 
@@ -65,9 +67,10 @@ class SettingsScreenPresentation extends ChangeNotifier
   void update() {
     updateSubscription =
         settingsController.updateDataController?.stream.listen((event) {
+                settingsEntity = event.settingsEntity;
+
       setSettingsScreenState = SettingsScreenState.loaded;
 
-      settingsEntity = event.settingsEntity;
       if (event.isAppSettingsUpdating != null) {
         setIsAppSettingsUpdating = event.isAppSettingsUpdating as bool;
       }

@@ -38,7 +38,7 @@ class _AdConsentformState extends State<AdConsentform> {
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(AppLocalizations.of(context!)!.adConsentform_pleaseWait),
+                              Text(AppLocalizations.of(context)!.adConsentform_pleaseWait),
                               Container(
                                   height: 200.h,
                                   width: 200.h,
@@ -53,7 +53,7 @@ class _AdConsentformState extends State<AdConsentform> {
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(AppLocalizations.of(context!)!.adConsentform_unexpectedError),
+                                  Text(AppLocalizations.of(context)!.adConsentform_unexpectedError),
                                   Column(
                                     children: [
                                       TextButton.icon(

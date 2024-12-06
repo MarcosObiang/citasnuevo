@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
@@ -16,30 +17,33 @@ import 'package:dart_appwrite/models.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824');
-    print("reactionData.data");
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
 
-    var data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
 
     String reactionId = data["reactionId"];
     String userId = data["userId"];
+    bool showAd = data["showAd"];
+    int priceToRevealReaction=showAd?200:400;
+
 
     Databases database = Databases(client);
 
     Document reactionData = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374fc078b95d03fb3c1",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "reactionsPrivate",
         documentId: reactionId);
 
     Document userData = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: userId);
 
     int userCoins = userData.data["userCoins"];
@@ -47,40 +51,40 @@ Future<void> start(final req, final res) async {
 
     if (isUserPremium) {
       await database.updateDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374fe10e76d07bfe639",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "reactionsPrivate",
           documentId: reactionId,
           data: {
             "senderName": reactionData.data["senderName"],
             "senderId": reactionData.data["senderId"],
             "userPicture": reactionData.data["userPicture"],
-            "reactionType": reactionData.data["reactionType"],
+            "reactionValue": reactionData.data["reactionValue"],
             "reactionRevealed": true,
           });
-      res.json({
-        'status': 200,
-        "message": "correct",
-      });
+      return context.res.json({
+        "message": "REQUEST_SUCCESFULL",
+        "details": "USER IS PREMIUM, JUST REVEAL AND NOT COUNT COINS"
+      }, 200);
     } else {
-      if (userCoins >= 200) {
-        int remainingCoins = userCoins - 200;
+      if (userCoins >= priceToRevealReaction) {
+        int remainingCoins = userCoins - priceToRevealReaction;
 
         if (remainingCoins < 200) {
           await database.updateDocument(
-              databaseId: "636d59d7a2f595323a79",
-              collectionId: "636d59df12dcf7a399d5",
+              databaseId: "6729a8be001c8e5fa57a",
+              collectionId: "6729a8c50029409cd062",
               documentId: userData.$id,
               data: {
                 "userCoins": remainingCoins,
                 "nextRewardTimestamp":
                     (DateTime.now().add(Duration(minutes: 3)))
                         .millisecondsSinceEpoch,
-                "waitingReward": true
+                "waitingRewards": true
               });
         } else {
           await database.updateDocument(
-              databaseId: "636d59d7a2f595323a79",
-              collectionId: "636d59df12dcf7a399d5",
+              databaseId: "6729a8be001c8e5fa57a",
+              collectionId: "6729a8c50029409cd062",
               documentId: userData.$id,
               data: {
                 "userCoins": remainingCoins,
@@ -88,35 +92,35 @@ Future<void> start(final req, final res) async {
         }
 
         await database.updateDocument(
-            databaseId: "636d59d7a2f595323a79",
-            collectionId: "6374fe10e76d07bfe639",
+            databaseId: "6729a8be001c8e5fa57a",
+            collectionId: "reactions",
             documentId: reactionId,
             data: {
               "senderName": reactionData.data["senderName"],
               "senderId": reactionData.data["senderId"],
               "userPicture": reactionData.data["userPicture"],
-              "reactionType": reactionData.data["reactionType"],
+              "reactionValue": reactionData.data["reactionValue"],
               "reactionRevealed": true,
             });
-        res.json({
-          'status': 200,
-          "message": "correct",
-        });
+        return context.res.json({
+          "message": "REQUEST_SUCESSFULL",
+          "details": "REACTION REVEALED",
+        }, 200);
       } else {
-        res.json({
-          'status': 200,
+        return context.res.json({
           "message": "CREDITS_LOW",
-        });
+          "details": "USER DOES NOT HAVE ENOUGH CREDITS"
+        }, 200);
       }
     }
   } catch (e, s) {
     if (e is AppwriteException) {
-      print("error: ${e.message} stackTrace: $s");
-
-      res.json({"status": 500, "message": "INTERNAL_ERROR"});
+      context.log("Error: ${e.message} stackTrace: $s");
+      return context.res.json({ "message": "INTERNAL_ERROR"},500);
     } else {
-      print("erro: ${e.toString()} stackTrace: $s");
-      res.json({"status": 500, "message": "INTERNAL_ERROR"});
+      context.log("Error: ${e.toString()} stackTrace: $s");
+
+      return context.res.json({ "message": "INTERNAL_ERROR"},500);
     }
   }
 }

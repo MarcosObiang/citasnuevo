@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/platform/networkInfo.dart';
 
 import 'ReactionEntity.dart';
@@ -15,9 +16,8 @@ class ReactionMapper implements Mapper<Reaction> {
           age: 20,
           reactionExpirationDateInSeconds:
               (data["expirationTimestamp"] ~/ 1000),
-          reactionType: data["reactionType"],
           imageHash: "",
-          imageUrl: jsonDecode(data["userPicture"]),
+          imageUrl: {"imageData":data["userPicture"]},
           name: data["senderName"],
           senderId: data["senderId"],
           idReaction: data["reactionId"],
@@ -32,9 +32,8 @@ class ReactionMapper implements Mapper<Reaction> {
           age: 20,
           reactionExpirationDateInSeconds:
               (data["expirationTimestamp"] ~/ 1000),
-          reactionType: "",
           imageHash: "",
-          imageUrl: {"imageId": null},
+          imageUrl: {"imageData": kNotAvailable},
           name: "",
           senderId: data["senderId"],
           idReaction: data["reactionId"],

@@ -19,7 +19,6 @@ class Reaction {
   bool revealingProcessStarted = false;
   bool canShowAds = true;
   bool userBlocked = false;
-  String reactionType;
   int reactionValue;
   String imageHash;
   Map<String, dynamic> imageUrl;
@@ -37,49 +36,6 @@ class Reaction {
     reactionRevealedStateStream.add(this.reactionAceptingState);
   }
 
-  get getAge => this.age;
-
-  set setAge(age) => this.age = age;
-
-  get getSecondsUntilExpiration => this.secondsUntilExpiration;
-
-  set setSecondsUntilExpiration(secondsUntilExpiration) =>
-      this.secondsUntilExpiration = secondsUntilExpiration;
-
-  get getReactionExpirationDateInSeconds =>
-      this.reactionExpirationDateInSeconds;
-
-  set setReactionExpirationDateInSeconds(reactionExpirationDateInSeconds) =>
-      this.reactionExpirationDateInSeconds = reactionExpirationDateInSeconds;
-
-  get getStopCounter => this.stopCounter;
-
-  set setStopCounter(stopCounter) => this.stopCounter = stopCounter;
-
-  get getRevealingProcessStarted => this.revealingProcessStarted;
-
-  set setRevealingProcessStarted(revealingProcessStarted) =>
-      this.revealingProcessStarted = revealingProcessStarted;
-
-  get getReactionType => this.reactionType;
-
-  set setReactionType(reactioValue) => this.reactionType = reactioValue;
-
-  get getImageHash => this.imageHash;
-
-  set setImageHash(imageHash) => this.imageHash = imageHash;
-
-  get getImageUrl => this.imageUrl;
-
-  set setImageUrl(imageUrl) => this.imageUrl = imageUrl;
-
-  get getName => this.name;
-
-  set setName(name) => this.name = name;
-
-  get getIdReaction => this.idReaction;
-
-  set setIdReaction(idReaction) => this.idReaction = idReaction;
 
   get getReactionRevealigState => this.reactionRevealigState;
 
@@ -99,7 +55,6 @@ class Reaction {
       {required this.age,
       required this.senderId,
       required this.reactionExpirationDateInSeconds,
-      required this.reactionType,
       required this.imageHash,
       required this.imageUrl,
       required this.name,

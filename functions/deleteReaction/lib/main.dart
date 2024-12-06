@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
@@ -16,47 +17,49 @@ import 'package:dart_appwrite/models.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
-    Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
 
-    var data = jsonDecode(req.payload);
+    Client client = Client()
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
+    final data = context.req.bodyJson;
     Databases database = Databases(client);
+    String userId = data["userId"];
+
     List<dynamic> reactionIds = data["reactionIds"];
-    String? userId = req.variables["APPWRITE_FUNCTION_USER_ID"].toString();
 
     for (int i = 0; i < reactionIds.length; i++) {
       Document reactionData = await database.getDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374fe10e76d07bfe639",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "reactionsPrivate",
           documentId: reactionIds[i]);
 
       if (userId == reactionData.data["recieverId"]) {
         await database.deleteDocument(
-            databaseId: "636d59d7a2f595323a79",
-            collectionId: "6374fe10e76d07bfe639",
+            databaseId: "6729a8be001c8e5fa57a",
+            collectionId: "reactions",
             documentId: reactionIds[i]);
         await database.deleteDocument(
-            databaseId: "636d59d7a2f595323a79",
-            collectionId: "6374fc078b95d03fb3c1",
+            databaseId: "6729a8be001c8e5fa57a",
+            collectionId: "reactionsPrivate",
             documentId: reactionIds[i]);
       }
     }
-    res.json({'status': 200, "mesage": "correct"});
+    return context.res.json(
+        {"message": "REQUEST_SUCESSFULL", "details": "REACTIONS DELETED"}, 200);
   } catch (e, s) {
     if (e is AppwriteException) {
-      print({'status': 500, "mesage": e.message, "stackTrace": s});
+      context.log({"message": e.message, "stackTrace": s});
 
-      res.json({'status': 500, "mesage": "INTERNAL_ERROR"});
+      return context.res.json({"message": "INTERNAL_ERROR"}, 500);
     } else {
-      print({'status': 500, "mesage": e.toString(), "stackTrace": s});
+      context.log({"message": e.toString(), "stackTrace": s});
 
-      res.json({'status': 500, "mesage": "INTERNAL_ERROR"});
+      return context.res.json({"message": "INTERNAL_ERROR"}, 500);
     }
   }
 }

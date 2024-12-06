@@ -33,16 +33,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
 
-    remitentImageData = ImageFile.getFile(
+   remitentImageData = ImageFile.getFile(
         fileId:
             Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
+            
   }
 
-  @override
+ /* @override
   void didChangeDependencies() {
-    remitentImageData = ImageFile.getFile(
+   /* remitentImageData = ImageFile.getFile(
         fileId:
-            Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
+            Dependencies.settingsScreenPresentation.settingsEntity.userPicture);*/
     super.didChangeDependencies();
   }
 
@@ -53,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
 
     super.didUpdateWidget(oldWidget);
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             future: remitentImageData,
                             builder: (BuildContext context,
                                 AsyncSnapshot<Uint8List> snapshot) {
-                              remitentImageData = ImageFile.getFile(
-                                  fileId: Dependencies
-                                      .settingsScreenPresentation
-                                      .settingsEntity
-                                      .userPicture);
+                          ;
                               return Column(
                                 children: [
                                   snapshot.hasData

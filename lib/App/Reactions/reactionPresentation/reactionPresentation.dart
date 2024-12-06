@@ -24,7 +24,6 @@ import 'Screens/ReactionScreen.dart';
 import 'Widgets/RevealingCard.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 enum RevealingAnimationState { notTurning, turned, turning }
 
 enum ReactionListState {
@@ -151,9 +150,13 @@ class ReactionPresentation extends ChangeNotifier
       }
       if (failure is ReactionFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
+            content: AppLocalizations.of(
+                    ReactionScreen.reactionsListKey.currentContext!)!
+                .revealing_card_error_operation,
             context: ReactionScreen.reactionsListKey.currentContext,
-            title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
+            title: AppLocalizations.of(
+                    ReactionScreen.reactionsListKey.currentContext!)!
+                .error);
       }
     }, (r) {});
   }
@@ -171,9 +174,13 @@ class ReactionPresentation extends ChangeNotifier
       }
       if (failure is ReactionFailure) {
         PresentationDialogs.instance.showErrorDialog(
-            content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
+            content: AppLocalizations.of(
+                    ReactionScreen.reactionsListKey.currentContext!)!
+                .revealing_card_error_operation,
             context: ReactionScreen.reactionsListKey.currentContext,
-            title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
+            title: AppLocalizations.of(
+                    ReactionScreen.reactionsListKey.currentContext!)!
+                .error);
       }
     }, (r) {});
   }
@@ -182,110 +189,154 @@ class ReactionPresentation extends ChangeNotifier
     required this.reactionsController,
   });
 
-  void revealReaction({required String reactionId,required int price}) async {
+  void revealReaction(
+      {required String reactionId, required bool showAd}) async {
+    int coins = showAd ? 200 : 400;
     if (isPremium == false) {
-      if (getCoins >= price) {
-        if (reactionsController.checkIfReactionCanShowAds(reactionId)) {
-          var adResult = await reactionsController.showRewarded();
+      if (showAd == true) {
+        if (getCoins >= coins) {
+          if (reactionsController.checkIfReactionCanShowAds(reactionId)) {
+            var adResult = await reactionsController.showRewarded();
 
-          adResult.fold((l) {
-            if (l is NetworkFailure) {
-              PresentationDialogs.instance
-                  .showNetworkErrorDialog(context: startKey.currentContext);
-            } else {
-              PresentationDialogs.instance.showErrorDialog(
-                  content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
-                  context: startKey.currentContext,
-                  title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
-            }
-          }, (r) async {
-            if (reactionsController.rewardedAdvertismentStateStream != null) {
-              setAdShowingState = AdShowingState.adLoading;
-
-              await for (Map<String, dynamic> event in reactionsController
-                  .rewardedAdvertismentStateStream.stream) {
-                if (event["status"] == "FAILED") {
-                  setAdShowingState = AdShowingState.errorLoadingAd;
-                }
-                if (event["status"] == "CLOSED") {
-                  setAdShowingState = AdShowingState.adShown;
-                }
-                if (event["status"] == "EXPIRED") {
-                  setAdShowingState = AdShowingState.errorLoadingAd;
-                }
-                if (event["status"] == "NOT_READY") {
-                  setAdShowingState = AdShowingState.errorLoadingAd;
-                }
-                if (event["status"] == "SHOWING") {
-                  setAdShowingState = AdShowingState.adShowing;
-                }
-                reactionsController.closeAdsStreams();
-                setAdShowingState = AdShowingState.adNotshowing;
-
-                var result = await reactionsController.revealReaction(
-                    reactionId: reactionId);
-                result.fold((failure) {
-                  if (failure is NetworkFailure) {
-                    PresentationDialogs.instance.showNetworkErrorDialog(
-                        context: startKey.currentContext);
-                  }
-                  if (failure is ReactionFailure) {
-                    PresentationDialogs.instance.showErrorDialog(
-                        content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
-                        context: ReactionScreen.reactionsListKey.currentContext,
-                        title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
-                  }
-                }, (r) {});
+            adResult.fold((l) {
+              if (l is NetworkFailure) {
+                PresentationDialogs.instance
+                    .showNetworkErrorDialog(context: startKey.currentContext);
+              } else {
+                PresentationDialogs.instance.showErrorDialog(
+                    content: AppLocalizations.of(
+                            ReactionScreen.reactionsListKey.currentContext!)!
+                        .revealing_card_error_operation,
+                    context: startKey.currentContext,
+                    title: AppLocalizations.of(
+                            ReactionScreen.reactionsListKey.currentContext!)!
+                        .error);
               }
-            } else {
-              setAdShowingState = AdShowingState.errorLoadingAd;
-            }
-          });
+            }, (r) async {
+              if (reactionsController.rewardedAdvertismentStateStream != null) {
+                setAdShowingState = AdShowingState.adLoading;
+
+                await for (Map<String, dynamic> event in reactionsController
+                    .rewardedAdvertismentStateStream.stream) {
+                  if (event["status"] == "FAILED") {
+                    setAdShowingState = AdShowingState.errorLoadingAd;
+                  }
+                  if (event["status"] == "CLOSED") {
+                    setAdShowingState = AdShowingState.adShown;
+                  }
+                  if (event["status"] == "EXPIRED") {
+                    setAdShowingState = AdShowingState.errorLoadingAd;
+                  }
+                  if (event["status"] == "NOT_READY") {
+                    setAdShowingState = AdShowingState.errorLoadingAd;
+                  }
+                  if (event["status"] == "SHOWING") {
+                    setAdShowingState = AdShowingState.adShowing;
+                  }
+                  reactionsController.closeAdsStreams();
+                  setAdShowingState = AdShowingState.adNotshowing;
+
+                  var result = await reactionsController.revealReaction(
+                      reactionId: reactionId, showAd: true);
+                  result.fold((failure) {
+                    if (failure is NetworkFailure) {
+                      PresentationDialogs.instance.showNetworkErrorDialog(
+                          context: startKey.currentContext);
+                    }
+                    if (failure is ReactionFailure) {
+                      PresentationDialogs.instance.showErrorDialog(
+                          content: AppLocalizations.of(ReactionScreen
+                                  .reactionsListKey.currentContext!)!
+                              .revealing_card_error_operation,
+                          context:
+                              ReactionScreen.reactionsListKey.currentContext,
+                          title: AppLocalizations.of(ReactionScreen
+                                  .reactionsListKey.currentContext!)!
+                              .error);
+                    }
+                  }, (r) {});
+                }
+              } else {
+                setAdShowingState = AdShowingState.errorLoadingAd;
+              }
+            });
+          } else {
+            var result = await reactionsController.revealReaction(
+                reactionId: reactionId, showAd: false);
+            result.fold((failure) {
+              if (failure is NetworkFailure) {
+                PresentationDialogs.instance.showNetworkErrorDialog(
+                    context: ReactionScreen.reactionsListKey.currentContext);
+              }
+              if (failure is ReactionFailure) {
+                PresentationDialogs.instance.showErrorDialog(
+                    content: AppLocalizations.of(
+                            ReactionScreen.reactionsListKey.currentContext!)!
+                        .revealing_card_error_operation,
+                    context: ReactionScreen.reactionsListKey.currentContext,
+                    title: AppLocalizations.of(
+                            ReactionScreen.reactionsListKey.currentContext!)!
+                        .error);
+              }
+            }, (r) {});
+          }
         } else {
-          var result =
-              await reactionsController.revealReaction(reactionId: reactionId);
-          result.fold((failure) {
-            if (failure is NetworkFailure) {
-              PresentationDialogs.instance.showNetworkErrorDialog(
-                  context: ReactionScreen.reactionsListKey.currentContext);
-            }
-            if (failure is ReactionFailure) {
-              PresentationDialogs.instance.showErrorDialog(
-                  content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
-                  context: ReactionScreen.reactionsListKey.currentContext,
-                  title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
-            }
-          }, (r) {});
+          PresentationDialogs.instance.showErrorDialogWithOptions(
+              context: ReactionScreen.reactionsListKey.currentContext,
+              dialogText: AppLocalizations.of(
+                      ReactionScreen.reactionsListKey.currentContext!)!
+                  .revealing_card_no_enough_gems,
+              dialogTitle: AppLocalizations.of(
+                      ReactionScreen.reactionsListKey.currentContext!)!
+                  .revealing_card_insuficient_gems,
+              dialogOptionsList: [
+                DialogOptions(
+                    function: () =>
+                        Navigator.pop(startKey.currentContext as BuildContext),
+                    text: AppLocalizations.of(
+                            ReactionScreen.reactionsListKey.currentContext!)!
+                        .revealing_card_understood),
+                DialogOptions(
+                    function: () {
+                      Navigator.pop(startKey.currentContext as BuildContext);
+
+                      var bottomNavigationBar = PrincipalScreen
+                          .bottomNavigationKey
+                          .currentWidget as BottomNavigationBar;
+                      if (bottomNavigationBar != null) {
+                        if (bottomNavigationBar.onTap != null) {
+                          bottomNavigationBar.onTap!(3);
+                        }
+                      }
+                    },
+                    text: AppLocalizations.of(
+                            ReactionScreen.reactionsListKey.currentContext!)!
+                        .revealing_card_earn_gems),
+              ]);
         }
       } else {
-        PresentationDialogs.instance.showErrorDialogWithOptions(
-            context: ReactionScreen.reactionsListKey.currentContext,
-            dialogText: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_no_enough_gems,
-            dialogTitle: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_insuficient_gems,
-            dialogOptionsList: [
-              DialogOptions(
-                  function: () =>
-                      Navigator.pop(startKey.currentContext as BuildContext),
-                  text: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_understood),
-              DialogOptions(
-                  function: () {
-                    Navigator.pop(startKey.currentContext as BuildContext);
-
-                    var bottomNavigationBar = PrincipalScreen
-                        .bottomNavigationKey
-                        .currentWidget as BottomNavigationBar;
-                    if (bottomNavigationBar != null) {
-                      if (bottomNavigationBar.onTap != null) {
-                        bottomNavigationBar.onTap!(3);
-                      }
-                    }
-                  },
-                  text: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_earn_gems),
-            ]);
+        var result = await reactionsController.revealReaction(
+            reactionId: reactionId, showAd: false);
+        result.fold((failure) {
+          if (failure is NetworkFailure) {
+            PresentationDialogs.instance.showNetworkErrorDialog(
+                context: ReactionScreen.reactionsListKey.currentContext);
+          }
+          if (failure is ReactionFailure) {
+            PresentationDialogs.instance.showErrorDialog(
+                content: AppLocalizations.of(
+                        ReactionScreen.reactionsListKey.currentContext!)!
+                    .revealing_card_error_operation,
+                context: ReactionScreen.reactionsListKey.currentContext,
+                title: AppLocalizations.of(
+                        ReactionScreen.reactionsListKey.currentContext!)!
+                    .error);
+          }
+        }, (r) {});
       }
     } else {
-      var result =
-          await reactionsController.revealReaction(reactionId: reactionId);
+      var result = await reactionsController.revealReaction(
+          reactionId: reactionId, showAd: false);
       result.fold((failure) {
         if (failure is NetworkFailure) {
           PresentationDialogs.instance.showNetworkErrorDialog(
@@ -293,9 +344,13 @@ class ReactionPresentation extends ChangeNotifier
         }
         if (failure is ReactionFailure) {
           PresentationDialogs.instance.showErrorDialog(
-              content: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_error_operation,
+              content: AppLocalizations.of(
+                      ReactionScreen.reactionsListKey.currentContext!)!
+                  .revealing_card_error_operation,
               context: ReactionScreen.reactionsListKey.currentContext,
-              title: AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.error);
+              title: AppLocalizations.of(
+                      ReactionScreen.reactionsListKey.currentContext!)!
+                  .error);
         }
       }, (r) {});
     }
@@ -438,11 +493,15 @@ class ReactionPresentation extends ChangeNotifier
                 child: Column(
                   children: [
                     Text(
-                      AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_new_reaction,
+                      AppLocalizations.of(
+                              ReactionScreen.reactionsListKey.currentContext!)!
+                          .revealing_card_new_reaction,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),
                     Text(
-                      AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_you_have_new_reaction,
+                      AppLocalizations.of(
+                              ReactionScreen.reactionsListKey.currentContext!)!
+                          .revealing_card_you_have_new_reaction,
                       style: GoogleFonts.lato(fontSize: 40.sp),
                     ),
                   ],
@@ -471,7 +530,9 @@ class ReactionPresentation extends ChangeNotifier
                 child: Column(
                   children: [
                     Text(
-                      AppLocalizations.of(ReactionScreen.reactionsListKey.currentContext!)!.revealing_card_expired_reaction,
+                      AppLocalizations.of(
+                              ReactionScreen.reactionsListKey.currentContext!)!
+                          .revealing_card_expired_reaction,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),
                     Text(

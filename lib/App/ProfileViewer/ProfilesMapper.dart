@@ -58,7 +58,7 @@ class ProfileMapper {
 
       characteristicsList.add(ProfileCharacteristics(
           sameAsUser:
-              profileData[characteristicName] == userData[characteristicName]
+              profileData[attributes[i]] == userData[attributes[i]]
                   ? true
                   : false,
           characteristicValue: characteristicStringValue,

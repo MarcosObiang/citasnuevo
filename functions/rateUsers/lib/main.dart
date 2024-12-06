@@ -20,18 +20,19 @@ import 'package:dart_appwrite/models.dart';
 */
 
 enum ReactionType { PASS, MAYBE, LIKE }
+
 Future<dynamic> main(final context) async {
   try {
-        String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
     String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setEndpoint('https://cloud.appwrite.io/v1')
         .setProject(projectId as String)
         .setKey(apiKey);
 
     final data = context.req.bodyJson;
     String userId = data["userId"];
-    String reactionType = data["reactionType"];
+    int reactionValue = data["reactionValue"];
     bool reactionTypeIsValid = false;
     String reactionId = createId(idLength: 10);
     String recieverId = data["recieverId"];
@@ -41,37 +42,25 @@ Future<dynamic> main(final context) async {
 
     Databases databases = Databases(client);
     Document recieverUserData = await databases.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: recieverId);
     Document senderUserData = await databases.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: userId);
 
-    int reactionAverage = recieverUserData.data["reactionAverage"];
+    int reactionAverage = recieverUserData.data["reactionAveragePoints"];
     int totalReactionPoints = recieverUserData.data["totalReactionPoints"];
     int reactionCount = recieverUserData.data["reactionCount"];
-    int newReactionPoints = 0;
+    int newReactionPoints = data["reactionValue"];
     String notificationToken = recieverUserData.data["notificationToken"];
 
-    for (int i = 0; i < ReactionType.values.length; i++) {
-      if (reactionType == ReactionType.values[i].name) {
-        reactionTypeIsValid = true;
-      }
+    if (reactionValue > 0 && reactionValue <= 100) {
+      reactionTypeIsValid = true;
     }
 
     if (reactionTypeIsValid == true) {
-      if (reactionType == "PASS") {
-        newReactionPoints = 33;
-      }
-      if (reactionType == "MAYBE") {
-        newReactionPoints = 66;
-      }
-      if (reactionType == "LIKE") {
-        newReactionPoints = 99;
-      }
-
       if (reactionCount >= 50) {
         reactionAverage = newReactionPoints;
         reactionCount = 1;
@@ -83,36 +72,37 @@ Future<dynamic> main(final context) async {
       }
 
       await databases.updateDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "636d59df12dcf7a399d5",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "6729a8c50029409cd062",
           documentId: recieverId,
           data: {
             "reactionCount": reactionCount,
-            "reactionAverage": reactionAverage,
+            "reactionAveragePoints": reactionAverage,
             "totalReactionPoints": totalReactionPoints,
             "lastRatingTimestamp": DateTime.now().millisecondsSinceEpoch,
           });
 
       await databases.createDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374fc078b95d03fb3c1",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "reactionsPrivate",
         documentId: reactionId,
         data: {
           "timestamp": timestamp,
-          "userBlocked": false,
+          "userIsBlocked": false,
           "expirationTimestamp": expirationTimestamp,
           "reactionId": reactionId,
           "recieverId": recieverId,
           "senderId": userId,
           "reactionRevealed": false,
           "senderName": data["senderName"],
-          "reactionType": reactionType,
-          "userPicture": senderUserData.data["userPicture1"],
+          "reactionValue": reactionValue,
+          "userPicture":
+              jsonDecode(senderUserData.data["userPicture1"])["imageData"],
         },
       );
       await databases.createDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374fe10e76d07bfe639",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "reactions",
           documentId: reactionId,
           data: {
             "timestamp": timestamp,
@@ -120,37 +110,51 @@ Future<dynamic> main(final context) async {
             "expirationTimestamp": expirationTimestamp,
             "reactionId": reactionId,
             "recieverId": recieverId,
+            "senderId": "NOT_AVAILABLE",
             "reactionRevealed": false,
+            "senderName": "NOT_AVAILABLE",
+            "reactionValue": 0,
+            "userPicture": "NOT_AVAILABLE",
           },
           permissions: [
             Permission.read(Role.user(recieverId))
           ]);
-     /* await sendPushNotification(
+
+      await updateUsersToAvoid(databases, userId, recieverId);
+
+      /* await sendPushNotification(
           dataabases: databases, recieverNotificationToken: notificationToken);*/
 
-      res.json({
-        'status': 200,
-      });
+      return context.res.json({
+        "message": "REQUEST_SUCCESFULL",
+        "details": "COMPLETED",
+      }, 200);
     } else {
-      res.json({
-        'status': 501,
-        "mesage": "INVALID_REACTION_TYPE",
-      });
+      return context.res.json({
+        "message": "INVALID_REACTION_TYPE",
+        "details": "THE PROVIDED REACTION TYPE IS INVALID"
+      }, 501);
     }
   } catch (e) {
     if (e is AppwriteException) {
-      res.json({
-        'status': 500,
-        "mesage": "INTERNAL_ERROR",
-      });
+      context.log(e.message);
+      return context.res.json({
+        "message": "INTERNAL_ERROR",
+        "details": "SOMETHING WENT WRONG",
+      }, 500);
     }
     if (e is NotificationException) {
-      res.json({
-        'status': 200,
-        "mesage": "NOTIFICATION_COULD_NOT_BE_SENT",
-      });
+      return context.res.json({
+        "message": "NOTIFICATION_ERROR",
+        "details": "REACTION NOTIFICATION FAILED",
+      }, 200);
     } else {
-      res.json({'status': 500, "mesage": e.toString()});
+      context.log(e.toString());
+
+      return context.res.json({
+        "message": "INTERNAL_ERROR",
+        "details": "SOMETHING WENT WRONG",
+      }, 500);
     }
   }
 }
@@ -182,6 +186,39 @@ Future<dynamic> main(final context) async {
   }
 }*/
 
+Future<void> updateUsersToAvoid(
+    Databases databases, String userId, String recieverId) async {
+  Document usersToAvoidOfSender = await databases.getDocument(
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "usersToAvoid",
+      documentId: userId);
+
+  Document usersToAvoidOfReciever = await databases.getDocument(
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "usersToAvoid",
+      documentId: recieverId);
+
+  List<dynamic> usersToAvoidOfSenderList =
+      usersToAvoidOfSender.data["usersToAvoid"];
+  List<dynamic> usersToAvoidOfRecieverList =
+      usersToAvoidOfReciever.data["usersToAvoid"];
+  usersToAvoidOfRecieverList.remove(userId);
+  usersToAvoidOfSenderList.remove(recieverId);
+  usersToAvoidOfSenderList.add(recieverId);
+  usersToAvoidOfRecieverList.add(userId);
+  await databases.updateDocument(
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "usersToAvoid",
+      documentId: userId,
+      data: {"usersToAvoid": usersToAvoidOfSenderList});
+
+  await databases.updateDocument(
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "usersToAvoid",
+      documentId: recieverId,
+      data: {"usersToAvoid": usersToAvoidOfRecieverList});
+}
+
 String createId({required int idLength}) {
   const String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
   var random = Random();
@@ -193,7 +230,6 @@ String createId({required int idLength}) {
 
   return finalCode;
 }
-
 
 class NotificationException implements Exception {
   String message;

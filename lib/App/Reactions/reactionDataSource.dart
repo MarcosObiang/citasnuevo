@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
@@ -21,7 +22,7 @@ abstract class ReactionDataSource
   late StreamController<Map<String, dynamic>>? reactionListener;
   // ignore: close_sinks
 
-  Future<void> revealReaction(String reactionId);
+  Future<void> revealReaction(String reactionId, bool showAd);
 
   Future<bool> acceptReaction({
     required String reactionId,
@@ -86,7 +87,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   Map<String, dynamic> reactionModelToMap(Map<String, dynamic> reactionModel) {
-    return {};/* {
+    return {}; /* {
       "userBlocked": reactionModel.userBlocked,
       "senderId": reactionModel.senderId,
       "recieverId": reactionModel.recieverId,
@@ -166,65 +167,48 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   Future<void> getReactions() async {
+    Databases databases = Dependencies.serverAPi.databases;
 
-   /* var documents = realm!.query<ReactionModel>(
-        r'recieverId == $0 AND isDeleted == $1', ["$userID", false]).toList();
+    DocumentList documentList = await databases.listDocuments(
+        databaseId: kDatabaseId,
+        collectionId: kReactionsCollection,
+        queries: [
+          Query.equal("recieverId", GlobalDataContainer.userId),
+          Query.orderAsc("timestamp")
+        ]);
 
-
-    documents.forEach((element) {
-        _addReaction(element: reactionModelToMap(element));
-     
-    });*/
-   
+    documentList.documents.forEach((element) {
+      _addReaction(element: element.data);
+    });
   }
 
   void initializeReactionListener() async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         await getReactions();
+        Realtime realtime = Realtime(Dependencies.serverAPi.client);
 
-        var realm = source.realm!;
-        realm
-            .query<ReactionModel>("recieverId == '$userID'")
-            .changes
-            .listen((RealmResultsChanges<ReactionModel> event) {
-          if (event.inserted.isNotEmpty) {
-            for (int i = 0; i < event.inserted.length; i++) {
-              if (event.results[event.inserted[i]].isDeleted == false) {
-                _addReaction(
-                    element:
-                        reactionModelToMap(event.results[event.inserted[i]]));
+        reactionSubscriptionListener = realtime
+            .subscribe([
+              "databases.${kDatabaseId}.collections.${kReactionsCollection}.documents"
+            ])
+            .stream
+            .listen((event) {
+              String updateEvent =
+                  "databases.${kDatabaseId}.collections.${kReactionsCollection}.documents.*.update";
+              String createEvent =
+                  "databases.${kDatabaseId}.collections.${kReactionsCollection}.documents.*.create";
+              String deleteEvent =
+                  "databases.${kDatabaseId}.collections.${kReactionsCollection}.documents.*.delete";
+              log(event.events.toString());
+              if (event.events.contains(updateEvent)) {
+                _modifyReaction(element: event.payload);
+              } else if (event.events.contains(createEvent)) {
+                _addReaction(element: event.payload);
+              } else if (event.events.contains(deleteEvent)) {
+                _deleteReaction(element: event.payload);
               }
-            }
-          }
-          if (event.modified.isNotEmpty) {
-            for (int i = 0; i < event.modified.length; i++) {
-              if (event.results[event.modified[i]].isDeleted == true) {
-                _deleteReaction(
-                    element:
-                        reactionModelToMap(event.results[event.modified[i]]));
-              } else {
-                _modifyReaction(
-                    element:
-                        reactionModelToMap(event.results[event.modified[i]]));
-              }
-            }
-          }
-
-          if (event.newModified.isNotEmpty) {
-            for (int i = 0; i < event.modified.length; i++) {
-              if (event.results[event.modified[i]].isDeleted == true) {
-                _deleteReaction(
-                    element:
-                        reactionModelToMap(event.results[event.modified[i]]));
-              } else {
-                _modifyReaction(
-                    element:
-                        reactionModelToMap(event.results[event.modified[i]]));
-              }
-            }
-          }
-        });
+            });
       } catch (e) {
         throw ReactionException(
           message: e.toString(),
@@ -232,7 +216,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
+    }
   }
 
   @override
@@ -260,19 +244,25 @@ class ReactionDataSourceImpl implements ReactionDataSource {
   }
 
   @override
-  Future<void> revealReaction(String reactionId) async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+  Future<void> revealReaction(String reactionId, bool showAd) async {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("revealReactions", [
-          jsonEncode(
-              {"reactionId": reactionId, "userId": GlobalDataContainer.userId})
-        ]);
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "revealReaction",
+                body: jsonEncode({
+                  "reactionId": reactionId,
+                  "userId": GlobalDataContainer.userId,
+                  "showAd": showAd
+                }));
 
-        int status = jsonDecode(response)["executionCode"];
-        if (status != 200) {
-          throw Exception(["FAILED"]);
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
+        String details = jsonDecode(execution.responseBody)["details"];
+        if (status == 200 && message == "REQUEST_SUCESSFULL") {
+          return;
+        } else if (status == 200 && message == "CREDITS_LOW") {
+          throw Exception(message);
         }
       } catch (e) {
         throw ReactionException(
@@ -281,27 +271,28 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
+    }
   }
 
   @override
   Future<bool> acceptReaction(
       {required String reactionId, required String reactionSenderId}) async {
- /*   if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("acceptReaction", [
-          jsonEncode({
-            "reactionId": reactionId,
-          })
-        ]);
-        int status = jsonDecode(response)["executionCode"];
+        Execution execution =
+            await Dependencies.serverAPi.functions.createExecution(
+                functionId: "acceptReaction",
+                body: jsonEncode({
+                  "reactionId": reactionId,
+                }));
+
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
         } else {
-          throw ReactionException(message: "");
+          throw ReactionException(message: message);
         }
       } catch (e) {
         throw ReactionException(
@@ -310,24 +301,26 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }
   }
 
   @override
   Future<bool> rejectReaction({required List<String> reactionId}) async {
-  /*  if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("rejectReaction", [
-          jsonEncode({"reactionIds": reactionId})
-        ]);
-        int status = jsonDecode(response)["executionCode"];
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "deleteReaction",
+                body:
+                    jsonEncode({"reactionIds": reactionId, "userId": userID}));
+
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
         } else {
-          throw ReactionException(message: "");
+          throw ReactionException(message: message);
         }
       } catch (e) {
         throw ReactionException(
@@ -336,7 +329,7 @@ class ReactionDataSourceImpl implements ReactionDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }
   }
 
   @override

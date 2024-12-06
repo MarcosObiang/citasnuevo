@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:appwrite/appwrite.dart';
@@ -11,7 +12,7 @@ import 'package:stack_appodeal_flutter/stack_appodeal_flutter.dart';
 import '../globalData.dart';
 
 class AdvertisingServices {
-  String androidAdsId = "b7fe6eeed91b14eb3399851c5a8b3d24eb0755e9a014fda4";
+  late String appodealId;
   bool showAds = true;
   bool adsInitialized = false;
   bool hasUserConsent = false;
@@ -30,42 +31,72 @@ class AdvertisingServices {
   }
 
   void initializeAdsService() async {
+       appodealId = Platform.isAndroid
+        ? "b7fe6eeed91b14eb3399851c5a8b3d24eb0755e9a014fda4"
+        : "null";
     consentFormShowedToUser();
     userConsentValue();
 
-    if (consentFormShowed == false) {
-      Appodeal.setUseSafeArea(true);
-      Appodeal.muteVideosIfCallsMuted(true);
-      Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
-
-      Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
-      Appodeal.setChildDirectedTreatment(false);
-      Appodeal.disableNetwork("admob");
-
-      Appodeal.setLogLevel(Appodeal.LogLevelDebug);
-      Appodeal.setTesting(true);
-      if (hasUserConsent == true) {
-        //  Appodeal.updateGDPRUserConsent(GDPRUserConsent.Personalized);
-        //  Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptIn);
-      } else {
-        // Appodeal.updateGDPRUserConsent(GDPRUserConsent.NonPersonalized);
-        // Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptOut);
-      }
-
-      if (Platform.isAndroid) {
-        await Appodeal.initialize(
-          appKey: androidAdsId,
-          adTypes: [
-            Appodeal.REWARDED_VIDEO,
-            Appodeal.INTERSTITIAL,
-          ],
-        );
-      }
+    if (consentFormShowed == true) {
+      _initializeAppodeal();
     } else {
-      PresentationDialogs.instance.showAdConsentDialog();
+      _loadAndShowConsentForm();
     }
 
     adsInitialized = true;
+  }
+
+  void _initializeAppodeal() async {
+ 
+
+    Appodeal.setUseSafeArea(true);
+    Appodeal.muteVideosIfCallsMuted(true);
+    Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, true);
+    Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
+    Appodeal.setChildDirectedTreatment(false);
+    Appodeal.disableNetwork("admob");
+
+    // GDPR and CCPA consent settings (commented out in original code)
+    //  if (hasUserConsent) {
+    //    Appodeal.updateGDPRUserConsent(GDPRUserConsent.Personalized);
+    //    Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptIn);
+    // } else {
+    //   Appodeal.updateGDPRUserConsent(GDPRUserConsent.NonPersonalized);
+    //   Appodeal.updateCCPAUserConsent(CCPAUserConsent.OptOut);
+    // }
+
+    if (Platform.isAndroid) {
+      await Appodeal.initialize(
+        appKey: appodealId,
+        adTypes: [
+          Appodeal.REWARDED_VIDEO,
+          Appodeal.INTERSTITIAL,
+        ],
+      );
+    }
+  }
+
+  void _loadAndShowConsentForm() {
+    Appodeal.ConsentForm.load(
+      appKey: appodealId,
+      onConsentFormLoadSuccess: (p0) {
+        if (ConsentStatus.required.name == p0.name ||
+            ConsentStatus.unknown.name == p0.name) {
+          Appodeal.ConsentForm.show(
+            onConsentFormDismissed: (error) {
+              print("Error ${error!.description}");
+            },
+          );
+        }
+        if(ConsentStatus.obtained.name == p0.name||ConsentStatus.notRequired.name == p0.name){
+          _initializeAppodeal();
+
+        }
+      },
+      onConsentFormLoadFailure: (p0) {
+        print("Error ${p0!.description}");
+      },
+    );
   }
 
   void closeStream() {
@@ -170,7 +201,7 @@ class AdvertisingServices {
   Future<bool> setConsentStatus({required bool consentPersonalizedAds}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
       try {
-     /*   Functions functions = Functions(Dependencies.serverAPi.client!);
+        /*   Functions functions = Functions(Dependencies.serverAPi.client!);
 
         Execution execution = await functions.createExecution(
             functionId: "setAdConsentStatus",

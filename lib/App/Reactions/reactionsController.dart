@@ -187,13 +187,13 @@ class ReactionsControllerImpl implements ReactionController {
             }
             if (reaction.revealed == true) {
               reactions[i].userBlocked = reaction.userBlocked;
+              reactions[i].reactionValue = reaction.reactionValue;
 
-              reactions[i].setName = reaction.getName;
+              reactions[i].name = reaction.name;
               reactions[i].imageHash = reaction.imageHash;
               reactions[i].imageUrl = reaction.imageUrl;
               reactions[i].setReactionRevealigState =
                   ReactionRevealigState.revealed;
-              reactions[i].reactionType = reaction.reactionType;
             }
           }
         }
@@ -290,7 +290,7 @@ class ReactionsControllerImpl implements ReactionController {
   }
 
   Future<Either<Failure, void>> revealReaction(
-      {required String reactionId}) async {
+      {required String reactionId,required bool showAd}) async {
     syncReactions();
 
     for (int i = 0; i < this.reactions.length; i++) {
@@ -314,7 +314,7 @@ class ReactionsControllerImpl implements ReactionController {
     }
 
     Either<Failure, void> result =
-        await reactionRepository.revealReaction(reactionId: reactionId);
+        await reactionRepository.revealReaction(reactionId: reactionId,showAd: showAd);
 
     result.fold((l) {
       for (int i = 0; i < this.reactions.length; i++) {

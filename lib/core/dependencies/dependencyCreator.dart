@@ -422,7 +422,6 @@ class Dependencies {
       reactionPresentation.initializeModuleData();
       authScreenPresentation.clearModuleData();
       homeReportScreenPresentation.initializeModuleData();
-      settingsScreenPresentation.initializeModuleData();
       appSettingsPresentation.initializeModuleData();
       userSettingsPresentation.initializeModuleData();
       rewardScreenPresentation.initializeModuleData();
@@ -432,6 +431,8 @@ class Dependencies {
 
       sanctionsPresentation.initializeModuleData();
       advertisingServices.initializeAdsService();
+            settingsScreenPresentation.initializeModuleData();
+
 
       NotificationService instance = new NotificationService();
       await instance.startBackgroundNotificationHandler();

@@ -16,7 +16,7 @@ abstract class ReactionRepository
   ///Get first addidional values (gems and reaction average)
   Either<Failure, Map> getAdditionalValues();
 
-  Future<Either<Failure, void>> revealReaction({required String reactionId});
+  Future<Either<Failure, void>> revealReaction({required String reactionId,required bool showAd});
 
   Future<Either<Failure, bool>> showRewarded();
   StreamController<Map<String, dynamic>> get rewardedStatusListener;

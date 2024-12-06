@@ -1,9 +1,12 @@
 import 'package:equatable/equatable.dart';
 const kDatabaseId = "6729a8be001c8e5fa57a";
 const kUserCollecitonId = "6729a8c50029409cd062";
+const kReactionsCollection="reactions";
 const kUserPicturesBucketId="userPictures";
 const kReportModelCollectionId="reportModel";
 const kUsersToAvoidCollectionId="usersToAvoid";
+const kConversationsCollectionId="conversations";
+const kMessagesCollectionId="messages";
 const kVerificationModelCollectionId="67334609000211639278";
 const kNotAvailable = "NOT_AVAILABLE";
 const kProfileNotReviewed = "PROFILE_NOT_REVIEWED";

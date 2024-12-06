@@ -5,6 +5,7 @@ class Server {
   late Client client;
   late Account account;
   late Functions functions;
+  late Databases databases;
 
 
   Server() {
@@ -15,5 +16,6 @@ class Server {
     client.setEndpoint('https://cloud.appwrite.io/v1').setProject('6723890e00073730d5e5');
     account = Account(client);
     functions = Functions(client);
+    databases = Databases(client);
   }
 }

@@ -80,7 +80,7 @@ class HomeScreenControllerImpl implements HomeScreenController {
         exists = true;
       }
     }
-    return exists;
+    return false;
   }
 
   /// Removes profiel from the [profilesList]

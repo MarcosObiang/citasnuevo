@@ -2,6 +2,8 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
@@ -14,6 +16,7 @@ import 'package:citasnuevo/core/error/Exceptions.dart';
 import 'package:citasnuevo/core/globalData.dart';
 import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:citasnuevo/core/services/Ads.dart';
+import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -29,8 +32,7 @@ abstract class ChatDataSource
         ModuleCleanerDataSource,
         ImmageMediaPickerCapacity,
         AdvertisementShowCapacity {
-  late StreamSubscription<Map<String, dynamic>>
-      chatListenerSubscription;
+  late StreamSubscription<RealtimeMessage> chatListenerSubscription;
   late List<Message> messagesWithOutChat;
   Future<bool> goToLocationSettings();
   bool isUserPremium = false;
@@ -78,10 +80,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   StreamController? chatStream = new StreamController.broadcast();
-  late StreamSubscription<Map<String, dynamic>>
-      chatListenerSubscription;
-  late StreamSubscription<Map<String, dynamic>>
-      messageListenerSubscription;
+  late StreamSubscription<RealtimeMessage> chatListenerSubscription;
+  late StreamSubscription<RealtimeMessage> messageListenerSubscription;
   @override
   StreamController<Map<String, dynamic>> messageStream =
       new StreamController.broadcast();
@@ -198,10 +198,10 @@ class ChatDatsSourceImpl implements ChatDataSource {
     });
   }
 
-  Map<String, dynamic> chatModelToMap(Map<String,dynamic> chatModel) {
+  Map<String, dynamic> chatModelToMap(Map<String, dynamic> chatModel) {
     List<Map<String, dynamic>> messagesList = [];
 
-  /*  return {
+    /*  return {
       "conversationId": chatModel.conversationId,
       "user1Id": chatModel.user1Id,
       "user2Id": chatModel.user2Id,
@@ -224,27 +224,32 @@ class ChatDatsSourceImpl implements ChatDataSource {
   Future<List<Map<String, dynamic>>> loadChats() async {
     List<Map<String, dynamic>> data = [];
 
-   /* final realmReference = source.realm!.query<ChatModel>(
-        r'user1Id == $0 OR user2Id == $0', [GlobalDataContainer.userId, false]);
+    Databases databases = Dependencies.serverAPi.databases;
+    DocumentList documentList = await databases.listDocuments(
+        databaseId: kDatabaseId,
+        collectionId: kConversationsCollectionId,
+        queries: [
+          Query.equal("user2Id", GlobalDataContainer.userId),
+        ]);
 
-    realmReference.forEach((element) {
-      if (element.isDeleted == false) {
-        final realmReferenceMessages = source.realm!.query<MessageModel>(
-          r'conversationId == $0 SORT(timestamp DESC)',
-          ['${element.conversationId}'],
-        );
-        List<Map<String, dynamic>> messagesList = [];
-        realmReferenceMessages.forEach((element) {
-          messagesList.add(messageModelToMap(element));
-        });
+    for (int i = 0; i < documentList.documents.length; i++) {
+      DocumentList documentListMessages = await databases.listDocuments(
+          databaseId: kDatabaseId,
+          collectionId: kMessagesCollectionId,
+          queries: [
+            Query.equal("conversationId",
+                documentList.documents[i].data["conversationId"]),
+          ]);
 
-        data.add({
-          "chat": chatModelToMap(element),
-          "messages": messagesList,
-          "userId": GlobalDataContainer.userId,
-        });
-      }
-    });*/
+      data.add({
+        "chat": documentList.documents[i].data,
+        "messages":
+            documentListMessages.documents.map((element) => element.data).toList(),
+        "userId": GlobalDataContainer.userId,
+      });
+    }
+
+
     return data;
   }
 
@@ -253,54 +258,31 @@ class ChatDatsSourceImpl implements ChatDataSource {
   /// Listen to new chats, when a chat is removed, or when is modified
   @override
   void initializeChatListener() async {
-    /*if (await Dependencies.networkInfoContract.isConnected) {
+    Realtime realtime = Realtime(Dependencies.serverAPi.client);
+
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         await _addCurrentConversations();
+        chatListenerSubscription = realtime
+            .subscribe([
+              "databases.${kDatabaseId}.collections.${kConversationsCollectionId}.documents"
+            ])
+            .stream
+            .listen((event) {
+              String updateEvent =
+                  "databases.${kDatabaseId}.collections.${kConversationsCollectionId}.documents.*.update";
+              String createEvent =
+                  "databases.${kDatabaseId}.collections.${kConversationsCollectionId}.documents.*.create";
+              String deleteEvent =
+                  "databases.${kDatabaseId}.collections.${kConversationsCollectionId}.documents.*.delete";
+              dev.log(event.events.toString());
 
-        chatListenerSubscription = source.realm!
-            .query<ChatModel>(r'user1Id == $0 OR user2Id == $0',
-                ['${GlobalDataContainer.userId}'])
-            .changes
-            .listen((RealmResultsChanges<ChatModel> event) async {
-              if (event.inserted.isNotEmpty) {
-                List<int> indexes = event.inserted;
-
-                for (int i = 0; i < indexes.length; i++) {
-                  if (event.results[indexes[i]].isDeleted == true) {
-                    _removeConversation(
-                        doc: chatModelToMap(event.results[indexes[i]]));
-                  } else {
-                    _addNewConversation(
-                        doc: chatModelToMap(event.results[indexes[i]]));
-                  }
-                }
-              }
-              if (event.modified.isNotEmpty) {
-                List<int> indexes = event.modified;
-
-                for (int i = 0; i < indexes.length; i++) {
-                  if (event.results[indexes[i]].isDeleted == true) {
-                    _removeConversation(
-                        doc: chatModelToMap(event.results[indexes[i]]));
-                  } else {
-                    _modifyConversation(
-                        doc: chatModelToMap(event.results[indexes[i]]));
-                  }
-                }
-              }
-
-              if (event.newModified.isNotEmpty) {
-                List<int> indexes = event.newModified;
-
-                for (int i = 0; i < indexes.length; i++) {
-                  if (event.results[indexes[i]].isDeleted == true) {
-                    _removeConversation(
-                        doc: chatModelToMap(event.results[indexes[i]]));
-                  } else {
-                    _modifyConversation(
-                        doc: chatModelToMap(event.results[indexes[i]]));
-                  }
-                }
+              if (event.events.contains(updateEvent)) {
+                _modifyConversation(doc: event.payload);
+              } else if (event.events.contains(createEvent)) {
+                _addNewConversation(doc: event.payload);
+              } else if (event.events.contains(deleteEvent)) {
+                _removeConversation(doc: event.payload);
               }
             });
 
@@ -316,15 +298,15 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
+    }
   }
 
   void _addMessage({required Map<String, dynamic> data}) {
     _addData(data: data);
   }
 
-  Map<String, dynamic> messageModelToMap(Map <String,dynamic> messageModel) {
-   /* return {
+  Map<String, dynamic> messageModelToMap(Map<String, dynamic> messageModel) {
+    /* return {
       "senderId": messageModel.senderId,
       "recieverId": messageModel.recieverId,
       "message": messageModel.message,
@@ -340,53 +322,32 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   void listenToMessages() async {
-    /*if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
+      Realtime realtime = Realtime(Dependencies.serverAPi.client);
       try {
-       messageListenerSubscription = source.realm!
-            .query<MessageModel>(r'recieverId == $0 OR senderId == $0',
-                ["${GlobalDataContainer.userId}"])
-            .changes
+        messageListenerSubscription = realtime
+            .subscribe([
+              "databases.${kDatabaseId}.collections.${kMessagesCollectionId}.documents"
+            ])
+            .stream
             .listen((event) {
-              if (event.inserted.isNotEmpty) {
-                List<int> indexes = event.inserted;
-                for (int i = 0; i < indexes.length; i++) {
-                  _addMessage(data: {
-                    "payloadType": "message",
-                    "message": messageModelToMap(event.results[indexes[i]]),
-                    "modified": false
-                  });
-                }
+              String updateEvent =
+                  "databases.${kDatabaseId}.collections.${kMessagesCollectionId}.documents.*.update";
+              String createEvent =
+                  "databases.${kDatabaseId}.collections.${kMessagesCollectionId}.documents.*.create";
+              String deleteEvent =
+                  "databases.${kDatabaseId}.collections.${kMessagesCollectionId}.documents.*.delete";
+              dev.log(event.events.toString());
+
+              if (event.events.contains(updateEvent)) {
+                _addMessage(data: event.payload);
               }
-
-              if (event.modified.isNotEmpty) {
-                List<int> indexes = event.modified;
-
-                for (int i = 0; i < indexes.length; i++) {
-                  if (event.newModified.contains(event.newModified[i])) {
-                    break;
-                  }
-                  _addMessage(data: {
-                    "payloadType": "message",
-                    "message": messageModelToMap(event.results[indexes[i]]),
-                    "modified": true
-                  });
-                }
+              if (event.events.contains(createEvent)) {
+                _addMessage(data: event.payload);
               }
-
-              if (event.newModified.isNotEmpty) {
-                List<int> indexes = event.newModified;
-
-                for (int i = 0; i < indexes.length; i++) {
-                  if (event.modified.contains(indexes[i])) {
-                    break;
-                  }
-                  _addMessage(data: {
-                    "payloadType": "message",
-                    "message": messageModelToMap(event.results[indexes[i]]),
-                    "modified": true
-                  });
-                }
-              }
+              /* if(event.events.contains(deleteEvent)){
+                _addMessage(data: event.payload);
+              }*/
             });
       } catch (e) {
         _addError(e: ChatException(message: e.toString()));
@@ -408,7 +369,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       });
     } catch (e) {
       throw Exception(e);
-    }*/
+    }
   }
 
   /// Send messages to the receptor
@@ -420,7 +381,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       required String messageNotificationToken,
       required String remitentId}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
-   /*   try {
+      /*   try {
         String userMessage = message["messageContent"];
 
         if (message["messageType"] == MessageType.AUDIO.name ||
@@ -451,11 +412,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
     }*/
-
-  }
-      return true;
-
-
+    }
+    return true;
   }
 
   @override
@@ -477,7 +435,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<Map<String, dynamic>> getUserProfile(
       {required String profileId}) async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         final response = await Dependencies
             .serverAPi.app!.currentUser!.functions
@@ -512,7 +470,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
     required String reportDetails,
     required String chatId,
   }) async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         final response = await Dependencies
             .serverAPi.app!.currentUser!.functions
@@ -577,7 +535,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<bool> messagesSeen(
       {required List<Map<String, dynamic>> messages}) async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         List<MessageModel> messagesParsed = [];
         messages.forEach((element) {
@@ -628,7 +586,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> createBlindDate() async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Map<String, dynamic> locationServicesStatus =
             await LocationService.instance.locationServicesState();
@@ -681,7 +639,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> revealBlindDate({required String chatId}) async {
-  /*  if (await Dependencies.networkInfoContract.isConnected) {
+    /*  if (await Dependencies.networkInfoContract.isConnected) {
       try {
         final response = await Dependencies
             .serverAPi.app!.currentUser!.functions
@@ -731,10 +689,5 @@ class ChatDatsSourceImpl implements ChatDataSource {
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
     }
-  }
-  
-  @override
-  void subscribeToMainDataSource() {
-    // TODO: implement subscribeToMainDataSource
   }
 }

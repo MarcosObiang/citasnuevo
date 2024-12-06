@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:citasnuevo/App/ControllerBridges/PurchseSystemControllerBridge.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../core/error/Failure.dart';
@@ -40,7 +41,10 @@ class SettingsControllerImpl implements SettingsController {
       {required this.settingsRepository,
       required this.appSettingstoSettingscontrollerBridge,
       required this.userSettingsToSettingsControllerBridge,
-      required this.purchaseSystemControllerBridge});
+      required this.purchaseSystemControllerBridge}) {
+    this.settingsEntity = new SettingsEntity(
+        userName: "", userPicture: kNotAvailable, userAge: 0);
+  }
 
   @override
   void initialize() {

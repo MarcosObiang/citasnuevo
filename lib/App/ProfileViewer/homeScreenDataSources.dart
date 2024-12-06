@@ -85,7 +85,7 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
       functionResult["todayDateTime"] = DateTime.now();
       return functionResult;
     } else if (execution.responseStatusCode == "error") {
-      if (statusCode== "error_perfil_invisible") {
+      if (statusCode == "error_perfil_invisible") {
         throw FetchProfilesException(message: "PROFILE_NOT_VISIBLE");
       } else {
         throw FetchProfilesException(message: "INTERNAL_ERROR");
@@ -140,25 +140,24 @@ class HomeScreenDataSourceImpl implements HomeScreenDataSource {
   @override
   Future<void> sendRating(
       {required int reactionValue, required String idProfileRated}) async {
-    /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("rateUsers", [
-          jsonEncode({
-            "recieverId": idProfileRated,
-            "senderName": dataSourceStreamData["userName"],
-            "userId": dataSourceStreamData["userId"],
-            "reactionValue": reactionValue,
-          })
-        ]);
-var responseParsed = jsonDecode(response);
-        int statusCode = responseParsed["executionCode"];
-        String message = responseParsed["message"];
+        Execution execution =
+            await Dependencies.serverAPi.functions.createExecution(
+                functionId: "rateUsers",
+                body: jsonEncode({
+                  "recieverId": idProfileRated,
+                  "senderName": dataSourceStreamData["userName"],
+                  "userId": dataSourceStreamData["userId"],
+                  "reactionValue": reactionValue,
+                }));
+
+        int statusCode = execution.responseStatusCode;
+        String responseBody = execution.responseBody;
+        String message = jsonDecode(responseBody)["message"];
+
         if (statusCode != 200) {
-          throw Exception(message
-          
-          );
+          throw Exception(message);
         }
       } catch (e) {
         if (e is AppwriteException) {
@@ -170,7 +169,7 @@ var responseParsed = jsonDecode(response);
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
+    }
   }
 
   @override

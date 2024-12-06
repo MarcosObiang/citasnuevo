@@ -145,17 +145,7 @@ List<Map<String, dynamic>> processUserData(
   return returnData;
 }
 
-double getMaxLongitude(double currentLon, int distance) {
-  double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 360;
 
-  for (int i = 0; i < distance; i++) {
-    lon = lon + 0.1;
-    lon = double.parse(lon.toStringAsFixed(1));
-  }
-  double result = lon - 360;
-  return result;
-}
 
 List<double> getAllLongitudesRange(double currentLon, int distance) {
   List<double> longitudes = [];
@@ -167,7 +157,7 @@ List<double> getAllLongitudesRange(double currentLon, int distance) {
   for (int i = 0; i < 5; i++) {
     finalLongitude = finalLongitude - 0.1;
 
-    longitudes.add(finalLongitude);
+    longitudes.add(double.parse(finalLongitude.toStringAsFixed(1)));
   }
 
   finalLongitude = firstLongitude + 0.1;
@@ -176,44 +166,29 @@ List<double> getAllLongitudesRange(double currentLon, int distance) {
   for (int i = 0; i < 5; i++) {
     finalLongitude = finalLongitude + 0.1;
 
-    longitudes.add(finalLongitude);
+    longitudes.add(double.parse(finalLongitude.toStringAsFixed(1)));
   }
 
   return longitudes;
 }
 
-double getMinLongitude(double currentLon, int distance) {
-  double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 360;
-
-  for (int i = 0; i < distance; i++) {
-    lon = lon - 0.1;
-    lon = double.parse(lon.toStringAsFixed(1));
-  }
-  double result = lon - 360;
-  return result;
-}
 
 double getMaxLatitude(double currentLon, int distance) {
   double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 90;
 
   for (int i = 0; i < distance; i++) {
     lon = lon + 0.1;
     lon = double.parse(lon.toStringAsFixed(1));
   }
-  double result = lon - 90;
-  return result;
+  return lon;
 }
 
 double getMinLatitude(double currentLon, int distance) {
   double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 90;
 
   for (int i = 0; i < distance; i++) {
     lon = lon - 0.1;
     lon = double.parse(lon.toStringAsFixed(1));
   }
-  double result = lon - 98;
-  return result;
+  return lon;
 }

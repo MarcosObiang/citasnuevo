@@ -38,9 +38,9 @@ class ReactionRepositoryImpl
 
   @override
   Future<Either<Failure, void>> revealReaction(
-      {required String reactionId}) async {
+      {required String reactionId,required bool showAd}) async {
     try {
-      await reactionDataSource.revealReaction(reactionId);
+      await reactionDataSource.revealReaction(reactionId,showAd);
       return Right(Void);
     } catch (e) {
       if (e is NetworkException) {

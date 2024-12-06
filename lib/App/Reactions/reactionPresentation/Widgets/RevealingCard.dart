@@ -13,6 +13,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
+import 'dart:developer' as dev;
 
 import '../../../../Utils/getImageFile.dart';
 import '../../../../core/dependencies/dependencyCreator.dart';
@@ -63,7 +64,18 @@ class _ReactionCardState extends State<ReactionCard>
         _revealingRotationValue =
             revealingAnimationcurve.transform(_revealingAnimation.value) * pi;
       })
-      ..addStatusListener((status) {});
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.forward) {
+        
+            _revealingRotationValue = pi;
+            if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
+              remitentImageData = ImageFile.getFile(
+                  fileId: widget.reaction.imageUrl["imageData"]);
+            }
+            showCard = true;
+          
+        }
+      });
 
     _reactionTypeBadgeAnimationController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 1000));
@@ -98,26 +110,6 @@ class _ReactionCardState extends State<ReactionCard>
   }
 
   @override
-  void didUpdateWidget(covariant ReactionCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (_revealingAnimation.status == AnimationStatus.forward) {
-      revealingAnimationState = RevealingAnimationState.turning;
-    }
-    if ((_revealingAnimation.status == AnimationStatus.completed ||
-            _revealingAnimation.status == AnimationStatus.dismissed) &&
-        widget.reaction.reactionRevealigState ==
-            ReactionRevealigState.revealed &&
-        revealingAnimationState == RevealingAnimationState.turned) {
-      _revealingRotationValue = pi;
-      if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
-        remitentImageData =
-            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageData"]);
-      }
-      showCard = true;
-    }
-  }
-
-  @override
   void dispose() {
     _revealingAnimation.dispose();
     _reactionTypeBadgeAnimationController.dispose();
@@ -139,10 +131,7 @@ class _ReactionCardState extends State<ReactionCard>
                 showCard == false) {
               if (_revealingAnimation.isCompleted ||
                   _revealingAnimation.isDismissed) {
-                if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
-                  remitentImageData = ImageFile.getFile(
-                      fileId: widget.reaction.imageUrl["imageData"]);
-                }
+                if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {}
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   _revealingAnimation.reset();
                   _revealingAnimation.forward();
@@ -254,7 +243,9 @@ class _ReactionCardState extends State<ReactionCard>
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text(AppLocalizations.of(context)!.revealing_card_someone_saw_your_profile,
+                            Text(
+                                AppLocalizations.of(context)!
+                                    .revealing_card_someone_saw_your_profile,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -263,29 +254,161 @@ class _ReactionCardState extends State<ReactionCard>
                                           .colorScheme
                                           .onPrimaryContainer,
                                     )),
-                            FilledButton(
-                                onPressed:
-                                    widget.reaction.secondsUntilExpiration > 5
-                                        ? () {
-                                            if (widget.reaction
-                                                    .secondsUntilExpiration >
-                                                5) {
-                                              Dependencies.reactionPresentation
-                                                  .revealReaction(
-                                                      reactionId: widget
-                                                          .reaction.idReaction,
-                                                      price: 200);
-                                            }
-                                          }
-                                        : null,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(AppLocalizations.of(context)!.revealing_card_reveal),
-                                    Icon(LineAwesomeIcons.coins)
-                                  ],
-                                )),
+                            Container(
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: snapshot!.data! > 5
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                              : Theme.of(context).disabledColor,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10))),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            snapshot.data! > 5
+                                                ? Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "La oferta termina en",
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleLarge!
+                                                            .apply(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .onPrimary),
+                                                      ),
+                                                      Text(
+                                                        reactionTimeFormat
+                                                            .format(DateTime(0,0,0,0,0,snapshot!.data as int)
+                                                                ),
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleLarge!
+                                                            .apply(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .onPrimary),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : Text("La oferta ha caducado"),
+                                            ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0), // Adjust the radius here
+                                                  ),
+                                                ),
+                                                onPressed: widget.reaction
+                                                            .secondsUntilExpiration >
+                                                        5
+                                                    ? () {
+                                                        if (widget.reaction
+                                                                .secondsUntilExpiration >
+                                                            5) {
+                                                          Dependencies
+                                                              .reactionPresentation
+                                                              .revealReaction(
+                                                            reactionId: widget
+                                                                .reaction
+                                                                .idReaction,
+                                                            showAd: true,
+                                                          );
+                                                        }
+                                                      }
+                                                    : null,
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                            "Revelar con anuncio"),
+                                                        Row(
+                                                          children: [
+                                                            Text("200"),
+                                                            Icon(
+                                                                LineAwesomeIcons
+                                                                    .coins),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(
+                                                    8.0), // Adjust the radius here
+                                              ),
+                                            ),
+                                            onPressed: widget.reaction
+                                                        .secondsUntilExpiration >
+                                                    5
+                                                ? () {
+                                                    if (widget.reaction
+                                                            .secondsUntilExpiration >
+                                                        5) {
+                                                      Dependencies
+                                                          .reactionPresentation
+                                                          .revealReaction(
+                                                              reactionId: widget
+                                                                  .reaction
+                                                                  .idReaction,
+                                                              showAd: false);
+                                                    }
+                                                  }
+                                                : null,
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text("Revelar sin anuncio"),
+                                                    Row(
+                                                      children: [
+                                                        Text("400"),
+                                                        Icon(LineAwesomeIcons
+                                                            .coins),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         )
                       : Column(
@@ -296,7 +419,8 @@ class _ReactionCardState extends State<ReactionCard>
                               child: LoadingIndicator(
                                   indicatorType: Indicator.orbit),
                             ),
-                            Text(AppLocalizations.of(context)!.revealing_card_revealing)
+                            Text(AppLocalizations.of(context)!
+                                .revealing_card_revealing)
                           ],
                         )),
             ),
@@ -319,7 +443,8 @@ class _ReactionCardState extends State<ReactionCard>
                             size: 300.sp,
                           ),
                           Text(
-                            AppLocalizations.of(context)!.revealing_card_user_blocked,
+                            AppLocalizations.of(context)!
+                                .revealing_card_user_blocked,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
@@ -333,7 +458,8 @@ class _ReactionCardState extends State<ReactionCard>
                             height: 70.h,
                           ),
                           Text(
-                           AppLocalizations.of(context)!.revealing_card_user_blocked_description,
+                            AppLocalizations.of(context)!
+                                .revealing_card_user_blocked_description,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyLarge?.apply(
                                 color: Theme.of(context)
@@ -350,7 +476,8 @@ class _ReactionCardState extends State<ReactionCard>
                                     .rejectReaction(
                                         reactionId: widget.reaction.idReaction);
                               },
-                              child: Text(AppLocalizations.of(context)!.revealing_card_delete_reaction))
+                              child: Text(AppLocalizations.of(context)!
+                                  .revealing_card_delete_reaction))
                         ],
                       ),
                     ))
@@ -421,7 +548,8 @@ class _ReactionCardState extends State<ReactionCard>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.revealing_card_creating_conversation,
+                          AppLocalizations.of(context)!
+                              .revealing_card_creating_conversation,
                           style: Theme.of(context).textTheme.titleMedium?.apply(
                               color: Theme.of(context)
                                   .colorScheme
@@ -451,7 +579,8 @@ class _ReactionCardState extends State<ReactionCard>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.revealing_card_deleting_reaction,
+                              AppLocalizations.of(context)!
+                                  .revealing_card_deleting_reaction,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
@@ -493,7 +622,8 @@ class _ReactionCardState extends State<ReactionCard>
                         size: 500.sp,
                       ),
                       Text(
-                        AppLocalizations.of(context)!.revealing_card_user_blocked_description,
+                        AppLocalizations.of(context)!
+                            .revealing_card_user_blocked_description,
                         style: GoogleFonts.lato(
                             color: Colors.white, fontSize: 70.sp),
                       ),
@@ -502,7 +632,8 @@ class _ReactionCardState extends State<ReactionCard>
                             Dependencies.reactionPresentation.rejectReaction(
                                 reactionId: widget.reaction.idReaction);
                           },
-                          child: Text(AppLocalizations.of(context)!.revealing_card_delete_reaction))
+                          child: Text(AppLocalizations.of(context)!
+                              .revealing_card_delete_reaction))
                     ],
                   ))
               : Container(),
@@ -559,7 +690,8 @@ class _ReactionCardState extends State<ReactionCard>
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                         AppLocalizations.of(context)!.revealing_card_likes_you,
+                                          AppLocalizations.of(context)!
+                                              .revealing_card_likes_you,
                                           style: Theme.of(context)
                                               .textTheme
                                               .headlineMedium!
@@ -571,7 +703,8 @@ class _ReactionCardState extends State<ReactionCard>
                                       ],
                                     ),
                                     Text(
-                                      AppLocalizations.of(context)!.revealing_card_likes_you_description,
+                                      AppLocalizations.of(context)!
+                                          .revealing_card_likes_you_description,
                                       style:
                                           Theme.of(context).textTheme.bodyLarge,
                                       textAlign: TextAlign.left,
@@ -591,7 +724,8 @@ class _ReactionCardState extends State<ReactionCard>
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              AppLocalizations.of(context)!.revealing_card_maybe_likes_you,
+                                              AppLocalizations.of(context)!
+                                                  .revealing_card_maybe_likes_you,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headlineMedium!
@@ -606,7 +740,8 @@ class _ReactionCardState extends State<ReactionCard>
                                           color: Colors.transparent,
                                         ),
                                         Text(
-                                            AppLocalizations.of(context)!.revealing_card_maybe_likes_you_description,
+                                            AppLocalizations.of(context)!
+                                                .revealing_card_maybe_likes_you_description,
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context)
                                                 .textTheme
@@ -624,7 +759,8 @@ class _ReactionCardState extends State<ReactionCard>
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              AppLocalizations.of(context)!.revealing_card_doesnt_like_you,
+                                              AppLocalizations.of(context)!
+                                                  .revealing_card_doesnt_like_you,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headlineMedium!
@@ -635,7 +771,8 @@ class _ReactionCardState extends State<ReactionCard>
                                           ],
                                         ),
                                         Text(
-                                            AppLocalizations.of(context)!.revealing_card_doesnt_like_you_description,
+                                            AppLocalizations.of(context)!
+                                                .revealing_card_doesnt_like_you_description,
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context)
                                                 .textTheme
@@ -652,7 +789,8 @@ class _ReactionCardState extends State<ReactionCard>
                                   justRevealed = false;
                                   setState(() {});
                                 },
-                                child: Text(AppLocalizations.of(context)!.revealing_card_view_profile)),
+                                child: Text(AppLocalizations.of(context)!
+                                    .revealing_card_view_profile)),
                           ),
                         )
                       ],
@@ -683,10 +821,14 @@ class _ReactionCardState extends State<ReactionCard>
                       fit: FlexFit.loose,
                       child: reactionValue >= 66
                           ? Text(
-                             AppLocalizations.of(context)!.revealing_card_high_chances( reactionValue.toString()),
+                              AppLocalizations.of(context)!
+                                  .revealing_card_high_chances(
+                                      reactionValue.toString()),
                               style: Theme.of(context).textTheme.bodyLarge)
                           : Text(
-                              AppLocalizations.of(context)!.revealing_card_chances(reactionValue.toString()),
+                              AppLocalizations.of(context)!
+                                  .revealing_card_chances(
+                                      reactionValue.toString()),
                             ))
                 ],
               )),
@@ -702,13 +844,15 @@ class _ReactionCardState extends State<ReactionCard>
                           reactionId: widget.reaction.idReaction,
                           reactionSenderId: widget.reaction.senderId);
                     },
-                    child: Text(AppLocalizations.of(context)!.revealing_card_accept)),
+                    child: Text(
+                        AppLocalizations.of(context)!.revealing_card_accept)),
                 TextButton(
                     onPressed: () {
                       Dependencies.reactionPresentation.rejectReaction(
                           reactionId: widget.reaction.idReaction);
                     },
-                    child: Text(AppLocalizations.of(context)!.revealing_card_reject))
+                    child: Text(
+                        AppLocalizations.of(context)!.revealing_card_reject))
               ],
             ),
           ),

@@ -215,6 +215,7 @@
   "purchase_screen_cancelled": "Cancelada",
   "revealing_card_someone_saw_your_profile": "Alguien ha visto tu perfil",
   "revealing_card_reveal": "Revelar",
+  "revealin_card_with_offer": "Revelar con video",
   "revealing_card_revealing": "Revelando",
   "revealing_card_user_blocked": "Usuario bloqueado",
   "revealing_card_user_blocked_description": "El usuario ha sido bloqueado por infringir normas de la comunidad",
@@ -251,7 +252,7 @@
   "revealing_card_accept": "Aceptar",
   "revealing_card_reject": "Rechazar",
   
-    "revealing_card_error_loading_ad": "Error loading ad",
+    "revealing_card_error_loading_ad": "Error al cargar en anuncio",
     "revealing_card_error_operation": "Error al intentar realizar la operacion",
     "revealing_card_error": "Error",
     "revealing_card_no_enough_gems": "No tienes gemas suficientes",

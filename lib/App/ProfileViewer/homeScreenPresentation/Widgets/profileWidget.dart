@@ -1,3 +1,4 @@
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -402,7 +403,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   void generateList() {
     for (int i = 0; i < widget.images.length; i++) {
       dynamic imagen = widget.images[i]["imageData"];
-      if (imagen != null) {
+      if (imagen != null&&imagen!=kNotAvailable) {
         widgetList.add(ProfilePicture(
           isFirstPicture: i == 0 ? true : false,
           profilePicture: widget.images[i],
