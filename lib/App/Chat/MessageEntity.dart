@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
+
 import '../../Utils/getImageFile.dart';
 import '../ProfileViewer/ProfileEntity.dart';
 
@@ -37,7 +39,7 @@ class Message {
     if (this.messageType == MessageType.AUDIO ||
         this.messageType == MessageType.IMAGE && this.fileData == null) {
       remitentFile = Future.value(null);
-      remitentFile = ImageFile.getFile(fileId: this.data);
+      remitentFile = ImageFile.getFile(fileId: this.data,bucketId: kChatImagesBucketId);
       remitentFile?.then((value) => fileData = value);
     }
   }

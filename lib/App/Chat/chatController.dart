@@ -283,6 +283,9 @@ class ChatControllerImpl implements ChatController {
       }
     }, onError: (error) {
       addDataController?.addError(error);
+      
+            //  markMessageWithErrorStatus(chatId: message.chatId);
+
     });
   }
 

@@ -494,13 +494,13 @@ class ReactionPresentation extends ChangeNotifier
                   children: [
                     Text(
                       AppLocalizations.of(
-                              ReactionScreen.reactionsListKey.currentContext!)!
+                             startKey.currentContext !)!
                           .revealing_card_new_reaction,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),
                     Text(
                       AppLocalizations.of(
-                              ReactionScreen.reactionsListKey.currentContext!)!
+                              startKey.currentContext !)!
                           .revealing_card_you_have_new_reaction,
                       style: GoogleFonts.lato(fontSize: 40.sp),
                     ),
@@ -531,7 +531,7 @@ class ReactionPresentation extends ChangeNotifier
                   children: [
                     Text(
                       AppLocalizations.of(
-                              ReactionScreen.reactionsListKey.currentContext!)!
+                              startKey.currentContext !)!
                           .revealing_card_expired_reaction,
                       style: GoogleFonts.lato(fontSize: 60.sp),
                     ),

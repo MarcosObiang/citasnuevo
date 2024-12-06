@@ -8,13 +8,22 @@ import 'package:flutter/foundation.dart';
 import '../core/dependencies/dependencyCreator.dart';
 
 class ImageFile {
-  static Future<Uint8List> getFile({required String fileId}) async {
-
+  static Future<Uint8List> getFile(
+      {required String fileId, required String bucketId, bool? preview}) async {
     late Uint8List imageData;
-    try {
-      Storage storage = Storage(Dependencies.serverAPi.client);
+    Storage storage = Storage(Dependencies.serverAPi.client);
 
-      imageData = await storage.getFileDownload(bucketId: kUserPicturesBucketId, fileId: fileId);
+    try {
+      if (preview != null) {
+        if (preview) {
+          imageData =
+              await storage.getFilePreview(bucketId: bucketId, fileId: fileId);
+          return imageData;
+        }
+      }
+
+      imageData =
+          await storage.getFileDownload(bucketId: bucketId, fileId: fileId);
       return imageData;
     } catch (e) {
       if (e is AppwriteException) {

@@ -88,7 +88,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
         Dependencies.chatController.chatList[chatLitIndex].isBlindDate;
     remitentImageData = ImageFile.getFile(
         fileId:
-            Dependencies.chatController.chatList[chatLitIndex].remitentPicture);
+            Dependencies.chatController.chatList[chatLitIndex].remitentPicture,bucketId: kUserPicturesBucketId);
 
     Dependencies.chatPresentation.setMessagesOnSeen(chatId: widget.chatId);
     Dependencies.chatPresentation.setCurrentOpenChat = widget.chatId;
@@ -216,7 +216,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen>
         widget.wasBlindChat == true) {
       remitentImageData = ImageFile.getFile(
           fileId: chatPresentation
-              .chatController.chatList[chatLitIndex].remitentPicture);
+              .chatController.chatList[chatLitIndex].remitentPicture,bucketId: kUserPicturesBucketId);
       widget.wasBlindChat = false;
     }
   }

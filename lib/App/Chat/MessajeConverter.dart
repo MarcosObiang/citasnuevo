@@ -31,7 +31,7 @@ class MessageConverter {
       messageDateText: dateText,
       read: messageData["readByReciever"],
       isResponse: false,
-      data: messageData["message"],
+      data: messageData["messageContent"],
       chatId: messageData["conversationId"],
       senderId: messageData["senderId"],
       messageId: messageData["messageId"],

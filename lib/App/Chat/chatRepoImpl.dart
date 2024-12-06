@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 
 import '../ProfileViewer/ProfileEntity.dart';
 import '../ProfileViewer/ProfilesMapper.dart';
@@ -284,13 +286,23 @@ class ChatRepoImpl implements ChatRepository {
     if (chatDataSource.chatStream != null && streamParserController != null) {
       streamParserSubscription =
           chatDataSource.chatStream!.stream.listen((event) async {
-        String payloadType = event["payloadType"];
-        if (payloadType == "chat") {
-          Map<String, dynamic> chatData = await _chatParser(event);
-          streamParserController?.add(chatData);
-        } else {
-          Map<String, dynamic> messageData = await _messageParser(event);
-          streamParserController?.add(messageData);
+        String payloadType = kNotAvailable;
+        try {
+          payloadType = event["payloadType"];
+          if (payloadType == "chat") {
+            Map<String, dynamic> chatData = await _chatParser(event);
+            streamParserController?.add(chatData);
+          } else {
+            Map<String, dynamic> messageData = await _messageParser(event);
+            streamParserController?.add(messageData);
+          }
+        } catch (e, s) {
+          streamParserController!.addError(jsonEncode({
+            "message": e.toString(),
+            "payloadType": payloadType,
+            "stackTrace": s.toString()
+          }));
+          log("Error:  ${e.toString()} stackTrace: ${s.toString()}");
         }
       }, onError: (error) {
         streamParserController!.addError(error);

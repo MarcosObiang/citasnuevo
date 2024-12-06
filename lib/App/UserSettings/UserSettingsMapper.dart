@@ -40,7 +40,7 @@ class UserSettingsMapper {
         if (userImages[i]!["imageData"] != kNotAvailable&&userImages[i]!["imageData"] != null) {
           list.add(UserPicture(index: i)
             ..setNetworkPicture(
-                imageBytes: await ImageFile.getFile(fileId:userImages[i]!["imageData"]  ),
+                imageBytes: await ImageFile.getFile(fileId:userImages[i]!["imageData"],bucketId: kUserPicturesBucketId  ),
                 pictureUrlData: userImages[i]!["imageData"]));
         } else {
           list.add(UserPicture(index: i));
@@ -117,7 +117,7 @@ class UserSettingsMapper {
       if (userPictureList[i].getUserPictureBoxstate ==
           UserPicutreBoxState.pictureFromNetwork) {
         Uint8List dataFromNetwork =
-            await ImageFile.getFile(fileId:userPictureList[i].getPictureUrl);
+            await ImageFile.getFile(fileId:userPictureList[i].getPictureUrl,bucketId: kUserPicturesBucketId);
         img.Image? imagex = img.decodeImage(dataFromNetwork);
         bytesList.add({
           "Bytes": imagex,

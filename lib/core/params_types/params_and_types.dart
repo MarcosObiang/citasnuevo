@@ -3,6 +3,7 @@ const kDatabaseId = "6729a8be001c8e5fa57a";
 const kUserCollecitonId = "6729a8c50029409cd062";
 const kReactionsCollection="reactions";
 const kUserPicturesBucketId="userPictures";
+const kChatImagesBucketId="chatImages";
 const kReportModelCollectionId="reportModel";
 const kUsersToAvoidCollectionId="usersToAvoid";
 const kConversationsCollectionId="conversations";

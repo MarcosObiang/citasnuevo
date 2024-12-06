@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,7 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
    remitentImageData = ImageFile.getFile(
         fileId:
-            Dependencies.settingsScreenPresentation.settingsEntity.userPicture);
+            Dependencies.settingsScreenPresentation.settingsEntity.userPicture,bucketId: kUserPicturesBucketId);
             
   }
 

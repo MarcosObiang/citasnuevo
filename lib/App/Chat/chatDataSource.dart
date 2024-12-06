@@ -238,17 +238,21 @@ class ChatDatsSourceImpl implements ChatDataSource {
           collectionId: kMessagesCollectionId,
           queries: [
             Query.equal("conversationId",
-                documentList.documents[i].data["conversationId"]),
+                documentList.documents[i].data["conversationId"]
+                
+                ),
+
+                Query.orderDesc("timestamp")
           ]);
 
       data.add({
         "chat": documentList.documents[i].data,
-        "messages":
-            documentListMessages.documents.map((element) => element.data).toList(),
+        "messages": documentListMessages.documents
+            .map((element) => element.data)
+            .toList(),
         "userId": GlobalDataContainer.userId,
       });
     }
-
 
     return data;
   }
@@ -302,7 +306,13 @@ class ChatDatsSourceImpl implements ChatDataSource {
   }
 
   void _addMessage({required Map<String, dynamic> data}) {
-    _addData(data: data);
+    _addData(
+        data: {"payloadType": "message", "message": data, "modified": false});
+  }
+
+    void _updateMessage({required Map<String, dynamic> data}) {
+    _addData(
+        data: {"payloadType": "message", "message": data, "modified": true});
   }
 
   Map<String, dynamic> messageModelToMap(Map<String, dynamic> messageModel) {
@@ -340,9 +350,11 @@ class ChatDatsSourceImpl implements ChatDataSource {
               dev.log(event.events.toString());
 
               if (event.events.contains(updateEvent)) {
-                _addMessage(data: event.payload);
+
+                _updateMessage(data: event.payload);
               }
               if (event.events.contains(createEvent)) {
+
                 _addMessage(data: event.payload);
               }
               /* if(event.events.contains(deleteEvent)){
@@ -381,7 +393,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       required String messageNotificationToken,
       required String remitentId}) async {
     if (await Dependencies.networkInfoContract.isConnected) {
-      /*   try {
+      try {
         String userMessage = message["messageContent"];
 
         if (message["messageType"] == MessageType.AUDIO.name ||
@@ -389,31 +401,31 @@ class ChatDatsSourceImpl implements ChatDataSource {
           userMessage = base64Encode(message["fileData"]);
         }
 
-        var realmReference = await source.realm!.writeAsync<MessageModel>(() {
-          ObjectId id = ObjectId();
+        Execution execution =
+            await Dependencies.serverAPi.functions.createExecution(
+                functionId: "sendMessages",
+                body: jsonEncode({
+                  "conversationId": message["conversationId"],
+                  "messageType": message["messageType"],
+                  "message": userMessage,
+                  "senderId": userId,
+                  "recieverId": remitentId,
+                  "recieverNotificationId": messageNotificationToken,
+                }));
 
-          return source.realm!.add(MessageModel(
-            id,
-            userMessage,
-            GlobalDataContainer.userId,
-            remitentId,
-            message["conversationId"],
-            DateTime.now().millisecondsSinceEpoch,
-            id.toString(),
-            false,
-            message["messageType"],
-          ));
-        });
-
-        return true;
+        int statusCode = execution.responseStatusCode;
+        String responseMessage = jsonDecode(execution.responseBody)["message"];
+        if (statusCode == 200) {
+          return true;
+        } else {
+          throw ChatException(message: responseMessage);
+        }
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
     }
-    return true;
   }
 
   @override

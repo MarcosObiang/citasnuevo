@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../../../Utils/getImageFile.dart';
@@ -41,7 +42,7 @@ class _ChatCardState extends State<ChatCard> {
 
     if (widget.chatData.isBlindDate == false) {
       remitentImageData =
-          ImageFile.getFile(fileId: widget.chatData.remitentPicture);
+          ImageFile.getFile(fileId: widget.chatData.remitentPicture,bucketId: kUserPicturesBucketId,preview: true);
     }
 
     super.initState();
@@ -49,7 +50,7 @@ class _ChatCardState extends State<ChatCard> {
 
   void checkIfBlindCChatHadBeenRevealed(Chat chatData) {
     if (chatData.isBlindDate == false && wasBlindChat == true) {
-      remitentImageData = ImageFile.getFile(fileId: chatData.remitentPicture);
+      remitentImageData = ImageFile.getFile(fileId: chatData.remitentPicture,bucketId: kUserPicturesBucketId,preview: true);
       wasBlindChat = false;
     }
   }

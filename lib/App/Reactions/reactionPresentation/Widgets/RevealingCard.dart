@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:citasnuevo/App/controllerDef.dart';
+import 'package:citasnuevo/core/params_types/params_and_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -70,7 +71,7 @@ class _ReactionCardState extends State<ReactionCard>
             _revealingRotationValue = pi;
             if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
               remitentImageData = ImageFile.getFile(
-                  fileId: widget.reaction.imageUrl["imageData"]);
+                  fileId: widget.reaction.imageUrl["imageData"],bucketId: kUserPicturesBucketId);
             }
             showCard = true;
           
@@ -99,7 +100,7 @@ class _ReactionCardState extends State<ReactionCard>
 
       if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
         remitentImageData =
-            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageData"]);
+            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageData"],bucketId: kUserPicturesBucketId);
       }
       showCard = true;
     } else {
