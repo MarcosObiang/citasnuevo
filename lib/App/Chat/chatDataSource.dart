@@ -45,7 +45,7 @@ abstract class ChatDataSource
       required String reportDetails,
       required String chatId});
 
-  Future<bool> messagesSeen({required List<Map<String, dynamic>> messages});
+  Future<bool> messagesSeen({required List<String> messages});
 
   void initializeChatListener();
   void listenToMessages();
@@ -229,7 +229,10 @@ class ChatDatsSourceImpl implements ChatDataSource {
         databaseId: kDatabaseId,
         collectionId: kConversationsCollectionId,
         queries: [
-          Query.equal("user2Id", GlobalDataContainer.userId),
+          Query.or([
+            Query.equal("user1Id", GlobalDataContainer.userId),
+            Query.equal("user2Id", GlobalDataContainer.userId),
+          ]),
         ]);
 
     for (int i = 0; i < documentList.documents.length; i++) {
@@ -238,11 +241,8 @@ class ChatDatsSourceImpl implements ChatDataSource {
           collectionId: kMessagesCollectionId,
           queries: [
             Query.equal("conversationId",
-                documentList.documents[i].data["conversationId"]
-                
-                ),
-
-                Query.orderDesc("timestamp")
+                documentList.documents[i].data["conversationId"]),
+            Query.orderDesc("timestamp")
           ]);
 
       data.add({
@@ -310,7 +310,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
         data: {"payloadType": "message", "message": data, "modified": false});
   }
 
-    void _updateMessage({required Map<String, dynamic> data}) {
+  void _updateMessage({required Map<String, dynamic> data}) {
     _addData(
         data: {"payloadType": "message", "message": data, "modified": true});
   }
@@ -350,11 +350,9 @@ class ChatDatsSourceImpl implements ChatDataSource {
               dev.log(event.events.toString());
 
               if (event.events.contains(updateEvent)) {
-
                 _updateMessage(data: event.payload);
               }
               if (event.events.contains(createEvent)) {
-
                 _addMessage(data: event.payload);
               }
               /* if(event.events.contains(deleteEvent)){
@@ -447,18 +445,20 @@ class ChatDatsSourceImpl implements ChatDataSource {
   @override
   Future<Map<String, dynamic>> getUserProfile(
       {required String profileId}) async {
-    /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("getSingleUserProfile", [
-          jsonEncode({"userId": profileId})
-        ]);
-        int status = jsonDecode(response)["executionCode"];
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "getSingleUserProfile",
+                body: jsonEncode({"userId": profileId}));
+
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
+        dynamic payload = jsonDecode(execution.responseBody)["payload"];
 
         if (status == 200) {
           return {
-            "profileData": jsonDecode(response)["payload"],
+            "profileData": [payload],
             "userData": source.getData,
             "todayDateTime": await DateNTP.instance.getTime()
           };
@@ -470,9 +470,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
-
-    return {};
+    }
   }
 
   @override
@@ -482,23 +480,23 @@ class ChatDatsSourceImpl implements ChatDataSource {
     required String reportDetails,
     required String chatId,
   }) async {
-    /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("deleteChat", [
-          jsonEncode({
-            "conversationId": chatId,
-            "isUserBeingReported":
-                reportDetails != kNotAvailable ? true : false,
-            "reportDetails": reportDetails,
-            "userId": GlobalDataContainer.userId,
-            "userReportedId":
-                remitent1 == GlobalDataContainer.userId ? remitent2 : remitent1
-          })
-        ]);
-        int status = jsonDecode(response)["executionCode"];
-        String message = jsonDecode(response)["message"];
+        Execution execution =
+            await Dependencies.serverAPi.functions.createExecution(
+                functionId: "deleteConversation",
+                body: jsonEncode({
+                  "conversationId": chatId,
+                  "userReported": reportDetails != kNotAvailable ? true : false,
+                  "reportDetails": reportDetails,
+                  "userId": GlobalDataContainer.userId,
+                  "userReportedId": remitent1 == GlobalDataContainer.userId
+                      ? remitent2
+                      : remitent1
+                }));
+
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
@@ -510,9 +508,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
-
-    return true;
+    }
   }
 
   @override
@@ -545,38 +541,27 @@ class ChatDatsSourceImpl implements ChatDataSource {
   }
 
   @override
-  Future<bool> messagesSeen(
-      {required List<Map<String, dynamic>> messages}) async {
-    /* if (await Dependencies.networkInfoContract.isConnected) {
+  Future<bool> messagesSeen({required List<String> messages}) async {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        List<MessageModel> messagesParsed = [];
-        messages.forEach((element) {
-          messagesParsed.add(MessageModel(
-            ObjectId.fromHexString(element["messageId"]),
-            element["messageContent"],
-            element["senderId"],
-            GlobalDataContainer.userId,
-            element["conversationId"],
-            element["timestamp"],
-            element["messageId"],
-            true,
-            element["messageType"],
-          ));
-        });
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "confirmMessagesHadBeenRead",
+                body: jsonEncode({"messagesIds": messages}));
 
-        await source.realm!.writeAsync(() {
-          source.realm?.addAll(messagesParsed, update: true);
-        });
-
-        return true;
+        int statusCode = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
+        if (statusCode == 200) {
+          return true;
+        } else {
+          throw ChatException(message: message);
+        }
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
-
-    return true;
+    }
   }
 
   @override
@@ -598,28 +583,29 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> createBlindDate() async {
-    /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         Map<String, dynamic> locationServicesStatus =
             await LocationService.instance.locationServicesState();
         if (locationServicesStatus["status"] == "correct") {
-          final response = await Dependencies
-              .serverAPi.app!.currentUser!.functions
-              .call("createBlindDate", [
-            jsonEncode({
-              "userId": GlobalDataContainer.userId,
-              "distance": 60,
-              "lat": locationServicesStatus["lat"],
-              "lon": locationServicesStatus["lon"],
-            })
-          ]);
-          int status = jsonDecode(response)["executionCode"];
-          String message = jsonDecode(response)["message"];
+          Execution execution =
+              await Dependencies.serverAPi.functions.createExecution(
+                  functionId: "createBlindDate",
+                  body: jsonEncode({
+                    "userId": GlobalDataContainer.userId,
+                    "distance": 60,
+                    "lat": locationServicesStatus["lat"],
+                    "lon": locationServicesStatus["lon"],
+                    "isShowAdOfferUsed": false
+                  }));
+
+          int status = execution.responseStatusCode;
+          String message = jsonDecode(execution.responseBody)["message"];
 
           if (status == 200) {
             return true;
           } else {
-            throw ChatException(message: "Something went wrong");
+            throw ChatException(message: message);
           }
         } else {
           throw LocationServiceException(
@@ -634,9 +620,7 @@ class ChatDatsSourceImpl implements ChatDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
-
-    return true;
+    }
   }
 
   @override
@@ -651,29 +635,27 @@ class ChatDatsSourceImpl implements ChatDataSource {
 
   @override
   Future<bool> revealBlindDate({required String chatId}) async {
-    /*  if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("revealBlindDate", [
-          jsonEncode({"chatId": chatId})
-        ]);
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "revealBlindDate",
+                body: jsonEncode({"chatId": chatId}));
 
-        int status = jsonDecode(response)["executionCode"];
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
         } else {
-          throw ChatException(message: "Something went wrong");
+          throw ChatException(message: message);
         }
       } catch (e) {
         throw ChatException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
-
-    return true;
+    }
   }
 
   @override

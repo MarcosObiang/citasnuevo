@@ -49,6 +49,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   double ratingValue = 50;
   bool showAd = true;
   bool showRatingWall = false;
+  bool showRatingSlider=false;
 
   @override
   void initState() {
@@ -121,7 +122,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                         ],
                       ),
                     ),
-                    Flexible(
+                   widget.needRatingWidget==true? Flexible(
                       flex: 4,
                       fit: FlexFit.loose,
                       child: Center(
@@ -164,7 +165,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                           ),
                         ],
                       )),
-                    )
+                    ):Container()
                   ],
                 ))
             : Center(

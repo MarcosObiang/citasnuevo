@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
@@ -23,14 +24,16 @@ enum PenalizationState {
   IN_MODERATION_DONE
 }
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1')
-        .setProject('636bd00b90e7666f0f6f')
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824');
-    var data = jsonDecode(req.payload);
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
+    final data = context.req.bodyJson;
+
     Databases database = Databases(client);
 
     String conversationId = data["conversationId"];
@@ -48,7 +51,7 @@ Future<void> start(final req, final res) async {
       int amountReports = reportProfile.data["amountReports"];
       amountReports = amountReports + 1;
 
-      List<dynamic> reportsList = reportProfile.data["reports"];
+      List<dynamic> reportsList = jsonDecode(reportProfile.data["reports"]);
       reportsList.add(jsonEncode({
         "date": DateTime.now().millisecondsSinceEpoch,
         "details": reportDetails,
@@ -72,8 +75,8 @@ Future<void> start(final req, final res) async {
       await deleteConversationData(database, conversationId);
 
       DocumentList messagesList = await database.listDocuments(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "637d18ff8b3927cce18d",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "messages",
           queries: [Query.equal("conversationId", conversationId)]);
 
       for (int i = 0; i < messagesList.documents.length; i++) {
@@ -81,21 +84,20 @@ Future<void> start(final req, final res) async {
       }
     }
 
-    res.json({'status': 200, "message": "correct"});
+    return context.res.json({
+      "message": "REQUEST_SUCCESFULL",
+      "details": "CHAT_DELETED_SUCCESSFULLY"
+    }, 200);
   } catch (e, s) {
     if (e is AppwriteException) {
-      print({'status': "error", "mesage": e.message, "stackTrace": s});
+      context.log({'status': "error", "message": e.message, "stackTrace": s});
 
-      res.json({
-        'status': 500,
-        "mesage": "INTERNAL_ERROR",
-      });
+      return context.res.json(
+          {"message": "INTERNAL_ERROR", "details": "SOMETHING_WENT_WRONG"}, 500);
     } else {
-      print({'status': "error", "mesage": e.toString(), "stackTrace": s});
-      res.json({
-        'status': 500,
-        "mesage": "INTERNAL_ERROR",
-      });
+      context.log({'status': "error", "message": e.toString(), "stackTrace": s});
+      return context.res.json(
+          {"message": "INTERNAL_ERROR", "details": "SOMETHING_WENT_WRONG"}, 500);
     }
   }
 }
@@ -103,24 +105,24 @@ Future<void> start(final req, final res) async {
 Future<dynamic> deleteMessageData(
     Databases database, DocumentList messagesList, int i) {
   return database.deleteDocument(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "637d18ff8b3927cce18d",
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "messages",
       documentId: messagesList.documents[i].$id);
 }
 
 Future<dynamic> deleteConversationData(
     Databases database, String conversationId) {
   return database.deleteDocument(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "637d10c17be1c3d1544d",
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "conversations",
       documentId: conversationId);
 }
 
 Future<Document> createReportMessageData(
     Databases database, Document messageData) {
   return database.createDocument(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "6419c3fd20b84b6563b3",
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "reportedMessages",
       documentId: messageData.$id,
       data: {
         "conversationId": messageData.data["conversationId"],
@@ -137,11 +139,11 @@ Future<Document> createReportMessageData(
 Future<Document> createReportConversationData(
     Databases database, Document conversationData) {
   return database.createDocument(
-    databaseId: "636d59d7a2f595323a79",
-    collectionId: "641bf97f352c33a6b14a",
+    databaseId: "6729a8be001c8e5fa57a",
+    collectionId: "reportedConversations",
     documentId: conversationData.$id,
     data: {
-      "converstationCreationTimestamp":
+      "converstationCreationtimestamp":
           conversationData.data["converstationCreationTimestamp"],
       "conversationId": conversationData.$id,
       "user1Picture": conversationData.data["user1Picture"],
@@ -158,48 +160,48 @@ Future<Document> updateUserReportProfile(Databases database,
     String userReportedId, List<dynamic> reportsList, int amountReports) async {
   if (amountReports >= 3) {
     await database.updateDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374cbd1eb8543d64263",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "reportModel",
         documentId: userReportedId,
         data: {
-          "reports": reportsList,
+          "reports": jsonEncode(reportsList),
           "amountReports": amountReports,
           "penalizedState": PenalizationState.IN_MODERATION_WAITING.name
         });
     return database.updateDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: userReportedId,
         data: {"penalizedState": PenalizationState.IN_MODERATION_WAITING.name});
   } else {
     return database.updateDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374cbd1eb8543d64263",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "reportModel",
         documentId: userReportedId,
-        data: {"reports": reportsList, "amountReports": amountReports});
+        data: {"reports": jsonEncode(reportsList), "amountReports": amountReports});
   }
 }
 
 Future<Document> getUserReportProfile(
     Databases database, String userReportedId) {
   return database.getDocument(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "6374cbd1eb8543d64263",
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "reportModel",
       documentId: userReportedId);
 }
 
 Future<DocumentList> getConversationMessages(
     Databases database, String conversationId) {
   return database.listDocuments(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "637d18ff8b3927cce18d",
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "messages",
       queries: [Query.equal("conversationId", conversationId)]);
 }
 
 Future<Document> getConversationData(
     Databases database, String conversationId) {
   return database.getDocument(
-      databaseId: "636d59d7a2f595323a79",
-      collectionId: "637d10c17be1c3d1544d",
+      databaseId: "6729a8be001c8e5fa57a",
+      collectionId: "conversations",
       documentId: conversationId);
 }

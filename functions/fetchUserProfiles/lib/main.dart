@@ -49,6 +49,8 @@ Future<dynamic> main(final context) async {
         databaseId: "6729a8be001c8e5fa57a",
         collectionId: "6729a8c50029409cd062",
         queries: [
+                    Query.orderDesc("lastRatingTimestamp"),
+
           Query.equal(
               "userLongitude", getAllLongitudesRange(currentLon, maxDistance)),
           Query.greaterThanEqual(
@@ -88,8 +90,8 @@ List<Map<String, dynamic>> processUserData(
     double userLon = documentList[i].data["userLongitude"][0];
     double userLat = documentList[i].data["userLatitude"];
     GeoRange geoRange = GeoRange();
-    Point startCoordinate = Point(latitude: currentLat, longitude: currentLon);
-    Point endCoordinate = Point(latitude: userLat, longitude: userLon);
+    Point startCoordinate = Point(latitude: currentLat -90, longitude: currentLon-180);
+    Point endCoordinate = Point(latitude: userLat-90, longitude: userLon-180);
     if (userId != documentList[i].$id) {
       int userDistance =
           geoRange.distance(startCoordinate, endCoordinate).toInt();

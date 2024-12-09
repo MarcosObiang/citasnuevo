@@ -55,6 +55,9 @@ class AdvertisingServices {
     Appodeal.setAutoCache(Appodeal.INTERSTITIAL, true);
     Appodeal.setChildDirectedTreatment(false);
     Appodeal.disableNetwork("admob");
+    Appodeal.setLogLevel( Appodeal.LogLevelDebug);
+
+
 
     // GDPR and CCPA consent settings (commented out in original code)
     //  if (hasUserConsent) {

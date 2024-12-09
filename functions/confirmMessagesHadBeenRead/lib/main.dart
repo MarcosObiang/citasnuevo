@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 
@@ -15,43 +16,43 @@ import 'package:dart_appwrite/dart_appwrite.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1')
-        .setProject('636bd00b90e7666f0f6f')
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824');
-    var data = jsonDecode(req.payload);
-List<dynamic> temporalList=data["messagesIds"];
-    List<String> messagesIdList = temporalList.cast<String>(); 
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
+    final data = context.req.bodyJson;
+    List<dynamic> temporalList = data["messagesIds"];
+    List<String> messagesIdList = temporalList.cast<String>();
     Databases database = Databases(client);
 
     for (int i = 0; i < messagesIdList.length; i++) {
       await database.updateDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "637d18ff8b3927cce18d",
+          databaseId: "6729a8be001c8e5fa57a",
+          collectionId: "messages",
           documentId: messagesIdList[i],
           data: {"readByReciever": true});
     }
 
-    res.json({
-      'status': 200,"message":"correct"
-    });
+    return context.res.json({
+      "details": "MESSAGES_READ_SUCCESSFULLY",
+      "message": "REQUEST_SUCCESSFUL"
+    }, 200);
   } catch (e, s) {
     if (e is AppwriteException) {
-      print({'status': "error", "mesage": e.message, "stackTrace": s});
+      context.log({'status': "error", "mesage": e.message, "stackTrace": s});
 
-      res.json({
-        'status': 500,
-        "mesage": "INTERNAL_ERROR",
-      });
+      return context.res.json(
+          {"details": "SOMETHING_WENT_WRONG", "message": "INTERNAL_ERROR"},
+          500);
     } else {
-      print({'status': "error", "mesage": e.toString(), "stackTrace": s});
-      res.json({
-        'status': 500,
-        "mesage": "INTERNAL_ERROR",
-      });
+      context.log({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      return context.res.json(
+          {"details": "SOMETHING_WENT_WRONG", "message": "INTERNAL_ERROR"},
+          500);
     }
   }
 }

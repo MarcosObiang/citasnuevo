@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart';
@@ -16,24 +17,23 @@ import 'package:dart_appwrite/models.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
     final database = Databases(client);
-    var data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
 
     var userData = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         documentId: data["userId"]);
 
-    int userBirthDateInMillisecondsSinceEpoch =
-        userData.data["birthDateInMilliseconds"];
+    int userBirthDateInMillisecondsSinceEpoch = userData.data["userBirthDate"];
     int userAge = DateTime.now()
             .difference(DateTime.fromMillisecondsSinceEpoch(
                 userBirthDateInMillisecondsSinceEpoch))
@@ -41,26 +41,25 @@ Future<void> start(final req, final res) async {
         365;
     Map<String, dynamic> dataToJson = mapProfileData(userData, userAge);
 
-    res.json({
-      'status': 200,
-      "message":"correct",
-      "payload": jsonEncode([dataToJson])
-    });
+    return context.res.json({
+      "message": "REQUEST_SUCCESSFUL",
+      "details": "PROFILE_FETCHED",
+      "payload": dataToJson
+    }, 200);
   } catch (e, s) {
     if (e is AppwriteException) {
-      print({"status": 500, "message": e.message, "stackTrace": s.toString()});
-      res.json({
-        "status": 500,
-        'message': "INTERNAL_ERROR",
-      });
+      context.log(
+          {"status": 500, "message": e.message, "stackTrace": s.toString()});
+      return context.res.json(
+          {'message': "INTERNAL_ERROR", "details": "SOMETHING_WENT_WRONG"},
+          500);
     } else {
-      print(
+      context.log(
           {"status": 500, "message": e.toString(), "stackTrace": s.toString()});
 
-      res.json({
-        "status": 500,
-        'message': "INTERNAL_ERROR",
-      });
+      return context.res.json(
+          {'message': "INTERNAL_ERROR", "details": "SOMETHING_WENT_WRONG"},
+          500);
     }
   }
 }
@@ -73,17 +72,23 @@ Map<String, dynamic> mapProfileData(Document userData, int userAge) {
     "userBio": userData.data["userBio"],
     "distance": 0,
     "userAge": userAge,
-    "alcohol": userData.data["alcohol"],
-    "im_looking_for": userData.data["im_looking_for"],
-    "body_type": userData.data["body_type"],
-    "children": userData.data["children"],
-    "pets": userData.data["pets"],
-    "politics": userData.data["politics"],
-    "im_living_with": userData.data["im_living_with"],
-    "smoke": userData.data["smoke"],
-    "sexual_orientation": userData.data["sexual_orientation"],
-    "zodiac_sign": userData.data["zodiac_sign"],
-    "personality": userData.data["personality"],
+    "userCharacteristics_alcohol": userData.data["userCharacteristics_alcohol"],
+    "userCharacteristics_what_he_looks":
+        userData.data["userCharacteristics_what_he_looks"],
+    "userCharacteristics_bodyType":
+        userData.data["userCharacteristics_bodyType"],
+    "userCharacteristics_children":
+        userData.data["userCharacteristics_children"],
+    "userCharacteristics_pets": userData.data["userCharacteristics_pets"],
+    "userCharacteristics_politics":
+        userData.data["userCharacteristics_politics"],
+    "userCharacteristics_lives_with":
+        userData.data["userCharacteristics_lives_with"],
+    "userCharacteristics_smokes": userData.data["userCharacteristics_smokes"],
+    "userCharacteristics_sexualO": userData.data["userCharacteristics_sexualO"],
+    "userCharacteristics_zodiak": userData.data["userCharacteristics_zodiak"],
+    "userCharacteristics_personality":
+        userData.data["userCharacteristics_personality"],
     "userPicture1": jsonDecode(userData.data["userPicture1"]),
     "userPicture2": jsonDecode(userData.data["userPicture2"]),
     "userPicture3": jsonDecode(userData.data["userPicture3"]),

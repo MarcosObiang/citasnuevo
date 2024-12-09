@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart' as dio;
 
 import 'package:dart_appwrite/dart_appwrite.dart';
@@ -16,53 +17,53 @@ import 'package:dart_appwrite/dart_appwrite.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
     final database = Databases(client);
-    var data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
     String chatId = data["chatId"];
 
     var chatData = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d10c17be1c3d1544d",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "conversations",
         documentId: chatId);
     Map chatDataMap = chatData.data;
 
     var messages = await database.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d18ff8b3927cce18d",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "messages",
         queries: [Query.equal("conversationId", chatId)]);
 
     int messagesAmount = messages.total;
 
     if (messagesAmount >= 1) {
       var user1Data = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
+        databaseId: "6729a8be001c8e5fa57a",
         documentId: chatDataMap["user1Id"],
-        collectionId: "636d59df12dcf7a399d5",
+        collectionId: "6729a8c50029409cd062",
       );
       var user2Data = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
+        databaseId: "6729a8be001c8e5fa57a",
         documentId: chatDataMap["user2Id"],
-        collectionId: "636d59df12dcf7a399d5",
+        collectionId: "6729a8c50029409cd062",
       );
 
       chatDataMap["user1Picture"] = user1Data.data["userPicture1"];
       chatDataMap["user2Picture"] = user2Data.data["userPicture1"];
       chatDataMap["isBlindDate"] = false;
       await database.updateDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d10c17be1c3d1544d",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "conversations",
         documentId: chatId,
         data: {
-          "user1Picture": user1Data.data["userPicture1"],
-          "user2Picture": user2Data.data["userPicture1"],
+          "user1Picture": jsonDecode(user1Data.data["userPicture1"])["imageData"],
+          "user2Picture": jsonDecode(user2Data.data["userPicture1"])["imageData"],
           "user1Name": user1Data.data["userName"],
           "user2Name": user2Data.data["userName"],
           "user1Id": user1Data.$id,
@@ -75,41 +76,41 @@ Future<void> start(final req, final res) async {
         },
       );
 
-      res.json({
-        'status': 200,
-        "message": "correct",
-      });
+      return context.res.json({
+        "message": "REQUEST_SUCCESFULL",
+        "details": "COMPLETED",
+      }, 200);
     } else {
-      res.json({
-        'status': 201,
+      return context.res.json({
         "message": "LOW_MESSAGES_COUNT",
-      });
+        "details": "COMPLETED_BUT_MESSAGES_COUNT_IS_LOW",
+      }, 201);
     }
   } catch (e, s) {
     if (e is AppwriteException) {
-      print({'status': "error", "mesage": e.message, "stackTrace": s});
-      res.json({
-        'status': 500,
+      context.log({'status': "error", "mesage": e.message, "stackTrace": s});
+      return context.res.json({
         "message": "INTERNAL_ERROR",
-      });
+        "details": "SOMETHING_WENT_WRONG",
+      }, 500);
     }
     if (e is NotificationException) {
-      print({'status': "error", "mesage": e.message, "stackTrace": s});
-      res.json({
-        'status': 200,
+      context.log({'status': "error", "mesage": e.message, "stackTrace": s});
+      return context.res.json({
         "message": "NOTIFICATION_ERROR",
-      });
+        "details": "SOMETHING_WENT_WRONG",
+      }, 200);
     } else {
-      print({'status': "error", "mesage": e.toString(), "stackTrace": s});
-      res.json({
-        'status': 500,
+      context.log({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      return context.res.json({
         "message": "INTERNAL_ERROR",
-      });
+        "details": "SOMETHING_WENT_WRONG",
+      }, 500);
     }
   }
 }
 
-Future<void> sendPushNotification(
+/*Future<void> sendPushNotification(
     {required Databases dataabases,
     required String recieverNotificationToken}) async {
   try {
@@ -134,7 +135,7 @@ Future<void> sendPushNotification(
   } catch (e) {
     throw NotificationException(message: e.toString());
   }
-}
+}*/
 
 class NotificationException implements Exception {
   String message;

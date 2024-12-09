@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
-import 'package:dio/dio.dart' as dio;
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 
@@ -17,57 +17,58 @@ import 'package:dart_appwrite/dart_appwrite.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
     Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
 
     final database = Databases(client);
-    var data = jsonDecode(req.payload);
-    double currentLon = data["lon"];
-    double currentLat = data["lat"];
+    final data = context.req.bodyJson;
+    double currentLon = data["lon"] + 180;
+    double currentLat = data["lat"] + 90;
+    bool isShowAdOfferUsed = data["isShowAdOfferUsed"];
     int maxDistance = data["distance"];
     String userId = data["userId"];
 
-    String chatId = createId();
+    String chatId = createId(idLength: 15);
     var documentList = await database.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: "6729a8be001c8e5fa57a",
+        collectionId: "6729a8c50029409cd062",
         queries: [
           Query.limit(1),
+          Query.orderDesc("lastRatingTimestamp"),
           Query.equal("isBlindDateActive", true),
           Query.equal("isUserVisible", true),
           Query.equal("userBlocked", false),
+          Query.equal(
+              "userLongitude", getAllLongitudesRange(currentLon, maxDistance)),
           Query.greaterThanEqual(
-              "positionLon", getMinLongitude(currentLon, maxDistance)),
+              "userLatitude", getMinLatitude(currentLat, maxDistance)),
           Query.lessThanEqual(
-              "positionLon", getMaxLongitude(currentLon, maxDistance)),
-          Query.greaterThanEqual(
-              "positionLat", getMinLatitude(currentLat, maxDistance)),
-          Query.lessThanEqual(
-              "positionLat", getMaxLatitude(currentLat, maxDistance)),
+              "userLatitude", getMaxLatitude(currentLat, maxDistance)),
         ]);
     if (documentList.documents.isNotEmpty) {
       var user1Data = await database.getDocument(
-        databaseId: "636d59d7a2f595323a79",
+        databaseId: "6729a8be001c8e5fa57a",
         documentId: userId,
-        collectionId: "636d59df12dcf7a399d5",
+        collectionId: "6729a8c50029409cd062",
       );
 
       int userCredits = user1Data.data["userCoins"];
       bool isUserPremium = user1Data.data["isUserPremium"];
+      int price = isShowAdOfferUsed ? 200 : 400;
 
-      if (userCredits >= 100 || isUserPremium == true) {
-        int coinsLeft = userCredits - 100;
+      if (userCredits >= price || isUserPremium == true) {
+        int coinsLeft = userCredits - price;
         if (isUserPremium == false) {
           if (coinsLeft < 200) {
             await database.updateDocument(
-                databaseId: "636d59d7a2f595323a79",
-                collectionId: "636d59df12dcf7a399d5",
+                databaseId: "6729a8be001c8e5fa57a",
+                collectionId: "6729a8c50029409cd062",
                 documentId: user1Data.$id,
                 data: {
                   "userCoins": coinsLeft,
@@ -78,8 +79,8 @@ Future<void> start(final req, final res) async {
                 });
           } else {
             await database.updateDocument(
-                databaseId: "636d59d7a2f595323a79",
-                collectionId: "636d59df12dcf7a399d5",
+                databaseId: "6729a8be001c8e5fa57a",
+                collectionId: "6729a8c50029409cd062",
                 documentId: user1Data.$id,
                 data: {
                   "userCoins": coinsLeft,
@@ -87,8 +88,8 @@ Future<void> start(final req, final res) async {
           }
 
           await database.createDocument(
-              databaseId: "636d59d7a2f595323a79",
-              collectionId: "637d10c17be1c3d1544d",
+              databaseId: "6729a8be001c8e5fa57a",
+              collectionId: "conversations",
               documentId: chatId,
               data: {
                 "converstationCreationTimestamp":
@@ -111,15 +112,15 @@ Future<void> start(final req, final res) async {
                 Permission.read(Role.user(userId)),
                 Permission.read(Role.user(documentList.documents.first.$id))
               ]);
-          await sendPushNotification(
+          /*  await sendPushNotification(
               dataabases: database,
               recieverNotificationToken:
-                  documentList.documents.first.data["notificationToken"]);
+                  documentList.documents.first.data["notificationToken"]);*/
         }
         if (isUserPremium == true) {
           await database.createDocument(
-              databaseId: "636d59d7a2f595323a79",
-              collectionId: "637d10c17be1c3d1544d",
+              databaseId: "6729a8be001c8e5fa57a",
+              collectionId: "conversations",
               documentId: chatId,
               data: {
                 "converstationCreationTimestamp":
@@ -142,55 +143,55 @@ Future<void> start(final req, final res) async {
                 Permission.read(Role.user(userId)),
                 Permission.read(Role.user(documentList.documents.first.$id))
               ]);
-          await sendPushNotification(
+          /* await sendPushNotification(
               dataabases: database,
               recieverNotificationToken:
-                  documentList.documents.first.data["notificationToken"]);
+                  documentList.documents.first.data["notificationToken"]);*/
         }
 
-        res.json({
-          'status': 200,
-          "message": "correct",
-        });
+        return context.res.json({
+          "message": "REQUEST_SUCCESFULL",
+          "details": "COMPLETED",
+        }, 200);
       }
-      if (userCredits < 100) {
-        res.json({
-          'status': 201,
+      if (userCredits < price) {
+        return context.res.json({
           "message": "LOW_CREDITS",
-        });
+          "details": "COMPLETED",
+        }, 201);
       }
     }
     if (documentList.documents.isEmpty) {
-      res.json({
-        'status': 201,
+      return context.res.json({
         "message": "NO_USERS_FOUND",
-      });
+        "details": "COMPLETED",
+      }, 202);
     }
   } catch (e, s) {
     if (e is AppwriteException) {
-      print({'status': "error", "mesage": e.message, "stackTrace": s});
-      res.json({
-        'status': 500,
+      context.log({'status': "error", "mesage": e.message, "stackTrace": s});
+      return context.res.json({
         "message": "INTERNAL_ERROR",
-      });
+        "details": "SOMETHING_WENT_WRONG",
+      }, 500);
     }
     if (e is NotificationException) {
-      print({'status': "error", "mesage": e.message, "stackTrace": s});
-      res.json({
-        'status': 200,
-        "message": "NOTIFICATION_ERROR",
-      });
-    } else {
-      print({'status': "error", "mesage": e.toString(), "stackTrace": s});
-      res.json({
-        'status': 500,
+      context.log({'status': "error", "mesage": e.message, "stackTrace": s});
+      return context.res.json({
         "message": "INTERNAL_ERROR",
-      });
+        "details": "SOMETHING_WENT_WRONG",
+      }, 500);
+    } else {
+      context.log({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      return context.res.json({
+        "message": "INTERNAL_ERROR",
+        "details": "SOMETHING_WENT_WRONG",
+      }, 500);
     }
   }
 }
 
-Future<void> sendPushNotification(
+/*Future<void> sendPushNotification(
     {required Databases dataabases,
     required String recieverNotificationToken}) async {
   try {
@@ -215,6 +216,31 @@ Future<void> sendPushNotification(
   } catch (e) {
     throw NotificationException(message: e.toString());
   }
+}*/
+
+List<double> getAllLongitudesRange(double currentLon, int distance) {
+  List<double> longitudes = [];
+  double firstLongitude = currentLon;
+  double finalLongitude = firstLongitude - 0.1;
+  longitudes.add(finalLongitude);
+  longitudes.add(currentLon);
+
+  for (int i = 0; i < 5; i++) {
+    finalLongitude = finalLongitude - 0.1;
+
+    longitudes.add(double.parse(finalLongitude.toStringAsFixed(1)));
+  }
+
+  finalLongitude = firstLongitude + 0.1;
+  longitudes.add(finalLongitude);
+
+  for (int i = 0; i < 5; i++) {
+    finalLongitude = finalLongitude + 0.1;
+
+    longitudes.add(double.parse(finalLongitude.toStringAsFixed(1)));
+  }
+
+  return longitudes;
 }
 
 class NotificationException implements Exception {
@@ -224,111 +250,35 @@ class NotificationException implements Exception {
   });
 }
 
-double getMaxLongitude(double currentLon, int distance) {
-  double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 360;
-
-  for (int i = 0; i < distance; i++) {
-    lon = lon + 0.1;
-    lon = double.parse(lon.toStringAsFixed(1));
-  }
-  double result = lon - 360;
-  return result;
-}
-
-double getMinLongitude(double currentLon, int distance) {
-  double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 360;
-
-  for (int i = 0; i < distance; i++) {
-    lon = lon - 0.1;
-    lon = double.parse(lon.toStringAsFixed(1));
-  }
-  double result = lon - 360;
-  return result;
-}
 
 double getMaxLatitude(double currentLon, int distance) {
   double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 90;
 
   for (int i = 0; i < distance; i++) {
     lon = lon + 0.1;
     lon = double.parse(lon.toStringAsFixed(1));
   }
-  double result = lon - 90;
-  return result;
+  return lon;
 }
 
 double getMinLatitude(double currentLon, int distance) {
   double lon = double.parse(currentLon.toStringAsFixed(1));
-  lon = lon + 90;
 
   for (int i = 0; i < distance; i++) {
     lon = lon - 0.1;
     lon = double.parse(lon.toStringAsFixed(1));
   }
-  double result = lon - 98;
-  return result;
+  return lon;
 }
 
-String createId() {
-  List<String> letras = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z"
-  ];
-  List<String> numero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+String createId({required int idLength}) {
+  const String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
   var random = Random();
-  int primeraLetra = random.nextInt(26);
-  String finalCode = letras[primeraLetra];
+  String finalCode = characters[random.nextInt(characters.length)];
 
-  for (int i = 0; i <= 20; i++) {
-    int characterTypeIndicator = random.nextInt(20);
-    int randomWord = random.nextInt(27);
-    int randomNumber = random.nextInt(9);
-    if (characterTypeIndicator <= 2) {
-      characterTypeIndicator = 2;
-    }
-    if (characterTypeIndicator % 2 == 0) {
-      finalCode = "$finalCode${(numero[randomNumber])}";
-    }
-    if (randomWord % 3 == 0) {
-      int mayuscula = random.nextInt(9);
-      if (characterTypeIndicator <= 2) {
-        int suerte = random.nextInt(2);
-        suerte == 0 ? characterTypeIndicator = 3 : characterTypeIndicator = 2;
-      }
-      if (mayuscula % 2 == 0) {
-        finalCode = "$finalCode${(letras[randomWord]).toUpperCase()}";
-      }
-      if (mayuscula % 3 == 0) {
-        finalCode = "$finalCode${(letras[randomWord]).toLowerCase()}";
-      }
-    }
+  for (var i = 0; i < idLength; i++) {
+    finalCode += characters[random.nextInt(characters.length)];
   }
+
   return finalCode;
 }

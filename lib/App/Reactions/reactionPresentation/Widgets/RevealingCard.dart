@@ -368,10 +368,7 @@ class _ReactionCardState extends State<ReactionCard>
                                                     8.0), // Adjust the radius here
                                               ),
                                             ),
-                                            onPressed: widget.reaction
-                                                        .secondsUntilExpiration >
-                                                    5
-                                                ? () {
+                                            onPressed: () {
                                                     if (widget.reaction
                                                             .secondsUntilExpiration >
                                                         5) {
@@ -383,8 +380,8 @@ class _ReactionCardState extends State<ReactionCard>
                                                                   .idReaction,
                                                               showAd: false);
                                                     }
-                                                  }
-                                                : null,
+                                                  },
+                                              
                                             child: Column(
                                               children: [
                                                 Row(

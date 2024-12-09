@@ -316,10 +316,11 @@ class ChatRepoImpl implements ChatRepository {
   Future<Either<Failure, bool>> messagesSeen(
       {required List<Message> messaages}) async {
     try {
-      List<Map<String, dynamic>> messaagesParsed = [];
-      messaages.forEach((element) {
-        messaagesParsed.add(MessageConverter.toMap(element));
-      });
+      List<String> messaagesParsed = [];
+      for(int i=0;i<messaages.length;i++){
+        messaagesParsed.add(messaages[i].messageId);
+      }
+
       await chatDataSource.messagesSeen(messages: messaagesParsed);
       return Right(true);
     } catch (e) {
