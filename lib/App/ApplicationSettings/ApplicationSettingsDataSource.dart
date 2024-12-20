@@ -118,7 +118,6 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
     if (await networkInfoContract.isConnected) {
       try {
-        //)
           var response = await Dependencies.serverAPi.functions.createExecution(
             functionId: "appSettingsUpdate", body: jsonEncode(data));
 
@@ -167,16 +166,16 @@ class ApplicationDataSourceImpl implements ApplicationSettingsDataSource {
 
        
 
-    var response = jsonDecode(execution.responseBody);
-        int status = response["executionCode"];
-        String message = response["message"];
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
         if (status == 200) {
           await Dependencies.serverAPi.account.deleteIdentity(identityId: GlobalDataContainer.userId);
           await authService.logOut();
 
+
           return true;
         } else {
-          throw AppSettingsException(message: "SERVER_ERROR");
+          throw AppSettingsException(message: message);
         }
       } catch (e) {
         if (e is AuthException) {

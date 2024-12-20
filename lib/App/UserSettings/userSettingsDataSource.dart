@@ -91,7 +91,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
   @override
   Future<bool> updateAppSettings(Map<String, dynamic> data) async {
-    /*if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
         // var data = await UserSettingsMapper.toMap(userSettingsEntity);
 
@@ -127,7 +127,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
           }
           if (userPicutreBoxState == UserPicutreBoxState.empty) {
             data["userPicture$pictureIndex"] = jsonEncode({
-              "imageData": "NOT_AVAILABLE",
+              "imageData": kNotAvailable,
               "index": pictureIndex,
               "removed": true,
             });
@@ -137,14 +137,13 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
 
         data["userId"] = GlobalDataContainer.userId;
 
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("updateUserData", [jsonEncode(data)]);
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(functionId: "updateUserData", body: jsonEncode(data));
 
-        var responseParsed = jsonDecode(response);
 
-        int status = responseParsed["executionCode"];
-        String message = responseParsed["message"];
+
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
@@ -160,7 +159,7 @@ class UserSettingsDataSourceImpl implements UserSettingsDataSource {
     } else {
       _addData(data: source.getData);
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }
   }
 
   @override

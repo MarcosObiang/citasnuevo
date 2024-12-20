@@ -28,8 +28,8 @@ Future<dynamic> main(final context) async {
 
     final database = Databases(client);
     final data = context.req.bodyJson;
-    double currentLon = data["lon"] + 180;
-    double currentLat = data["lat"] + 90;
+   double currentLon = double.parse((data["lon"] + 180 as double).toStringAsFixed(1));
+    double currentLat = double.parse((data["lat"] + 90 as double).toStringAsFixed(1));
     bool isShowAdOfferUsed = data["isShowAdOfferUsed"];
     int maxDistance = data["distance"];
     String userId = data["userId"];

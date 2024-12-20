@@ -414,8 +414,9 @@ class Dependencies {
   ///RETURN TRUE IF THE USER EXISTS IN THE DATABASE, IF NOT IT RETURNS FALSE AND ONLY THE USERCREATOR MODULE IS INITIALIZED
   static Future<void> initializeDependencies() async {
     try {
-      //    await PurchasesServices.purchasesServices.initService();
+     // await PurchasesServices.purchasesServices.initService();
       await applicationDataSource.initializeMainDataSource();
+          settingsScreenPresentation.initializeModuleData();
 
       homeScreenPresentation.initializeModuleData();
       chatPresentation.initializeModuleData();
@@ -431,7 +432,6 @@ class Dependencies {
 
       sanctionsPresentation.initializeModuleData();
       advertisingServices.initializeAdsService();
-            settingsScreenPresentation.initializeModuleData();
 
 
       NotificationService instance = new NotificationService();

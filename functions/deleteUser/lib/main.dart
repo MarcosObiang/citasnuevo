@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 
@@ -15,104 +16,123 @@ import 'package:dart_appwrite/dart_appwrite.dart';
   If an error is thrown, a response with code 500 will be returned.
 */
 
-Future<void> start(final req, final res) async {
+Future<dynamic> main(final context) async {
   try {
-    Client client = Client()
-        .setEndpoint('https://www.hottyserver.com/v1') // Your API Endpoint
-        .setProject('636bd00b90e7666f0f6f') // Your project ID
-        .setKey(
-            'fea5a4834f59d20452556c1425ff812265a90d6a0f06ca7f6785663bdc37ce41e1e17b3bb81c73e0d2e236654136e7b4b00e41c735f07cb69c0bc8a1ffe97db7000b9f891ec582eb7359842ed1d12723b98ab6b46588076079bbf95438d767baab61dd4b8da8070ea6f0e0f914f86667361285c50a5fe4ac22be749b3dfea824')
-        .setSelfSigned(status: true);
+    String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
+    String? projectId = Platform.environment["PROJECT_ID"];
+    String? userCollectionId = Platform.environment["USER_DATA_COLELCTION_ID"];
+    String? databaseId = Platform.environment["DATABASE_ID"];
+    String? chatCollectionId =
+        Platform.environment["CONVERSATION_COLLECTION_ID"];
+    String? reportedChatCollectionId =
+        Platform.environment["REPORTED_CHAT_COLLECTION_ID"];
 
+    String? reactionsCollectionId =
+        Platform.environment["REACTIONS_COLLECTION_ID"];
+    String? privateReactionsCollectionId =
+        Platform.environment["PRIVATE_REACTIONS_COLLECTION_ID"];
+
+    String? reportsCollectionId = Platform.environment["REPORTS_COLLECTION_ID"];
+
+    String? messagesCollectionId =
+        Platform.environment["MESSAGES_COLLECTION_ID"];
+    String? usersToAvoidCollectionId =
+        Platform.environment["USERS_TO_AVOID_COLLECTION_ID"];
+
+    String? reportdMessagesCollectionId =
+        Platform.environment["REPORTED_MESSAGES_COLLECTION_ID"];
+
+    String? verificationCollectionId =
+        Platform.environment["VERIFICATION_COLLECTION_ID"];
+
+    Client client = Client()
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject(projectId as String)
+        .setKey(apiKey);
     Databases databases = Databases(client);
     Users users = Users(client);
     Storage storage = Storage(client);
 
-    var data = jsonDecode(req.payload);
+    final data = context.req.bodyJson;
     String userId = data["userId"];
     List<String> chatIds = [];
 // Delete reactions private
     var privateReactions = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374fc078b95d03fb3c1",
+        databaseId: databaseId as String,
+        collectionId: privateReactionsCollectionId as String,
         queries: [Query.equal("senderId", userId)]);
 // Delete reactions
     var reactions = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374fe10e76d07bfe639",
+        databaseId: databaseId as String,
+        collectionId: reactionsCollectionId as String,
         queries: [Query.equal("senderId", userId)]);
 
 // Chats
     var chats1 = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d10c17be1c3d1544d",
+        databaseId: databaseId as String,
+        collectionId: chatCollectionId as String,
         queries: [Query.equal("user1Id", userId)]);
     var chats2 = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "637d10c17be1c3d1544d",
+        databaseId: databaseId as String,
+        collectionId: chatCollectionId as String,
         queries: [Query.equal("user2Id", userId)]);
 // User report profiles
 
     var userReportProfile = await databases.listDocuments(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "6374cbd1eb8543d64263",
+        databaseId: databaseId as String,
+        collectionId: reportsCollectionId as String,
         queries: [Query.equal("userId", userId)]);
 
     for (var element in privateReactions.documents) {
       await databases.deleteDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374fc078b95d03fb3c1",
+          databaseId: databaseId as String,
+          collectionId: privateReactionsCollectionId as String,
           documentId: element.$id);
     }
     for (var element in reactions.documents) {
       await databases.deleteDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374fe10e76d07bfe639",
+          databaseId: databaseId as String,
+          collectionId: reactionsCollectionId,
           documentId: element.$id);
     }
-    for (var element in reactions.documents) {
-      await databases.deleteDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374fe10e76d07bfe639",
-          documentId: element.$id);
-    }
+
     for (var element in chats1.documents) {
       chatIds.add(element.$id);
       await databases.deleteDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "637d10c17be1c3d1544d",
+          databaseId: databaseId as String,
+          collectionId: chatCollectionId as String,
           documentId: element.$id);
     }
     for (var element in chats2.documents) {
       chatIds.add(element.$id);
 
       await databases.deleteDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "637d10c17be1c3d1544d",
+          databaseId: databaseId as String,
+          collectionId: chatCollectionId as String,
           documentId: element.$id);
     }
     for (var element in userReportProfile.documents) {
       await databases.deleteDocument(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "6374cbd1eb8543d64263",
+          databaseId: databaseId as String,
+          collectionId: reportsCollectionId,
           documentId: element.$id);
     }
 
     for (String element in chatIds) {
       var messagesList = await databases.listDocuments(
-          databaseId: "636d59d7a2f595323a79",
-          collectionId: "637d18ff8b3927cce18d",
+          databaseId: databaseId as String,
+          collectionId: messagesCollectionId as String,
           queries: [Query.equal("conversationId", element)]);
       for (var messages in messagesList.documents) {
         await databases.deleteDocument(
-            databaseId: "636d59d7a2f595323a79",
-            collectionId: "637d18ff8b3927cce18d",
+            databaseId: databaseId as String,
+            collectionId: messagesCollectionId as String,
             documentId: messages.$id);
       }
     }
     var userDocument = await databases.getDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: databaseId as String,
+        collectionId: userCollectionId as String,
         documentId: userId);
 
     Map<String, dynamic> userImage1 =
@@ -127,46 +147,60 @@ Future<void> start(final req, final res) async {
         jsonDecode(userDocument.data["userPicture5"]);
     Map<String, dynamic> userImage6 =
         jsonDecode(userDocument.data["userPicture6"]);
-    if (userImage1["imageId"] != "empty") {
+    if (userImage1["imageData"] != "NOT_AVAILABLE") {
       await storage.deleteFile(
-          bucketId: "63712fd65399f32a5414", fileId: userImage1["imageId"]);
+          bucketId: "userPictures", fileId: userImage1["imageData"]);
     }
-    if (userImage2["imageId"] != "empty") {
+    if (userImage2["imageData"] != "NOT_AVAILABLE") {
       await storage.deleteFile(
-          bucketId: "63712fd65399f32a5414", fileId: userImage2["imageId"]);
+          bucketId: "userPictures", fileId: userImage2["imageData"]);
     }
-    if (userImage3["imageId"] != "empty") {
+    if (userImage3["imageData"] != "NOT_AVAILABLE") {
       await storage.deleteFile(
-          bucketId: "63712fd65399f32a5414", fileId: userImage3["imageId"]);
+          bucketId: "userPictures", fileId: userImage3["imageData"]);
     }
-    if (userImage4["imageId"] != "empty") {
+    if (userImage4["imageData"] != "NOT_AVAILABLE") {
       await storage.deleteFile(
-          bucketId: "63712fd65399f32a5414", fileId: userImage4["imageId"]);
+          bucketId: "userPictures", fileId: userImage4["imageData"]);
     }
-    if (userImage5["imageId"] != "empty") {
+    if (userImage5["imageData"] != "NOT_AVAILABLE") {
       await storage.deleteFile(
-          bucketId: "63712fd65399f32a5414", fileId: userImage5["imageId"]);
+          bucketId: "userPictures", fileId: userImage5["imageData"]);
     }
-    if (userImage6["imageId"] != "empty") {
+    if (userImage6["imageData"] != "NOT_AVAILABLE") {
       await storage.deleteFile(
-          bucketId: "63712fd65399f32a5414", fileId: userImage6["imageId"]);
+          bucketId: "userPictures", fileId: userImage6["imageData"]);
     }
     await databases.deleteDocument(
-        databaseId: "636d59d7a2f595323a79",
-        collectionId: "636d59df12dcf7a399d5",
+        databaseId: databaseId as String,
+        collectionId: usersToAvoidCollectionId as String,
+        documentId: userId);
+
+    await databases.deleteDocument(
+        databaseId: databaseId as String,
+        collectionId: userCollectionId as String,
+        documentId: userId);
+
+    await databases.deleteDocument(
+        databaseId: databaseId as String,
+        collectionId: verificationCollectionId as String,
         documentId: userId);
 
     await users.delete(userId: userId);
 
-    res.json({
-      'status': "correct",
-    });
+    return context.res
+        .json({"message": "REQUEST_SUCCESFULL", "details": "COMPLETED"}, 200);
   } catch (e, s) {
-    print(e.toString());
     if (e is AppwriteException) {
-      res.json({'status': "error", "mesage": e.message, "stackTrace": s});
+      context.log({'status': "error", "mesage": e.message, "stackTrace": s});
+
+      return context.res
+          .json({"message": "INTERNAL_ERROR", "details": "COMPLETED"}, 500);
     } else {
-      res.json({'status': "error", "mesage": e.toString(), "stackTrace": s});
+      context.log({'status': "error", "mesage": e.toString(), "stackTrace": s});
+
+      return context.res
+          .json({"message": "INTERNAL_ERROR", "details": "COMPLETED"}, 500);
     }
   }
 }

@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:notify_inapp/notify_inapp.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../../DataManager.dart';
 import '../../PrincipalScreen.dart';
@@ -447,6 +449,11 @@ class ReactionPresentation extends ChangeNotifier
                           animation: animation),
                       duration: Duration(milliseconds: 500));
 
+                  if (event.reaction!.revealed == false&& event.reaction!.reactionValue>33) {
+                    showDiscardedReactionValue(
+                        reactionValue: event.reaction!.reactionValue);
+                  }
+
                   if (reactionsController.reactions.length == 0) {
                     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                       setReactionListState = ReactionListState.empty;
@@ -464,10 +471,7 @@ class ReactionPresentation extends ChangeNotifier
                   });
                 }
               }
-              if (reactionExpireTime != null &&
-                  reactionRevealigState == ReactionRevealigState.notRevealed) {
-                showExpiredINAppNotification(dateTime: reactionExpireTime);
-              }
+
               notifyPrincipalScreen();
             },
             cancelOnError: false,
@@ -483,26 +487,37 @@ class ReactionPresentation extends ChangeNotifier
         Padding(
           padding: EdgeInsets.all(10.h),
           child: Container(
-              height: 150.h,
+              height: 200.h,
               width: ScreenUtil().screenWidth,
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                  color: Theme.of(startKey.currentContext!)
+                      .colorScheme
+                      .primaryContainer,
+                  borderRadius: BorderRadius.all(Radius.circular(5))),
               child: Padding(
                 padding: EdgeInsets.all(10.h),
-                child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text(
-                      AppLocalizations.of(
-                             startKey.currentContext !)!
-                          .revealing_card_new_reaction,
-                      style: GoogleFonts.lato(fontSize: 60.sp),
-                    ),
-                    Text(
-                      AppLocalizations.of(
-                              startKey.currentContext !)!
-                          .revealing_card_you_have_new_reaction,
-                      style: GoogleFonts.lato(fontSize: 40.sp),
+                    Icon(LineAwesomeIcons.heart_1, size: 120.sp),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(startKey.currentContext!)!
+                              .revealing_card_new_reaction,
+                          style: Theme.of(startKey.currentContext!)
+                              .textTheme
+                              .bodyLarge,
+                        ),
+                        Text(
+                          AppLocalizations.of(startKey.currentContext!)!
+                              .revealing_card_you_have_new_reaction,
+                          style: Theme.of(startKey.currentContext!)
+                              .textTheme
+                              .bodyMedium,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -511,34 +526,65 @@ class ReactionPresentation extends ChangeNotifier
         duration: 300);
   }
 
-  void showExpiredINAppNotification({required DateTime dateTime}) {
-    var expireTimeFormat = new DateFormat.yMEd().add_Hms();
-
+  void showDiscardedReactionValue({required int reactionValue}) {
     Notify notify = Notify();
     notify.show(
         startKey.currentContext as BuildContext,
         Padding(
           padding: EdgeInsets.all(10.h),
           child: Container(
-              height: 150.h,
+              height: 200.h,
               width: ScreenUtil().screenWidth,
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: reactionValue > 66 ? Colors.green : Colors.amber,
                   borderRadius: BorderRadius.all(Radius.circular(10))),
               child: Padding(
-                padding: EdgeInsets.all(10.h),
-                child: Column(
+                padding: EdgeInsets.only(
+                    top: 10.h, bottom: 10.h, left: 20.w, right: 20.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      AppLocalizations.of(
-                              startKey.currentContext !)!
-                          .revealing_card_expired_reaction,
-                      style: GoogleFonts.lato(fontSize: 60.sp),
-                    ),
-                    Text(
-                      " Ha caducado el ${expireTimeFormat.format(dateTime)}",
-                      style: GoogleFonts.lato(fontSize: 40.sp),
-                    ),
+                    reactionValue > 66
+                        ? Text(
+                            AppLocalizations.of(startKey.currentContext!)!
+                                .revealing_card_toastForDiscardingLikeMessage,
+                            style: Theme.of(startKey.currentContext!)
+                                .textTheme
+                                .titleMedium!
+                                .apply(color: Colors.white),
+                          )
+                        : Text(
+                            AppLocalizations.of(startKey.currentContext!)!
+                                .revealing_card_toastForDiscardingMaybeMessage,
+                            style: Theme.of(startKey.currentContext!)
+                                .textTheme
+                                .titleMedium!
+                                .apply(color: Colors.black),
+                          ),
+                    CircularPercentIndicator(
+                        circularStrokeCap: CircularStrokeCap.round,
+                        progressColor: Theme.of(startKey.currentContext!)
+                            .colorScheme
+                            .primary,
+                        lineWidth: 20.w,
+                        radius: 90.sp,
+                        startAngle: 360,
+                        percent: reactionValue / 100,
+                        center: reactionValue > 66
+                            ? Text(
+                                "${reactionValue.toStringAsFixed(0)}% ",
+                                style: Theme.of(startKey.currentContext!)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .apply(color: Colors.white),
+                              )
+                            : Text(
+                                "${reactionValue.toStringAsFixed(0)}% ",
+                                style: Theme.of(startKey.currentContext!)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .apply(color: Colors.black),
+                              )),
                   ],
                 ),
               )),

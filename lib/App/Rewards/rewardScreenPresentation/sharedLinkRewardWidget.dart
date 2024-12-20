@@ -70,7 +70,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinTitle,
+                          Text(AppLocalizations.of(context)!.sharedLinkRewardWidget_bonusFirInviteFriendsTitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
@@ -98,7 +98,7 @@ class _SharedLinkRewardWidgetState extends State<SharedLinkRewardWidget>
                         ],
                       ),
                       Text(
-                          AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinMessage,
+                          AppLocalizations.of(context)!.sharedLinkRewardWidget_bonusForInviteFriendsMessage,
                           style: Theme.of(context).textTheme.bodyMedium?.apply(
                               color: Theme.of(context).colorScheme.onSurface)),
                       FilledButton.tonal(

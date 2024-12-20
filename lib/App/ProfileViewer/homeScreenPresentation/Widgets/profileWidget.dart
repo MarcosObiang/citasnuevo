@@ -49,7 +49,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   double ratingValue = 50;
   bool showAd = true;
   bool showRatingWall = false;
-  bool showRatingSlider=false;
+  bool showRatingSlider = false;
 
   @override
   void initState() {
@@ -122,50 +122,52 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                         ],
                       ),
                     ),
-                   widget.needRatingWidget==true? Flexible(
-                      flex: 4,
-                      fit: FlexFit.loose,
-                      child: Center(
-                          child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 2,
+                    widget.needRatingWidget == true
+                        ? Flexible(
+                            flex: 4,
                             fit: FlexFit.loose,
-                            child: SvgPicture.asset(
-                              "assets/passEmoji.svg",
-                              height: 150.sp,
-                              width: 150.sp,
-                            ),
-                          ),
-                          Flexible(
-                            flex: 10,
-                            fit: FlexFit.tight,
-                            child: Slider.adaptive(
-                                onChangeStart: (value) {
-                                  showRatingWall = true;
-                                  setState(() {});
-                                },
-                                max: 100,
-                                min: 1,
-                                value: ratingValue,
-                                onChanged: (value) {
-                                  ratingValue = value;
-                                  setState(() {});
-                                }),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            fit: FlexFit.loose,
-                            child: Icon(
-                              LineAwesomeIcons.heart_1,
-                              size: 150.sp,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      )),
-                    ):Container()
+                            child: Center(
+                                child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.loose,
+                                  child: SvgPicture.asset(
+                                    "assets/passEmoji.svg",
+                                    height: 150.sp,
+                                    width: 150.sp,
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 10,
+                                  fit: FlexFit.tight,
+                                  child: Slider.adaptive(
+                                      onChangeStart: (value) {
+                                        showRatingWall = true;
+                                        setState(() {});
+                                      },
+                                      max: 100,
+                                      min: 1,
+                                      value: ratingValue,
+                                      onChanged: (value) {
+                                        ratingValue = value;
+                                        setState(() {});
+                                      }),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.loose,
+                                  child: Icon(
+                                    LineAwesomeIcons.heart_1,
+                                    size: 150.sp,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            )),
+                          )
+                        : Container()
                   ],
                 ))
             : Center(
@@ -242,7 +244,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       height: widget.boxConstraints.maxHeight,
       width: widget.boxConstraints.maxWidth,
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withAlpha(200),
+          color: ratingValue <= 33
+              ? const Color.fromARGB(146, 255, 7, 7)
+              : ratingValue <= 66 && ratingValue > 33
+                  ? const Color.fromARGB(159, 255, 193, 7)
+                  : const Color.fromARGB(159, 76, 175, 79),
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Padding(
         padding: EdgeInsets.all(40.h),
@@ -259,7 +265,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 percent: ratingValue / 100,
                 center: Text(
                   "${ratingValue.toStringAsFixed(0)}% ",
-                  style: Theme.of(context).textTheme.displaySmall,
+                  style: Theme.of(context).textTheme.displaySmall!.apply(color: ratingValue <= 33 || ratingValue > 66
+                            ? Colors.white
+                            : Colors.black),
                 )),
             /*  Container(
               height: 200.h,
@@ -278,15 +286,19 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                             style: Theme.of(context)
                                 .textTheme
                                 .displaySmall!
-                                .apply(fontWeightDelta: 2),
+                                .apply(fontWeightDelta: 2, color: Colors.white),
                           ),
                           SvgPicture.asset("assets/passEmoji.svg")
                         ],
                       ),
                       Text(
-                        AppLocalizations.of(context)!.rating_dislike_description,
+                        AppLocalizations.of(context)!
+                            .rating_dislike_description,
                         textAlign: TextAlign.left,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall!
+                            .apply(color: Colors.white),
                       ),
                     ],
                   )
@@ -298,7 +310,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                               AppLocalizations.of(context)!.rating_maybe,
+                                AppLocalizations.of(context)!.rating_maybe,
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall!
@@ -308,7 +320,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                             ],
                           ),
                           Text(
-                            AppLocalizations.of(context)!.rating_maybe_description,
+                            AppLocalizations.of(context)!
+                                .rating_maybe_description,
                             textAlign: TextAlign.left,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
@@ -325,15 +338,21 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall!
-                                    .apply(fontWeightDelta: 2),
+                                    .apply(
+                                        fontWeightDelta: 2,
+                                        color: Colors.white),
                               ),
                               SvgPicture.asset("assets/likeEmojy.svg")
                             ],
                           ),
                           Text(
-                            AppLocalizations.of(context)!.rating_like_description,
+                            AppLocalizations.of(context)!
+                                .rating_like_description,
                             textAlign: TextAlign.left,
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall!
+                                .apply(color: Colors.white),
                           ),
                         ],
                       ),
@@ -349,14 +368,22 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                     showRatingWall = false;
                     setState(() {});
                   },
-                  child: Text(AppLocalizations.of(context)!.rating_go_back_to_profile_button),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .rating_go_back_to_profile_button,
+                    style: TextStyle(
+                        color: ratingValue <= 33 || ratingValue > 66
+                            ? Colors.white
+                            : Colors.black),
+                  ),
                 ),
                 FilledButton(
                   onPressed: () {
                     rateWithMaybe(homeScreenPresentation);
                     ratingValue = 50;
                   },
-                  child: Text(AppLocalizations.of(context)!.rating_send_rating_and_continue_button),
+                  child: Text(AppLocalizations.of(context)!
+                      .rating_send_rating_and_continue_button),
                 ),
               ],
             )
@@ -404,7 +431,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   void generateList() {
     for (int i = 0; i < widget.images.length; i++) {
       dynamic imagen = widget.images[i]["imageData"];
-      if (imagen != null&&imagen!=kNotAvailable) {
+      if (imagen != null && imagen != kNotAvailable) {
         widgetList.add(ProfilePicture(
           isFirstPicture: i == 0 ? true : false,
           profilePicture: widget.images[i],
@@ -413,7 +440,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       }
     }
 
-   widgetList.insert(
+    widgetList.insert(
         1,
         ProfileDescription(
           bio: widget.profile.bio,

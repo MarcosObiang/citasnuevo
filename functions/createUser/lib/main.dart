@@ -38,6 +38,8 @@ Future<dynamic> main(final context) async {
   try {
     String apiKey = Platform.environment["APPWRITE_FUNCTIONS_APIKEY"]!;
     String? projectId = Platform.environment["PROJECT_ID"];
+    String? userCollectionId = Platform.environment["USER_DATA_COLELCTION_ID"];
+    String? databaseId = Platform.environment["DATABASE_ID"];
     Client client = Client()
         .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
         .setProject(projectId as String)
@@ -56,7 +58,10 @@ Future<dynamic> main(final context) async {
     Map<String, double> coordenadas;
     String promotionalCode = data["promotionalCodeUsedByUser"];
     bool promotionalCodeExists = await verifyPromotionalCode(
-        promotionalCode: promotionalCode, databases: databases);
+        promotionalCode: promotionalCode,
+        databases: databases,
+        databaseId: databaseId as String,
+        collectionId: userCollectionId as String);
     bool promotionalCodePendingOfUse = false;
 
     List<Map<String, dynamic>> userPicturesIds = [
@@ -73,11 +78,16 @@ Future<dynamic> main(final context) async {
       promotionalCodePendingOfUse = false;
     }
 
-    await updatePicturesPermissions(
+    userPicturesIds = await uploadPictures(
         userPicturesIds: userPicturesIds, userId: userId, storage: storage);
 
-    await pictureVerification(images: userPicturesIds, storage: storage);
-    verifyPictureId(userPicturesIds, userId);
+    data["userPicture1"] = jsonEncode(userPicturesIds[0]);
+    data["userPicture2"] = jsonEncode(userPicturesIds[1]);
+    data["userPicture3"] = jsonEncode(userPicturesIds[2]);
+    data["userPicture4"] = jsonEncode(userPicturesIds[3]);
+    data["userPicture5"] = jsonEncode(userPicturesIds[4]);
+    data["userPicture6"] = jsonEncode(userPicturesIds[5]);
+
     verifyAppSettings(jsonDecode(data["userSettings"]));
     verifyPositionData(data["positionLat"], data["positionLon"]);
     verifyUserAge(data["userBirthDate"]);
@@ -104,7 +114,7 @@ Future<dynamic> main(final context) async {
         databaseId: "6729a8be001c8e5fa57a",
         collectionId: "usersToAvoid",
         documentId: userId,
-        data: {"userId": userId, "usersToAvoid": []});
+        data: {"usersToAvoid": []});
     await createReportModel(client: client, data: data);
 
     await createUserData(
@@ -119,9 +129,13 @@ Future<dynamic> main(final context) async {
     context.log(s);
 
     if (e is AppwriteException) {
+      context.log(e.message);
+
       return context.res
           .json({"message": "INTERNAL_ERROR", "details": e.message}, 500);
     } else {
+      context.log(e.toString());
+
       return context.res
           .json({"message": "INTERNAL_ERROR", "details": e.toString()}, 500);
     }
@@ -191,8 +205,11 @@ Future<Document> createUserData(
         "userSex": data["userSex"],
         "userBio": data["userBio"],
         "userCoins": 0,
-        "userLongitude": [double.parse((data["positionLon"]as double).toStringAsFixed(1))],
-        "userLatitude": double.parse((data["positionLat"] as double).toStringAsFixed(1)),
+        "userLongitude": [
+          double.parse((data["positionLon"] as double).toStringAsFixed(1))
+        ],
+        "userLatitude":
+            double.parse((data["positionLat"] as double).toStringAsFixed(1)),
         "userSettings": data["userSettings"],
         "waitingRewards": false,
         "giveFirstReward": true,
@@ -248,22 +265,33 @@ Future<Document> createUserData(
   return document;
 }
 
-Future<void> updatePicturesPermissions(
+Future<List<Map<String, dynamic>>> uploadPictures(
     {required List<Map<String, dynamic>> userPicturesIds,
     required String userId,
     required Storage storage}) async {
+  List<Map<String, dynamic>> listafotos = List.empty(growable: true);
   for (int i = 0; i < userPicturesIds.length; i++) {
     if (userPicturesIds[i]["imageData"] != null &&
         userPicturesIds[i]["imageData"] != "NOT_AVAILABLE") {
-      await storage.updateFile(
+      File file = await storage.createFile(
           bucketId: "userPictures",
-          fileId: userPicturesIds[i]["imageData"]!,
+          fileId: "${userId}-image${i + 1}",
+          file: InputFile.fromBytes(
+              bytes: base64Decode(userPicturesIds[i]["imageData"])!,
+              filename: "${userId}-image${i + 1}"),
           permissions: [
             Permission.read(Role.users("verified")),
-            Permission.update(Role.user(userId))
           ]);
+
+      listafotos.add(userPicturesIds[i]);
+      listafotos[i]["imageData"] = file.$id;
+    } else {
+      listafotos.add(userPicturesIds[i]);
+      listafotos[i]["imageData"] = "NOT_AVAILABLE";
     }
   }
+
+  return listafotos;
 }
 
 ///Verifies that user pictures ids are  in the expected format
@@ -316,21 +344,24 @@ bool verifyPictureId(
 }
 
 Future<bool> verifyPromotionalCode(
-    {required String promotionalCode, required Databases databases}) async {
+    {required String promotionalCode,
+    required Databases databases,
+    required String databaseId,
+    required String collectionId}) async {
   bool verified = false;
   try {
     if (promotionalCode.isNotEmpty) {
       var ownerOfPromotionalCodeUserData = await databases.listDocuments(
-          databaseId: "6729a8be001c8e5fa57a",
-          collectionId: "6729a8c50029409cd062",
+          databaseId: databaseId,
+          collectionId: collectionId,
           queries: [Query.equal("rewardTicketCode", promotionalCode)]);
       if (ownerOfPromotionalCodeUserData.total > 0) {
         int amountOfRewardTicketSuccesfulShares = ownerOfPromotionalCodeUserData
                 .documents.first.data["rewardTicketSuccesfulShares"] +
             1;
         await databases.updateDocument(
-            databaseId: "6729a8be001c8e5fa57a",
-            collectionId: "6729a8c50029409cd062",
+            databaseId: databaseId,
+            collectionId: collectionId,
             documentId: ownerOfPromotionalCodeUserData.documents.first.$id,
             data: {
               "rewardTicketSuccesfulShares": amountOfRewardTicketSuccesfulShares
@@ -364,8 +395,7 @@ Future<bool> verifyPromotionalCode(
 void verifyUserCharacterisitcs(Map<String, dynamic> userCharacteristic) {
   try {
     int alcohol = userCharacteristic["userCharacteristics_alcohol"];
-    int lookingFor =
-        userCharacteristic["userCharacteristics_what_he_looks"];
+    int lookingFor = userCharacteristic["userCharacteristics_what_he_looks"];
     int bodyType = userCharacteristic["userCharacteristics_bodyType"];
     int children = userCharacteristic["userCharacteristics_children"];
     int pets = userCharacteristic["userCharacteristics_pets"];
@@ -374,8 +404,7 @@ void verifyUserCharacterisitcs(Map<String, dynamic> userCharacteristic) {
     int smoke = userCharacteristic["userCharacteristics_smokes"];
     int personality = userCharacteristic["userCharacteristics_personality"];
     int zodiacSign = userCharacteristic["userCharacteristics_zodiak"];
-    int sexuality=userCharacteristic["userCharacteristics_sexualO"];
-
+    int sexuality = userCharacteristic["userCharacteristics_sexualO"];
 
     if ((alcohol >= 0 && alcohol <= 4) &&
         (lookingFor >= 0 && lookingFor <= 4) &&
@@ -386,7 +415,10 @@ void verifyUserCharacterisitcs(Map<String, dynamic> userCharacteristic) {
         (livingWith >= 0 && livingWith <= 3) &&
         (smoke >= 0 && smoke <= 4) &&
         (personality >= 0 && personality <= 3) &&
-        (zodiacSign >= 0 && zodiacSign <= 12&&sexuality>=0&&sexuality<=8)) {
+        (zodiacSign >= 0 &&
+            zodiacSign <= 12 &&
+            sexuality >= 0 &&
+            sexuality <= 8)) {
     } else {
       throw Exception("error_verify_user_characteristcs");
     }
@@ -462,30 +494,6 @@ void nameVerification({required String name}) {
     throw Exception(
       {
         "error": "EXPECTED_ERROR:ERROR_VERIFICATION_USER_NAME",
-        "errorMessage": e.toString(),
-        "stackTrace": s
-      },
-    );
-  }
-}
-
-Future<void> pictureVerification(
-    {required List<Map<String, dynamic>> images,
-    required Storage storage}) async {
-  try {
-    bool result = false;
-
-    for (int i = 0; i < images.length; i++) {
-      if (images[i]["imageData"] != "NOT_AVAILABLE") {
-        await storage.getFile(
-            bucketId: "userPictures", fileId: images[i]["imageData"]);
-        result = true;
-      }
-    }
-  } catch (e, s) {
-    throw Exception(
-      {
-        "error": "EXPECTED_ERROR:ERROR_VERIFICATION_PICTURE_DATA",
         "errorMessage": e.toString(),
         "stackTrace": s
       },

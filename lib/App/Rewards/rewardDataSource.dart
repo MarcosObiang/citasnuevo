@@ -53,18 +53,18 @@ class RewardDataSourceImpl implements RewardDataSource {
       new StreamController.broadcast();
   @override
   Future<void> getDailyReward() async {
-    /*    if (await Dependencies.networkInfoContract.isConnected) {
-  try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("giveFirstReward", [
-          jsonEncode(
-              {"firstReward": false, "userId": GlobalDataContainer.userId})
-        ]);
-        var responseDecoded = jsonDecode(response);
+    if (await Dependencies.networkInfoContract.isConnected) {
+      try {
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "giveDailyReward",
+                body: jsonEncode({
+                  "firstReward": true,
+                  "userId": GlobalDataContainer.userId
+                }));
 
-        int status = responseDecoded["executionCode"];
-        String message = responseDecoded["message"];
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           Dependencies.advertisingServices.closeStream();
@@ -74,17 +74,17 @@ class RewardDataSourceImpl implements RewardDataSource {
         }
       } catch (e) {
         Dependencies.advertisingServices.closeStream();
-        throw RewardException(message: "Error");
+        throw RewardException(message: e.toString());
       }
     } else {
-        Dependencies.advertisingServices.closeStream();
+      Dependencies.advertisingServices.closeStream();
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
+    }
   }
 
   @override
   Future<bool> getDynamicLink() async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    /* if (await Dependencies.networkInfoContract.isConnected) {
       try {
         final response = await Dependencies
             .serverAPi.app!.currentUser!.functions
@@ -107,7 +107,8 @@ class RewardDataSourceImpl implements RewardDataSource {
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }*/
+    return true;
   }
 
   @override
@@ -161,81 +162,79 @@ class RewardDataSourceImpl implements RewardDataSource {
 
   @override
   Future<bool> getFrstReward() async {
- /*   if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("giveFirstReward", [
-          jsonEncode(
-              {"firstReward": true, "userId": GlobalDataContainer.userId})
-        ]);
-        dynamic responseDecoded = jsonDecode(response);
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "giveDailyReward",
+                body: jsonEncode({
+                  "firstReward": true,
+                  "userId": GlobalDataContainer.userId
+                }));
 
-        int status = responseDecoded["executionCode"];
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
         } else {
-          throw RewardException(message: "Error");
+          throw RewardException(message: message);
         }
       } catch (e) {
-        throw RewardException(message: "Error");
+        throw RewardException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }
   }
 
   @override
   Future<bool> usePromotionalCode() async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("usePromotionalCode", [
-          jsonEncode({"userId": GlobalDataContainer.userId})
-        ]);
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "usePromotionalCode",
+                body: jsonEncode({"userId": GlobalDataContainer.userId}));
 
-        dynamic responseDecoded = jsonDecode(response);
-
-        int status = int.parse(responseDecoded["executionCode"]);
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
 
         if (status == 200) {
           return true;
         } else {
-          throw RewardException(message: "Error");
+          throw RewardException(message: message);
         }
       } catch (e) {
-        throw RewardException(message: "Error");
+        throw RewardException(message: e.toString());
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/ return true;
+    }
   }
 
   @override
   Future<bool> rewardTicketSuccesfulShares() async {
-   /* if (await Dependencies.networkInfoContract.isConnected) {
+    if (await Dependencies.networkInfoContract.isConnected) {
       try {
-        final response = await Dependencies
-            .serverAPi.app!.currentUser!.functions
-            .call("rewardSuccesfulTicketShares", [
-          jsonEncode({"userId": GlobalDataContainer.userId})
-        ]);
-        dynamic responseDecoded = jsonDecode(response);
-        int status = responseDecoded["executionCode"];
+        Execution execution = await Dependencies.serverAPi.functions
+            .createExecution(
+                functionId: "rewardTicketSuccesfulShares",
+                body: jsonEncode({"userId": GlobalDataContainer.userId}));
+
+        int status = execution.responseStatusCode;
+        String message = jsonDecode(execution.responseBody)["message"];
         if (status == 200) {
           return true;
         } else {
-          throw RewardException(message: responseDecoded["message"]);
+          throw RewardException(message: message);
         }
       } catch (e) {
         throw RewardException(message: "Error: $e");
       }
     } else {
       throw NetworkException(message: kNetworkErrorMessage);
-    }*/
-    return true;
+    }
   }
 
   @override

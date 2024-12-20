@@ -67,14 +67,13 @@ class _ReactionCardState extends State<ReactionCard>
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.forward) {
-        
-            _revealingRotationValue = pi;
-            if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
-              remitentImageData = ImageFile.getFile(
-                  fileId: widget.reaction.imageUrl["imageData"],bucketId: kUserPicturesBucketId);
-            }
-            showCard = true;
-          
+          _revealingRotationValue = pi;
+          if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
+            remitentImageData = ImageFile.getFile(
+                fileId: widget.reaction.imageUrl["imageData"],
+                bucketId: kUserPicturesBucketId);
+          }
+          showCard = true;
         }
       });
 
@@ -99,8 +98,9 @@ class _ReactionCardState extends State<ReactionCard>
       _reactionTypeBadgeAnimationController.forward();
 
       if (widget.reaction.imageUrl["imageData"] != "NOT_AVAILABLE") {
-        remitentImageData =
-            ImageFile.getFile(fileId: widget.reaction.imageUrl["imageData"],bucketId: kUserPicturesBucketId);
+        remitentImageData = ImageFile.getFile(
+            fileId: widget.reaction.imageUrl["imageData"],
+            bucketId: kUserPicturesBucketId);
       }
       showCard = true;
     } else {
@@ -279,7 +279,9 @@ class _ReactionCardState extends State<ReactionCard>
                                                         MainAxisAlignment.start,
                                                     children: [
                                                       Text(
-                                                        "La oferta termina en",
+                                                        AppLocalizations.of(
+                                                                context)!
+                                                            .revealing_card_offer_ends_in_message,
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .titleLarge!
@@ -291,8 +293,14 @@ class _ReactionCardState extends State<ReactionCard>
                                                       ),
                                                       Text(
                                                         reactionTimeFormat
-                                                            .format(DateTime(0,0,0,0,0,snapshot!.data as int)
-                                                                ),
+                                                            .format(DateTime(
+                                                                0,
+                                                                0,
+                                                                0,
+                                                                0,
+                                                                0,
+                                                                snapshot!.data
+                                                                    as int)),
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .titleLarge!
@@ -304,7 +312,9 @@ class _ReactionCardState extends State<ReactionCard>
                                                       ),
                                                     ],
                                                   )
-                                                : Text("La oferta ha caducado"),
+                                                : Text(AppLocalizations.of(
+                                                        context)!
+                                                    .revealing_card_offer_has_expired),
                                             ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   shape: RoundedRectangleBorder(
@@ -338,8 +348,9 @@ class _ReactionCardState extends State<ReactionCard>
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                        Text(
-                                                            "Revelar con anuncio"),
+                                                        Text(AppLocalizations
+                                                                .of(context)!
+                                                            .revealin_card_with_offer),
                                                         Row(
                                                           children: [
                                                             Text("200"),
@@ -369,19 +380,12 @@ class _ReactionCardState extends State<ReactionCard>
                                               ),
                                             ),
                                             onPressed: () {
-                                                    if (widget.reaction
-                                                            .secondsUntilExpiration >
-                                                        5) {
-                                                      Dependencies
-                                                          .reactionPresentation
-                                                          .revealReaction(
-                                                              reactionId: widget
-                                                                  .reaction
-                                                                  .idReaction,
-                                                              showAd: false);
-                                                    }
-                                                  },
-                                              
+                                              Dependencies.reactionPresentation
+                                                  .revealReaction(
+                                                      reactionId: widget
+                                                          .reaction.idReaction,
+                                                      showAd: false);
+                                            },
                                             child: Column(
                                               children: [
                                                 Row(
@@ -389,12 +393,74 @@ class _ReactionCardState extends State<ReactionCard>
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Text("Revelar sin anuncio"),
+                                                    Text(AppLocalizations.of(
+                                                            context)!
+                                                        .revealing_card_reveal_without_ad),
                                                     Row(
                                                       children: [
                                                         Text("400"),
                                                         Icon(LineAwesomeIcons
                                                             .coins),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(
+                                                    8.0), // Adjust the radius here
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              Dependencies.reactionPresentation
+                                                  .rejectReaction(
+                                                reactionId:
+                                                    widget.reaction.idReaction,
+                                              );
+                                            },
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .revealing_card_delete_reaction,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleMedium
+                                                          ?.apply(
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .onError),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons
+                                                              .delete_outline_rounded,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onError,
+                                                        ),
                                                       ],
                                                     )
                                                   ],

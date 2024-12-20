@@ -28,19 +28,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late Future<Uint8List> remitentImageData;
+  Future<Uint8List>? remitentImageData;
 
   @override
   void initState() {
     super.initState();
-
-   remitentImageData = ImageFile.getFile(
-        fileId:
-            Dependencies.settingsScreenPresentation.settingsEntity.userPicture,bucketId: kUserPicturesBucketId);
-            
   }
 
- /* @override
+  /* @override
   void didChangeDependencies() {
    /* remitentImageData = ImageFile.getFile(
         fileId:
@@ -68,8 +63,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               (BuildContext context,
                   SettingsScreenPresentation settingsScreenPresentation,
                   Widget? child) {
+            if (remitentImageData == null &&
+                settingsScreenPresentation.settingsEntity.userPicture !=
+                    kNotAvailable) {
+              remitentImageData = ImageFile.getFile(
+                  bucketId: kUserPicturesBucketId,
+                  fileId: Dependencies
+                      .settingsScreenPresentation.settingsEntity.userPicture);
+            }
+
             return Container(
-        color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surface,
               child: settingsScreenPresentation.settingsScreenState ==
                       SettingsScreenState.loaded
                   ? Column(children: [
@@ -80,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             future: remitentImageData,
                             builder: (BuildContext context,
                                 AsyncSnapshot<Uint8List> snapshot) {
-                          ;
+                              ;
                               return Column(
                                 children: [
                                   snapshot.hasData
@@ -112,7 +116,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               TextButton.icon(
-                                  label: Text(AppLocalizations.of(context)!.settings_title),
+                                  label: Text(AppLocalizations.of(context)!
+                                      .settings_title),
                                   onPressed: () {
                                     Navigator.push(context,
                                         GoToRoute(page: AppSettingsScreen()));
@@ -139,7 +144,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ],
                                   )),
                               TextButton.icon(
-                                  label: Text(AppLocalizations.of(context)!.settings_editProfile),
+                                  label: Text(AppLocalizations.of(context)!
+                                      .settings_editProfile),
                                   onPressed: () {
                                     Navigator.push(context,
                                         GoToRoute(page: UserSettingsScreen()));
@@ -183,8 +189,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: () =>
                                     settingsScreenPresentation.restart(),
                                 icon: Icon(Icons.refresh),
-                                label: Text(AppLocalizations.of(context)!
-                                    .try_again)),
+                                label: Text(
+                                    AppLocalizations.of(context)!.try_again)),
                           ))
                       : Container(
                           color: Colors.white,
@@ -230,21 +236,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color: Colors.white, fontSize: 90.sp),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.settings_hottyPlus_infiniteCoins,
+                          AppLocalizations.of(context)!
+                              .settings_hottyPlus_infiniteCoins,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 60.sp),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.settings_hottyPlus_infiniteCoinsDescription,
+                          AppLocalizations.of(context)!
+                              .settings_hottyPlus_infiniteCoinsDescription,
                           style: GoogleFonts.lato(color: Colors.white),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.settings_hottyPlus_noAds,
+                          AppLocalizations.of(context)!
+                              .settings_hottyPlus_noAds,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 60.sp),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.settings_hottyPlus_noAdsDescription,
+                          AppLocalizations.of(context)!
+                              .settings_hottyPlus_noAdsDescription,
                           style: GoogleFonts.lato(color: Colors.white),
                         ),
                       ],
@@ -258,7 +268,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text(AppLocalizations.of(context)!.settings_hottyPlus_from),
+                          Text(AppLocalizations.of(context)!
+                              .settings_hottyPlus_from),
                           Text(settingsScreenPresentation
                               .settingsEntity.subscriptionPrice),
                         ],
@@ -283,7 +294,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.transparent,
                         ),
                         Text(
-                          AppLocalizations.of(context)!.settings_hottyPlus_thanksForUsing,
+                          AppLocalizations.of(context)!
+                              .settings_hottyPlus_thanksForUsing,
                           style: GoogleFonts.lato(
                               color: Colors.white, fontSize: 60.sp),
                         ),
@@ -292,7 +304,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.transparent,
                         ),
                         Text(
-                          AppLocalizations.of(context)!.settings_hottyPlus_manageSubscription,
+                          AppLocalizations.of(context)!
+                              .settings_hottyPlus_manageSubscription,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.lato(color: Colors.white),
                         ),
@@ -304,7 +317,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Navigator.push(
                             context, GoToRoute(page: SubscriptionsMenu()));
                       },
-                      child: Text(AppLocalizations.of(context)!.settings_hottyPlus_manageSubscriptionButton))
+                      child: Text(AppLocalizations.of(context)!
+                          .settings_hottyPlus_manageSubscriptionButton))
                 ],
               ),
       ),

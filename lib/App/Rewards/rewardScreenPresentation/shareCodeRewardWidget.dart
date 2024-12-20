@@ -74,12 +74,10 @@ class _ShareCodeRewardCardState extends State<ShareCodeRewardCard>
                     color: Colors.transparent,
                     height: 50.h,
                   ),
-                  Row(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(AppLocalizations.of(context)!.shareCodeRewardWidget_inviteAFriendAndWinCodeTitle,
-                          style: Theme.of(context).textTheme.bodyMedium?.apply(
-                              color: Theme.of(context).colorScheme.onSurface)),
+                 
                       SelectableText(
                         widget.rewardScreenPresentation.sharingLink as String,
                       ),
@@ -94,7 +92,7 @@ class _ShareCodeRewardCardState extends State<ShareCodeRewardCard>
                                     .sharingLink as String));
                           },
                           child: Text(
-                            AppLocalizations.of(context)!.sharedLinkRewardWidget_bonusForInviteFriendsTitle,
+                            AppLocalizations.of(context)!.shareCoderewardWidget_copyRewardCode,
                           ))
                     ],
                   ),

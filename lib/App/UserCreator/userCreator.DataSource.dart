@@ -62,14 +62,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
     }
   }
 
-  Future<String> updateUserPicture(Uint8List imageFile, String userId,int index) async {
-    String picutreUrl = kNotAvailable;
-    Storage storage = Storage(Dependencies.serverAPi.client);
 
-    final file= await storage.createFile(bucketId: "userPictures", fileId: "${userId}-image$index", file: InputFile.fromBytes(bytes: imageFile, filename: "${userId}-image$index"),permissions: [Permission.read(Role.any())]);
-    picutreUrl = file.$id;
-    return picutreUrl;
-  }
 
   @override
   Future<bool> createUser({required Map<String, dynamic> userData}) async {
@@ -127,7 +120,7 @@ class UserCreatorDataSourceImpl implements UserCreatorDataSource {
               Uint8List imageFile = userPictureList[i]["data"];
 
               dataToCloud["userPicture$pictureIndex"] = jsonEncode({
-                "imageData": await updateUserPicture(imageFile, GlobalDataContainer.userId, int.parse(pictureIndex)),
+                "imageData": base64Encode(imageFile),
                 "index": int.parse(pictureIndex),
                 "removed": false,
               });

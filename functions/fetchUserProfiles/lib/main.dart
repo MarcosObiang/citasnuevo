@@ -49,7 +49,7 @@ Future<dynamic> main(final context) async {
         databaseId: "6729a8be001c8e5fa57a",
         collectionId: "6729a8c50029409cd062",
         queries: [
-                    Query.orderDesc("lastRatingTimestamp"),
+          Query.orderDesc("lastRatingTimestamp"),
 
           Query.equal(
               "userLongitude", getAllLongitudesRange(currentLon, maxDistance)),

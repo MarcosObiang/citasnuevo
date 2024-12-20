@@ -27,9 +27,7 @@ class AuthServiceImpl implements AuthService {
       {required SignInProviders signInProviders}) async {
     try {
       final f = await Dependencies.serverAPi.account
-          .createOAuth2Session(provider: OAuthProvider.google,scopes: [
-
-      ]);
+          .createOAuth2Session(provider: OAuthProvider.google, scopes: []);
       final user = await Dependencies.serverAPi.account.get();
 
       GlobalDataContainer.userId = user.$id;
@@ -65,10 +63,8 @@ class AuthServiceImpl implements AuthService {
       );
       final user;
 
-   
-
       if (session.current) {
-       User user= await Dependencies.serverAPi.account.get();
+        User user = await Dependencies.serverAPi.account.get();
         GlobalDataContainer.userId = user.$id;
         GlobalDataContainer.userEmail = user.email ?? "";
         GlobalDataContainer.userName = user.name ?? "";
@@ -96,14 +92,29 @@ class AuthServiceImpl implements AuthService {
         };
       }
     } catch (e) {
+      if (e is AppwriteException) {
+        if (e.message == "User (role: guests) missing scope (account)") {
+          return {
+            "status": "NOT_SIGNED_IN",
+            "userId": kNotAvailable,
+            "email": kNotAvailable,
+            "userName": kNotAvailable,
+            "userDataExists": false
+          };
+        }
+        throw Exception(e.message);
+      }
+      else{
       throw Exception(e.toString());
+
+      }
+
     }
   }
 
   @override
   Future<Map<String, dynamic>> logOut() async {
     try {
-      
       await Dependencies.serverAPi.account.deleteSession(sessionId: "current");
 
       Dependencies.clearDependenciesAndUserIdentifiers();

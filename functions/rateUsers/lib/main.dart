@@ -110,10 +110,10 @@ Future<dynamic> main(final context) async {
             "expirationTimestamp": expirationTimestamp,
             "reactionId": reactionId,
             "recieverId": recieverId,
-            "senderId": "NOT_AVAILABLE",
+            "senderId": userId,
             "reactionRevealed": false,
             "senderName": "NOT_AVAILABLE",
-            "reactionValue": 0,
+            "reactionValue": reactionValue,
             "userPicture": "NOT_AVAILABLE",
           },
           permissions: [
